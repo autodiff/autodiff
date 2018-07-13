@@ -1,2 +1,1 @@
-# autodiff
-autodiff - it can't get simpler to evaluate derivatives!
+[![autodiff](art/autodiff-header.svg)](https://github.com/reaktoro/autodiff)
