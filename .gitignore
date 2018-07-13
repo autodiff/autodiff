@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# Build files
+build/
+
+# Eclipse files
+.cproject
+.project
+language.settings.xml
