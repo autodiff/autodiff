@@ -19,29 +19,20 @@ struct Expr
     virtual double grad(const ExprPtr& param) const = 0;
 };
 
-struct UnaryExpr : Expr
+struct ParameterExpr : Expr
 {
-    UnaryExpr(const ExprPtr& x) : x(x) {}
-    ExprPtr x;
-};
+    ValuePtr val;
 
-struct BinaryExpr : Expr
-{
-    BinaryExpr(const ExprPtr& l, const ExprPtr& r) : l(l), r(r) {}
-    ExprPtr l;
-    ExprPtr r;
-};
+    explicit ParameterExpr(const ValuePtr& val) : val(val) {}
 
-struct ZeroExpr : Expr
-{
     virtual double eval() const
     {
-        return 0.0;
+        return *val;
     }
 
     virtual double grad(const ExprPtr& param) const
     {
-        return 0.0;
+        return this == param.get();
     }
 };
 
@@ -60,6 +51,47 @@ struct ConstantExpr : Expr
     {
         return 0.0;
     }
+};
+
+struct ZeroExpr : Expr
+{
+    virtual double eval() const
+    {
+        return 0.0;
+    }
+
+    virtual double grad(const ExprPtr& param) const
+    {
+        return 0.0;
+    }
+};
+
+struct UnaryExpr : Expr
+{
+    UnaryExpr(const ExprPtr& x) : x(x) {}
+    ExprPtr x;
+};
+
+struct NegativeExpr : UnaryExpr
+{
+    using UnaryExpr::UnaryExpr;
+
+    virtual double eval() const
+    {
+        return -x->eval();
+    }
+
+    virtual double grad(const ExprPtr& param) const
+    {
+        return -x->grad(param);
+    }
+};
+
+struct BinaryExpr : Expr
+{
+    BinaryExpr(const ExprPtr& l, const ExprPtr& r) : l(l), r(r) {}
+    ExprPtr l;
+    ExprPtr r;
 };
 
 struct AddExpr : BinaryExpr 
@@ -191,22 +223,15 @@ struct PowerExpr : Expr
     PowerExpr(const ExprPtr& x, long p) : x(x), p(p) {}
 };
 
-struct ParameterExpr : Expr
+auto operator+(const ExprPtr& r) -> ExprPtr
 {
-    ValuePtr val;
+    return r;
+}
 
-    ParameterExpr(const ValuePtr& val) : val(val) {}
-
-    virtual double eval() const
-    {
-        return *val;
-    }
-
-    virtual double grad(const ExprPtr& param) const
-    {
-        return this == param.get();
-    }
-};
+auto operator-(const ExprPtr& r) -> ExprPtr
+{
+    return std::make_shared<NegativeExpr>(r);
+}
 
 auto operator+(const ExprPtr& l, const ExprPtr& r) -> ExprPtr
 {
@@ -249,6 +274,9 @@ struct var
 
     var(const ExprPtr& expr) : value(std::make_shared<double>(expr->eval())), expr(expr) {}
 };
+
+auto operator+(const var& r) -> ExprPtr { return  r.expr; }
+auto operator-(const var& r) -> ExprPtr { return -r.expr; }
 
 auto operator+(const var& l, const var& r) -> ExprPtr { return l.expr + r.expr; }
 auto operator-(const var& l, const var& r) -> ExprPtr { return l.expr - r.expr; }
