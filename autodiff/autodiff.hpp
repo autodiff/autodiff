@@ -248,11 +248,13 @@ struct SqrtExpr : UnaryExpr
 
 struct AbsExpr : UnaryExpr
 {
-    AbsExpr(double val, const ExprPtr& x) : UnaryExpr(val, x) {}
+    double aux;
+
+    AbsExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(x->val / val) {}
 
     virtual double grad(const ExprPtr& param) const
     {
-        return x->val < 0 ? -x->grad(param) : x->grad(param);
+        return aux * x->grad(param);
     }
 };
 

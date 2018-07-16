@@ -179,4 +179,16 @@ TEST_CASE("autodiff tests", "[autodiff]")
     REQUIRE( grad(pow(x, y), x) == Approx( val(y)/val(x) * std::pow(val(x), val(y)) ) );
     REQUIRE( grad(pow(x, y), a) == Approx( std::log(val(x)) * grad(y, a) * std::pow(val(x), val(y)) ) );
     REQUIRE( grad(pow(x, y), y) == Approx( std::log(val(x)) * std::pow(val(x), val(y)) ) );
+
+    //--------------------------------------------------------------------------
+    // TEST OTHER FUNCTIONS
+    //--------------------------------------------------------------------------
+    x = 1.0;
+    y = x;
+
+    REQUIRE( val(abs(x)) == Approx(std::abs(val(x))) );
+    REQUIRE( val(grad(x, x)) == Approx(1.0) );
+
+    REQUIRE( val(abs(y)) == Approx(std::abs(val(y))) );
+    REQUIRE( val(grad(y, x)) == Approx(val(y) / std::abs(val(y)) * grad(y, x)) );
 }
