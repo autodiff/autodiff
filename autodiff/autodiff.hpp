@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 
+/// autodiff namespace where @ref var and @ref grad are defined.
 namespace autodiff {
 
 namespace internal {
@@ -71,8 +72,7 @@ struct NegativeExpr : UnaryExpr
 
 struct BinaryExpr : Expr
 {
-    ExprPtr l;
-    ExprPtr r;
+    ExprPtr l, r;
 
     BinaryExpr(double val, const ExprPtr& l, const ExprPtr& r) : Expr(val), l(l), r(r) {}
 };
@@ -258,8 +258,14 @@ struct AbsExpr : UnaryExpr
     }
 };
 
+//------------------------------------------------------------------------------
+// CONVENIENT FUNCTIONS
+//------------------------------------------------------------------------------
 inline ExprPtr constant(double val) { return std::make_shared<ConstantExpr>(val); }
 
+//------------------------------------------------------------------------------
+// ARITHMETIC OPERATORS
+//------------------------------------------------------------------------------
 inline ExprPtr operator+(const ExprPtr& r) { return r; }
 inline ExprPtr operator-(const ExprPtr& r) { return std::make_shared<NegativeExpr>(-r->val, r); }
 
@@ -343,14 +349,19 @@ using namespace internal;
 /// The autodiff variable type used for automatic differentiation.
 struct var
 {
+    /// The pointer to the expression tree of variable operations
     ExprPtr expr;
 
+    /// Construct a default var object variable
     var() : var(0.0) {}
 
+    /// Construct a var object variable with given value
     var(double val) : expr(std::make_shared<ParameterExpr>(val)) {}
 
+    /// Construct a var object variable with given expression
     var(const ExprPtr& expr) : expr(std::make_shared<VariableExpr>(expr)) {}
 
+    /// Implicitly convert this var object variable into an expression pointer
     operator ExprPtr() const { return expr; }
 };
 
@@ -366,9 +377,10 @@ inline double grad(const var& y, const var& x)
     return y.expr->grad(x.expr);
 }
 
+/// Output a var object variable to the output stream.
 inline std::ostream& operator<<(std::ostream& out, const var& x)
 {
-    out << x.expr->val;
+    out << val(x);
     return out;
 }
 
