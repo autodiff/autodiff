@@ -30,6 +30,18 @@ struct ParameterExpr : Expr
     }
 };
 
+struct VariableExpr : Expr
+{
+    ExprPtr expr;
+
+    VariableExpr(const ExprPtr& expr) : Expr(expr->val), expr(expr) {}
+
+    virtual double grad(const ExprPtr& param) const
+    {
+        return this == param.get() ? 1.0 : expr->grad(param);
+    }
+};
+
 struct ConstantExpr : Expr
 {
     using Expr::Expr;
@@ -130,6 +142,54 @@ struct CosExpr : UnaryExpr
     }
 };
 
+struct TanExpr : UnaryExpr
+{
+    double rcos_x, sec_x;
+
+    TanExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), rcos_x(1.0 / std::cos(x->val)), sec_x(rcos_x * rcos_x) {}
+
+    virtual double grad(const ExprPtr& param) const
+    {
+        return sec_x * x->grad(param);
+    }
+};
+
+struct ArcSinExpr : UnaryExpr
+{
+    double ddx_arcsin_x;
+
+    ArcSinExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), ddx_arcsin_x(1.0 / std::sqrt(1 - x->val * x->val)) {}
+
+    virtual double grad(const ExprPtr& param) const
+    {
+        return ddx_arcsin_x * x->grad(param);
+    }
+};
+
+struct ArcCosExpr : UnaryExpr
+{
+    double ddx_arccos_x;
+
+    ArcCosExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), ddx_arccos_x(-1.0 / std::sqrt(1 - x->val * x->val)) {}
+
+    virtual double grad(const ExprPtr& param) const
+    {
+        return ddx_arccos_x * x->grad(param);
+    }
+};
+
+struct ArcTanExpr : UnaryExpr
+{
+    double ddx_arctan_x;
+
+    ArcTanExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), ddx_arctan_x(1.0 / (1 + x->val * x->val)) {}
+
+    virtual double grad(const ExprPtr& param) const
+    {
+        return ddx_arctan_x * x->grad(param);
+    }
+};
+
 struct ExpExpr : UnaryExpr
 {
     using UnaryExpr::UnaryExpr;
@@ -150,54 +210,135 @@ struct LogExpr : UnaryExpr
     }
 };
 
-//struct PowerExpr : Expr
-//{
-//    ExprPtr x;
-//
-//    long p;
-//
-//    PowerExpr(const ExprPtr& x, long p) : x(x), p(p) {}
-//};
-
-auto operator+(const ExprPtr& r) -> ExprPtr
+struct Log10Expr : UnaryExpr
 {
-    return r;
-}
+    using UnaryExpr::UnaryExpr;
 
-auto operator-(const ExprPtr& r) -> ExprPtr
-{
-    return std::make_shared<NegativeExpr>(-r->val, r);
-}
+    const double ln10 = std::log(10.0);
 
-auto operator+(const ExprPtr& l, const ExprPtr& r) -> ExprPtr
-{
-    return std::make_shared<AddExpr>(l->val + r->val, l, r);
-}
+    virtual double grad(const ExprPtr& param) const
+    {
+        return 1.0 / (ln10 * x->val) * x->grad(param);
+    }
+};
 
-auto operator-(const ExprPtr& l, const ExprPtr& r) -> ExprPtr
+struct PowExpr : BinaryExpr
 {
-    return std::make_shared<SubExpr>(l->val - r->val, l, r);
-}
+    double log_l;
 
-auto operator*(const ExprPtr& l, const ExprPtr& r) -> ExprPtr
-{
-    return std::make_shared<MulExpr>(l->val * r->val, l, r);
-}
+    PowExpr(double val, const ExprPtr& l, const ExprPtr& r) : BinaryExpr(val, l, r), log_l(std::log(l->val)) {}
 
-auto operator/(const ExprPtr& l, const ExprPtr& r) -> ExprPtr
-{
-    return std::make_shared<DivExpr>(l->val / r->val, l, r);
-}
+    virtual double grad(const ExprPtr& param) const
+    {
+        return ( log_l * r->grad(param) + r->val / l->val * l->grad(param) ) * val;
+    }
+};
 
-auto constant(double val) -> ExprPtr
+struct SqrtExpr : UnaryExpr
 {
-    return std::make_shared<ConstantExpr>(val);
-}
+    double aux;
+
+    SqrtExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(-0.5 / val) {}
+
+    virtual double grad(const ExprPtr& param) const
+    {
+        return aux * x->grad(param);
+    }
+};
+
+struct AbsExpr : UnaryExpr
+{
+    AbsExpr(double val, const ExprPtr& x) : UnaryExpr(val, x) {}
+
+    virtual double grad(const ExprPtr& param) const
+    {
+        return x->val < 0 ? -x->grad(param) : x->grad(param);
+    }
+};
+
+inline ExprPtr constant(double val) { return std::make_shared<ConstantExpr>(val); }
+
+inline ExprPtr operator+(const ExprPtr& r) { return r; }
+inline ExprPtr operator-(const ExprPtr& r) { return std::make_shared<NegativeExpr>(-r->val, r); }
+
+inline ExprPtr operator+(const ExprPtr& l, const ExprPtr& r) { return std::make_shared<AddExpr>(l->val + r->val, l, r); }
+inline ExprPtr operator-(const ExprPtr& l, const ExprPtr& r) { return std::make_shared<SubExpr>(l->val - r->val, l, r); }
+inline ExprPtr operator*(const ExprPtr& l, const ExprPtr& r) { return std::make_shared<MulExpr>(l->val * r->val, l, r); }
+inline ExprPtr operator/(const ExprPtr& l, const ExprPtr& r) { return std::make_shared<DivExpr>(l->val / r->val, l, r); }
+
+inline ExprPtr operator+(double l, const ExprPtr& r) { return constant(l) + r; }
+inline ExprPtr operator-(double l, const ExprPtr& r) { return constant(l) - r; }
+inline ExprPtr operator*(double l, const ExprPtr& r) { return constant(l) * r; }
+inline ExprPtr operator/(double l, const ExprPtr& r) { return constant(l) / r; }
+
+inline ExprPtr operator+(const ExprPtr& l, double r) { return l + constant(r); }
+inline ExprPtr operator-(const ExprPtr& l, double r) { return l - constant(r); }
+inline ExprPtr operator*(const ExprPtr& l, double r) { return l * constant(r); }
+inline ExprPtr operator/(const ExprPtr& l, double r) { return l / constant(r); }
+
+//------------------------------------------------------------------------------
+// TRIGONOMETRIC FUNCTIONS
+//------------------------------------------------------------------------------
+inline ExprPtr sin(const ExprPtr& x) { return std::make_shared<SinExpr>(std::sin(x->val), x); }
+inline ExprPtr cos(const ExprPtr& x) { return std::make_shared<CosExpr>(std::cos(x->val), x); }
+inline ExprPtr tan(const ExprPtr& x) { return std::make_shared<TanExpr>(std::tan(x->val), x); }
+inline ExprPtr asin(const ExprPtr& x) { return std::make_shared<ArcSinExpr>(std::asin(x->val), x); }
+inline ExprPtr acos(const ExprPtr& x) { return std::make_shared<ArcCosExpr>(std::acos(x->val), x); }
+inline ExprPtr atan(const ExprPtr& x) { return std::make_shared<ArcTanExpr>(std::atan(x->val), x); }
+
+//------------------------------------------------------------------------------
+// HYPERBOLIC FUNCTIONS
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// EXPONENTIAL AND LOGARITHMIC FUNCTIONS
+//------------------------------------------------------------------------------
+inline ExprPtr exp(const ExprPtr& x) { return std::make_shared<ExpExpr>(std::exp(x->val), x); }
+inline ExprPtr log(const ExprPtr& x) { return std::make_shared<LogExpr>(std::log(x->val), x); }
+inline ExprPtr log10(const ExprPtr& x) { return std::make_shared<Log10Expr>(std::log10(x->val), x); }
+
+//------------------------------------------------------------------------------
+// POWER FUNCTIONS
+//------------------------------------------------------------------------------
+inline ExprPtr pow(const ExprPtr& l, const ExprPtr& r) { return std::make_shared<PowExpr>(std::pow(l->val, r->val), l, r); }
+inline ExprPtr pow(double l, const ExprPtr& r) { return pow(constant(l), r); }
+inline ExprPtr pow(const ExprPtr& l, double r) { return pow(l, constant(r)); }
+inline ExprPtr sqrt(const ExprPtr& x) { return std::make_shared<SqrtExpr>(std::sqrt(x->val), x); }
+
+//------------------------------------------------------------------------------
+// OTHER FUNCTIONS
+//------------------------------------------------------------------------------
+inline ExprPtr abs(const ExprPtr& x) { return std::make_shared<AbsExpr>(std::abs(x->val), x); }
+
+//------------------------------------------------------------------------------
+// COMPARISON OPERATORS
+//------------------------------------------------------------------------------
+inline bool operator==(const ExprPtr& l, const ExprPtr& r) { return l->val == r->val; }
+inline bool operator!=(const ExprPtr& l, const ExprPtr& r) { return l->val != r->val; }
+inline bool operator<=(const ExprPtr& l, const ExprPtr& r) { return l->val <= r->val; }
+inline bool operator>=(const ExprPtr& l, const ExprPtr& r) { return l->val >= r->val; }
+inline bool operator<(const ExprPtr& l, const ExprPtr& r) { return l->val < r->val; }
+inline bool operator>(const ExprPtr& l, const ExprPtr& r) { return l->val > r->val; }
+
+inline bool operator==(double l, const ExprPtr& r) { return l == r->val; }
+inline bool operator!=(double l, const ExprPtr& r) { return l != r->val; }
+inline bool operator<=(double l, const ExprPtr& r) { return l <= r->val; }
+inline bool operator>=(double l, const ExprPtr& r) { return l >= r->val; }
+inline bool operator<(double l, const ExprPtr& r) { return l < r->val; }
+inline bool operator>(double l, const ExprPtr& r) { return l > r->val; }
+
+inline bool operator==(const ExprPtr& l, double r) { return l->val == r; }
+inline bool operator!=(const ExprPtr& l, double r) { return l->val != r; }
+inline bool operator<=(const ExprPtr& l, double r) { return l->val <= r; }
+inline bool operator>=(const ExprPtr& l, double r) { return l->val >= r; }
+inline bool operator<(const ExprPtr& l, double r) { return l->val < r; }
+inline bool operator>(const ExprPtr& l, double r) { return l->val > r; }
 
 } // namespace internal
 
 using namespace internal;
 
+/// The autodiff variable type used for automatic differentiation.
 struct var
 {
     ExprPtr expr;
@@ -206,33 +347,24 @@ struct var
 
     var(double val) : expr(std::make_shared<ParameterExpr>(val)) {}
 
-    var(const ExprPtr& expr) : expr(expr) {}
+    var(const ExprPtr& expr) : expr(std::make_shared<VariableExpr>(expr)) {}
+
+    operator ExprPtr() const { return expr; }
 };
 
-auto operator+(const var& r) -> ExprPtr { return  r.expr; }
-auto operator-(const var& r) -> ExprPtr { return -r.expr; }
+/// Return the value of a variable x.
+inline double val(const var& x)
+{
+    return x.expr->val;
+}
 
-auto operator+(const var& l, const var& r) -> ExprPtr { return l.expr + r.expr; }
-auto operator-(const var& l, const var& r) -> ExprPtr { return l.expr - r.expr; }
-auto operator*(const var& l, const var& r) -> ExprPtr { return l.expr * r.expr; }
-auto operator/(const var& l, const var& r) -> ExprPtr { return l.expr / r.expr; }
-
-auto operator+(double l, const var& r) -> ExprPtr { return constant(l) + r.expr; }
-auto operator-(double l, const var& r) -> ExprPtr { return constant(l) - r.expr; }
-auto operator*(double l, const var& r) -> ExprPtr { return constant(l) * r.expr; }
-auto operator/(double l, const var& r) -> ExprPtr { return constant(l) / r.expr; }
-
-auto operator+(const var& l, double r) -> ExprPtr { return l.expr + constant(r); }
-auto operator-(const var& l, double r) -> ExprPtr { return l.expr - constant(r); }
-auto operator*(const var& l, double r) -> ExprPtr { return l.expr * constant(r); }
-auto operator/(const var& l, double r) -> ExprPtr { return l.expr / constant(r); }
-
-auto grad(const var& y, const var& x) -> double
+/// Return the derivative of a variable y with respect to variable x.
+inline double grad(const var& y, const var& x)
 {
     return y.expr->grad(x.expr);
 }
 
-auto operator<<(std::ostream& out, const var& x) -> std::ostream&
+inline std::ostream& operator<<(std::ostream& out, const var& x)
 {
     out << x.expr->val;
     return out;
