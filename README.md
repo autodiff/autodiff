@@ -11,14 +11,14 @@ You most likely arrived here because:
 
 Here is how [autodiff][autodiff] can help you. Let's assume you have the following code:
 
-```js
+```c++
 double x = 0.0;
 double y = f(x);
 ```
 
 for which you want to calculate `dydx`, that is, the derivative of output variable `y` with respect to input variable `x` when `x = 0.0`. Instead of using type `double` for `x` and `y`, as well as all for all intermediate variables inside `f`, if applicable, use `autodiff::var` instead:
 
-```js
+```c++
 var x = 0.0;
 var y = f(x);
 ```
