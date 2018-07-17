@@ -34,7 +34,7 @@ That's it!
 # Examples
 
 
-## Example 1: Single-variable function
+## Example 1: Derivative of a single-variable function
 
 ~~~c++
 #include <autodiff.hpp>
@@ -57,9 +57,12 @@ int main()
 }
 ~~~
 
-## Example 1: Multi-variable function
+## Example 2: Derivatives of a multi-variable function
 
 ~~~c++
+#include <autodiff.hpp>
+using namespace autodiff;
+
 var f(var x, var y, var z) 
 { 
     return 1 + x + y + z + x*y + y*z + x*z + x*y*z + exp(x/y + y/z);
@@ -76,10 +79,51 @@ int main()
     double dudy = grad(u, y);
     double dudz = grad(u, z);
 
-    std::cout << "u = " << y << std::endl;
+    std::cout << "u = " << u << std::endl;
     std::cout << "du/dx = " << dudx << std::endl;
     std::cout << "du/dy = " << dudy << std::endl;
     std::cout << "du/dz = " << dudz << std::endl;
+}
+~~~
+
+## Example 3: Derivatives with respect to function parameters
+
+~~~c++
+#include <autodiff.hpp>
+using namespace autodiff;
+
+struct Params
+{
+    var a;
+    var b;
+    var c;
+};
+
+var f(var x, const Params& params)
+{
+    return params.a * sin(x) + params.b * cos(x) + params.c * sin(x)*cos(x);
+}
+
+int main()
+{
+    Params params;
+    params.a = 1.0;
+    params.b = 2.0;
+    params.c = 3.0;
+
+    var x = 0.5;
+    var y = f(x, params);
+
+    double dydx = grad(y, x);
+    double dyda = grad(y, params.a);
+    double dydb = grad(y, params.b);
+    double dydc = grad(y, params.c);
+
+    std::cout << "y = " << y << std::endl;
+    std::cout << "dy/dx = " << dydx << std::endl;
+    std::cout << "dy/da = " << dyda << std::endl;
+    std::cout << "dy/db = " << dydb << std::endl;
+    std::cout << "dy/dc = " << dydc << std::endl;
 }
 ~~~
 
