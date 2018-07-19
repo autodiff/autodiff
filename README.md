@@ -197,6 +197,5 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-[autodiff]: https://github.com/reaktoro/autodiff "autodiff"
-[autodiff-hpp]: TODO "autodiff.hpp"
+[autodiff]: https://github.com/autodiff/autodiff/releases "autodiff"
 [Eigen]: http://eigen.tuxfamily.org "Eigen"
