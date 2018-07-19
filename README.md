@@ -77,6 +77,11 @@ dy/dx = 5.25
 ## Example 2: Derivatives of a multi-variable function
 
 ~~~c++
+// C++ includes
+#include <iostream>
+using namespace std;
+
+// autodiff includes
 #include <autodiff.hpp>
 using namespace autodiff;
 
@@ -117,6 +122,11 @@ du/dz = 5.28638
 Sometimes, it is necessary to understand how sensitive an output is with respect to some parameters. For example, a mathematical model that computes the density of a substance at different temperatures and pressures will depend on some parameters. One might want to optimize the values of such parameters so that the model is accurate relative to some new experimental measurements. In such cases, the parameter optimization calculation can greatly benefit from available derivatives of the density with respect to every parameter in the model. 
 
 ~~~c++
+// C++ includes
+#include <iostream>
+using namespace std;
+
+// autodiff includes
 #include <autodiff.hpp>
 using namespace autodiff;
 
@@ -166,8 +176,6 @@ dy/db = 0.877583
 dy/dc = 0.420735
 ~~~
 
-## Example 4: Derivatives of a function with a vector input
-
 # What is missing?
 
 1. Combine autodiff with C++ linear algebra library [Eigen][Eigen].
@@ -177,7 +185,7 @@ dy/dc = 0.420735
 
 MIT License
 
-Copyright (c) 2018 autodiff
+Copyright (c) 2018 Allan Leal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
