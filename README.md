@@ -45,25 +45,25 @@ The example below demonstrates how to use `autodiff` for calculating derivatives
 #include <iostream>
 using namespace std;
 
-// autodiff includes
+// autodiff include
 #include <autodiff.hpp>
 using namespace autodiff;
 
 // The single-variable function for which derivatives are needed
-var f(var x) 
+var f(var x)
 {
-    return 1 + x + x*x + 1/x + log(x); 
+    return 1 + x + x*x + 1/x + log(x);
 }
 
 int main()
 {
-    var x = 2.0;                         // x - input variable of type autodiff::var
-    var y = f(x);                        // y - output variable of type autodiff::var
+    var x = 2.0;                         // x - input variable
+    var y = f(x);                        // y - output variable
 
-    double dydx = grad(y, x);            // evaluate derivative dy/dx using autodiff::grad function
+    double dydx = grad(y, x);            // evaluate the derivative dy/dx
 
-    cout << "y = " << y << endl;         // print evaluated output y
-    cout << "dy/dx = " << dydx << endl;  // print evaluated derivative dy/dx
+    cout << "y = " << y << endl;         // print the evaluated output y
+    cout << "dy/dx = " << dydx << endl;  // print the evaluated derivative dy/dx
 }
 ~~~
 
@@ -77,36 +77,42 @@ dy/dx = 5.25
 ## Example 2: Derivatives of a multi-variable function
 
 ~~~c++
+// C++ includes
+#include <iostream>
+using namespace std;
+
+// autodiff include
 #include <autodiff.hpp>
 using namespace autodiff;
 
-var f(var x, var y, var z) 
-{ 
+// The multi-variable function for which derivatives are needed
+var f(var x, var y, var z)
+{
     return 1 + x + y + z + x*y + y*z + x*z + x*y*z + exp(x/y + y/z);
 }
 
 int main()
 {
-    var x = 1.0;
-    var y = 2.0;
-    var z = 3.0;
-    var u = f(x, y, z);
+    var x = 1.0;                         // x - input variable
+    var y = 2.0;                         // y - input variable
+    var z = 3.0;                         // z - input variable
+    var u = f(x, y, z);                  // u - output variable
 
-    double dudx = grad(u, x);
-    double dudy = grad(u, y);
-    double dudz = grad(u, z);
+    double dudx = grad(u, x);            // evaluate the derivative du/dx
+    double dudy = grad(u, y);            // evaluate the derivative du/dy
+    double dudz = grad(u, z);            // evaluate the derivative du/dz
 
-    std::cout << "u = " << u << std::endl;
-    std::cout << "du/dx = " << dudx << std::endl;
-    std::cout << "du/dy = " << dudy << std::endl;
-    std::cout << "du/dz = " << dudz << std::endl;
+    cout << "u = " << u << endl;         // print the evaluated output u
+    cout << "du/dx = " << dudx << endl;  // print the evaluated derivative du/dx
+    cout << "du/dy = " << dudy << endl;  // print the evaluated derivative du/dy
+    cout << "du/dz = " << dudz << endl;  // print the evaluated derivative du/dz
 }
 ~~~
 
 Executing this example produces:
 
 ~~~
-u     = 27.2113
+u = 27.2113
 du/dx = 13.6056
 du/dy = 8.26761
 du/dz = 5.28638
@@ -117,9 +123,15 @@ du/dz = 5.28638
 Sometimes, it is necessary to understand how sensitive an output is with respect to some parameters. For example, a mathematical model that computes the density of a substance at different temperatures and pressures will depend on some parameters. One might want to optimize the values of such parameters so that the model is accurate relative to some new experimental measurements. In such cases, the parameter optimization calculation can greatly benefit from available derivatives of the density with respect to every parameter in the model. 
 
 ~~~c++
+// C++ includes
+#include <iostream>
+using namespace std;
+
+// autodiff include
 #include <autodiff.hpp>
 using namespace autodiff;
 
+// A type defining parameters for a function of interest
 struct Params
 {
     var a;
@@ -127,6 +139,7 @@ struct Params
     var c;
 };
 
+// The function that depends on parameters for which derivatives are needed
 var f(var x, const Params& params)
 {
     return params.a * sin(x) + params.b * cos(x) + params.c * sin(x)*cos(x);
@@ -134,25 +147,26 @@ var f(var x, const Params& params)
 
 int main()
 {
-    Params params;
-    params.a = 1.0;
-    params.b = 2.0;
-    params.c = 3.0;
+    Params params;                       // initialize the parameter variables
+    params.a = 1.0;                      // a - parameter variable
+    params.b = 2.0;                      // b - parameter variable
+    params.c = 3.0;                      // c - parameter variable
 
-    var x = 0.5;
-    var y = f(x, params);
+    var x = 0.5;                         // x - input variable
+    var y = f(x, params);                // y - output variable
 
-    double dydx = grad(y, x);
-    double dyda = grad(y, params.a);
-    double dydb = grad(y, params.b);
-    double dydc = grad(y, params.c);
+    double dydx = grad(y, x);            // evaluate derivative du/dx
+    double dyda = grad(y, params.a);     // evaluate derivative du/da
+    double dydb = grad(y, params.b);     // evaluate derivative du/db
+    double dydc = grad(y, params.c);     // evaluate derivative du/dc
 
-    std::cout << "y = " << y << std::endl;
-    std::cout << "dy/dx = " << dydx << std::endl;
-    std::cout << "dy/da = " << dyda << std::endl;
-    std::cout << "dy/db = " << dydb << std::endl;
-    std::cout << "dy/dc = " << dydc << std::endl;
+    cout << "y = " << y << endl;         // print evaluated output y
+    cout << "dy/dx = " << dydx << endl;  // print evaluated derivative dy/dx
+    cout << "dy/da = " << dyda << endl;  // print evaluated derivative dy/da
+    cout << "dy/db = " << dydb << endl;  // print evaluated derivative dy/db
+    cout << "dy/dc = " << dydc << endl;  // print evaluated derivative dy/dc
 }
+
 ~~~
 
 The example above introduces a new type `Params` with three data members of type `autodiff::var`: `a`, `b`, and `c`. These can be seen as parameters for the mathematical model function `f`. The example then demonstrates how to calculate not only the derivative of the output variable `y` with respect to input variable `x`, given by `dydx`, but also with respect to every parameter in `Params`: `dyda`, `dydb`, and `dydx`.
@@ -165,8 +179,6 @@ dy/da = 0.479426
 dy/db = 0.877583
 dy/dc = 0.420735
 ~~~
-
-## Example 4: Derivatives of a function with a vector input
 
 # What is missing?
 
