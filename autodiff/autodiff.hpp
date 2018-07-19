@@ -376,11 +376,118 @@ inline double grad(const var& y, const var& x)
     return y.expr->grad(x.expr);
 }
 
-} // namespace autodiff
-
 /// Output a var object variable to the output stream.
-inline std::ostream& operator<<(std::ostream& out, const autodiff::var& x)
+inline std::ostream& operator<<(std::ostream& out, const var& x)
 {
     out << autodiff::val(x);
     return out;
 }
+
+} // namespace autodiff
+
+
+//------------------------------------------------------------------------------
+// SUPPORT FOR EIGEN MATRICES AND VECTORS OF AUTODIFF::VAR
+//------------------------------------------------------------------------------
+#ifdef AUTODIFF_ENABLE_EIGEN_SUPPORT
+
+namespace Eigen {
+
+template<typename T>
+struct NumTraits;
+
+template<> struct NumTraits<autodiff::var> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
+{
+    typedef autodiff::var Real;
+    typedef autodiff::var NonInteger;
+    typedef autodiff::var Nested;
+    enum
+    {
+        IsComplex = 0,
+        IsInteger = 0,
+        IsSigned = 1,
+        RequireInitialization = 1,
+        ReadCost = 1,
+        AddCost = 3,
+        MulCost = 3
+    };
+};
+
+#define EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)   \
+typedef Matrix<Type, Size, Size, 0, Size, Size> Matrix##SizeSuffix##TypeSuffix;  \
+typedef Matrix<Type, Size, 1, 0, Size, 1>       Vector##SizeSuffix##TypeSuffix;  \
+typedef Matrix<Type, 1, Size, 1, 1, Size>       RowVector##SizeSuffix##TypeSuffix;
+
+#define EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, Size)         \
+typedef Matrix<Type, Size, -1, 0, Size, -1> Matrix##Size##X##TypeSuffix;  \
+typedef Matrix<Type, -1, Size, 0, -1, Size> Matrix##X##Size##TypeSuffix;
+
+#define EIGEN_MAKE_TYPEDEFS_ALL_SIZES(Type, TypeSuffix) \
+EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 2, 2) \
+EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 3, 3) \
+EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 4, 4) \
+EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, -1, X) \
+EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 2) \
+EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 3) \
+EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 4)
+
+EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::var, v)
+
+#undef EIGEN_MAKE_TYPEDEFS_ALL_SIZES
+#undef EIGEN_MAKE_TYPEDEFS
+#undef EIGEN_MAKE_FIXED_TYPEDEFS
+
+} // namespace Eigen
+
+namespace autodiff {
+
+inline ExprPtr operator+(const var& r) { return r.expr; }
+inline ExprPtr operator-(const var& r) { return -r.expr; }
+
+inline ExprPtr operator+(const var& l, const var& r) { return l.expr + r.expr; }
+inline ExprPtr operator-(const var& l, const var& r) { return l.expr - r.expr; }
+inline ExprPtr operator*(const var& l, const var& r) { return l.expr * r.expr; }
+inline ExprPtr operator/(const var& l, const var& r) { return l.expr / r.expr; }
+
+inline ExprPtr operator+(double l, const var& r) { return l + r.expr; }
+inline ExprPtr operator-(double l, const var& r) { return l - r.expr; }
+inline ExprPtr operator*(double l, const var& r) { return l * r.expr; }
+inline ExprPtr operator/(double l, const var& r) { return l / r.expr; }
+
+inline ExprPtr operator+(const var& l, double r) { return l.expr + r; }
+inline ExprPtr operator-(const var& l, double r) { return l.expr - r; }
+inline ExprPtr operator*(const var& l, double r) { return l.expr * r; }
+inline ExprPtr operator/(const var& l, double r) { return l.expr / r; }
+
+inline const var& conj(const var& x) { return x; }
+inline const var& real(const var& x) { return x; }
+inline var imag(const var&) { return 0.0; }
+inline var abs2(const var& x) { return x * x; }
+
+/// Return the derivative of a variable y with respect to variables x.
+inline RowVectorXd grad(const var& y, const Eigen::Ref<VectorXv>& x)
+{
+    const auto n = x.size();
+    VectorXd dydx(n);
+    for(auto i = 0; i < n; ++i)
+        dydx[i] = grad(y, x[i]);
+    return dydx;
+}
+
+/// Return the derivative of variables y with respect to variables x.
+inline MatrixXd grad(const Eigen::Ref<VectorXv>& y, const Eigen::Ref<VectorXv>& x)
+{
+    const auto m = y.size();
+    const auto n = x.size();
+    MatrixXd dydx(m, n);
+    for(auto i = 0; i < m; ++i)
+        for(auto j = 0; j < n; ++j)
+            dydx(i, j) = grad(y[i], x[j]);
+    return dydx;
+}
+
+} // namespace autodiff
+
+
+#endif // AUTODIFF_ENABLE_EIGEN_SUPPORT
+
