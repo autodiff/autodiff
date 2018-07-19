@@ -1,5 +1,6 @@
 [![autodiff](art/autodiff-header.svg)][autodiff]
 
+
 # Overview
 
 You most likely arrived here because:
@@ -29,9 +30,7 @@ and calculate your derivative `dydx` using the `autodiff::grad` function as foll
 double dydx = grad(y, x);
 ```
 
-> That's it -- simple and straightforward!
-
-> Download [`autodiff.hpp`][autodiffhpp] -- the only file you'll need from autodiff.
+That's it -- simple and straightforward!
 
 # Examples
 
@@ -198,5 +197,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 [autodiff]: https://github.com/reaktoro/autodiff "autodiff"
-[autodiffhpp]: TODO "autodiff.hpp"
-[Eigen]: TODO "Eigen"
+[autodiff-hpp]: TODO "autodiff.hpp"
+[Eigen]: http://eigen.tuxfamily.org "Eigen"

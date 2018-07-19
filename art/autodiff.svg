@@ -14,7 +14,7 @@
    viewBox="0 0 232.43015 145.40216"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.3 (3ce5693, 2018-03-11)"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
    sodipodi:docname="autodiff.svg">
   <defs
      id="defs2">
@@ -56,14 +56,14 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7"
-     inkscape:cx="315.74343"
-     inkscape:cy="74.351784"
+     inkscape:zoom="1.4511111"
+     inkscape:cx="-69.672691"
+     inkscape:cy="-43.691721"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g2575"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1015"
+     inkscape:window-width="3840"
+     inkscape:window-height="2067"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -87,7 +87,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-78.241066,-511.58606)">
+     transform="translate(-1006.7911,20.092728)">
     <rect
        style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect843"
@@ -450,91 +450,1058 @@
            inkscape:connector-curvature="0" />
       </g>
     </g>
+    <g
+       id="g1357">
+      <rect
+         y="599.10791"
+         x="78.241066"
+         height="57.880302"
+         width="232.43015"
+         id="rect1057"
+         style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:1.88976371;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <rect
+         style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect843-3"
+         width="232.43015"
+         height="87.521866"
+         x="78.241066"
+         y="511.58606" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:55.58415604px;line-height:0%;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+         x="91.335037"
+         y="567.14911"
+         id="text823-6"><tspan
+           id="tspan821-7"
+           x="91.335037"
+           y="567.14911"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic Bold';stroke-width:1"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic Bold';fill:#ffffff;stroke-width:1"
+             id="tspan825-5">auto</tspan><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic Bold';fill:#ff5555;stroke-width:1"
+             id="tspan831-3">diff</tspan></tspan></text>
+      <g
+         transform="translate(-1.1620122,-4.8562351)"
+         id="g4290">
+        <text
+           y="577.49854"
+           x="194.31921"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+           xml:space="preserve"
+           id="text4641"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"
+             y="588.52686"
+             x="195.53317"
+             id="tspan4643"><tspan
+   id="tspan4297"
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+      </g>
+      <text
+         id="text980"
+         y="610.62665"
+         x="125.50492"
+         style="font-style:normal;font-weight:normal;font-size:9.31447601px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+           y="610.62665"
+           x="125.50492"
+           id="tspan1020"><tspan
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1022">var</tspan> x, y, z;</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+           y="619.9411"
+           x="125.50492"
+           id="tspan994"><tspan
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan996">var</tspan> u = f(x, y, z);</tspan><tspan
+           id="tspan976"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+           y="629.25555"
+           x="125.50492"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan1026">double</tspan> dudx = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1034">grad</tspan>(u, x);</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+           y="638.57007"
+           x="125.50492"
+           id="tspan1014"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan1030">double</tspan> dudy = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1036">grad</tspan>(u, y);</tspan><tspan
+           id="tspan978"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+           y="647.88452"
+           x="125.50492"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan1028">double</tspan> dudz = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1038">grad</tspan>(u, z);</tspan></text>
+    </g>
+    <rect
+       y="599.10791"
+       x="367.01486"
+       height="57.880302"
+       width="232.43015"
+       id="rect945"
+       style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:1.88976371;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <rect
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect947"
+       width="232.43015"
+       height="87.521866"
+       x="367.01486"
+       y="511.58606" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:55.58415604px;line-height:0%;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+       x="375.41351"
+       y="567.14911"
+       id="text955"><tspan
+         id="tspan953"
+         x="375.41351"
+         y="567.14911"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;stroke-width:1"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;fill:#ffffff;stroke-width:1"
+           id="tspan949">auto</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;fill:#ff5555;stroke-width:1"
+           id="tspan951">diff</tspan></tspan></text>
+    <g
+       transform="translate(287.6118,-4.8562351)"
+       id="g963">
+      <text
+         y="577.49854"
+         x="194.31921"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         xml:space="preserve"
+         id="text961"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"
+           y="588.52686"
+           x="195.53317"
+           id="tspan959"><tspan
+   id="tspan957"
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+    </g>
+    <text
+       id="text991"
+       y="610.62665"
+       x="414.27872"
+       style="font-style:normal;font-weight:normal;font-size:9.31447601px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="610.62665"
+         x="414.27872"
+         id="tspan967"><tspan
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan965">var</tspan> x, y, z;</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="619.9411"
+         x="414.27872"
+         id="tspan971"><tspan
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan969">var</tspan> u = f(x, y, z);</tspan><tspan
+         id="tspan977"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="629.25555"
+         x="414.27872"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan973">double</tspan> dudx = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan975">grad</tspan>(u, x);</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="638.57007"
+         x="414.27872"
+         id="tspan983"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan979">double</tspan> dudy = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan981">grad</tspan>(u, y);</tspan><tspan
+         id="tspan989"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="647.88452"
+         x="414.27872"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan985">double</tspan> dudz = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan987">grad</tspan>(u, z);</tspan></text>
     <rect
        style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:1.88976371;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect1057"
+       id="rect993"
        width="232.43015"
        height="57.880302"
-       x="78.241066"
+       x="658.05652"
        y="599.10791" />
     <rect
        y="511.58606"
+       x="658.05652"
+       height="87.521866"
+       width="232.43015"
+       id="rect995"
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       id="text1003"
+       y="561.07184"
+       x="661.15363"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:47.1368103px;line-height:0%;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:1"
+         y="561.07184"
+         x="661.15363"
+         id="tspan1001"><tspan
+           id="tspan997"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#ffffff;stroke-width:1">auto</tspan><tspan
+           id="tspan999"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#ff5555;stroke-width:1">diff</tspan></tspan></text>
+    <g
+       id="g1011"
+       transform="translate(578.65347,-4.8562351)">
+      <text
+         id="text1009"
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         x="194.31921"
+         y="577.49854"><tspan
+           id="tspan1007"
+           x="195.53317"
+           y="588.52686"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"><tspan
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1005">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:9.31447601px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+       x="705.32037"
+       y="610.62665"
+       id="text1039"><tspan
+         id="tspan1015"
+         x="705.32037"
+         y="610.62665"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"><tspan
+   id="tspan1013"
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">var</tspan> x, y, z;</tspan><tspan
+         id="tspan1019"
+         x="705.32037"
+         y="619.9411"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"><tspan
+   id="tspan1017"
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">var</tspan> u = f(x, y, z);</tspan><tspan
+         x="705.32037"
+         y="629.25555"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         id="tspan1025"><tspan
+   id="tspan1021"
+   style="fill:#808080;stroke-width:0.99999994">double</tspan> dudx = <tspan
+   id="tspan1023"
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">grad</tspan>(u, x);</tspan><tspan
+         id="tspan1031"
+         x="705.32037"
+         y="638.57007"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"><tspan
+   id="tspan1027"
+   style="fill:#808080;stroke-width:0.99999994">double</tspan> dudy = <tspan
+   id="tspan1029"
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">grad</tspan>(u, y);</tspan><tspan
+         x="705.32037"
+         y="647.88452"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         id="tspan1037"><tspan
+   id="tspan1033"
+   style="fill:#808080;stroke-width:0.99999994">double</tspan> dudz = <tspan
+   id="tspan1035"
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">grad</tspan>(u, z);</tspan></text>
+    <rect
+       y="783.74353"
+       x="658.05652"
+       height="57.880302"
+       width="232.43015"
+       id="rect1089"
+       style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:1.88976371;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <rect
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1091"
+       width="232.43015"
+       height="87.521866"
+       x="658.05652"
+       y="696.22168" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:51.70249939px;line-height:0%;font-family:'TeX Gyre Bonum';-inkscape-font-specification:'TeX Gyre Bonum';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+       x="666.32849"
+       y="750.3233"
+       id="text1099"><tspan
+         id="tspan1097"
+         x="666.32849"
+         y="750.3233"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Bonum';-inkscape-font-specification:'TeX Gyre Bonum';stroke-width:0.99999994"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Bonum';-inkscape-font-specification:'TeX Gyre Bonum';fill:#ffffff;stroke-width:0.99999994"
+           id="tspan1093">auto</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Bonum';-inkscape-font-specification:'TeX Gyre Bonum';fill:#ff5555;stroke-width:0.99999994"
+           id="tspan1095">diff</tspan></tspan></text>
+    <g
+       transform="translate(578.65344,179.77939)"
+       id="g1107">
+      <text
+         y="577.49854"
+         x="194.31921"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         xml:space="preserve"
+         id="text1105"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"
+           y="588.52686"
+           x="195.53317"
+           id="tspan1103"><tspan
+   id="tspan1101"
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+    </g>
+    <text
+       id="text1135"
+       y="795.26227"
+       x="705.32037"
+       style="font-style:normal;font-weight:normal;font-size:9.31447601px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="795.26227"
+         x="705.32037"
+         id="tspan1111"><tspan
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1109">var</tspan> x, y, z;</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="804.57672"
+         x="705.32037"
+         id="tspan1115"><tspan
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1113">var</tspan> u = f(x, y, z);</tspan><tspan
+         id="tspan1121"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="813.89117"
+         x="705.32037"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan1117">double</tspan> dudx = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1119">grad</tspan>(u, x);</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="823.20569"
+         x="705.32037"
+         id="tspan1127"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan1123">double</tspan> dudy = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1125">grad</tspan>(u, y);</tspan><tspan
+         id="tspan1133"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="832.52014"
+         x="705.32037"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan1129">double</tspan> dudz = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1131">grad</tspan>(u, z);</tspan></text>
+    <rect
+       style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:1.88976371;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1137"
+       width="232.43015"
+       height="57.880302"
+       x="367.01486"
+       y="783.74353" />
+    <rect
+       y="696.22168"
+       x="367.01486"
+       height="87.521866"
+       width="232.43015"
+       id="rect1139"
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       id="text1147"
+       y="752.6145"
+       x="375.86307"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:58.22078705px;line-height:0%;font-family:'TeX Gyre Chorus';-inkscape-font-specification:'TeX Gyre Chorus';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Pagella';-inkscape-font-specification:'TeX Gyre Pagella';stroke-width:0.99999994"
+         y="752.6145"
+         x="375.86307"
+         id="tspan1145"><tspan
+           id="tspan1141"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Pagella';-inkscape-font-specification:'TeX Gyre Pagella';fill:#ffffff;stroke-width:0.99999994">auto</tspan><tspan
+           id="tspan1143"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Pagella';-inkscape-font-specification:'TeX Gyre Pagella';fill:#ff5555;stroke-width:0.99999994">diff</tspan></tspan></text>
+    <g
+       id="g1155"
+       transform="translate(287.61179,179.77939)">
+      <text
+         id="text1153"
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         x="194.31921"
+         y="577.49854"><tspan
+           id="tspan1151"
+           x="195.53317"
+           y="588.52686"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"><tspan
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1149">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:9.31447601px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+       x="414.27872"
+       y="795.26227"
+       id="text1183"><tspan
+         id="tspan1159"
+         x="414.27872"
+         y="795.26227"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"><tspan
+   id="tspan1157"
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">var</tspan> x, y, z;</tspan><tspan
+         id="tspan1163"
+         x="414.27872"
+         y="804.57672"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"><tspan
+   id="tspan1161"
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">var</tspan> u = f(x, y, z);</tspan><tspan
+         x="414.27872"
+         y="813.89117"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         id="tspan1169"><tspan
+   id="tspan1165"
+   style="fill:#808080;stroke-width:0.99999994">double</tspan> dudx = <tspan
+   id="tspan1167"
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">grad</tspan>(u, x);</tspan><tspan
+         id="tspan1175"
+         x="414.27872"
+         y="823.20569"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"><tspan
+   id="tspan1171"
+   style="fill:#808080;stroke-width:0.99999994">double</tspan> dudy = <tspan
+   id="tspan1173"
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">grad</tspan>(u, y);</tspan><tspan
+         x="414.27872"
+         y="832.52014"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         id="tspan1181"><tspan
+   id="tspan1177"
+   style="fill:#808080;stroke-width:0.99999994">double</tspan> dudz = <tspan
+   id="tspan1179"
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">grad</tspan>(u, z);</tspan></text>
+    <rect
+       y="783.74353"
+       x="78.241066"
+       height="57.880302"
+       width="232.43015"
+       id="rect1359"
+       style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:1.88976371;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <rect
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1361"
+       width="232.43015"
+       height="87.521866"
+       x="78.241066"
+       y="696.22168" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:68.41960144px;line-height:0%;font-family:'EB Garamond';-inkscape-font-specification:'EB Garamond Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+       x="85.739525"
+       y="749.94739"
+       id="text1369"><tspan
+         id="tspan1367"
+         x="85.739525"
+         y="749.94739"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'EB Garamond';-inkscape-font-specification:'EB Garamond Bold';stroke-width:1"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'EB Garamond';-inkscape-font-specification:'EB Garamond Bold';fill:#ffffff;stroke-width:1"
+           id="tspan1363">auto</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'EB Garamond';-inkscape-font-specification:'EB Garamond Bold';fill:#ff5555;stroke-width:1"
+           id="tspan1365">diff</tspan></tspan></text>
+    <g
+       transform="translate(-1.1620122,179.77938)"
+       id="g1377">
+      <text
+         y="577.49854"
+         x="194.31921"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         xml:space="preserve"
+         id="text1375"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"
+           y="588.52686"
+           x="195.53317"
+           id="tspan1373"><tspan
+   id="tspan1371"
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+    </g>
+    <text
+       id="text1405"
+       y="795.26227"
+       x="125.50492"
+       style="font-style:normal;font-weight:normal;font-size:9.31447601px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="795.26227"
+         x="125.50492"
+         id="tspan1381"><tspan
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1379">var</tspan> x, y, z;</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="804.57672"
+         x="125.50492"
+         id="tspan1385"><tspan
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1383">var</tspan> u = f(x, y, z);</tspan><tspan
+         id="tspan1391"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="813.89117"
+         x="125.50492"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan1387">double</tspan> dudx = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1389">grad</tspan>(u, x);</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="823.20569"
+         x="125.50492"
+         id="tspan1397"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan1393">double</tspan> dudy = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1395">grad</tspan>(u, y);</tspan><tspan
+         id="tspan1403"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="832.52014"
+         x="125.50492"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan1399">double</tspan> dudz = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1401">grad</tspan>(u, z);</tspan></text>
+    <rect
+       style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:1.88976371;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1433"
+       width="232.43015"
+       height="57.880302"
+       x="78.241066"
+       y="949.3006" />
+    <rect
+       y="861.77875"
        x="78.241066"
        height="87.521866"
        width="232.43015"
-       id="rect843-3"
+       id="rect1435"
        style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
     <text
-       id="text823-6"
-       y="549.92169"
-       x="83.420876"
-       style="font-style:normal;font-weight:normal;font-size:46.26892853px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+       id="text1443"
+       y="917.98376"
+       x="86.94339"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:63.69282913px;line-height:0%;font-family:'Gentium Plus Compact';-inkscape-font-specification:'Gentium Plus Compact';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99999994"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:1"
-         y="549.92169"
-         x="83.420876"
-         id="tspan821-7"><tspan
-           id="tspan825-5"
-           style="fill:#ffffff;stroke-width:1">auto</tspan><tspan
-           id="tspan831-3"
-           style="fill:#ff5555;stroke-width:1">diff</tspan></tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic';stroke-width:0.99999994"
+         y="917.98376"
+         x="86.94339"
+         id="tspan1441"><tspan
+           id="tspan1437"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic';fill:#ffffff;stroke-width:0.99999994">auto</tspan><tspan
+           id="tspan1439"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic';fill:#ff5555;stroke-width:0.99999994">diff</tspan></tspan></text>
     <g
-       id="g4290"
-       transform="translate(-1.1620032,-10.160001)">
+       id="g1451"
+       transform="translate(-1.1620122,345.33642)">
       <text
-         id="text4641"
+         id="text1449"
          xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.70213795px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
-         x="194.41093"
-         y="578.11719"><tspan
-           id="tspan4643"
-           x="195.53917"
-           y="588.36688"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         x="194.31921"
+         y="577.49854"><tspan
+           id="tspan1447"
+           x="195.53317"
+           y="588.52686"
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"><tspan
-   style="font-weight:bold;fill:#ff5555;fill-opacity:1"
-   id="tspan4297">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1445">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
     </g>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:9.31447601px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
        x="125.50492"
-       y="610.62665"
-       id="text980"><tspan
-         id="tspan1020"
+       y="960.81934"
+       id="text1479"><tspan
+         id="tspan1455"
          x="125.50492"
-         y="610.62665"
+         y="960.81934"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"><tspan
-   id="tspan1022"
+   id="tspan1453"
    style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">var</tspan> x, y, z;</tspan><tspan
-         id="tspan994"
+         id="tspan1459"
          x="125.50492"
-         y="619.9411"
+         y="970.13379"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"><tspan
-   id="tspan996"
+   id="tspan1457"
    style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">var</tspan> u = f(x, y, z);</tspan><tspan
          x="125.50492"
-         y="629.25555"
+         y="979.44824"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
-         id="tspan976"><tspan
-   id="tspan1026"
+         id="tspan1465"><tspan
+   id="tspan1461"
    style="fill:#808080;stroke-width:0.99999994">double</tspan> dudx = <tspan
-   id="tspan1034"
+   id="tspan1463"
    style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">grad</tspan>(u, x);</tspan><tspan
-         id="tspan1014"
+         id="tspan1471"
          x="125.50492"
-         y="638.57007"
+         y="988.76276"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"><tspan
-   id="tspan1030"
+   id="tspan1467"
    style="fill:#808080;stroke-width:0.99999994">double</tspan> dudy = <tspan
-   id="tspan1036"
+   id="tspan1469"
    style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">grad</tspan>(u, y);</tspan><tspan
          x="125.50492"
-         y="647.88452"
+         y="998.07721"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
-         id="tspan978"><tspan
-   id="tspan1028"
+         id="tspan1477"><tspan
+   id="tspan1473"
    style="fill:#808080;stroke-width:0.99999994">double</tspan> dudz = <tspan
-   id="tspan1038"
+   id="tspan1475"
    style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">grad</tspan>(u, z);</tspan></text>
+    <rect
+       y="1436.488"
+       x="112.53588"
+       height="87.521866"
+       width="232.43015"
+       id="rect843-3-8"
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       id="text823-6-5"
+       y="1492.0511"
+       x="125.62985"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:55.58415604px;line-height:0%;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic Bold';stroke-width:1"
+         y="1492.0511"
+         x="125.62985"
+         id="tspan821-7-0"><tspan
+           id="tspan825-5-8"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic Bold';fill:#ffffff;stroke-width:1">auto</tspan><tspan
+           id="tspan831-3-4"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic Bold';fill:#ff5555;stroke-width:1">diff</tspan></tspan></text>
+    <g
+       id="g4290-9"
+       transform="translate(33.132801,920.04579)">
+      <text
+         id="text4641-2"
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         x="194.31921"
+         y="577.49854"><tspan
+           id="tspan4643-1"
+           x="195.53317"
+           y="588.52686"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"><tspan
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan4297-6">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+    </g>
+    <rect
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect947-1"
+       width="232.43015"
+       height="87.521873"
+       x="369.58401"
+       y="1436.488" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:55.58415604px;line-height:0%;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+       x="377.98264"
+       y="1492.0511"
+       id="text955-7"><tspan
+         id="tspan953-3"
+         x="377.98264"
+         y="1492.0511"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;stroke-width:1"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;fill:#ffffff;stroke-width:1"
+           id="tspan949-2">auto</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;fill:#ff5555;stroke-width:1"
+           id="tspan951-9">diff</tspan></tspan></text>
+    <g
+       transform="translate(290.18092,920.04579)"
+       id="g963-4">
+      <text
+         y="577.49854"
+         x="194.31921"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         xml:space="preserve"
+         id="text961-0"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"
+           y="588.52686"
+           x="195.53317"
+           id="tspan959-7"><tspan
+   id="tspan957-9"
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+    </g>
+    <g
+       id="g2075"
+       transform="translate(-579.81544,192.17745)">
+      <rect
+         y="1571.6154"
+         x="692.35132"
+         height="87.521873"
+         width="232.43015"
+         id="rect1091-4"
+         style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         id="text1099-2"
+         y="1625.717"
+         x="700.62329"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:51.70249939px;line-height:0%;font-family:'TeX Gyre Bonum';-inkscape-font-specification:'TeX Gyre Bonum';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Bonum';-inkscape-font-specification:'TeX Gyre Bonum';stroke-width:0.99999994"
+           y="1625.717"
+           x="700.62329"
+           id="tspan1097-2"><tspan
+             id="tspan1093-6"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Bonum';-inkscape-font-specification:'TeX Gyre Bonum';fill:#ffffff;stroke-width:0.99999994">auto</tspan><tspan
+             id="tspan1095-2"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Bonum';-inkscape-font-specification:'TeX Gyre Bonum';fill:#ff5555;stroke-width:0.99999994">diff</tspan></tspan></text>
+      <g
+         id="g1107-4"
+         transform="translate(612.94826,1055.1731)">
+        <text
+           id="text1105-6"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+           x="194.31921"
+           y="577.49854"><tspan
+             id="tspan1103-8"
+             x="195.53317"
+             y="588.52686"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"><tspan
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1101-4">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+      </g>
+    </g>
+    <rect
+       y="1546.4536"
+       x="369.58401"
+       height="87.521873"
+       width="232.43015"
+       id="rect1139-4"
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <g
+       id="g2248"
+       transform="translate(3.7326813e-5,-0.48942779)">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:58.22078705px;line-height:0%;font-family:'TeX Gyre Chorus';-inkscape-font-specification:'TeX Gyre Chorus';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         x="378.43219"
+         y="1602.8464"
+         id="text1147-7"><tspan
+           id="tspan1145-8"
+           x="378.43219"
+           y="1602.8464"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Pagella';-inkscape-font-specification:'TeX Gyre Pagella';stroke-width:0.99999994"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Pagella';-inkscape-font-specification:'TeX Gyre Pagella';fill:#ffffff;stroke-width:0.99999994"
+             id="tspan1141-9">auto</tspan><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Pagella';-inkscape-font-specification:'TeX Gyre Pagella';fill:#ff5555;stroke-width:0.99999994"
+             id="tspan1143-0">diff</tspan></tspan></text>
+      <g
+         transform="translate(290.18091,1030.0113)"
+         id="g1155-3">
+        <text
+           y="577.49854"
+           x="194.31921"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+           xml:space="preserve"
+           id="text1153-6"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"
+             y="588.52686"
+             x="195.53317"
+             id="tspan1151-6"><tspan
+   id="tspan1149-5"
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+      </g>
+    </g>
+    <rect
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1361-1"
+       width="232.43015"
+       height="87.521873"
+       x="112.53588"
+       y="1546.4536" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:68.41960144px;line-height:0%;font-family:'EB Garamond';-inkscape-font-specification:'EB Garamond Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+       x="120.03434"
+       y="1600.1793"
+       id="text1369-0"><tspan
+         id="tspan1367-4"
+         x="120.03434"
+         y="1600.1793"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'EB Garamond';-inkscape-font-specification:'EB Garamond Bold';stroke-width:1"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'EB Garamond';-inkscape-font-specification:'EB Garamond Bold';fill:#ffffff;stroke-width:1"
+           id="tspan1363-1">auto</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'EB Garamond';-inkscape-font-specification:'EB Garamond Bold';fill:#ff5555;stroke-width:1"
+           id="tspan1365-1">diff</tspan></tspan></text>
+    <g
+       transform="translate(33.132803,1030.0113)"
+       id="g1377-0">
+      <text
+         y="577.49854"
+         x="194.31921"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         xml:space="preserve"
+         id="text1375-4"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"
+           y="588.52686"
+           x="195.53317"
+           id="tspan1373-7"><tspan
+   id="tspan1371-9"
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+    </g>
+    <rect
+       y="1660.6317"
+       x="369.58398"
+       height="87.521873"
+       width="232.43015"
+       id="rect995-4"
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       id="text1003-0"
+       y="1710.1176"
+       x="372.68109"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:47.1368103px;line-height:0%;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:1"
+         y="1710.1176"
+         x="372.68109"
+         id="tspan1001-2"><tspan
+           id="tspan997-9"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#ffffff;stroke-width:1">auto</tspan><tspan
+           id="tspan999-0"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#ff5555;stroke-width:1">diff</tspan></tspan></text>
+    <g
+       id="g1011-0"
+       transform="translate(290.18097,1144.1894)">
+      <text
+         id="text1009-6"
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         x="194.31921"
+         y="577.49854"><tspan
+           id="tspan1007-4"
+           x="195.53317"
+           y="588.52686"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"><tspan
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1005-7">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+    </g>
+    <rect
+       y="1660.6317"
+       x="112.53588"
+       height="87.521873"
+       width="232.43015"
+       id="rect1435-2"
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       id="text1443-0"
+       y="1716.8367"
+       x="121.2382"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:63.69282913px;line-height:0%;font-family:'Gentium Plus Compact';-inkscape-font-specification:'Gentium Plus Compact';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic';stroke-width:0.99999994"
+         y="1716.8367"
+         x="121.2382"
+         id="tspan1441-8"><tspan
+           id="tspan1437-1"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic';fill:#ffffff;stroke-width:0.99999994">auto</tspan><tspan
+           id="tspan1439-2"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic';fill:#ff5555;stroke-width:0.99999994">diff</tspan></tspan></text>
+    <g
+       id="g1451-2"
+       transform="translate(33.132803,1144.1893)">
+      <text
+         id="text1449-8"
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         x="194.31921"
+         y="577.49854"><tspan
+           id="tspan1447-6"
+           x="195.53317"
+           y="588.52686"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"><tspan
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan1445-3">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+    </g>
+    <g
+       transform="translate(-322.76732,192.17745)"
+       id="g2173">
+      <rect
+         style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect2155"
+         width="232.43015"
+         height="87.521873"
+         x="692.35132"
+         y="1571.6154" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:71.29846954px;line-height:0%;font-family:'TeX Gyre Bonum';-inkscape-font-specification:'TeX Gyre Bonum';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         x="696.6189"
+         y="1624.6372"
+         id="text2163"><tspan
+           id="tspan2161"
+           x="696.6189"
+           y="1624.6372"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Chorus';-inkscape-font-specification:'TeX Gyre Chorus';stroke-width:0.99999994"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Chorus';-inkscape-font-specification:'TeX Gyre Chorus';fill:#ffffff;stroke-width:0.99999994"
+             id="tspan2157">auto</tspan><tspan
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Chorus';-inkscape-font-specification:'TeX Gyre Chorus';fill:#ff5555;stroke-width:0.99999994"
+             id="tspan2159">diff</tspan></tspan></text>
+      <g
+         transform="translate(612.94826,1064.1292)"
+         id="g2171">
+        <text
+           y="577.49854"
+           x="194.31921"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+           xml:space="preserve"
+           id="text2169"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"
+             y="588.52686"
+             x="195.53317"
+             id="tspan2167"><tspan
+   id="tspan2165"
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+      </g>
+    </g>
+    <g
+       id="g2606"
+       transform="matrix(1.0143839,0,0,1.0143839,-15.003745,2.1182581)"
+       style="stroke-width:0.98582006">
+      <circle
+         r="13.251886"
+         cy="209.20923"
+         cx="1056.3458"
+         id="path2276"
+         style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.09858201;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <path
+         id="path2256"
+         d="m 1061.9397,206.718 h -3.1965 v -4.7947 h -4.7947 v 4.7947 h -3.1965 l 5.5938,5.59384 z m -11.1877,7.19205 v 1.5982 h 11.1877 v -1.5982 z"
+         inkscape:connector-curvature="0"
+         style="fill:#ffffff;stroke-width:0.26083156" />
+      <path
+         id="path2258"
+         d="m 1044.503,197.36636 h 23.6857 v 23.68575 h -23.6857 z"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke-width:0.26083156" />
+    </g>
+    <rect
+       y="67.429123"
+       x="1006.7911"
+       height="57.880302"
+       width="232.43015"
+       id="rect2350"
+       style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:1.88976371;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <rect
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2352"
+       width="232.43015"
+       height="87.521866"
+       x="1006.7911"
+       y="-20.092728" />
+    <g
+       id="g2406"
+       transform="translate(83.143185,-533.75861)">
+      <text
+         id="text2360"
+         y="561.07184"
+         x="926.74506"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:47.1368103px;line-height:0%;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:1"
+           y="561.07184"
+           x="926.74506"
+           id="tspan2358"><tspan
+             id="tspan2354"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#ffffff;stroke-width:1">auto</tspan><tspan
+             id="tspan2356"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#ff5555;stroke-width:1">diff</tspan></tspan></text>
+      <g
+         id="g2368"
+         transform="translate(844.24489,-4.8562351)">
+        <text
+           id="text2366"
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+           x="194.31921"
+           y="577.49854"><tspan
+             id="tspan2364"
+             x="195.53317"
+             y="588.52686"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"><tspan
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan2362">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+      </g>
+    </g>
+    <text
+       id="text2396"
+       y="78.947861"
+       x="1054.0549"
+       style="font-style:normal;font-weight:normal;font-size:9.31447601px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="78.947861"
+         x="1054.0549"
+         id="tspan2372"><tspan
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan2370">var</tspan> x, y, z;</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="88.262314"
+         x="1054.0549"
+         id="tspan2376"><tspan
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan2374">var</tspan> u = f(x, y, z);</tspan><tspan
+         id="tspan2382"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="97.576767"
+         x="1054.0549"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan2378">double</tspan> dudx = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan2380">grad</tspan>(u, x);</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="106.89128"
+         x="1054.0549"
+         id="tspan2388"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan2384">double</tspan> dudy = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan2386">grad</tspan>(u, y);</tspan><tspan
+         id="tspan2394"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         y="116.20573"
+         x="1054.0549"><tspan
+   style="fill:#808080;stroke-width:0.99999994"
+   id="tspan2390">double</tspan> dudz = <tspan
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
+   id="tspan2392">grad</tspan>(u, z);</tspan></text>
+    <g
+       id="g2601">
+      <text
+         id="text2274"
+         y="213.69704"
+         x="1076.1252"
+         style="font-style:normal;font-weight:normal;font-size:18.9506073px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332;fill:#333333;fill-opacity:1;"
+           y="213.69704"
+           x="1076.1252"
+           id="tspan2272"
+           sodipodi:role="line">autodiff.hpp</tspan></text>
+      <g
+         style="fill:#333333;fill-opacity:1"
+         transform="translate(900.05537,-298.55115)"
+         id="g2575">
+        <text
+           y="513.55029"
+           x="264.39151"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.28728008px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+           xml:space="preserve"
+           id="text2573"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#999999;fill-opacity:1;stroke-width:0.99999994"
+             y="524.57861"
+             x="265.60547"
+             id="tspan2571">the only file you'll need</tspan></text>
+      </g>
+    </g>
   </g>
 </svg>
