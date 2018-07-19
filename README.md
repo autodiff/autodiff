@@ -171,7 +171,8 @@ dy/dc = 0.420735
 # What is missing?
 
 1. Combine autodiff with C++ linear algebra library [Eigen][Eigen].
-2. 
+2. Evaluate the performance of autodiff for many functions with different complexity.
+
 # License
 
 MIT License

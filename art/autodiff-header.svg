@@ -7,8 +7,8 @@
    xmlns="http://www.w3.org/2000/svg"
    id="svg8"
    version="1.1"
-   viewBox="0 0 232.43015 236.10212"
-   height="236.10213mm"
+   viewBox="0 0 232.43015 222.17791"
+   height="222.17792mm"
    width="232.43015mm">
   <defs
      id="defs2">
@@ -53,6 +53,13 @@
      transform="translate(-1351.2864,20.092728)"
      id="layer1">
     <rect
+       style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:1.88976383;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect5573"
+       width="232.43015"
+       height="8.822463"
+       x="1351.2864"
+       y="67.429123" />
+    <rect
        rx="5"
        ry="5"
        style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -75,7 +82,7 @@
        ry="5"
        y="67.429123"
        x="1351.2864"
-       height="148.58028"
+       height="134.65607"
        width="232.43015"
        id="rect3809"
        style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:1.88976371;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
@@ -1479,32 +1486,32 @@
     </g>
     <text
        id="text3857"
-       y="97.297012"
+       y="87.038986"
        x="1382.2057"
        style="font-style:normal;font-weight:normal;font-size:11.52241707px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.91624737px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
-         y="97.297012"
+         y="87.038986"
          x="1382.2057"
          id="tspan3833"><tspan
    style="line-height:2.91624737px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
    id="tspan3831">var</tspan> x, y, z;</tspan><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.91624737px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
-         y="108.81932"
+         y="98.561325"
          x="1382.2057"
          id="tspan3837"><tspan
    style="line-height:2.91624737px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
    id="tspan3835">var</tspan> u = f(x, y, z);</tspan><tspan
          id="tspan3843"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.91624737px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
-         y="120.34174"
+         y="110.08369"
          x="1382.2057"><tspan
    style="fill:#808080;stroke-width:0.99999994"
    id="tspan3839">double</tspan> dudx = <tspan
    style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
    id="tspan3841">grad</tspan>(u, x);</tspan><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.91624737px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
-         y="131.86417"
+         y="121.60619"
          x="1382.2057"
          id="tspan3849"><tspan
    style="fill:#808080;stroke-width:0.99999994"
@@ -1513,60 +1520,58 @@
    id="tspan3847">grad</tspan>(u, y);</tspan><tspan
          id="tspan3855"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.91624737px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
-         y="143.38641"
+         y="133.12846"
          x="1382.2057"><tspan
    style="fill:#808080;stroke-width:0.99999994"
    id="tspan3851">double</tspan> dudz = <tspan
    style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994"
    id="tspan3853">grad</tspan>(u, z);</tspan></text>
     <g
-       id="g3867"
-       transform="matrix(1.1794909,0,0,1.1794909,168.70959,-55.133194)"
-       style="fill:#333333;fill-opacity:1;stroke-width:0.84782344">
-      <circle
-         r="13.251886"
-         cy="209.20923"
-         cx="1056.3458"
-         id="circle3861"
-         style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.08478235;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
-      <path
-         id="path3863"
-         d="m 1061.9397,206.718 h -3.1965 v -4.7947 h -4.7947 v 4.7947 h -3.1965 l 5.5938,5.59384 z m -11.1877,7.19205 v 1.5982 h 11.1877 v -1.5982 z"
-         style="fill:#ffffff;stroke-width:0.22431996" />
-      <path
-         id="path3865"
-         d="m 1044.503,197.36636 h 23.6857 v 23.68575 h -23.6857 z"
-         style="fill:none;stroke-width:0.22431996" />
-    </g>
-    <g
-       id="g5151">
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-weight:normal;font-size:18.9506073px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         x="1437.9528"
-         y="191.34387"
-         id="text3871"><tspan
-           id="tspan3869"
-           x="1437.9528"
+       transform="translate(5.1633333e-5,-1.9974682)"
+       id="g6000">
+      <g
+         style="fill:#333333;fill-opacity:1;stroke-width:0.84782344"
+         transform="matrix(1.1794909,0,0,1.1794909,168.70959,-68.891536)"
+         id="g3867">
+        <circle
+           style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.08478235;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           id="circle3861"
+           cx="1056.3458"
+           cy="209.20923"
+           r="13.251886" />
+        <path
+           style="fill:#ffffff;stroke-width:0.22431996"
+           d="m 1061.9397,206.718 h -3.1965 v -4.7947 h -4.7947 v 4.7947 h -3.1965 l 5.5938,5.59384 z m -11.1877,7.19205 v 1.5982 h 11.1877 v -1.5982 z"
+           id="path3863" />
+        <path
+           style="fill:none;stroke-width:0.22431996"
+           d="m 1044.503,197.36636 h 23.6857 v 23.68575 h -23.6857 z"
+           id="path3865" />
+      </g>
+      <g
+         id="g5151"
+         transform="translate(0,-13.758336)">
+        <text
+           id="text3871"
            y="191.34387"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.26458332">autodiff.hpp</tspan></text>
-      <text
-         id="text3875"
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.1329627px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
-         x="1537.7577"
-         y="194.92377"><tspan
-           id="tspan3873"
-           x="1538.6561"
-           y="203.08524"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#999999;fill-opacity:1;stroke-width:0.99999994">the only file you'll need!</tspan></text>
+           x="1437.9528"
+           style="font-style:normal;font-weight:normal;font-size:18.9506073px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+           xml:space="preserve"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.26458332"
+             y="191.34387"
+             x="1437.9528"
+             id="tspan3869">autodiff.hpp</tspan></text>
+        <text
+           y="194.92377"
+           x="1537.7577"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.1329627px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+           xml:space="preserve"
+           id="text3875"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#999999;fill-opacity:1;stroke-width:0.99999994"
+             y="203.08524"
+             x="1538.6561"
+             id="tspan3873">the only file you'll need!</tspan></text>
+      </g>
     </g>
-    <rect
-       style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:1.88976383;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect5573"
-       width="232.43015"
-       height="8.822463"
-       x="1351.2864"
-       y="67.429123" />
   </g>
 </svg>
