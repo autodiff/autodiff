@@ -1,6 +1,5 @@
 // C++ includes
 #include <cmath>
-#include <iostream>
 #include <memory>
 
 /// autodiff namespace where @ref var and @ref grad are defined.
@@ -377,11 +376,11 @@ inline double grad(const var& y, const var& x)
     return y.expr->grad(x.expr);
 }
 
+} // namespace autodiff
+
 /// Output a var object variable to the output stream.
-inline std::ostream& operator<<(std::ostream& out, const var& x)
+inline std::ostream& operator<<(std::ostream& out, const autodiff::var& x)
 {
-    out << val(x);
+    out << autodiff::val(x);
     return out;
 }
-
-} // namespace autodiff
