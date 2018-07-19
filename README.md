@@ -189,7 +189,7 @@ dy/dc = 0.420735
 
 MIT License
 
-Copyright (c) 2018 autodiff
+Copyright (c) 2018 Allan Leal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
