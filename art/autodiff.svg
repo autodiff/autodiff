@@ -9,12 +9,12 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="217.90326mm"
-   height="85.800591mm"
-   viewBox="0 0 217.90326 85.800591"
+   width="232.43015mm"
+   height="145.40216mm"
+   viewBox="0 0 232.43015 145.40216"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   inkscape:version="0.92.3 (3ce5693, 2018-03-11)"
    sodipodi:docname="autodiff.svg">
   <defs
      id="defs2">
@@ -56,15 +56,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="287.7505"
-     inkscape:cy="295.01277"
+     inkscape:zoom="0.7"
+     inkscape:cx="315.74343"
+     inkscape:cy="74.351784"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="3840"
-     inkscape:window-height="2123"
-     inkscape:window-x="3840"
+     inkscape:window-width="1920"
+     inkscape:window-height="1015"
+     inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      fit-margin-top="0"
@@ -87,7 +87,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-221.87201,-56.607143)">
+     transform="translate(-78.241066,-511.58606)">
     <rect
        style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect843"
@@ -97,7 +97,7 @@
        y="56.607143" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="174.15904"
        y="177.37634"
        id="text817"><tspan
@@ -105,17 +105,17 @@
          id="tspan815"
          x="174.15904"
          y="177.37634"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.26458332">y = f(x) </tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.26458332">y = f(x) </tspan><tspan
          sodipodi:role="line"
          x="174.15904"
-         y="182.96983"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.26458332"
+         y="182.66801"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.26458332"
          id="tspan905">dydx = grad(y, x)</tspan><tspan
          sodipodi:role="line"
          x="174.15904"
-         y="188.56332"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan819" /></text>
+         y="187.95967"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.23333311px;line-height:1.25;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.26458332"
+         id="tspan819"> </tspan></text>
     <g
        id="g903"
        transform="translate(-0.01264143,0.09449462)">
@@ -123,9 +123,9 @@
          id="text823"
          y="105.99804"
          x="236.06351"
-         style="font-style:normal;font-weight:normal;font-size:39.49227142px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458335"
+         style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458335"
          xml:space="preserve"><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458335"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:39.49227142px;line-height:1.25;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458335"
            y="105.99804"
            x="236.06351"
            id="tspan821"
@@ -138,9 +138,9 @@
          id="text835"
          y="118.25326"
          x="243.81985"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.21115589px;line-height:1.25;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
          xml:space="preserve"><tspan
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';fill:#999999;stroke-width:0.26458332"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.21115589px;line-height:1.25;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';fill:#999999;stroke-width:0.26458332"
            y="118.25326"
            x="243.81985"
            id="tspan833"
@@ -296,9 +296,9 @@
        id="text2431"
        y="75.665451"
        x="472.66397"
-       style="font-style:normal;font-weight:normal;font-size:39.49227142px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458335"
+       style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458335"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458335"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:39.49227142px;line-height:1.25;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458335"
          y="75.665451"
          x="472.66397"
          id="tspan2429"
@@ -311,9 +311,9 @@
        id="text2437"
        y="101.679"
        x="480.42032"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.21115589px;line-height:1.25;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';fill:#999999;stroke-width:0.26458332"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.21115589px;line-height:1.25;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';fill:#999999;stroke-width:0.26458332"
          y="101.679"
          x="480.42032"
          id="tspan2435"
@@ -450,5 +450,91 @@
            inkscape:connector-curvature="0" />
       </g>
     </g>
+    <rect
+       style="opacity:1;fill:#f9f9f9;fill-opacity:1;stroke:none;stroke-width:1.88976371;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1057"
+       width="232.43015"
+       height="57.880302"
+       x="78.241066"
+       y="599.10791" />
+    <rect
+       y="511.58606"
+       x="78.241066"
+       height="87.521866"
+       width="232.43015"
+       id="rect843-3"
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke:none;stroke-width:1.88976359;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       id="text823-6"
+       y="549.92169"
+       x="83.420876"
+       style="font-style:normal;font-weight:normal;font-size:46.26892853px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:1"
+         y="549.92169"
+         x="83.420876"
+         id="tspan821-7"><tspan
+           id="tspan825-5"
+           style="fill:#ffffff;stroke-width:1">auto</tspan><tspan
+           id="tspan831-3"
+           style="fill:#ff5555;stroke-width:1">diff</tspan></tspan></text>
+    <g
+       id="g4290"
+       transform="translate(-1.1620032,-10.160001)">
+      <text
+         id="text4641"
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.70213795px;line-height:0%;font-family:'Courier Prime Sans';-inkscape-font-specification:'Courier Prime Sans';letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+         x="194.41093"
+         y="578.11719"><tspan
+           id="tspan4643"
+           x="195.53917"
+           y="588.36688"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;text-align:center;text-anchor:middle;fill:#f9f9f9;fill-opacity:1;stroke-width:0.99999994"><tspan
+   style="font-weight:bold;fill:#ff5555;fill-opacity:1"
+   id="tspan4297">automatic differentiation</tspan> in C++ couldn't be simpler</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:9.31447601px;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.99999994"
+       x="125.50492"
+       y="610.62665"
+       id="text980"><tspan
+         id="tspan1020"
+         x="125.50492"
+         y="610.62665"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"><tspan
+   id="tspan1022"
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">var</tspan> x, y, z;</tspan><tspan
+         id="tspan994"
+         x="125.50492"
+         y="619.9411"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"><tspan
+   id="tspan996"
+   style="line-height:2.35743189px;fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">var</tspan> u = f(x, y, z);</tspan><tspan
+         x="125.50492"
+         y="629.25555"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         id="tspan976"><tspan
+   id="tspan1026"
+   style="fill:#808080;stroke-width:0.99999994">double</tspan> dudx = <tspan
+   id="tspan1034"
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">grad</tspan>(u, x);</tspan><tspan
+         id="tspan1014"
+         x="125.50492"
+         y="638.57007"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"><tspan
+   id="tspan1030"
+   style="fill:#808080;stroke-width:0.99999994">double</tspan> dudy = <tspan
+   id="tspan1036"
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">grad</tspan>(u, y);</tspan><tspan
+         x="125.50492"
+         y="647.88452"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:2.35743189px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';fill:#333333;fill-opacity:1;stroke-width:0.99999994"
+         id="tspan978"><tspan
+   id="tspan1028"
+   style="fill:#808080;stroke-width:0.99999994">double</tspan> dudz = <tspan
+   id="tspan1038"
+   style="fill:#ff5555;fill-opacity:1;stroke-width:0.99999994">grad</tspan>(u, z);</tspan></text>
   </g>
 </svg>
