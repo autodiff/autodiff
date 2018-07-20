@@ -172,6 +172,46 @@ dy/dc = 0.420735
 
 1. Combine autodiff with C++ linear algebra library [Eigen][Eigen].
 2. 
+
+# How does it work?
+
+`autodiff` works its magic in calculating *a posteriori* derivatives of any function or expression by generating an **expression tree** of the full evaluation procedure. For example, in the code below:
+
+~~~c++
+var x = 0.5;
+var y = x * log(x)
+~~~
+
+the variable `y` not only knows its value, given by `0.5 * log(0.5)`, but also how this value was computed step by step. 
+
+Every `var` variable has a data member `var::expr` that stores the expression tree that defines its own evaluation. This is the key information every `var` variable knows that permit autodiff to evaluate derivatives of **any `var` variable with respect to any `var` variable**. This is what mainly differs `var` from other fundamental floating-point types such as `double` and `float`.
+
+
+
+This expression tree can be  can 
+
+of mathematical evaluations
+
+which is a pointer (a *shared pointer*, more precisely) the expression tree constructed as 
+
+ato  data  by holding information about the  
+
+
+using the following features of C++:
+
+- operator overloading
+- inheritance; and 
+- polymorphism.
+
+The real magic in calculating derivatives with `autodiff` does not actually happen because of type `autodiff::var`, but `autodiff::expr`
+
+
+Operator overloading is used to permit the use of arithmetic operators for variables of type `var`.
+
+
+
+combines operator overloading in C++ with 
+
 # License
 
 MIT License
