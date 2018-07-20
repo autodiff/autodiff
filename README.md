@@ -185,7 +185,7 @@ dy/dc = 0.420735
 
 1. Combine autodiff with C++ linear algebra library [Eigen][Eigen].
 1. Evaluate the performance of autodiff for many functions with different complexity.
-1. Support higher order derivatives - `autodiff::grad` function returns `var` instead of `double` so that repeated evaluations of `autodiff::grad` computes derivatives with one order higher.
+1. Support higher order derivatives -- `autodiff::grad` function should return `var` instead of `double` so that repeated evaluations of `autodiff::grad` computes higher order derivatives.
 
 # How does it work?
 
