@@ -1,5 +1,6 @@
-[![autodiff](art/autodiff-header.svg)][autodiff]
-
+<p align="center">
+    <img src="art/autodiff-header.svg" style="max-width:100%;" title="autodiff">
+</p>
 
 # Overview
 
@@ -183,27 +184,26 @@ dy/dc = 0.420735
 # What is missing?
 
 1. Combine autodiff with C++ linear algebra library [Eigen][Eigen].
-
-2. Evaluate the performance of autodiff for many functions with different complexity.
+1. Evaluate the performance of autodiff for many functions with different complexity.
+1. Support higher order derivatives - `autodiff::grad` function returns `var` instead of `double` so that repeated evaluations of `autodiff::grad` computes derivatives with one order higher.
 
 # How does it work?
 
-`autodiff` works its magic in calculating *a posteriori* derivatives of **any `var` variable with respect to any `var` variable** by generating an **expression tree** of the entire evaluation procedure. For example, in the code below:
+`autodiff` works its magic in calculating *a posteriori* derivatives of **any `var` variable** with respect to **any `var` variable** by generating an **expression tree** of the entire evaluation procedure. For example, in the code below:
 
 ~~~c++
-var x = 0.5;
-var y = x * log(x)
+var x = 2.0;
+var y = 1.0;
+var u = (x + y) * log(x - y)
 ~~~
 
-the `var` variable `y` not only knows its value, given by `0.5 * log(0.5)`, but also how this value was computed step by step. This expression tree information that defines how a `var` variables is evaluated is stored in the data member `var::expr`. Every time a mathematical function (e.g., `sin`, `cos`, `log`, etc.) is applied to a `var` variable, or two or more such variables interact with each other arithmetically (e.g., operators `+`, `-`, `*`, `/`, etc.) a new expression tree is formed as a result by combining the expression trees of the participating intermediate variables. At some point, the output variable of interest has been fully evaluated, producing not only its actual value but alto the corresponding expression tree to calculate that value. 
+the variable `u` not only knows its value, given by `(2.0 + 1.0) * log(2.0 - 1.0)`, but also how this value is computed step-by-step by storing the following expression tree:
 
-The following features of C++ are extensively used in `autodiff:
+<p align="center">
+    <img src="art/expression-tree-diagram.svg" style="max-width:100%;" title="Expression tree diagram.">
+</p>
 
-- operator overloading
-- inheritance; and 
-- polymorphism.
-
-Operator overloading is used to permit the use of arithmetic operators for variables of type `var`.
+Every time an operation is performed on a variable of type `var` (e.g., via mathematical functions `sin`, `cos`, `log`, or via arithmetic operators `+`, `-`, `*`, `/`) a new unary or binary expression tree is formed. Each newly formed expression tree is a combination of previously created ones. For example, `(x + y) * log(x - y)` is a combination of the expression trees resulting from the binary operations `x + y` and `x - y` as well as the unary operation `log(x - y)`. Note that the tree is then constructed from bottom to top as illustrated in the diagram. At the end of this tree construction, the output variable of interest (our `u` variable in the example) has been fully evaluated, producing not only its actual numerical value but alto the corresponding expression tree that defines the algebraic steps for its calculation. By traversing this expression tree and applying rules of differentiation to each sub-expression (e.g., derivative rules for arithmetic operations and common mathematical functions), it is possible to compute derivatives of any order, with respect to any available `var` variable.
 
 # License
 
