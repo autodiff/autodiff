@@ -181,11 +181,21 @@ dy/db = 0.877583
 dy/dc = 0.420735
 ~~~
 
+## Example 4: Gradient of a scalar function (using autodiff with Eigen support)
+
+> TODO: Feature already implemented but example is needed here.
+
+## Example 5: Jacobian of a vector function (using autodiff with Eigen support)
+
+> TODO: Feature already implemented but example is needed here.
+
+## Example 6: Evaluation of higher-order derivatives
+
+> TODO: Feature already implemented but example is needed here on how to use `autodiff::gradx` instead of `autodiff::grad`.
+
 # What is missing?
 
-1. Combine autodiff with C++ linear algebra library [Eigen][Eigen].
 1. Evaluate the performance of autodiff for many functions with different complexity.
-1. Support higher order derivatives -- `autodiff::grad` function should return `var` instead of `double` so that repeated evaluations of `autodiff::grad` computes higher order derivatives.
 
 # How does it work?
 
