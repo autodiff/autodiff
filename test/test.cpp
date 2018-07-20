@@ -2,7 +2,7 @@
 #include "catch.hpp"
 
 // autodiff includes
-#include <autodiff/autodiff.hpp>
+#include <autodiff.hpp>
 using namespace autodiff;
 
 TEST_CASE("autodiff tests", "[autodiff]")
