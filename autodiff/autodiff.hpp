@@ -8,16 +8,132 @@ namespace autodiff {
 namespace internal {
 
 struct Expr;
+struct ParameterExpr;
+struct VariableExpr;
+struct ConstantExpr;
+struct UnaryExpr;
+struct NegativeExpr;
+struct BinaryExpr;
+struct AddExpr;
+struct SubExpr;
+struct MulExpr;
+struct DivExpr;
+struct SinExpr;
+struct CosExpr;
+struct TanExpr;
+struct ArcSinExpr;
+struct ArcCosExpr;
+struct ArcTanExpr;
+struct ExpExpr;
+struct LogExpr;
+struct Log10Expr;
+struct PowExpr;
+struct SqrtExpr;
+struct AbsExpr;
 
 using ExprPtr = std::shared_ptr<Expr>;
 
+//------------------------------------------------------------------------------
+// CONVENIENT FUNCTIONS (DECLARATION ONLY)
+//------------------------------------------------------------------------------
+ExprPtr constant(double val);
+
+//------------------------------------------------------------------------------
+// ARITHMETIC OPERATORS (DECLARATION ONLY)
+//------------------------------------------------------------------------------
+ExprPtr operator+(const ExprPtr& r);
+ExprPtr operator-(const ExprPtr& r);
+
+ExprPtr operator+(const ExprPtr& l, const ExprPtr& r);
+ExprPtr operator-(const ExprPtr& l, const ExprPtr& r);
+ExprPtr operator*(const ExprPtr& l, const ExprPtr& r);
+ExprPtr operator/(const ExprPtr& l, const ExprPtr& r);
+
+ExprPtr operator+(double l, const ExprPtr& r);
+ExprPtr operator-(double l, const ExprPtr& r);
+ExprPtr operator*(double l, const ExprPtr& r);
+ExprPtr operator/(double l, const ExprPtr& r);
+
+ExprPtr operator+(const ExprPtr& l, double r);
+ExprPtr operator-(const ExprPtr& l, double r);
+ExprPtr operator*(const ExprPtr& l, double r);
+ExprPtr operator/(const ExprPtr& l, double r);
+
+//------------------------------------------------------------------------------
+// TRIGONOMETRIC FUNCTIONS (DECLARATION ONLY)
+//------------------------------------------------------------------------------
+ExprPtr sin(const ExprPtr& x);
+ExprPtr cos(const ExprPtr& x);
+ExprPtr tan(const ExprPtr& x);
+ExprPtr asin(const ExprPtr& x);
+ExprPtr acos(const ExprPtr& x);
+ExprPtr atan(const ExprPtr& x);
+
+//------------------------------------------------------------------------------
+// HYPERBOLIC FUNCTIONS (DECLARATION ONLY)
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// EXPONENTIAL AND LOGARITHMIC FUNCTIONS (DECLARATION ONLY)
+//------------------------------------------------------------------------------
+ExprPtr exp(const ExprPtr& x);
+ExprPtr log(const ExprPtr& x);
+ExprPtr log10(const ExprPtr& x);
+
+//------------------------------------------------------------------------------
+// POWER FUNCTIONS (DECLARATION ONLY)
+//------------------------------------------------------------------------------
+ExprPtr pow(const ExprPtr& l, const ExprPtr& r);
+ExprPtr pow(double l, const ExprPtr& r);
+ExprPtr pow(const ExprPtr& l, double r);
+ExprPtr sqrt(const ExprPtr& x);
+
+//------------------------------------------------------------------------------
+// OTHER FUNCTIONS (DECLARATION ONLY)
+//------------------------------------------------------------------------------
+ExprPtr abs(const ExprPtr& x);
+ExprPtr abs2(const ExprPtr& x);
+ExprPtr conj(const ExprPtr& x);
+ExprPtr real(const ExprPtr& x);
+ExprPtr imag(const ExprPtr& x);
+
+//------------------------------------------------------------------------------
+// COMPARISON OPERATORS (DECLARATION ONLY)
+//------------------------------------------------------------------------------
+bool operator==(const ExprPtr& l, const ExprPtr& r);
+bool operator!=(const ExprPtr& l, const ExprPtr& r);
+bool operator<=(const ExprPtr& l, const ExprPtr& r);
+bool operator>=(const ExprPtr& l, const ExprPtr& r);
+bool operator<(const ExprPtr& l, const ExprPtr& r);
+bool operator>(const ExprPtr& l, const ExprPtr& r);
+
+bool operator==(double l, const ExprPtr& r);
+bool operator!=(double l, const ExprPtr& r);
+bool operator<=(double l, const ExprPtr& r);
+bool operator>=(double l, const ExprPtr& r);
+bool operator<(double l, const ExprPtr& r);
+bool operator>(double l, const ExprPtr& r);
+
+bool operator==(const ExprPtr& l, double r);
+bool operator!=(const ExprPtr& l, double r);
+bool operator<=(const ExprPtr& l, double r);
+bool operator>=(const ExprPtr& l, double r);
+bool operator<(const ExprPtr& l, double r);
+bool operator>(const ExprPtr& l, double r);
+
 struct Expr
 {
+    /// The numerical value of this expression.
     double val;
 
+    /// Construct an Expr object with given numerical value.
     explicit Expr(double val) : val(val) {}
 
+    /// Return the gradient value of this expression with respect to given variable.
     virtual double grad(const ExprPtr& param) const = 0;
+
+    /// Return the gradient expression of this expression with respect to given variable.
+    virtual ExprPtr gradx(const ExprPtr& param) const = 0;
 };
 
 struct ParameterExpr : Expr
@@ -27,6 +143,11 @@ struct ParameterExpr : Expr
     virtual double grad(const ExprPtr& param) const
     {
         return this == param.get();
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return constant(this == param.get());
     }
 };
 
@@ -40,6 +161,11 @@ struct VariableExpr : Expr
     {
         return this == param.get() ? 1.0 : expr->grad(param);
     }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return this == param.get() ? constant(1.0) : expr->gradx(param);
+    }
 };
 
 struct ConstantExpr : Expr
@@ -49,6 +175,11 @@ struct ConstantExpr : Expr
     virtual double grad(const ExprPtr& param) const
     {
         return 0.0;
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return constant(0.0);
     }
 };
 
@@ -67,6 +198,11 @@ struct NegativeExpr : UnaryExpr
     {
         return -x->grad(param);
     }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return -x->gradx(param);
+    }
 };
 
 struct BinaryExpr : Expr
@@ -84,6 +220,11 @@ struct AddExpr : BinaryExpr
     {
         return l->grad(param) + r->grad(param);
     }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return l->gradx(param) + r->gradx(param);
+    }
 };
 
 struct SubExpr : BinaryExpr
@@ -93,6 +234,11 @@ struct SubExpr : BinaryExpr
     virtual double grad(const ExprPtr& param) const
     {
         return l->grad(param) - r->grad(param);
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return l->gradx(param) - r->gradx(param);
     }
 };
 
@@ -104,6 +250,11 @@ struct MulExpr : BinaryExpr
     {
         return l->grad(param) * r->val + l->val * r->grad(param);
     }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return l->gradx(param) * r + l * r->gradx(param);
+    }
 };
 
 struct DivExpr : BinaryExpr
@@ -112,80 +263,114 @@ struct DivExpr : BinaryExpr
 
     virtual double grad(const ExprPtr& param) const
     {
-        const double rval = r->val;
-        return ( l->grad(param) * rval - l->val * r->grad(param) ) / (rval * rval);
+        return ( l->grad(param) * r->val - l->val * r->grad(param) ) / (r->val * r->val);
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return ( l->gradx(param) * r - l * r->gradx(param) ) / (r * r);
     }
 };
 
 struct SinExpr : UnaryExpr
 {
-    double cos_x;
+    double aux;
 
-    SinExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), cos_x(std::cos(x->val)) {}
+    SinExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(std::cos(x->val)) {}
 
     virtual double grad(const ExprPtr& param) const
     {
-        return cos_x * x->grad(param);
+        return aux * x->grad(param);
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return cos(x) * x->gradx(param);
     }
 };
 
 struct CosExpr : UnaryExpr
 {
-    double sin_x;
+    double aux;
 
-    CosExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), sin_x(std::sin(x->val)) {}
+    CosExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(-std::sin(x->val)) {}
 
     virtual double grad(const ExprPtr& param) const
     {
-        return -sin_x * x->grad(param);
+        return aux * x->grad(param);
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return -sin(x) * x->gradx(param);
     }
 };
 
 struct TanExpr : UnaryExpr
 {
-    double rcos_x, sec_x;
+    double aux;
 
-    TanExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), rcos_x(1.0 / std::cos(x->val)), sec_x(rcos_x * rcos_x) {}
+    TanExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(1.0 / std::cos(x->val)) {}
 
     virtual double grad(const ExprPtr& param) const
     {
-        return sec_x * x->grad(param);
+        return aux * aux * x->grad(param);
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return x->gradx(param) / (cos(x) * cos(x));
     }
 };
 
 struct ArcSinExpr : UnaryExpr
 {
-    double ddx_arcsin_x;
+    double aux;
 
-    ArcSinExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), ddx_arcsin_x(1.0 / std::sqrt(1 - x->val * x->val)) {}
+    ArcSinExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(1.0 / std::sqrt(1.0 - x->val * x->val)) {}
 
     virtual double grad(const ExprPtr& param) const
     {
-        return ddx_arcsin_x * x->grad(param);
+        return aux * x->grad(param);
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return 1.0 / sqrt(1.0 - x * x) * x->gradx(param);
     }
 };
 
 struct ArcCosExpr : UnaryExpr
 {
-    double ddx_arccos_x;
+    double aux;
 
-    ArcCosExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), ddx_arccos_x(-1.0 / std::sqrt(1 - x->val * x->val)) {}
+    ArcCosExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(-1.0 / std::sqrt(1.0 - x->val * x->val)) {}
 
     virtual double grad(const ExprPtr& param) const
     {
-        return ddx_arccos_x * x->grad(param);
+        return aux * x->grad(param);
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return -1.0 / sqrt(1.0 - x * x) * x->gradx(param);
     }
 };
 
 struct ArcTanExpr : UnaryExpr
 {
-    double ddx_arctan_x;
+    double aux;
 
-    ArcTanExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), ddx_arctan_x(1.0 / (1 + x->val * x->val)) {}
+    ArcTanExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(1.0 / (1.0 + x->val * x->val)) {}
 
     virtual double grad(const ExprPtr& param) const
     {
-        return ddx_arctan_x * x->grad(param);
+        return aux * x->grad(param);
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return 1.0 / (1.0 + x * x) * x->gradx(param);
     }
 };
 
@@ -197,6 +382,11 @@ struct ExpExpr : UnaryExpr
     {
         return val * x->grad(param);
     }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return exp(x) * x->gradx(param);
+    }
 };
 
 struct LogExpr : UnaryExpr
@@ -205,19 +395,31 @@ struct LogExpr : UnaryExpr
 
     virtual double grad(const ExprPtr& param) const
     {
-        return 1.0 / x->val * x->grad(param);
+        return x->grad(param) / x->val;
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return x->gradx(param) / x;
     }
 };
 
 struct Log10Expr : UnaryExpr
 {
-    using UnaryExpr::UnaryExpr;
+    static constexpr double ln10 = 2.3025850929940456840179914546843;
 
-    const double ln10 = std::log(10.0);
+    double aux;
+
+    Log10Expr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(1.0 / (ln10 * x->val)) {}
 
     virtual double grad(const ExprPtr& param) const
     {
-        return 1.0 / (ln10 * x->val) * x->grad(param);
+        return aux * x->grad(param);
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return 1.0 / (ln10 * x) * x->gradx(param);
     }
 };
 
@@ -231,17 +433,27 @@ struct PowExpr : BinaryExpr
     {
         return ( log_l * r->grad(param) + r->val / l->val * l->grad(param) ) * val;
     }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return ( log(l) * r->gradx(param) + r/l * l->gradx(param) ) * pow(l, r);
+    }
 };
 
 struct SqrtExpr : UnaryExpr
 {
     double aux;
 
-    SqrtExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(-0.5 / val) {}
+    SqrtExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(-0.5 / std::sqrt(x->val)) {}
 
     virtual double grad(const ExprPtr& param) const
     {
         return aux * x->grad(param);
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return aux * x->gradx(param);
     }
 };
 
@@ -249,11 +461,16 @@ struct AbsExpr : UnaryExpr
 {
     double aux;
 
-    AbsExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(x->val / val) {}
+    AbsExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(x->val / std::abs(x->val)) {}
 
     virtual double grad(const ExprPtr& param) const
     {
         return aux * x->grad(param);
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& param) const
+    {
+        return x / abs(x) * x->gradx(param);
     }
 };
 
@@ -316,6 +533,10 @@ inline ExprPtr sqrt(const ExprPtr& x) { return std::make_shared<SqrtExpr>(std::s
 // OTHER FUNCTIONS
 //------------------------------------------------------------------------------
 inline ExprPtr abs(const ExprPtr& x) { return std::make_shared<AbsExpr>(std::abs(x->val), x); }
+inline ExprPtr abs2(const ExprPtr& x) { return x * x; }
+inline ExprPtr conj(const ExprPtr& x) { return x; }
+inline ExprPtr real(const ExprPtr& x) { return x; }
+inline ExprPtr imag(const ExprPtr& x) { return constant(0.0); }
 
 //------------------------------------------------------------------------------
 // COMPARISON OPERATORS
@@ -376,6 +597,12 @@ inline double grad(const var& y, const var& x)
     return y.expr->grad(x.expr);
 }
 
+/// Return the derivative expression of a variable y with respect to variable x.
+inline var gradx(const var& y, const var& x)
+{
+    return y.expr->gradx(x.expr);
+}
+
 /// Output a var object variable to the output stream.
 inline std::ostream& operator<<(std::ostream& out, const var& x)
 {
@@ -384,7 +611,6 @@ inline std::ostream& operator<<(std::ostream& out, const var& x)
 }
 
 } // namespace autodiff
-
 
 //------------------------------------------------------------------------------
 // SUPPORT FOR EIGEN MATRICES AND VECTORS OF AUTODIFF::VAR
@@ -441,6 +667,9 @@ EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::var, v)
 
 namespace autodiff {
 
+//------------------------------------------------------------------------------
+// ARITHMETIC OPERATORS (DEFINED FOR ARGUMENTS OF TYPE var)
+//------------------------------------------------------------------------------
 inline ExprPtr operator+(const var& r) { return r.expr; }
 inline ExprPtr operator-(const var& r) { return -r.expr; }
 
@@ -459,35 +688,133 @@ inline ExprPtr operator-(const var& l, double r) { return l.expr - r; }
 inline ExprPtr operator*(const var& l, double r) { return l.expr * r; }
 inline ExprPtr operator/(const var& l, double r) { return l.expr / r; }
 
-inline const var& conj(const var& x) { return x; }
-inline const var& real(const var& x) { return x; }
-inline var imag(const var&) { return 0.0; }
-inline var abs2(const var& x) { return x * x; }
+//------------------------------------------------------------------------------
+// TRIGONOMETRIC FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE var)
+//------------------------------------------------------------------------------
+inline ExprPtr sin(const var& x) { return sin(x.expr); }
+inline ExprPtr cos(const var& x) { return cos(x.expr); }
+inline ExprPtr tan(const var& x) { return tan(x.expr); }
+inline ExprPtr asin(const var& x) { return asin(x.expr); }
+inline ExprPtr acos(const var& x) { return acos(x.expr); }
+inline ExprPtr atan(const var& x) { return atan(x.expr); }
 
-/// Return the derivative of a variable y with respect to variables x.
-inline RowVectorXd grad(const var& y, const Eigen::Ref<VectorXv>& x)
+//------------------------------------------------------------------------------
+// HYPERBOLIC FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE var)
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// EXPONENTIAL AND LOGARITHMIC FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE var)
+//------------------------------------------------------------------------------
+inline ExprPtr exp(const var& x) { return exp(x.expr); }
+inline ExprPtr log(const var& x) { return log(x.expr); }
+inline ExprPtr log10(const var& x) { return log10(x.expr); }
+
+//------------------------------------------------------------------------------
+// POWER FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE var)
+//------------------------------------------------------------------------------
+inline ExprPtr pow(const var& l, const var& r) { return pow(l.expr, r.expr); }
+inline ExprPtr pow(double l, const var& r) { return pow(l, r.expr); }
+inline ExprPtr pow(const var& l, double r) { return pow(l.expr, r); }
+inline ExprPtr sqrt(const var& x) { return sqrt(x.expr); }
+
+//------------------------------------------------------------------------------
+// OTHER FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE var)
+//------------------------------------------------------------------------------
+inline ExprPtr abs(const var& x) { return abs(x.expr); }
+inline ExprPtr abs2(const var& x) { return abs2(x.expr); }
+inline ExprPtr conj(const var& x) { return conj(x.expr); }
+inline ExprPtr real(const var& x) { return real(x.expr); }
+inline ExprPtr imag(const var& x) { return imag(x.expr); }
+
+//------------------------------------------------------------------------------
+// COMPARISON OPERATORS (DEFINED FOR ARGUMENTS OF TYPE var)
+//------------------------------------------------------------------------------
+inline bool operator==(const var& l, const var& r) { return l.expr == r.expr; }
+inline bool operator!=(const var& l, const var& r) { return l.expr != r.expr; }
+inline bool operator<=(const var& l, const var& r) { return l.expr <= r.expr; }
+inline bool operator>=(const var& l, const var& r) { return l.expr >= r.expr; }
+inline bool operator<(const var& l, const var& r) { return l.expr < r.expr; }
+inline bool operator>(const var& l, const var& r) { return l.expr > r.expr; }
+
+inline bool operator==(double l, const var& r) { return l == r.expr; }
+inline bool operator!=(double l, const var& r) { return l != r.expr; }
+inline bool operator<=(double l, const var& r) { return l <= r.expr; }
+inline bool operator>=(double l, const var& r) { return l >= r.expr; }
+inline bool operator<(double l, const var& r) { return l < r.expr; }
+inline bool operator>(double l, const var& r) { return l > r.expr; }
+
+inline bool operator==(const var& l, double r) { return l.expr == r; }
+inline bool operator!=(const var& l, double r) { return l.expr != r; }
+inline bool operator<=(const var& l, double r) { return l.expr <= r; }
+inline bool operator>=(const var& l, double r) { return l.expr >= r; }
+inline bool operator<(const var& l, double r) { return l.expr < r; }
+inline bool operator>(const var& l, double r) { return l.expr > r; }
+
+namespace internal {
+
+/// Auxiliary function to calculate gradient of y with respect to x
+inline void grad(const var& y, const var& x, double& dydx)
+{
+    dydx = y.expr->grad(x.expr);
+}
+
+/// Auxiliary function to construct gradient expression of y with respect to x
+inline void grad(const var& y, const var& x, var& dydx)
+{
+    dydx = y.expr->gradx(x.expr);
+}
+
+/// Auxiliary template function to calculate gradient vector or gradient expression of y with respect to x
+template<typename R>
+R grad(const var& y, const Eigen::Ref<VectorXv>& x)
 {
     const auto n = x.size();
-    VectorXd dydx(n);
+    R dydx(n);
     for(auto i = 0; i < n; ++i)
-        dydx[i] = grad(y, x[i]);
+        grad(y, x[i], dydx[i]);
     return dydx;
 }
 
-/// Return the derivative of variables y with respect to variables x.
-inline MatrixXd grad(const Eigen::Ref<VectorXv>& y, const Eigen::Ref<VectorXv>& x)
+/// Auxiliary template function to calculate Jacobian matrix or Jacobian expression of y with respect to x
+template<typename R>
+R grad(const Eigen::Ref<VectorXv>& y, const Eigen::Ref<VectorXv>& x)
 {
     const auto m = y.size();
     const auto n = x.size();
-    MatrixXd dydx(m, n);
+    R dydx(m, n);
     for(auto i = 0; i < m; ++i)
         for(auto j = 0; j < n; ++j)
-            dydx(i, j) = grad(y[i], x[j]);
+            grad(y[i], x[j], dydx(i, j));
     return dydx;
 }
 
-} // namespace autodiff
+} // namespace internal
 
+/// Return the gradient of variable y with respect to variables x.
+inline RowVectorXd grad(const var& y, const Eigen::Ref<VectorXv>& x)
+{
+    return internal::grad<RowVectorXd>(y, x);
+}
+
+/// Return the gradient expression of variable y with respect to variables x.
+inline RowVectorXv gradx(const var& y, const Eigen::Ref<VectorXv>& x)
+{
+    return internal::grad<RowVectorXv>(y, x);
+}
+
+/// Return the Jacobian of variables y with respect to variables x.
+inline MatrixXd grad(const Eigen::Ref<VectorXv>& y, const Eigen::Ref<VectorXv>& x)
+{
+    return internal::grad<MatrixXd>(y, x);
+}
+
+/// Return the Jacobian expression of variables y with respect to variables x.
+inline MatrixXv gradx(const Eigen::Ref<VectorXv>& y, const Eigen::Ref<VectorXv>& x)
+{
+    return internal::grad<MatrixXv>(y, x);
+}
+
+} // namespace autodiff
 
 #endif // AUTODIFF_ENABLE_EIGEN_SUPPORT
 

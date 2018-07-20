@@ -19,9 +19,9 @@ int main()
     var z = 3.0;                         // z - input variable
     var u = f(x, y, z);                  // u - output variable
 
-    double dudx = grad(u, x);            // evaluate the derivative du/dx
-    double dudy = grad(u, y);            // evaluate the derivative du/dy
-    double dudz = grad(u, z);            // evaluate the derivative du/dz
+    var dudx = grad(u, x);               // evaluate the derivative du/dx
+    var dudy = grad(u, y);               // evaluate the derivative du/dy
+    var dudz = grad(u, z);               // evaluate the derivative du/dz
 
     cout << "u = " << u << endl;         // print the evaluated output u
     cout << "du/dx = " << dudx << endl;  // print the evaluated derivative du/dx

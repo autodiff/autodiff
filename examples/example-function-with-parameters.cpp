@@ -30,10 +30,10 @@ int main()
     var x = 0.5;                         // x - input variable
     var y = f(x, params);                // y - output variable
 
-    double dydx = grad(y, x);            // evaluate derivative du/dx
-    double dyda = grad(y, params.a);     // evaluate derivative du/da
-    double dydb = grad(y, params.b);     // evaluate derivative du/db
-    double dydc = grad(y, params.c);     // evaluate derivative du/dc
+    var dydx = grad(y, x);               // evaluate derivative du/dx
+    var dyda = grad(y, params.a);        // evaluate derivative du/da
+    var dydb = grad(y, params.b);        // evaluate derivative du/db
+    var dydc = grad(y, params.c);        // evaluate derivative du/dc
 
     cout << "y = " << y << endl;         // print evaluated output y
     cout << "dy/dx = " << dydx << endl;  // print evaluated derivative dy/dx
