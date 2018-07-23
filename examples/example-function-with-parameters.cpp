@@ -23,21 +23,21 @@ var f(var x, const Params& params)
 int main()
 {
     Params params;                       // initialize the parameter variables
-    params.a = 1.0;                      // a - parameter variable
-    params.b = 2.0;                      // b - parameter variable
-    params.c = 3.0;                      // c - parameter variable
+    params.a = 1.0;                      // the parameter a of type var, not double!
+    params.b = 2.0;                      // the parameter b of type var, not double!
+    params.c = 3.0;                      // the parameter c of type var, not double!
 
-    var x = 0.5;                         // x - input variable
-    var y = f(x, params);                // y - output variable
+    var x = 0.5;                         // the input variable x
+    var y = f(x, params);                // the output variable y
 
-    var dydx = grad(y, x);               // evaluate derivative du/dx
-    var dyda = grad(y, params.a);        // evaluate derivative du/da
-    var dydb = grad(y, params.b);        // evaluate derivative du/db
-    var dydc = grad(y, params.c);        // evaluate derivative du/dc
+    var dydx = grad(y, x);               // evaluate the derivative du/dx
+    var dyda = grad(y, params.a);        // evaluate the derivative du/da
+    var dydb = grad(y, params.b);        // evaluate the derivative du/db
+    var dydc = grad(y, params.c);        // evaluate the derivative du/dc
 
-    cout << "y = " << y << endl;         // print evaluated output y
-    cout << "dy/dx = " << dydx << endl;  // print evaluated derivative dy/dx
-    cout << "dy/da = " << dyda << endl;  // print evaluated derivative dy/da
-    cout << "dy/db = " << dydb << endl;  // print evaluated derivative dy/db
-    cout << "dy/dc = " << dydc << endl;  // print evaluated derivative dy/dc
+    cout << "y = " << y << endl;         // print the evaluated output y
+    cout << "dy/dx = " << dydx << endl;  // print the evaluated derivative dy/dx
+    cout << "dy/da = " << dyda << endl;  // print the evaluated derivative dy/da
+    cout << "dy/db = " << dydb << endl;  // print the evaluated derivative dy/db
+    cout << "dy/dc = " << dydc << endl;  // print the evaluated derivative dy/dc
 }

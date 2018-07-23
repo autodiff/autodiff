@@ -19,10 +19,10 @@ var f(const VectorXv& x)
 
 int main()
 {
-    VectorXv x(5);                         // x - input vector with 5 variables
+    VectorXv x(5);                         // the input vector x with 5 variables
     x << 1, 2, 3, 4, 5;                    // x = [1, 2, 3, 4, 5]
 
-    var y = f(x);                          // y - output variable
+    var y = f(x);                          // the output variable y
 
     VectorXd dydx = grad(y, x);            // evaluate the gradient vector dy/dx
 

@@ -14,10 +14,10 @@ var f(var x, var y, var z)
 
 int main()
 {
-    var x = 1.0;                         // x - input variable
-    var y = 2.0;                         // y - input variable
-    var z = 3.0;                         // z - input variable
-    var u = f(x, y, z);                  // u - output variable
+    var x = 1.0;                         // the input variable x
+    var y = 2.0;                         // the input variable y
+    var z = 3.0;                         // the input variable z
+    var u = f(x, y, z);                  // the output variable u
 
     var dudx = grad(u, x);               // evaluate the derivative du/dx
     var dudy = grad(u, y);               // evaluate the derivative du/dy

@@ -19,10 +19,10 @@ VectorXv f(const VectorXv& x)
 
 int main()
 {
-    VectorXv x(5);                         // x - input vector with 5 variables
+    VectorXv x(5);                         // the input vector x with 5 variables
     x << 1, 2, 3, 4, 5;                    // x = [1, 2, 3, 4, 5]
 
-    VectorXv y = f(x);                     // y - output vector
+    VectorXv y = f(x);                     // the output vector y
 
     MatrixXd dydx = grad(y, x);            // evaluate the Jacobian matrix dy/dx
 

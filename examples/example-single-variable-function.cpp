@@ -14,8 +14,8 @@ var f(var x)
 
 int main()
 {
-    var x = 2.0;                         // x - input variable
-    var y = f(x);                        // y - output variable
+    var x = 2.0;                         // the input variable x
+    var y = f(x);                        // the output variable y
 
     var dydx = grad(y, x);               // evaluate the derivative dy/dx
 

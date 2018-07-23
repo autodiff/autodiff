@@ -58,8 +58,8 @@ var f(var x)
 
 int main()
 {
-    var x = 2.0;                         // x - input variable
-    var y = f(x);                        // y - output variable
+    var x = 2.0;                         // the input variable x
+    var y = f(x);                        // the output variable y
 
     double dydx = grad(y, x);            // evaluate the derivative dy/dx
 
@@ -94,10 +94,10 @@ var f(var x, var y, var z)
 
 int main()
 {
-    var x = 1.0;                         // x - input variable
-    var y = 2.0;                         // y - input variable
-    var z = 3.0;                         // z - input variable
-    var u = f(x, y, z);                  // u - output variable
+    var x = 1.0;                         // the input variable x
+    var y = 2.0;                         // the input variable y
+    var z = 3.0;                         // the input variable z
+    var u = f(x, y, z);                  // the output variable u
 
     double dudx = grad(u, x);            // evaluate the derivative du/dx
     double dudy = grad(u, y);            // evaluate the derivative du/dy
@@ -149,12 +149,12 @@ var f(var x, const Params& params)
 int main()
 {
     Params params;                       // initialize the parameter variables
-    params.a = 1.0;                      // a - parameter variable
-    params.b = 2.0;                      // b - parameter variable
-    params.c = 3.0;                      // c - parameter variable
+    params.a = 1.0;                      // the parameter a of type var, not double!
+    params.b = 2.0;                      // the parameter b of type var, not double!
+    params.c = 3.0;                      // the parameter c of type var, not double!
 
-    var x = 0.5;                         // x - input variable
-    var y = f(x, params);                // y - output variable
+    var x = 0.5;                         // the input variable x
+    var y = f(x, params);                // the output variable y
 
     double dydx = grad(y, x);            // evaluate derivative du/dx
     double dyda = grad(y, params.a);     // evaluate derivative du/da
@@ -167,12 +167,12 @@ int main()
     cout << "dy/db = " << dydb << endl;  // print evaluated derivative dy/db
     cout << "dy/dc = " << dydc << endl;  // print evaluated derivative dy/dc
 }
-
 ~~~
 
 The example above introduces a new type `Params` with three data members of type `autodiff::var`: `a`, `b`, and `c`. These can be seen as parameters for the mathematical model function `f`. The example then demonstrates how to calculate not only the derivative of the output variable `y` with respect to input variable `x`, given by `dydx`, but also with respect to every parameter in `Params`: `dyda`, `dydb`, and `dydx`.
 
 This example outputs the following results:
+
 ~~~
 y = 3.4968
 dy/dx = 1.53964
@@ -183,15 +183,147 @@ dy/dc = 0.420735
 
 ## Example 4: Gradient of a scalar function (using autodiff with Eigen support)
 
-> TODO: Feature already implemented but example is needed here.
+~~~c++
+// C++ includes
+#include <iostream>
+using namespace std;
+
+// Eigen includes
+#include <eigen3/Eigen/Core>
+using namespace Eigen;
+
+// autodiff include
+#define AUTODIFF_ENABLE_EIGEN_SUPPORT
+#include <autodiff.hpp>
+using namespace autodiff;
+
+// The scalar function for which the gradient is needed
+var f(const VectorXv& x)
+{
+    return sqrt(x.cwiseProduct(x).sum()); // sqrt(sum([x(i) * x(i) for i = 1:5]))
+}
+
+int main()
+{
+    VectorXv x(5);                         // the input vector x with 5 variables
+    x << 1, 2, 3, 4, 5;                    // x = [1, 2, 3, 4, 5]
+
+    var y = f(x);                          // the output variable y
+
+    VectorXd dydx = grad(y, x);            // evaluate the gradient vector dy/dx
+
+    cout << "y = " << y << endl;           // print the evaluated output y
+    cout << "dy/dx = \n" << dydx << endl;  // print the evaluated gradient vector dy/dx
+}
+~~~
 
 ## Example 5: Jacobian of a vector function (using autodiff with Eigen support)
 
-> TODO: Feature already implemented but example is needed here.
+~~~c++
+// C++ includes
+#include <iostream>
+using namespace std;
 
-## Example 6: Evaluation of higher-order derivatives
+// Eigen includes
+#include <eigen3/Eigen/Core>
+using namespace Eigen;
 
-> TODO: Feature already implemented but example is needed here on how to use `autodiff::gradx` instead of `autodiff::grad`.
+// autodiff include
+#define AUTODIFF_ENABLE_EIGEN_SUPPORT
+#include <autodiff.hpp>
+using namespace autodiff;
+
+// The vector function for which the Jacobian is needed
+VectorXv f(const VectorXv& x)
+{
+    return (x / x.sum()).array().log(); // log(x / sum(x))
+}
+
+int main()
+{
+    VectorXv x(5);                         // the input vector x with 5 variables
+    x << 1, 2, 3, 4, 5;                    // x = [1, 2, 3, 4, 5]
+
+    VectorXv y = f(x);                     // the output vector y
+
+    MatrixXd dydx = grad(y, x);            // evaluate the Jacobian matrix dy/dx
+
+    cout << "y = \n" << y << endl;         // print the evaluated output vector y
+    cout << "dy/dx = \n" << dydx << endl;  // print the evaluated Jacobian matrix dy/dx
+}
+~~~
+
+## Example 6: Evaluation of higher-order derivatives for a single-variable function
+
+~~~c++
+// C++ includes
+#include <iostream>
+using namespace std;
+
+// autodiff include
+#include <autodiff.hpp>
+using namespace autodiff;
+
+int main()
+{
+    var x = 0.5;                             // the input variable x
+
+    var y = sin(x) * cos(x);                 // the output variable y
+    var dydx = gradx(y, x);                  // the first order derivative dy/dx of type var, not double!
+    var d2ydx2 = gradx(dydx, x);             // the second order derivative d2y/dx2 of type var, not double!
+
+    cout << "y = " << y << endl;             // print the evaluated output variable y
+    cout << "dy/dx = " << dydx << endl;      // print the evaluated first order derivative dy/dx
+    cout << "d2y/dx2 = " << d2ydx2 << endl;  // print the evaluated second order derivative d2y/dx2
+}
+~~~
+
+## Example 7: Evaluation of higher-order derivatives for a multi-variable function
+
+~~~c++
+// C++ includes
+#include <iostream>
+using namespace std;
+
+// autodiff include
+#include <autodiff.hpp>
+using namespace autodiff;
+
+int main()
+{
+    var x = 1.0;                              // the input variable x
+    var y = 0.5;                              // the input variable y
+    var z = 2.0;                              // the input variable z
+
+    var u = x * log(y) * exp(z);              // the output variable u
+    
+    var dudx = gradx(u, x);                   // the first order derivative du/dx of type var, not double!
+    var dudy = gradx(u, y);                   // the first order derivative du/dy of type var, not double!
+    var dudz = gradx(u, z);                   // the first order derivative du/dz of type var, not double!
+
+    var d2udx2 = gradx(dudx, x);              // the second order derivative d2u/dx2 of type var, not double!
+    var d2udy2 = gradx(dudy, y);              // the second order derivative d2u/dy2 of type var, not double!
+    var d2udz2 = gradx(dudz, z);              // the second order derivative d2u/dz2 of type var, not double!
+
+    var d2udxdy = gradx(dudx, y);             // the second order derivative d2u/dxdy of type var, not double!
+    var d2udydz = gradx(dudy, z);             // the second order derivative d2u/dydz of type var, not double!
+    var d2udzdx = gradx(dudz, x);             // the second order derivative d2u/dzdx of type var, not double!
+
+    cout << "u = " << u << endl;              // print the evaluated output variable u
+
+    cout << "du/dx = " << dudx << endl;       // print the evaluated first order derivative du/dx
+    cout << "du/dy = " << dudy << endl;       // print the evaluated first order derivative du/dy
+    cout << "du/dz = " << dudz << endl;       // print the evaluated first order derivative du/dz
+    
+    cout << "d2u/dx2 = " << d2udx2 << endl;   // print the second order derivative d2u/dx2
+    cout << "d2u/dy2 = " << d2udy2 << endl;   // print the second order derivative d2u/dy2
+    cout << "d2u/dz2 = " << d2udz2 << endl;   // print the second order derivative d2u/dz2
+
+    cout << "d2u/dxdy = " << d2udxdy << endl; // print the second order derivative d2u/dxdy
+    cout << "d2u/dydz = " << d2udydz << endl; // print the second order derivative d2u/dydz
+    cout << "d2u/dzdx = " << d2udzdx << endl; // print the second order derivative d2u/dzdx
+}
+~~~
 
 # What is missing?
 
