@@ -7,9 +7,9 @@
    xmlns="http://www.w3.org/2000/svg"
    id="svg8"
    version="1.1"
-   viewBox="0 0 119.44242 98.2757"
+   viewBox="0 0 171.42901 98.275692"
    height="98.275703mm"
-   width="119.44242mm">
+   width="171.42902mm">
   <defs
      id="defs2">
     <marker
@@ -2011,196 +2011,203 @@
            x="1356.2983"
            id="tspan1855">2</tspan></text>
     </g>
+    <path
+       style="fill:#000000;stroke:#000000;stroke-width:0.49999994;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-start:url(#TriangleInM)"
+       d="m 1220.822,504.51783 v 6.23424"
+       id="path1900" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 1241.9886,538.6262 21.1667,21.16667"
+       id="path1902" />
     <g
-       id="g5328">
-      <path
-         id="path1900"
-         d="m 1220.822,504.51783 v 6.23424"
-         style="fill:#000000;stroke:#000000;stroke-width:0.49999994;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-start:url(#TriangleInM)" />
-      <path
-         id="path1902"
-         d="m 1241.9886,538.6262 21.1667,21.16667"
-         style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+       transform="translate(-179.48819)"
+       id="g1910">
       <g
-         id="g1910"
-         transform="translate(-179.48819)">
-        <g
-           transform="translate(63.500039,21.166656)"
-           id="g1908">
-          <path
-             style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-             d="m 1379.1435,538.6262 21.1667,21.16667"
-             id="path1904" />
-          <path
-             id="path1906"
-             d="m 1379.1435,538.6262 -21.1667,21.16667"
-             style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-        </g>
-      </g>
-      <g
-         transform="translate(-179.48815,0.09353338)"
-         id="g1916">
+         id="g1908"
+         transform="translate(63.500039,21.166656)">
+        <path
+           id="path1904"
+           d="m 1379.1435,538.6262 21.1667,21.16667"
+           style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
         <path
            style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           d="m 1379.1435,538.6262 21.1667,21.16667"
-           id="path1912" />
-        <path
-           id="path1914"
            d="m 1379.1435,538.6262 -21.1667,21.16667"
-           style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+           id="path1906" />
       </g>
+    </g>
+    <g
+       id="g1916"
+       transform="translate(-179.48815,0.09353338)">
+      <path
+         id="path1912"
+         d="m 1379.1435,538.6262 21.1667,21.16667"
+         style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
       <path
          style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 1220.822,517.45953 21.1667,21.16667"
-         id="path1918" />
-      <path
-         id="path1920"
-         d="m 1220.822,517.45953 -21.1667,21.16667"
-         style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-      <circle
-         r="6.3045249"
-         cy="517.45953"
-         cx="1220.822"
-         id="circle1922"
-         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         x="1217.0151"
-         y="522.42737"
-         id="text1926"><tspan
-           id="tspan1924"
-           x="1217.0151"
-           y="522.42737"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.69999981px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332">*</tspan></text>
-      <circle
-         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         id="circle1930"
-         cx="1241.9886"
-         cy="538.62622"
-         r="6.3045249" />
-      <text
-         id="text1934"
-         y="539.8623"
-         x="1236.7466"
-         style="font-style:normal;font-weight:normal;font-size:5.12474728px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         xml:space="preserve"><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332"
-           y="539.8623"
-           x="1236.7466"
-           id="tspan1932">log</tspan></text>
-      <circle
-         r="6.3045249"
-         cy="559.79285"
-         cx="1263.1553"
-         id="circle1938"
-         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         x="1259.3478"
-         y="563.40192"
-         id="text1942"><tspan
-           id="tspan1940"
-           x="1259.3478"
-           y="563.40192"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.69999981px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332">-</tspan></text>
-      <circle
-         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         id="circle1946"
-         cx="1199.6553"
-         cy="538.62622"
-         r="6.3045249" />
-      <text
-         id="text1950"
-         y="542.23529"
-         x="1195.8478"
-         style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         xml:space="preserve"><tspan
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.69999981px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332"
-           y="542.23529"
-           x="1195.8478"
-           id="tspan1948">+</tspan></text>
-      <circle
-         style="opacity:1;fill:#ff5555;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         id="circle1954"
-         cx="1220.822"
-         cy="496.29288"
-         r="6.3045249" />
-      <text
-         id="text1958"
-         y="497.53586"
-         x="1219.1381"
-         style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         xml:space="preserve"><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332"
-           y="497.53586"
-           x="1219.1381"
-           id="tspan1956">u</tspan></text>
-      <circle
-         r="6.3045249"
-         cy="559.79285"
-         cx="1178.4886"
-         id="circle1964"
-         style="opacity:1;fill:#ff5555;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         x="1176.7964"
-         y="561.06616"
-         id="text1968"><tspan
-           id="tspan1966"
-           x="1176.7964"
-           y="561.06616"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332">x</tspan></text>
-      <circle
-         style="opacity:1;fill:#ff5555;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         id="circle1982"
-         cx="1220.822"
-         cy="559.79285"
-         r="6.3045249" />
-      <text
-         id="text1986"
-         y="560.49561"
-         x="1219.1298"
-         style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         xml:space="preserve"><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332"
-           y="560.49561"
-           x="1219.1298"
-           id="tspan1984">y</tspan></text>
-      <circle
-         r="6.3045249"
-         cy="580.95953"
-         cx="1284.322"
-         id="circle1998"
-         style="opacity:1;fill:#ff5555;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         x="1282.6298"
-         y="581.66229"
-         id="text2002"><tspan
-           id="tspan2000"
-           x="1282.6298"
-           y="581.66229"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332">y</tspan></text>
-      <circle
-         style="opacity:1;fill:#ff5555;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         id="circle2014"
-         cx="1241.9886"
-         cy="580.95953"
-         r="6.3045249" />
-      <text
-         id="text2018"
-         y="582.23285"
-         x="1240.2964"
-         style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         xml:space="preserve"><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332"
-           y="582.23285"
-           x="1240.2964"
-           id="tspan2016">x</tspan></text>
+         d="m 1379.1435,538.6262 -21.1667,21.16667"
+         id="path1914" />
     </g>
+    <path
+       id="path1918"
+       d="m 1220.822,517.45953 21.1667,21.16667"
+       style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 1220.822,517.45953 -21.1667,21.16667"
+       id="path1920" />
+    <circle
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle1922"
+       cx="1220.822"
+       cy="517.45953"
+       r="6.3045249" />
+    <text
+       id="text1926"
+       y="522.42737"
+       x="1217.0151"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.69999981px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332"
+         y="522.42737"
+         x="1217.0151"
+         id="tspan1924">*</tspan></text>
+    <circle
+       r="6.3045249"
+       cy="538.62622"
+       cx="1241.9886"
+       id="circle1930"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.12474728px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="1236.7466"
+       y="539.8623"
+       id="text1934"><tspan
+         id="tspan1932"
+         x="1236.7466"
+         y="539.8623"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332">log</tspan></text>
+    <circle
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle1938"
+       cx="1263.1553"
+       cy="559.79285"
+       r="6.3045249" />
+    <text
+       id="text1942"
+       y="563.40192"
+       x="1259.3478"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.69999981px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332"
+         y="563.40192"
+         x="1259.3478"
+         id="tspan1940">-</tspan></text>
+    <circle
+       r="6.3045249"
+       cy="538.62622"
+       cx="1199.6553"
+       id="circle1946"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="1195.8478"
+       y="542.23529"
+       id="text1950"><tspan
+         id="tspan1948"
+         x="1195.8478"
+         y="542.23529"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.69999981px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332">+</tspan></text>
+    <circle
+       r="6.3045249"
+       cy="496.29288"
+       cx="1220.822"
+       id="circle1954"
+       style="opacity:1;fill:#ff5555;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="1219.1381"
+       y="497.53586"
+       id="text1958"><tspan
+         id="tspan1956"
+         x="1219.1381"
+         y="497.53586"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332">u</tspan></text>
+    <circle
+       style="opacity:1;fill:#ff5555;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle1964"
+       cx="1178.4886"
+       cy="559.79285"
+       r="6.3045249" />
+    <text
+       id="text1968"
+       y="561.06616"
+       x="1176.7964"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332"
+         y="561.06616"
+         x="1176.7964"
+         id="tspan1966">x</tspan></text>
+    <circle
+       r="6.3045249"
+       cy="559.79285"
+       cx="1220.822"
+       id="circle1982"
+       style="opacity:1;fill:#ff5555;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="1219.1298"
+       y="560.49561"
+       id="text1986"><tspan
+         id="tspan1984"
+         x="1219.1298"
+         y="560.49561"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332">y</tspan></text>
+    <circle
+       style="opacity:1;fill:#ff5555;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle1998"
+       cx="1284.322"
+       cy="580.95953"
+       r="6.3045249" />
+    <text
+       id="text2002"
+       y="581.66229"
+       x="1282.6298"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332"
+         y="581.66229"
+         x="1282.6298"
+         id="tspan2000">y</tspan></text>
+    <circle
+       r="6.3045249"
+       cy="580.95953"
+       cx="1241.9886"
+       id="circle2014"
+       style="opacity:1;fill:#ff5555;fill-opacity:1;stroke:#1a1a1a;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="1240.2964"
+       y="582.23285"
+       id="text2018"><tspan
+         id="tspan2016"
+         x="1240.2964"
+         y="582.23285"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332">x</tspan></text>
+    <text
+       id="text1324-5"
+       y="518.71051"
+       x="1262.5944"
+       style="font-style:normal;font-weight:normal;font-size:1.88146293px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444447px;font-family:'Courier Prime';-inkscape-font-specification:'Courier Prime';stroke-width:0.26458332"
+         y="518.71051"
+         x="1262.5944"
+         id="tspan1322-3">u = (x + y) * log(x - y)</tspan></text>
   </g>
 </svg>

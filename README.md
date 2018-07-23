@@ -181,7 +181,7 @@ dy/db = 0.877583
 dy/dc = 0.420735
 ~~~
 
-## Example 4: Gradient of a scalar function (using autodiff with Eigen support)
+## Example 4: Gradient of a scalar function
 
 ~~~c++
 // C++ includes
@@ -217,7 +217,7 @@ int main()
 }
 ~~~
 
-## Example 5: Jacobian of a vector function (using autodiff with Eigen support)
+## Example 5: Jacobian of a vector function
 
 ~~~c++
 // C++ includes
@@ -253,7 +253,7 @@ int main()
 }
 ~~~
 
-## Example 6: Evaluation of higher-order derivatives for a single-variable function
+## Example 6: Higher-order derivatives of a single-variable function
 
 ~~~c++
 // C++ includes
@@ -278,7 +278,7 @@ int main()
 }
 ~~~
 
-## Example 7: Evaluation of higher-order derivatives for a multi-variable function
+## Example 7: Higher-order derivatives of a multi-variable function
 
 ~~~c++
 // C++ includes
@@ -325,10 +325,6 @@ int main()
 }
 ~~~
 
-# What is missing?
-
-1. Evaluate the performance of autodiff for many functions with different complexity.
-
 # How does it work?
 
 `autodiff` works its magic in calculating *a posteriori* derivatives of **any `var` variable** with respect to **any `var` variable** by generating an **expression tree** of the entire evaluation procedure. For example, in the code below:
@@ -346,6 +342,10 @@ the variable `u` not only knows its value, given by `(2.0 + 1.0) * log(2.0 - 1.0
 </p>
 
 Every time an operation is performed on a variable of type `var` (e.g., via mathematical functions `sin`, `cos`, `log`, or via arithmetic operators `+`, `-`, `*`, `/`) a new unary or binary expression tree is formed. Each newly formed expression tree is a combination of previously created ones. For example, `(x + y) * log(x - y)` is a combination of the expression trees resulting from the binary operations `x + y` and `x - y` as well as the unary operation `log(x - y)`. Note that the tree is then constructed from bottom to top as illustrated in the diagram. At the end of this tree construction, the output variable of interest (our `u` variable in the example) has been fully evaluated, producing not only its actual numerical value but alto the corresponding expression tree that defines the algebraic steps for its calculation. By traversing this expression tree and applying rules of differentiation to each sub-expression (e.g., derivative rules for arithmetic operations and common mathematical functions), it is possible to compute derivatives of any order, with respect to any available `var` variable.
+
+# What is missing?
+
+1. Evaluate the performance of autodiff for many functions with different complexity.
 
 # License
 
