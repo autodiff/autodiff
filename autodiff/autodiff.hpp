@@ -31,7 +31,7 @@ struct PowExpr;
 struct SqrtExpr;
 struct AbsExpr;
 
-using ExprPtr = std::shared_ptr<Expr>;
+using ExprPtr = std::shared_ptr<const Expr>;
 
 //------------------------------------------------------------------------------
 // CONVENIENT FUNCTIONS (DECLARATION ONLY)
@@ -130,24 +130,24 @@ struct Expr
     explicit Expr(double val) : val(val) {}
 
     /// Return the gradient value of this expression with respect to given variable.
-    virtual double grad(const ExprPtr& param) const = 0;
+    virtual double grad(const ExprPtr& other) const = 0;
 
     /// Return the gradient expression of this expression with respect to given variable.
-    virtual ExprPtr gradx(const ExprPtr& param) const = 0;
+    virtual ExprPtr gradx(const ExprPtr& other) const = 0;
 };
 
 struct ParameterExpr : Expr
 {
     using Expr::Expr;
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return this == param.get();
+        return this == other.get();
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return constant(this == param.get());
+        return constant(this == other.get());
     }
 };
 
@@ -157,14 +157,14 @@ struct VariableExpr : Expr
 
     VariableExpr(const ExprPtr& expr) : Expr(expr->val), expr(expr) {}
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return this == param.get() ? 1.0 : expr->grad(param);
+        return this == other.get() ? 1.0 : expr->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return this == param.get() ? constant(1.0) : expr->gradx(param);
+        return this == other.get() ? constant(1.0) : expr->gradx(other);
     }
 };
 
@@ -172,12 +172,12 @@ struct ConstantExpr : Expr
 {
     using Expr::Expr;
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
         return 0.0;
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
         return constant(0.0);
     }
@@ -194,14 +194,14 @@ struct NegativeExpr : UnaryExpr
 {
     using UnaryExpr::UnaryExpr;
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return -x->grad(param);
+        return -x->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return -x->gradx(param);
+        return -x->gradx(other);
     }
 };
 
@@ -216,14 +216,14 @@ struct AddExpr : BinaryExpr
 {
     using BinaryExpr::BinaryExpr;
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return l->grad(param) + r->grad(param);
+        return l->grad(other) + r->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return l->gradx(param) + r->gradx(param);
+        return l->gradx(other) + r->gradx(other);
     }
 };
 
@@ -231,14 +231,14 @@ struct SubExpr : BinaryExpr
 {
     using BinaryExpr::BinaryExpr;
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return l->grad(param) - r->grad(param);
+        return l->grad(other) - r->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return l->gradx(param) - r->gradx(param);
+        return l->gradx(other) - r->gradx(other);
     }
 };
 
@@ -246,14 +246,14 @@ struct MulExpr : BinaryExpr
 {
     using BinaryExpr::BinaryExpr;
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return l->grad(param) * r->val + l->val * r->grad(param);
+        return l->grad(other) * r->val + l->val * r->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return l->gradx(param) * r + l * r->gradx(param);
+        return l->gradx(other) * r + l * r->gradx(other);
     }
 };
 
@@ -261,14 +261,14 @@ struct DivExpr : BinaryExpr
 {
     using BinaryExpr::BinaryExpr;
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return ( l->grad(param) * r->val - l->val * r->grad(param) ) / (r->val * r->val);
+        return ( l->grad(other) * r->val - l->val * r->grad(other) ) / (r->val * r->val);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return ( l->gradx(param) * r - l * r->gradx(param) ) / (r * r);
+        return ( l->gradx(other) * r - l * r->gradx(other) ) / (r * r);
     }
 };
 
@@ -278,14 +278,14 @@ struct SinExpr : UnaryExpr
 
     SinExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(std::cos(x->val)) {}
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return aux * x->grad(param);
+        return aux * x->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return cos(x) * x->gradx(param);
+        return cos(x) * x->gradx(other);
     }
 };
 
@@ -295,14 +295,14 @@ struct CosExpr : UnaryExpr
 
     CosExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(-std::sin(x->val)) {}
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return aux * x->grad(param);
+        return aux * x->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return -sin(x) * x->gradx(param);
+        return -sin(x) * x->gradx(other);
     }
 };
 
@@ -312,14 +312,15 @@ struct TanExpr : UnaryExpr
 
     TanExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(1.0 / std::cos(x->val)) {}
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return aux * aux * x->grad(param);
+        return aux * aux * x->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return x->gradx(param) / (cos(x) * cos(x));
+        auto cos_x = cos(x);
+        return x->gradx(other) / (cos_x * cos_x);
     }
 };
 
@@ -329,14 +330,14 @@ struct ArcSinExpr : UnaryExpr
 
     ArcSinExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(1.0 / std::sqrt(1.0 - x->val * x->val)) {}
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return aux * x->grad(param);
+        return aux * x->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return 1.0 / sqrt(1.0 - x * x) * x->gradx(param);
+        return 1.0 / sqrt(1.0 - x * x) * x->gradx(other);
     }
 };
 
@@ -346,14 +347,14 @@ struct ArcCosExpr : UnaryExpr
 
     ArcCosExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(-1.0 / std::sqrt(1.0 - x->val * x->val)) {}
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return aux * x->grad(param);
+        return aux * x->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return -1.0 / sqrt(1.0 - x * x) * x->gradx(param);
+        return -1.0 / sqrt(1.0 - x * x) * x->gradx(other);
     }
 };
 
@@ -363,14 +364,14 @@ struct ArcTanExpr : UnaryExpr
 
     ArcTanExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(1.0 / (1.0 + x->val * x->val)) {}
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return aux * x->grad(param);
+        return aux * x->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return 1.0 / (1.0 + x * x) * x->gradx(param);
+        return 1.0 / (1.0 + x * x) * x->gradx(other);
     }
 };
 
@@ -378,14 +379,14 @@ struct ExpExpr : UnaryExpr
 {
     using UnaryExpr::UnaryExpr;
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return val * x->grad(param);
+        return val * x->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return exp(x) * x->gradx(param);
+        return exp(x) * x->gradx(other);
     }
 };
 
@@ -393,14 +394,14 @@ struct LogExpr : UnaryExpr
 {
     using UnaryExpr::UnaryExpr;
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return x->grad(param) / x->val;
+        return x->grad(other) / x->val;
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return x->gradx(param) / x;
+        return x->gradx(other) / x;
     }
 };
 
@@ -412,14 +413,14 @@ struct Log10Expr : UnaryExpr
 
     Log10Expr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(1.0 / (ln10 * x->val)) {}
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return aux * x->grad(param);
+        return aux * x->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return 1.0 / (ln10 * x) * x->gradx(param);
+        return 1.0 / (ln10 * x) * x->gradx(other);
     }
 };
 
@@ -429,14 +430,46 @@ struct PowExpr : BinaryExpr
 
     PowExpr(double val, const ExprPtr& l, const ExprPtr& r) : BinaryExpr(val, l, r), log_l(std::log(l->val)) {}
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return ( log_l * r->grad(param) + r->val / l->val * l->grad(param) ) * val;
+        return ( log_l * r->grad(other) + r->val / l->val * l->grad(other) ) * val;
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return ( log(l) * r->gradx(param) + r/l * l->gradx(param) ) * pow(l, r);
+        return ( log(l) * r->gradx(other) + r/l * l->gradx(other) ) * pow(l, r);
+    }
+};
+
+struct PowConstantLeftExpr : BinaryExpr
+{
+    double log_l;
+
+    PowConstantLeftExpr(double val, const ExprPtr& l, const ExprPtr& r) : BinaryExpr(val, l, r), log_l(std::log(l->val)) {}
+
+    virtual double grad(const ExprPtr& other) const
+    {
+        return log_l * r->grad(other) * val;
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& other) const
+    {
+        return log(l) * r->gradx(other) * pow(l, r);
+    }
+};
+
+struct PowConstantRightExpr : BinaryExpr
+{
+    PowConstantRightExpr(double val, const ExprPtr& l, const ExprPtr& r) : BinaryExpr(val, l, r) {}
+
+    virtual double grad(const ExprPtr& other) const
+    {
+        return ( r->val / l->val * l->grad(other) ) * val;
+    }
+
+    virtual ExprPtr gradx(const ExprPtr& other) const
+    {
+        return ( r/l * l->gradx(other) ) * pow(l, r);
     }
 };
 
@@ -444,16 +477,16 @@ struct SqrtExpr : UnaryExpr
 {
     double aux;
 
-    SqrtExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(-0.5 / std::sqrt(x->val)) {}
+    SqrtExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(0.5 / std::sqrt(x->val)) {}
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return aux * x->grad(param);
+        return aux * x->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return aux * x->gradx(param);
+        return 0.5/sqrt(x) * x->gradx(other);
     }
 };
 
@@ -463,14 +496,14 @@ struct AbsExpr : UnaryExpr
 
     AbsExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(x->val / std::abs(x->val)) {}
 
-    virtual double grad(const ExprPtr& param) const
+    virtual double grad(const ExprPtr& other) const
     {
-        return aux * x->grad(param);
+        return aux * x->grad(other);
     }
 
-    virtual ExprPtr gradx(const ExprPtr& param) const
+    virtual ExprPtr gradx(const ExprPtr& other) const
     {
-        return x / abs(x) * x->gradx(param);
+        return x / abs(x) * x->gradx(other);
     }
 };
 
@@ -525,8 +558,8 @@ inline ExprPtr log10(const ExprPtr& x) { return std::make_shared<Log10Expr>(std:
 // POWER FUNCTIONS
 //------------------------------------------------------------------------------
 inline ExprPtr pow(const ExprPtr& l, const ExprPtr& r) { return std::make_shared<PowExpr>(std::pow(l->val, r->val), l, r); }
-inline ExprPtr pow(double l, const ExprPtr& r) { return pow(constant(l), r); }
-inline ExprPtr pow(const ExprPtr& l, double r) { return pow(l, constant(r)); }
+inline ExprPtr pow(double l, const ExprPtr& r) { return std::make_shared<PowConstantLeftExpr>(std::pow(l, r->val), constant(l), r); }
+inline ExprPtr pow(const ExprPtr& l, double r) { return std::make_shared<PowConstantRightExpr>(std::pow(l->val, r), l, constant(r)); }
 inline ExprPtr sqrt(const ExprPtr& x) { return std::make_shared<SqrtExpr>(std::sqrt(x->val), x); }
 
 //------------------------------------------------------------------------------
@@ -670,7 +703,7 @@ namespace autodiff {
 //------------------------------------------------------------------------------
 // ARITHMETIC OPERATORS (DEFINED FOR ARGUMENTS OF TYPE var)
 //------------------------------------------------------------------------------
-inline ExprPtr operator+(const var& r) { return r.expr; }
+inline const ExprPtr& operator+(const var& r) { return r.expr; }
 inline ExprPtr operator-(const var& r) { return -r.expr; }
 
 inline ExprPtr operator+(const var& l, const var& r) { return l.expr + r.expr; }
