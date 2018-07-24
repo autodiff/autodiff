@@ -173,40 +173,47 @@ TEST_CASE("autodiff tests", "[autodiff]")
     //--------------------------------------------------------------------------
     // TEST POWER FUNCTIONS
     //--------------------------------------------------------------------------
-    REQUIRE( val(sqrt(x)) == approx(std::sqrt(val(x))) );
-    REQUIRE( grad(sqrt(x), x) == approx(-0.5 / std::sqrt(val(x))) );
+    REQUIRE( val(sqrt(x)) == Approx(std::sqrt(val(x))) );
+    REQUIRE( grad(sqrt(x), x) == Approx(0.5 / std::sqrt(val(x))) );
 
-    REQUIRE( val(pow(x, 2.0)) == approx(std::pow(val(x), 2.0)) );
-    REQUIRE( grad(pow(x, 2.0), x) == approx(2.0 * val(x)) );
+    REQUIRE( val(pow(x, 2.0)) == Approx(std::pow(val(x), 2.0)) );
+    REQUIRE( grad(pow(x, 2.0), x) == Approx(2.0 * val(x)) );
 
-    REQUIRE( val(pow(x, -2.0)) == approx(std::pow(val(x), -2.0)) );
-    REQUIRE( grad(pow(x, -2.0), x) == approx(-2.0 * std::pow(val(x), -3.0)) );
+    REQUIRE( val(pow(2.0, x)) == Approx(std::pow(2.0, val(x))) );
+    REQUIRE( grad(pow(2.0, x), x) == Approx(std::log(2.0) * std::pow(2.0, val(x))) );
+
+    REQUIRE( val(pow(x, x)) == Approx(std::pow(val(x), val(x))) );
+    REQUIRE( grad(pow(x, x), x) == Approx(val((log(x) + 1) * pow(x, x))) );
 
     y = 2 * a;
 
-    REQUIRE( val(pow(x, y)) == approx(std::pow(val(x), val(y))) );
-    REQUIRE( grad(pow(x, y), x) == approx( val(y)/val(x) * std::pow(val(x), val(y)) ) );
-    REQUIRE( grad(pow(x, y), a) == approx( std::log(val(x)) * grad(y, a) * std::pow(val(x), val(y)) ) );
-    REQUIRE( grad(pow(x, y), y) == approx( std::log(val(x)) * std::pow(val(x), val(y)) ) );
+    REQUIRE( val(pow(x, y)) == Approx(std::pow(val(x), val(y))) );
+    REQUIRE( grad(pow(x, y), x) == Approx( val(y)/val(x) * std::pow(val(x), val(y)) ) );
+    REQUIRE( grad(pow(x, y), a) == Approx( std::log(val(x)) * grad(y, a) * std::pow(val(x), val(y)) ) );
+    REQUIRE( grad(pow(x, y), y) == Approx( std::log(val(x)) * std::pow(val(x), val(y)) ) );
 
     //--------------------------------------------------------------------------
     // TEST OTHER FUNCTIONS
     //--------------------------------------------------------------------------
-    x = 1.0;
+    x = 3.0;
     y = x;
 
-    REQUIRE( val(abs(x)) == approx(std::abs(val(x))) );
-    REQUIRE( val(grad(x, x)) == approx(1.0) );
+    REQUIRE( val(abs(x)) == Approx(std::abs(val(x))) );
+    REQUIRE( val(grad(x, x)) == Approx(1.0) );
 
     //--------------------------------------------------------------------------
     // TEST HIGHER ORDER DERIVATIVES (2nd order)
     //--------------------------------------------------------------------------
-    REQUIRE( val(gradx(gradx(x * x, x), x)) == approx(2.0) );
-    REQUIRE( val(gradx(gradx(1.0/x, x), x)) == approx(val(2.0/(x * x * x))) );
-    REQUIRE( val(gradx(gradx(sin(x), x), x)) == approx(val(-sin(x))) );
-    REQUIRE( val(gradx(gradx(cos(x), x), x)) == approx(val(-cos(x))) );
-    REQUIRE( val(gradx(gradx(log(x), x), x)) == approx(val(-1.0/(x * x))) );
-    REQUIRE( val(gradx(gradx(exp(x), x), x)) == approx(val(exp(x))) );
+    REQUIRE( val(gradx(gradx(x * x, x), x)) == Approx(2.0) );
+    REQUIRE( val(gradx(gradx(1.0/x, x), x)) == Approx(val(2.0/(x * x * x))) );
+    REQUIRE( val(gradx(gradx(sin(x), x), x)) == Approx(val(-sin(x))) );
+    REQUIRE( val(gradx(gradx(cos(x), x), x)) == Approx(val(-cos(x))) );
+    REQUIRE( val(gradx(gradx(log(x), x), x)) == Approx(val(-1.0/(x * x))) );
+    REQUIRE( val(gradx(gradx(exp(x), x), x)) == Approx(val(exp(x))) );
+    REQUIRE( val(gradx(gradx(pow(x, 2.0), x), x)) == Approx(2.0) );
+    REQUIRE( val(gradx(gradx(pow(2.0, x), x), x)) == Approx(val(std::log(2.0) * std::log(2.0) * pow(2.0, x))) );
+    REQUIRE( val(gradx(gradx(pow(x, x), x), x)) == Approx(val(((log(x) + 1) * (log(x) + 1) + 1.0/x) * pow(x, x))) );
+    REQUIRE( val(gradx(gradx(sqrt(x), x), x)) == Approx(val(-0.25 / (x * sqrt(x)))) );
 
     //--------------------------------------------------------------------------
     // TEST HIGHER ORDER DERIVATIVES (3rd order)
