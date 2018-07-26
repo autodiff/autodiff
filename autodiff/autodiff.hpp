@@ -641,6 +641,16 @@ struct var
 
     /// Implicitly convert this var object variable into an expression pointer
     operator ExprPtr() const { return expr; }
+
+	// Arithmetic-assignment operators
+    var& operator+=(const ExprPtr& other) { expr = expr + other; return *this; }
+    var& operator-=(const ExprPtr& other) { expr = expr - other; return *this; }
+    var& operator*=(const ExprPtr& other) { expr = expr * other; return *this; }
+    var& operator/=(const ExprPtr& other) { expr = expr / other; return *this; }
+    var& operator+=(double other) { expr = expr + constant(other); return *this; }
+    var& operator-=(double other) { expr = expr - constant(other); return *this; }
+    var& operator*=(double other) { expr = expr * constant(other); return *this; }
+    var& operator/=(double other) { expr = expr / constant(other); return *this; }
 };
 
 /// Return the value of a variable x.
@@ -736,6 +746,16 @@ inline ExprPtr operator-(const var& l, const var& r) { return l.expr - r.expr; }
 inline ExprPtr operator*(const var& l, const var& r) { return l.expr * r.expr; }
 inline ExprPtr operator/(const var& l, const var& r) { return l.expr / r.expr; }
 
+inline ExprPtr operator+(const ExprPtr& l, const var& r) { return l + r.expr; }
+inline ExprPtr operator-(const ExprPtr& l, const var& r) { return l - r.expr; }
+inline ExprPtr operator*(const ExprPtr& l, const var& r) { return l * r.expr; }
+inline ExprPtr operator/(const ExprPtr& l, const var& r) { return l / r.expr; }
+
+inline ExprPtr operator+(const var& l, const ExprPtr& r) { return l.expr + r; }
+inline ExprPtr operator-(const var& l, const ExprPtr& r) { return l.expr - r; }
+inline ExprPtr operator*(const var& l, const ExprPtr& r) { return l.expr * r; }
+inline ExprPtr operator/(const var& l, const ExprPtr& r) { return l.expr / r; }
+
 inline ExprPtr operator+(double l, const var& r) { return l + r.expr; }
 inline ExprPtr operator-(double l, const var& r) { return l - r.expr; }
 inline ExprPtr operator*(double l, const var& r) { return l * r.expr; }
@@ -824,7 +844,7 @@ inline void grad(const var& y, const var& x, var& dydx)
 
 /// Auxiliary template function to calculate gradient vector or gradient expression of y with respect to x
 template<typename R>
-R grad(const var& y, const Eigen::Ref<VectorXv>& x)
+R grad(const var& y, const Eigen::Ref<const VectorXv>& x)
 {
     const auto n = x.size();
     R dydx(n);
@@ -835,7 +855,7 @@ R grad(const var& y, const Eigen::Ref<VectorXv>& x)
 
 /// Auxiliary template function to calculate Jacobian matrix or Jacobian expression of y with respect to x
 template<typename R>
-R grad(const Eigen::Ref<VectorXv>& y, const Eigen::Ref<VectorXv>& x)
+R grad(const Eigen::Ref<const VectorXv>& y, const Eigen::Ref<const VectorXv>& x)
 {
     const auto m = y.size();
     const auto n = x.size();
@@ -849,25 +869,25 @@ R grad(const Eigen::Ref<VectorXv>& y, const Eigen::Ref<VectorXv>& x)
 } // namespace internal
 
 /// Return the gradient of variable y with respect to variables x.
-inline RowVectorXd grad(const var& y, const Eigen::Ref<VectorXv>& x)
+inline RowVectorXd grad(const var& y, const Eigen::Ref<const VectorXv>& x)
 {
     return internal::grad<RowVectorXd>(y, x);
 }
 
 /// Return the gradient expression of variable y with respect to variables x.
-inline RowVectorXv gradx(const var& y, const Eigen::Ref<VectorXv>& x)
+inline RowVectorXv gradx(const var& y, const Eigen::Ref<const VectorXv>& x)
 {
     return internal::grad<RowVectorXv>(y, x);
 }
 
 /// Return the Jacobian of variables y with respect to variables x.
-inline MatrixXd grad(const Eigen::Ref<VectorXv>& y, const Eigen::Ref<VectorXv>& x)
+inline MatrixXd grad(const Eigen::Ref<const VectorXv>& y, const Eigen::Ref<const VectorXv>& x)
 {
     return internal::grad<MatrixXd>(y, x);
 }
 
 /// Return the Jacobian expression of variables y with respect to variables x.
-inline MatrixXv gradx(const Eigen::Ref<VectorXv>& y, const Eigen::Ref<VectorXv>& x)
+inline MatrixXv gradx(const Eigen::Ref<const VectorXv>& y, const Eigen::Ref<const VectorXv>& x)
 {
     return internal::grad<MatrixXv>(y, x);
 }
