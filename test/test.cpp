@@ -3,6 +3,7 @@
 
 // autodiff includes
 #include <autodiff.hpp>
+#include <dual.hpp>
 using namespace autodiff;
 
 class approx : public Approx
