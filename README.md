@@ -346,6 +346,7 @@ Every time an operation is performed on a variable of type `var` (e.g., via math
 # What is missing?
 
 1. Evaluate the performance of autodiff for many functions with different complexity.
+2. Take advantage of r-values and move semantics in C++11 to avoid unnecessary memory allocations as the expression tree is constructed.
 
 # License
 
