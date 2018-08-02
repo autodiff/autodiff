@@ -52,7 +52,7 @@ struct Dual : Expr<Dual<T>>
     Dual() : Dual(0.0) {}
 
     Dual(T val) : val(val), grad(0.0) {}
-    
+
     template<typename Other>
     Dual(const Expr<Other>& expr) : Dual(expr.eval()) {}
 
@@ -75,11 +75,19 @@ struct ConstantExpr : Expr<ConstantExpr<T>>
     constexpr ConstantExpr(T&& val) : val(std::forward<T>(val)) {}
 };
 
+template<typename R, typename T>
+struct ScaleExpr : Expr<ScaleExpr<T, R>>
+{
+    T scalar;
+    R r;
+    constexpr ScaleExpr(T&& scalar, R&& r) : scalar(std::forward<T>(scalar)), r(std::forward<R>(r)) {}
+};
+
 template<typename Op, typename R>
 struct UnaryExpr : Expr<UnaryExpr<Op, R>>
 {
     R r;
-    constexpr UnaryExpr(R&& r) : r(std::forward<Right>(r)) {}
+    constexpr UnaryExpr(R&& r) : r(std::forward<R>(r)) {}
 };
 
 template<typename Op, typename L, typename R>
@@ -87,14 +95,13 @@ struct BinaryExpr : Expr<BinaryExpr<Op, L, R>>
 {
     L l;
     R r;
-    constexpr BinaryExpr(L&& l, R&& r) : l(std::forward<Left>(l)), r(std::forward<Right>(r)) {}
+    constexpr BinaryExpr(L&& l, R&& r) : l(std::forward<L>(l)), r(std::forward<R>(r)) {}
 };
 
 //------------------------------------------------------------------------------
 // LIST OF OPERATORS AND EXPRESSION ALIAS
 //------------------------------------------------------------------------------
-// UNARY ARITHMETIC OPERATORS
-//struct PosOp {}; //  todo remove as only sub is transformed into add and div in mul
+// NEGATIVE OPERATOR
 struct NegOp {};
 
 // INVERSE OPERATOR
@@ -102,12 +109,9 @@ struct InvOp {};
 
 // BINARY ARITHMETIC OPERATORS
 struct AddOp {};
+struct SubOp {};
 struct MulOp {};
-//struct SubOp {}; //  todo remove as only sub is transformed into add and div in mul
-//struct DivOp {}; //  todo remove as only sub is transformed into add and div in mul
-
-template<double scalar>
-struct ScaOp;
+struct DivOp {};
 
 // TRIGONOMETRIC OPERATORS
 struct SinOp {};
@@ -132,18 +136,15 @@ struct AbsOp {};
 //------------------------------------------------------------------------------
 // LIST OF EXPRESSION ALIASES
 //------------------------------------------------------------------------------
-// UNARY ARITHMETIC EXPRESSION ALIASES
+// INVERSE EXPRESSION
 template<typename R> using NegExpr = UnaryExpr<NegOp, R>;
-//template<typename R> using PosExpr = UnaryExpr<PosOp, R>; //  todo remove as only sub is transformed into add and div in mul
 
-// INVERSE OPERATOR
+// INVERSE EXPRESSION
 template<typename R> using InvExpr = UnaryExpr<InvOp, R>;
 
 // BINARY ARITHMETIC EXPRESSION ALIASES
 template<typename L, typename R> using AddExpr = UnaryExpr<AddOp, R>;
 template<typename L, typename R> using MulExpr = UnaryExpr<MulOp, R>;
-//template<typename L, typename R> using SubExpr = UnaryExpr<SubOp, R>; //  todo remove as only sub is transformed into add and div in mul
-//template<typename L, typename R> using DivExpr = UnaryExpr<DivOp, R>; //  todo remove as only sub is transformed into add and div in mul
 
 // TRIGONOMETRIC EXPRESSION ALIASES
 template<typename R> using SinExpr    = UnaryExpr<SinOp, R>;
@@ -165,45 +166,336 @@ template<typename R>             using SqrtExpr = UnaryExpr<SqrtOp, R>;
 // OTHER EXPRESSION ALIASES
 template<typename R> using AbsExpr = UnaryExpr<AbsOp, R>;
 
+
+//------------------------------------------------------------------------------
+// TYPE TRAITS UTILITIES
+//------------------------------------------------------------------------------
+namespace traits {
+
+template<typename Expr>
+struct isDualExpr { constexpr static bool value = false; };
+
+template<typename T>
+struct isDualExpr<Dual<T>> { constexpr static bool value = true; };
+
+template<typename Expr>
+struct isConstantExpr { constexpr static bool value = false; };
+
+template<typename T>
+struct isConstantExpr<ConstantExpr<T>> { constexpr static bool value = true; };
+
+template<typename Expr>
+struct isNegExpr { constexpr static bool value = false; };
+
+template<typename T>
+struct isNegExpr<NegExpr<T>> { constexpr static bool value = true; };
+
+template<typename Expr>
+struct isInvExpr { constexpr static bool value = false; };
+
+template<typename T>
+struct isInvExpr<InvExpr<T>> { constexpr static bool value = true; };
+
+template<typename Expr>
+struct isScaleExpr { constexpr static bool value = false; };
+
+template<typename T, typename R>
+struct isScaleExpr<ScaleExpr<T, R>> { constexpr static bool value = true; };
+
+template<typename Expr>
+struct isUnaryExpr { constexpr static bool value = false; };
+
+template<typename Op, typename R>
+struct isUnaryExpr<UnaryExpr<Op, R>> { constexpr static bool value = true; };
+
+template<typename Expr>
+struct isBinaryExpr { constexpr static bool value = false; };
+
+template<typename Op, typename L, typename R>
+struct isBinaryExpr<BinaryExpr<Op, L, R>> { constexpr static bool value = true; };
+
+} // namespace traits
+
+
+template<bool value>
+using enableif = typename std::enable_if<value>::type;
+
+template<bool value>
+using disableif = typename std::enable_if<!value>::type;
+
+template<typename T>
+using plain = typename std::remove_cv<std::remove_reference<T>::type>::type;
+
+template<typename A, typename B>
+using common = typename std::common_type<A, B>::type;
+
+template<typename A, typename B>
+constexpr bool isSame() { return std::is_same<A, B>::value; }
+
+template<typename T>
+constexpr bool isNumber() { return std::is_arithmetic<T>::value; }
+
+template<typename Expr>
+constexpr bool isDualExpr() { return traits::isDualExpr<plain<Expr>>::value; }
+
+template<typename Expr>
+constexpr bool isConstantExpr() { return traits::isConstantExpr<plain<Expr>>::value; }
+
+template<typename Expr>
+constexpr bool isNegExpr() { return traits::isNegExpr<plain<Expr>>::value; }
+
+template<typename Expr>
+constexpr bool isInvExpr() { return traits::isInvExpr<plain<Expr>>::value; }
+
+template<typename Expr>
+constexpr bool isScaleExpr() { return traits::isScaleExpr<plain<Expr>>::value; }
+
+template<typename Expr>
+constexpr bool isUnaryExpr() { return traits::isUnaryExpr<plain<Expr>>::value; }
+
+template<typename Expr>
+constexpr bool isBinaryExpr() { return traits::isBinaryExpr<plain<Expr>>::value; }
+
+
 //------------------------------------------------------------------------------
 // CONVENIENT FUNCTIONS
 //------------------------------------------------------------------------------
-template<typename T> constexpr auto constant(T&& val) -> ConstantExpr<T> { return { std::forward<T>(val) }; }
-template<typename R> constexpr auto inverse(const Expr<R>& expr) -> InvExpr<R> { return { expr.derived() }; }
+template<typename T>
+constexpr auto constant(T&& val) -> ConstantExpr<T>
+{
+    return { std::forward<T>(val) };
+}
+
+//------------------------------------------------------------------------------
+// INVERSE FUNCTION: GENERAL CASE
+//------------------------------------------------------------------------------
+template<typename R, disableif<isInvExpr<R>>...>
+constexpr auto inverse(const Expr<R>& expr) -> InvExpr<R>
+{
+    return { expr.derived() };
+}
+
+//------------------------------------------------------------------------------
+// INVERSE FUNCTION: inverse(InvExpr)
+//------------------------------------------------------------------------------
+template<typename R>
+constexpr auto inverse(const InvExpr<R>& expr) -> const R&
+{
+    return expr.r;
+}
 
 //------------------------------------------------------------------------------
 // ARITHMETIC OPERATORS
 //------------------------------------------------------------------------------
-//template<typename R> constexpr auto operator+(const Expr<R>& r) -> PosExpr<R> { return { r }; } //  todo remove as only sub is transformed into add and div in mul
-template<typename R> constexpr auto operator+(const Expr<R>& r) -> const R& { return r.derived(); };
-template<typename R> constexpr auto operator-(const Expr<R>& r) -> NegExpr<R> { return { r }; }
 
-template<typename L, typename R> constexpr auto operator+(const Expr<L>& l, const Expr<R>& r) -> AddExpr<L, R> { return { l, r }; }
-template<typename L, typename R> constexpr auto operator*(const Expr<L>& l, const Expr<R>& r) -> MulExpr<L, R> { return { l, r }; }
+//------------------------------------------------------------------------------
+// POSITIVE OPERATOR: GENERAL CASE
+//------------------------------------------------------------------------------
+template<typename R>
+constexpr auto operator+(const Expr<R>& r) -> const R&
+{
+    return r.derived();
+};
+
+//------------------------------------------------------------------------------
+// NEGATIVE OPERATOR: GENERAL CASE
+//------------------------------------------------------------------------------
+template<typename R,
+    disableif<isNegExpr<R>>...,
+    disableif<isScaleExpr<R>>...>
+constexpr auto operator-(const Expr<R>& expr) -> NegExpr<R>
+{
+    return { expr.derived() };
+}
+
+//------------------------------------------------------------------------------
+// NEGATIVE OPERATOR: -NegExpr
+//------------------------------------------------------------------------------
+template<typename R>
+constexpr auto operator-(const NegExpr<R>& expr) -> decltype(expr.r)
+{
+    return expr.r;
+}
+
+//------------------------------------------------------------------------------
+// NEGATIVE OPERATOR: -ScaleExpr
+//------------------------------------------------------------------------------
+template<typename T, typename R>
+constexpr auto operator-(const ScaleExpr<T, R>& expr) -> decltype((-expr.scalar) * expr.r)
+{
+    return (-expr.scalar) * expr.r;
+}
+
+//------------------------------------------------------------------------------
+// ADDITION OPERATOR: GENERAL CASE
+//------------------------------------------------------------------------------
+template<typename L, typename R,
+    disableif<isConstantExpr<L> && isConstantExpr<R>>...,
+    disableif<isNegExpr<L> && isNegExpr<R>>...>
+constexpr auto operator+(const Expr<L>& l, const Expr<R>& r) -> AddExpr<L, R>
+{
+    return { l.derived(), r.derived() };
+}
+
+//------------------------------------------------------------------------------
+// ADDITION OPERATOR: ConstantExpr + ConstantExpr
+//------------------------------------------------------------------------------
+template<typename L, typename R>
+constexpr auto operator+(const ConstantExpr<L>& l, const ConstantExpr<R>& r) -> decltype(constant(l.val + r.val))
+{
+    return constant(l.val + r.val);
+}
+
+//------------------------------------------------------------------------------
+// ADDITION OPERATOR: NegExpr + NegExpr
+//------------------------------------------------------------------------------
+template<typename L, typename R>
+constexpr auto operator+(const NegExpr<L>& l, const NegExpr<R>& r) -> decltype(-(l.r + r.r))
+{
+    return -(l.r + r.r);
+}
+
+//------------------------------------------------------------------------------
+// SUBTRACTION OPERATOR: GENERAL CASE
+//------------------------------------------------------------------------------
+template<typename L, typename R,
+    disableif<isConstantExpr<L> && isConstantExpr<R>>...>
+constexpr auto operator-(const Expr<L>& l, const Expr<R>& r) -> decltype(l + (-r))
+{
+    return l + (-r);
+}
+
+//------------------------------------------------------------------------------
+// SUBTRACTION OPERATOR: ConstantExpr - ConstantExpr
+//------------------------------------------------------------------------------
+template<typename L, typename R>
+constexpr auto operator-(const ConstantExpr<L>& l, const ConstantExpr<R>& r) -> decltype(constant(l.val - r.val))
+{
+    return constant(l.val - r.val);
+}
+
+//------------------------------------------------------------------------------
+// MULTIPLICATION OPERATOR: GENERAL CASE
+//------------------------------------------------------------------------------
+template<typename L, typename R,
+    disableif<isConstantExpr<L> && isConstantExpr<R>>...,
+    disableif<isNegExpr<L> && isNegExpr<R>>...,
+    disableif<isInvExpr<L> && isInvExpr<R>>...,
+    disableif<isConstantExpr<L> && isScaleExpr<R>>...,
+    disableif<isScaleExpr<L> && isConstantExpr<R>>...,
+    disableif<isNegExpr<L> && isScaleExpr<R>>...,
+    disableif<isScaleExpr<L> && isNegExpr<R>>...,
+    disableif<isScaleExpr<L> && isScaleExpr<R>>...>
+constexpr auto operator*(const Expr<L>& l, const Expr<R>& r) -> MulExpr<L, R>
+{
+    return { l.derived(), r.derived() };
+}
+
+//------------------------------------------------------------------------------
+// MULTIPLICATION OPERATOR: ConstantExpr * ConstantExpr
+//------------------------------------------------------------------------------
+template<typename L, typename R>
+constexpr auto operator*(const ConstantExpr<L>& l, const ConstantExpr<R>& r) -> decltype(constant(l.val * r.val))
+{
+    return constant(l.val * r.val);
+}
+
+//------------------------------------------------------------------------------
+// MULTIPLICATION OPERATOR: NegExpr * NegExpr
+//------------------------------------------------------------------------------
+template<typename L, typename R>
+constexpr auto operator*(const NegExpr<L>& l, const NegExpr<R>& r) -> decltype(l.r * r.r)
+{
+    return l.r * r.r;
+}
+
+//------------------------------------------------------------------------------
+// MULTIPLICATION OPERATOR: InvExpr * InvExpr
+//------------------------------------------------------------------------------
+template<typename L, typename R>
+constexpr auto operator*(const InvExpr<L>& l, const InvExpr<R>& r) -> decltype(inverse(l.r * r.r))
+{
+    return inverse(l.r * r.r);
+}
+
+//------------------------------------------------------------------------------
+// MULTIPLICATION OPERATOR: ConstantExpr * ScaleExpr
+//------------------------------------------------------------------------------
+template<typename T, typename L, typename R>
+constexpr auto operator*(const ConstantExpr<L>& l, const ScaleExpr<T, R>& r) -> decltype((l.val * r.scalar) * r.r)
+{
+    return (l.val * r.scalar) * r.r;
+}
+
+//------------------------------------------------------------------------------
+// MULTIPLICATION OPERATOR: ScaleExpr * ConstantExpr
+//------------------------------------------------------------------------------
+template<typename T, typename L, typename R>
+constexpr auto operator*(const ScaleExpr<T, L>& l, const ConstantExpr<R>& r) -> decltype((r.val * l.scalar) * l.r)
+{
+    return (r.val * l.scalar) * l.r;
+}
+
+//------------------------------------------------------------------------------
+// MULTIPLICATION OPERATOR: NegExpr * ScaleExpr
+//------------------------------------------------------------------------------
+template<typename T, typename L, typename R>
+constexpr auto operator*(const NegExpr<L>& l, const ScaleExpr<T, R>& r) -> decltype((-r.scalar) * (l.r * r.r))
+{
+    return (-r.scalar) * (l.r * r.r);
+}
+
+//------------------------------------------------------------------------------
+// MULTIPLICATION OPERATOR: ScaleExpr * NegExpr
+//------------------------------------------------------------------------------
+template<typename T, typename L, typename R>
+constexpr auto operator*(const ScaleExpr<T, L>& l, const NegExpr<R>& r) -> decltype((-l.scalar) * (l.r * r.r))
+{
+    return (-l.scalar) * (l.r * r.r);
+}
+
+//------------------------------------------------------------------------------
+// MULTIPLICATION OPERATOR: ScaleExpr * ScaleExpr
+//------------------------------------------------------------------------------
+template<typename T, typename U, typename L, typename R>
+constexpr auto operator*(const ScaleExpr<T, L>& l, const ScaleExpr<U, R>& r) -> decltype((l.scalar * l.scalar) * (l.r * r.r))
+{
+    return (l.scalar * l.scalar) * (l.r * r.r);
+}
+
+//------------------------------------------------------------------------------
+// DIVISION OPERATOR: GENERAL CASE
+//------------------------------------------------------------------------------
+template<typename L, typename R>
+constexpr auto operator/(const Expr<L>& l, const Expr<R>& r) -> decltype(l * inverse(r))
+{
+    return l * inverse(r);
+}
+
+template<typename L, typename R> constexpr auto operator+(const Expr<L>& l, const Expr<R>& r) -> AddExpr<L, R> { return { l.derived(), r.derived() }; }
+template<typename L, typename R> constexpr auto operator*(const Expr<L>& l, const Expr<R>& r) -> MulExpr<L, R> { return { l.derived(), r.derived() }; }
 template<typename L, typename R> constexpr auto operator-(const Expr<L>& l, const Expr<R>& r) -> decltype(l + (-r)) { return l + (-r); }
 template<typename L, typename R> constexpr auto operator/(const Expr<L>& l, const Expr<R>& r) -> decltype(l * inverse(r)) { return l * inverse(r); }
-//template<typename L, typename R> constexpr auto operator-(const Expr<L>& l, const Expr<R>& r) -> SubExpr<L, R> { return { l, r }; } //  todo remove as only sub is transformed into add and div in mul
-//template<typename L, typename R> constexpr auto operator/(const Expr<L>& l, const Expr<R>& r) -> DivExpr<L, R> { return { l, r }; } //  todo remove as only sub is transformed into add and div in mul
 
-template<typename L, typename R> constexpr auto operator+(double l, const Expr<R>& r) -> decltype(constant(l) + r) { return constant(l) + r; }
-template<typename L, typename R> constexpr auto operator-(double l, const Expr<R>& r) -> decltype(constant(l) - r) { return constant(l) - r; }
-template<typename L, typename R> constexpr auto operator*(double l, const Expr<R>& r) -> decltype(constant(l) * r) { return constant(l) * r; }
-template<typename L, typename R> constexpr auto operator/(double l, const Expr<R>& r) -> decltype(constant(l) / r) { return constant(l) / r; }
+template<typename T, typename R, enableif<isNumber<T>>...> constexpr auto operator+(T l, const Expr<R>& r) -> decltype(constant(l) + r.derived()) { return constant(l) + r.derived(); }
+template<typename T, typename R, enableif<isNumber<T>>...> constexpr auto operator-(T l, const Expr<R>& r) -> decltype(constant(l) - r.derived()) { return constant(l) - r.derived(); }
+template<typename T, typename R, enableif<isNumber<T>>...> constexpr auto operator*(T l, const Expr<R>& r) -> ScaleExpr<T, R> { return { l.derived(), r.derived() }; }
+template<typename T, typename R, enableif<isNumber<T>>...> constexpr auto operator/(T l, const Expr<R>& r) -> decltype(constant(l) / r.derived()) { return constant(l) / r.derived(); }
 
-template<typename L, typename R> constexpr auto operator+(const Expr<L>& l, double r) -> decltype(l + constant(r)) { return l + constant(r); }
-template<typename L, typename R> constexpr auto operator-(const Expr<L>& l, double r) -> decltype(l - constant(r)) { return l - constant(r); }
-template<typename L, typename R> constexpr auto operator*(const Expr<L>& l, double r) -> decltype(l * constant(r)) { return l * constant(r); }
-template<typename L, typename R> constexpr auto operator/(const Expr<L>& l, double r) -> decltype(l / constant(r)) { return l / constant(r); }
+template<typename T, typename L, enableif<isNumber<T>>...> constexpr auto operator+(const Expr<L>& l, T r) -> decltype(l.derived() + constant(r)) { return l.derived() + constant(r); }
+template<typename T, typename L, enableif<isNumber<T>>...> constexpr auto operator-(const Expr<L>& l, T r) -> decltype(l.derived() - constant(r)) { return l.derived() - constant(r); }
+template<typename T, typename L, enableif<isNumber<T>>...> constexpr auto operator*(const Expr<L>& l, T r) -> ScaleExpr<T, L> { return { r, l.derived() }; }
+template<typename T, typename L, enableif<isNumber<T>>...> constexpr auto operator/(const Expr<L>& l, T r) -> decltype((static_cast<T>(1) / r) * l.derived()) { return (static_cast<T>(1) / r) * l.derived(); }
 
 //------------------------------------------------------------------------------
 // TRIGONOMETRIC FUNCTIONS
 //------------------------------------------------------------------------------
-template<typename R> constexpr auto sin(const Expr<R>& r) -> SinExpr<R> { return { r }; }
-template<typename R> constexpr auto cos(const Expr<R>& r) -> CosExpr<R> { return { r }; }
-template<typename R> constexpr auto tan(const Expr<R>& r) -> TanExpr<R> { return { r }; }
-template<typename R> constexpr auto asin(const Expr<R>& r) -> ArcSinExpr<R> { return { r }; }
-template<typename R> constexpr auto acos(const Expr<R>& r) -> ArcCosExpr<R> { return { r }; }
-template<typename R> constexpr auto atan(const Expr<R>& r) -> ArcTanExpr<R> { return { r }; }
+template<typename R> constexpr auto sin(const Expr<R>& r) -> SinExpr<R> { return { r.derived() }; }
+template<typename R> constexpr auto cos(const Expr<R>& r) -> CosExpr<R> { return { r.derived() }; }
+template<typename R> constexpr auto tan(const Expr<R>& r) -> TanExpr<R> { return { r.derived() }; }
+template<typename R> constexpr auto asin(const Expr<R>& r) -> ArcSinExpr<R> { return { r.derived() }; }
+template<typename R> constexpr auto acos(const Expr<R>& r) -> ArcCosExpr<R> { return { r.derived() }; }
+template<typename R> constexpr auto atan(const Expr<R>& r) -> ArcTanExpr<R> { return { r.derived() }; }
 
 //------------------------------------------------------------------------------
 // HYPERBOLIC FUNCTIONS
@@ -212,20 +504,20 @@ template<typename R> constexpr auto atan(const Expr<R>& r) -> ArcTanExpr<R> { re
 //------------------------------------------------------------------------------
 // EXPONENTIAL AND LOGARITHMIC FUNCTIONS
 //------------------------------------------------------------------------------
-template<typename R> constexpr auto exp(const Expr<R>& r) -> ExpExpr<R> { return { r }; }
-template<typename R> constexpr auto log(const Expr<R>& r) -> LogExpr<R> { return { r }; }
-template<typename R> constexpr auto log10(const Expr<R>& r) -> Log10Expr<R> { return { r }; }
+template<typename R> constexpr auto exp(const Expr<R>& r) -> ExpExpr<R> { return { r.derived() }; }
+template<typename R> constexpr auto log(const Expr<R>& r) -> LogExpr<R> { return { r.derived() }; }
+template<typename R> constexpr auto log10(const Expr<R>& r) -> Log10Expr<R> { return { r.derived() }; }
 
 //------------------------------------------------------------------------------
 // POWER FUNCTIONS
 //------------------------------------------------------------------------------
-template<typename L, typename R> constexpr auto pow(const Expr<L>& l, const Expr<R>& r) -> PowExpr<L, R> { return { l, r }; }
-template<typename R> constexpr auto sqrt(const Expr<R>& r) -> SqrtExpr<R> { return { r }; }
+template<typename L, typename R> constexpr auto pow(const Expr<L>& l, const Expr<R>& r) -> PowExpr<L, R> { return { l.derived(), r.derived() }; }
+template<typename R> constexpr auto sqrt(const Expr<R>& r) -> SqrtExpr<R> { return { r.derived() }; }
 
 //------------------------------------------------------------------------------
 // OTHER FUNCTIONS
 //------------------------------------------------------------------------------
-template<typename R> constexpr auto abs(const Expr<R>& r) -> AbsExpr<R> { return { r }; }
+template<typename R> constexpr auto abs(const Expr<R>& r) -> AbsExpr<R> { return { r.derived() }; }
 template<typename R> constexpr auto abs2(const Expr<R>& r) -> decltype(r * r) { return r * r; }
 template<typename R> constexpr auto conj(const Expr<R>& r) -> decltype(r) { return r; }
 template<typename R> constexpr auto real(const Expr<R>& r) -> decltype(r) { return r; }
@@ -258,20 +550,44 @@ template<typename R> constexpr auto imag(const Expr<R>& r) -> decltype(constant(
 
 
 //------------------------------------------------------------------------------
-// TYPE TRAITS UTILITIES
+// FORWARD DECLARATIONS
 //------------------------------------------------------------------------------
-template<bool value>
-using enableif = typename std::enable_if<value>::type;
+template<typename Op, typename T>
+constexpr void apply(Dual<T>& self);
 
-template<bool value>
-using disableif = typename std::enable_if<!value>::type;
+template<typename IncrementOp, typename T, typename Derived>
+constexpr void increment(Dual<T>& self, const Expr<Derived>& other);
 
-template<typename A, typename B>
-constexpr bool same() { return std::is_same<A, B>::value; }
+
+//------------------------------------------------------------------------------
+// AUXILIARY FUNCTIONS
+//------------------------------------------------------------------------------
+template<typename T>
+constexpr void negate(Dual<T>& self)
+{
+    self.val = -self.val;
+    self.grad = -self.grad;
+}
+
+template<typename T, typename U>
+constexpr void scale(Dual<T>& self, const U& scalar)
+{
+    self.val *= scalar;
+    self.grad *= scalar;
+}
+
 
 //------------------------------------------------------------------------------
 // EXPRESSION EVALUATION FUNCTIONS
 //------------------------------------------------------------------------------
+template<typename T, typename R, disableif<isDualExpr<R>>..., disableif<isConstantExpr<R>>...>
+constexpr auto eval(const Expr<R>& expr) -> Dual<T>
+{
+    Dual<T> tmp;
+    assign(tmp, expr);
+    return tmp;
+}
+
 template<typename T>
 constexpr auto eval(const Dual<T>& expr) -> const Dual<T>&
 {
@@ -284,150 +600,293 @@ constexpr auto eval(const ConstantExpr<T>& expr) -> const ConstantExpr<T>&
     return expr;
 }
 
-template<typename T, typename Op, typename R>
-constexpr auto eval(const UnaryExpr<Op, R>& expr) -> Dual<T>
+
+//------------------------------------------------------------------------------
+// ASSIGNMENT FUNCTIONS
+//------------------------------------------------------------------------------
+template<typename T>
+constexpr void assign(Dual<T>& self, const Dual<T>& other)
 {
-    Dual<T> res;
-    assign(res, expr);
-    return res;
+    self.val = other.val;
+    self.grad = other.grad;
+}
+
+template<typename T, typename U>
+constexpr void assign(Dual<T>& self, const ConstantExpr<U>& other)
+{
+    self.val = other.val;
+    self.grad = 0.0;
+}
+
+template<typename T, typename U, typename R>
+constexpr void assign(Dual<T>& self, const ScaleExpr<U, R>& other)
+{
+    assign(self, other.r);
+    scale(self, other.scalar);
+}
+
+template<typename T, typename Op, typename R>
+constexpr void assign(Dual<T>& self, const UnaryExpr<Op, R>& other)
+{
+    assign(self, other.r);
+    apply<Op>(self);
 }
 
 template<typename T, typename Op, typename L, typename R>
-constexpr auto eval(const BinaryExpr<Op, L, R>& expr) -> Dual<T>
+constexpr void assign(Dual<T>& self, const BinaryExpr<Op, L, R>& other)
 {
-    Dual<T> res;
-    assign(res, expr);
-    return res;
+    assign(self, other.l);
+    increment<Op>(self, other.r);
+}
+
+
+//------------------------------------------------------------------------------
+// INCREMENT FUNCTIONS FOR DUAL EXPRESSIONS
+//------------------------------------------------------------------------------
+template<typename T>
+constexpr void increment(Dual<T>& self, const Dual<T>& other, AddOp)
+{
+    self.val += other.val;
+    self.grad += other.grad;
+}
+
+template<typename T>
+constexpr void increment(Dual<T>& self, const Dual<T>& other, SubOp)
+{
+    self.val -= other.val;
+    self.grad -= other.grad;
+}
+
+template<typename T>
+constexpr void increment(Dual<T>& self, const Dual<T>& other, MulOp)
+{
+    self.grad *= other.val;
+    self.grad += self.val * other.grad;
+    self.val  *= other.val;
+}
+
+template<typename T>
+constexpr void increment(Dual<T>& self, const Dual<T>& other, DivOp)
+{
+    const auto aux = static_cast<T>(1) / other.val;
+    self.val  *= aux;
+    self.grad *= aux;
+    self.grad -= self.val * aux;
 }
 
 //------------------------------------------------------------------------------
-// INCREMENT FUNCTIONS FOR DUAL AND CONSTANT EXPRESSIONS
+// INCREMENT FUNCTIONS FOR CONSTANT EXPRESSIONS
 //------------------------------------------------------------------------------
-template<typename T> constexpr void increment(Dual<T>& self, const Dual<T>& other, AddOp) { self += other; }
-template<typename T> constexpr void increment(Dual<T>& self, const Dual<T>& other, MulOp) { self *= other; }
-
-template<typename T> constexpr void increment(Dual<T>& self, const ConstantExpr<T>& other, AddOp) { self.val += other.val; }
-template<typename T> constexpr void increment(Dual<T>& self, const ConstantExpr<T>& other, MulOp) { self.val *= other.val; }
-
-template<typename T, typename R> constexpr void increment(Dual<T>& self, const NegExpr<R>& other, AddOp) { self -= eval(other.r); }
-template<typename T, typename R> constexpr void increment(Dual<T>& self, const NegExpr<R>& other, MulOp) { self *= eval(other.r); self *= -1.0; }
-
-//------------------------------------------------------------------------------
-// INCREMENT FUNCTIONS FOR UNARY EXPRESSIONS
-//------------------------------------------------------------------------------
-template<typename T, typename IncrementOp, typename Op, typename R, disableif<same<Op, NegOp>()>...>
-constexpr void increment(Dual<T>& self, const UnaryExpr<Op, R>& expr, IncrementOp)
+template<typename T, typename U>
+constexpr void increment(Dual<T>& self, const ConstantExpr<U>& other, AddOp)
 {
-    Dual<T> tmp = eval(expr);
-    increment(self, eval(expr), IncrementOp{});
+    self.val += other.val;
+}
+
+template<typename T, typename U>
+constexpr void increment(Dual<T>& self, const ConstantExpr<U>& other, SubOp)
+{
+    self.val -= other.val;
+}
+
+template<typename T, typename U>
+constexpr void increment(Dual<T>& self, const ConstantExpr<U>& other, MulOp)
+{
+    self.val *= other.val;
+    self.grad *= other.val;
+}
+
+template<typename T, typename U>
+constexpr void increment(Dual<T>& self, const ConstantExpr<U>& other, DivOp)
+{
+    const auto aux = static_cast<T>(1) / other.val;
+    self.val *= aux;
+    self.grad *= aux;
 }
 
 //------------------------------------------------------------------------------
-// INCREMENT FUNCTIONS FOR BINARY EXPRESSIONS
+// INCREMENT FUNCTIONS FOR NEGATIVE EXPRESSIONS
 //------------------------------------------------------------------------------
-template<typename T, typename IncrementOp, typename Op, typename L, typename R, enableif<same<IncrementOp, Op>()>...>
-constexpr void increment(Dual<T>& self, const BinaryExpr<Op, L, R>& expr, IncrementOp)
+template<typename T, typename R>
+constexpr void increment(Dual<T>& self, const NegExpr<R>& other, AddOp)
 {
-    increment(self, expr.l, IncrementOp{});
-    increment(self, expr.r, IncrementOp{});
+    increment<SubOp>(self, other);
 }
 
-template<typename T, typename IncrementOp, typename Op, typename L, typename R, disableif<same<IncrementOp, Op>()>...>
-constexpr void increment(Dual<T>& self, const BinaryExpr<Op, L, R>& expr, IncrementOp)
+template<typename T, typename R>
+constexpr void increment(Dual<T>& self, const NegExpr<R>& other, SubOp)
 {
-    increment(self, eval(expr), IncrementOp{});
+    increment<AddOp>(self, other);
 }
 
-template<typename Op, typename T, typename Derived>
-constexpr void increment(Dual<T>& self, const Expr<Derived>& expr) 
+template<typename T, typename R>
+constexpr void increment(Dual<T>& self, const NegExpr<R>& other, MulOp)
 {
-    increment(self, expr.derived(), Op{}); 
+    increment<MulOp>(self, other.r);
+    negate(self);
+}
+
+template<typename T, typename R>
+constexpr void increment(Dual<T>& self, const NegExpr<R>& other, DivOp)
+{
+    increment<DivOp>(self, other.r);
+    negate(self);
+}
+
+//------------------------------------------------------------------------------
+// INCREMENT FUNCTIONS FOR SCALE EXPRESSIONS
+//------------------------------------------------------------------------------
+template<typename T, typename U, typename R>
+constexpr void increment(Dual<T>& self, const ScaleExpr<U, R>& other, AddOp)
+{
+    const auto tmp = eval(other.r);
+    self.val += other.scalar * tmp.val;
+    self.grad += other.scalar * tmp.grad;
+}
+
+template<typename T, typename U, typename R>
+constexpr void increment(Dual<T>& self, const ScaleExpr<U, R>& other, SubOp)
+{
+    increment<AddOp>(self, other);
+}
+
+template<typename T, typename U, typename R>
+constexpr void increment(Dual<T>& self, const ScaleExpr<U, R>& other, MulOp)
+{
+    increment<MulOp>(self, other.r);
+    negate(self);
+}
+
+template<typename T, typename U, typename R>
+constexpr void increment(Dual<T>& self, const ScaleExpr<U, R>& other, DivOp)
+{
+    increment<DivOp>(self, other.r);
+    negate(self);
+}
+
+//------------------------------------------------------------------------------
+// INCREMENT FUNCTIONS FOR UNARY AND BINARY EXPRESSIONS
+//------------------------------------------------------------------------------
+template<typename T, typename Op, typename R, typename IncrementOp>
+constexpr void increment(Dual<T>& self, const UnaryExpr<Op, R>& other, IncrementOp)
+{
+    Dual<T> tmp;
+    assign(tmp, other);
+    increment<IncrementOp>(self, tmp);
+}
+
+template<typename T, typename Op, typename L, typename R, typename IncrementOp>
+constexpr void increment(Dual<T>& self, const BinaryExpr<Op, L, R>& other, IncrementOp)
+{
+    Dual<T> tmp;
+    assign(tmp, other);
+    increment<IncrementOp>(self, tmp);
+}
+
+template<typename IncrementOp, typename T, typename Derived>
+constexpr void increment(Dual<T>& self, const Expr<Derived>& other)
+{
+    increment(self, other.derived(), IncrementOp{});
 }
 
 //------------------------------------------------------------------------------
 // APPLY FUNCTIONS
 //------------------------------------------------------------------------------
-template<typename T> 
+template<typename T>
+constexpr void apply(Dual<T>& self, NegOp)
+{
+    self.val = -self.val;
+    self.grad = -self.grad;
+}
+
+template<typename T>
+constexpr void apply(Dual<T>& self, InvOp)
+{
+    self.val = static_cast<T>(1) / self.val;
+    self.grad *= - self.val * self.val;
+}
+
+template<typename T>
 constexpr void apply(Dual<T>& self, SinOp)
 {
     self.val = std::sin(self.val);
     self.grad *= std::cos(self.val);
 }
 
-template<typename T> 
+template<typename T>
 constexpr void apply(Dual<T>& self, CosOp)
 {
     self.val = std::cos(self.val);
     self.grad *= -std::sin(self.val);
 }
 
-template<typename T> 
+template<typename T>
 constexpr void apply(Dual<T>& self, TanOp)
 {
-    const double aux = 1.0 / std::cos(self.val);
+    const auto aux = static_cast<T>(1) / std::cos(self.val);
     self.val = std::tan(self.val);
     self.grad *= aux * aux;
 }
 
-template<typename T> 
+template<typename T>
 constexpr void apply(Dual<T>& self, ArcSinOp)
 {
-    const double aux = 1.0 / std::sqrt(1.0 - self.val * self.val);
+    const auto aux = static_cast<T>(1) / std::sqrt(1.0 - self.val * self.val);
     self.val = std::asin(self.val);
     self.grad *= aux;
 }
 
-template<typename T> 
+template<typename T>
 constexpr void apply(Dual<T>& self, ArcCosOp)
 {
-    const double aux = -1.0 / std::sqrt(1.0 - self.val * self.val);
+    const auto aux = -1.0 / std::sqrt(1.0 - self.val * self.val);
     self.val = std::acos(self.val);
     self.grad *= aux;
 }
 
-template<typename T> 
+template<typename T>
 constexpr void apply(Dual<T>& self, ArcTanOp)
 {
-    const double aux = 1.0 / (1.0 + self.val * self.val);
+    const auto aux = static_cast<T>(1) / (1.0 + self.val * self.val);
     self.val = std::atan(self.val);
     self.grad *= aux;
 }
 
-template<typename T> 
+template<typename T>
 constexpr void apply(Dual<T>& self, ExpOp)
 {
     self.val = std::exp(self.val);
     self.grad *= self.val;
 }
 
-template<typename T> 
+template<typename T>
 constexpr void apply(Dual<T>& self, LogOp)
 {
-    const double aux = 1.0 / self.val;
+    const auto aux = static_cast<T>(1) / self.val;
     self.val = std::log(self.val);
     self.grad *= aux;
 }
 
-template<typename T> 
+template<typename T>
 constexpr void apply(Dual<T>& self, Log10Op)
 {
-    constexpr double ln10 = 2.3025850929940456840179914546843;
-    const double aux = 1.0 / (ln10 * self.val);
+    constexpr T ln10 = 2.3025850929940456840179914546843;
+    const auto aux = static_cast<T>(1) / (ln10 * self.val);
     self.val = std::log10(self.val);
     self.grad *= aux;
 }
 
-template<typename T> 
+template<typename T>
 constexpr void apply(Dual<T>& self, SqrtOp)
 {
     self.val = std::sqrt(self.val);
     self.grad *= 0.5 / self.val;
 }
 
-template<typename T> 
+template<typename T>
 constexpr void apply(Dual<T>& self, AbsOp)
 {
-    const double aux = self.val;
+    const auto aux = self.val;
     self.val = std::abs(self.val);
     self.grad *= aux / self.val;
 }
@@ -437,128 +896,6 @@ constexpr void apply(Dual<T>& self)
 {
     apply(self, Op{});
 }
-
-//------------------------------------------------------------------------------
-// ASSIGN FUNCTION FOR BASE EXPR
-//------------------------------------------------------------------------------
-
-template<typename T, typename Derived>
-void assign(Dual<T>& self, const Expr<Derived>& expr)
-{
-    assign(self, expr.derived()); 
-}
-
-template<typename T> constexpr void assign(Dual<T>& self, const Dual<T>& other) { self = other; }
-template<typename T> constexpr void assign(Dual<T>& self, const ConstantExpr<T>& other) { self.val = other.val; self.grad = 0.0; }
-
-
-template<typename T, typename Op, typename R>
-void assign(Dual<T>& self, const UnaryExpr<Op, R>& expr) 
-{
-    assign(self, expr.r);
-    apply<Op>(self);
-}
-
-template<typename T, typename Op, typename L, typename R>
-void assign(Dual<T>& self, const BinaryExpr<Op, L, R>& expr)
-{
-    assign(self, expr.l);
-    increment<Op>(self, expr.r);
-}
-
-
-//------------------------------------------------------------------------------
-// ARITHMETIC-ASSIGN FUNCTIONS FOR BASE EXPR
-//------------------------------------------------------------------------------
-//template<typename Derived> void assignAdd(Dual<T>& self, const Expr<Derived>& expr) { assignAdd(self, expr.derived()); }
-//template<typename Derived> void assignSub(Dual<T>& self, const Expr<Derived>& expr) { assignSub(self, expr.derived()); }
-//template<typename Derived> void assignMul(Dual<T>& self, const Expr<Derived>& expr) { assignMul(self, expr.derived()); }
-//template<typename Derived> void assignDiv(Dual<T>& self, const Expr<Derived>& expr) { assignDiv(self, expr.derived()); }
-//
-////------------------------------------------------------------------------------
-//// ASSIGN FUNCTION FOR CONSTANT EXPR
-////------------------------------------------------------------------------------
-//template<typename T> void assign(Dual<T>& self, const ConstantExpr<T>& expr) { self.val = expr.val; self.grad = 0.0; }
-//
-////------------------------------------------------------------------------------
-//// ARITHMETIC-ASSIGN FUNCTIONS FOR CONSTANT EXPR
-////------------------------------------------------------------------------------
-//template<typename T> void assignAdd(Dual<T>& self, const ConstantExpr<T>& expr) { self.val += expr.val; }
-//template<typename T> void assignSub(Dual<T>& self, const ConstantExpr<T>& expr) { self.val -= expr.val; }
-//template<typename T> void assignMul(Dual<T>& self, const ConstantExpr<T>& expr) { self.val *= expr.val; }
-//template<typename T> void assignDiv(Dual<T>& self, const ConstantExpr<T>& expr) { self.val /= expr.val; }
-//
-////------------------------------------------------------------------------------
-//// ASSIGN FUNCTIONS FOR POS AND NEG UNARY OPERATORS
-////------------------------------------------------------------------------------
-//template<typename R> void assign(Dual<T>& self, const PosExpr<R>& expr) { assign(self, expr.r); }
-//template<typename R> void assign(Dual<T>& self, const NegExpr<R>& expr) { assign(self, expr.r); applyNeg(self); }
-//
-////------------------------------------------------------------------------------
-//// ARITHMETIC-ASSIGN FUNCTIONS FOR POS AND NEG UNARY OPERATORS
-////------------------------------------------------------------------------------
-//template<typename R> void assignAdd(Dual<T>& self, const PosExpr<R>& expr) { assignAdd(self, expr.r); }
-//template<typename R> void assignSub(Dual<T>& self, const PosExpr<R>& expr) { assignSub(self, expr.r); }
-//template<typename R> void assignMul(Dual<T>& self, const PosExpr<R>& expr) { assignMul(self, expr.r); }
-//template<typename R> void assignDiv(Dual<T>& self, const PosExpr<R>& expr) { assignDiv(self, expr.r); }
-//
-//template<typename R> void assignAdd(Dual<T>& self, const NegExpr<R>& expr) { assignAdd(self, expr.r); }
-//template<typename R> void assignSub(Dual<T>& self, const NegExpr<R>& expr) { assignSub(self, expr.r); }
-//template<typename R> void assignMul(Dual<T>& self, const NegExpr<R>& expr) { assignMul(self, expr.r); }
-//template<typename R> void assignDiv(Dual<T>& self, const NegExpr<R>& expr) { assignDiv(self, expr.r); }
-//
-////------------------------------------------------------------------------------
-//// ASSIGN FUNCTIONS FOR ADD, SUB, MUL, AND DIV BINARY OPERATORS
-////------------------------------------------------------------------------------
-//template<typename L, typename R> void assign(Dual<T>& self, const AddExpr<L, R>& expr) { assign(self, expr.l); assignAdd(self, expr.r); }
-//template<typename L, typename R> void assign(Dual<T>& self, const SubExpr<L, R>& expr) { assign(self, expr.l); assignSub(self, expr.r); }
-//template<typename L, typename R> void assign(Dual<T>& self, const MulExpr<L, R>& expr) { assign(self, expr.l); assignMul(self, expr.r); }
-//template<typename L, typename R> void assign(Dual<T>& self, const DivExpr<L, R>& expr) { assign(self, expr.l); assignDiv(self, expr.r); }
-//
-////------------------------------------------------------------------------------
-//// ASSIGN FUNCTIONS FOR TRIGONOMETRIC FUNCTIONS
-////------------------------------------------------------------------------------
-//template<typename R> void assign(Dual<T>& self, const SinExpr<R>& expr)    { assign(self, expr.r); applySin(self); }
-//template<typename R> void assign(Dual<T>& self, const CosExpr<R>& expr)    { assign(self, expr.r); applyCos(self); }
-//template<typename R> void assign(Dual<T>& self, const TanExpr<R>& expr)    { assign(self, expr.r); applyTan(self); }
-//template<typename R> void assign(Dual<T>& self, const ArcSinExpr<R>& expr) { assign(self, expr.r); applyArcSin(self); }
-//template<typename R> void assign(Dual<T>& self, const ArcCosExpr<R>& expr) { assign(self, expr.r); applyArcCos(self); }
-//template<typename R> void assign(Dual<T>& self, const ArcTanExpr<R>& expr) { assign(self, expr.r); applyArcTan(self); }
-//
-////------------------------------------------------------------------------------
-//// ASSIGN FUNCTIONS FOR EXPONENTIAL AND LOGARITHMIC FUNCTIONS
-////------------------------------------------------------------------------------
-//template<typename R> void assign(Dual<T>& self, const ExpExpr<R>& expr)    { assign(self, expr.r); applyExp(self); }
-//template<typename R> void assign(Dual<T>& self, const LogExpr<R>& expr)    { assign(self, expr.r); applyLog(self); }
-//template<typename R> void assign(Dual<T>& self, const Log10Expr<R>& expr)  { assign(self, expr.r); applyLog10(self); }
-//
-////------------------------------------------------------------------------------
-//// ASSIGN FUNCTIONS FOR POWER FUNCTIONS
-////------------------------------------------------------------------------------
-//template<typename L, typename R> void assign(Dual<T>& self, const PowExpr<L, R>& expr) { assign(self, expr.r); applyPow(self, expr.r); }
-//template<typename R>             void assign(Dual<T>& self, const SqrtExpr<R>& expr)   { assign(self, expr.r); applySqrt(self); }
-//
-////------------------------------------------------------------------------------
-//// ASSIGN FUNCTIONS FOR OTHER FUNCTIONS
-////------------------------------------------------------------------------------
-//template<typename R> void assign(Dual<T>& self, const AbsExpr<R>& expr) { assign(self, expr.r); applyAbs(self); }
-//
-//
-//template<typename Derived> void assignAdd(Dual<T>& self, const Expr<Derived>& expr) { assignAdd(self, expr.derived()); }
-//template<typename Derived> void assignSub(Dual<T>& self, const Expr<Derived>& expr) { assignSub(self, expr.derived()); }
-//template<typename Derived> void assignMul(Dual<T>& self, const Expr<Derived>& expr) { assignMul(self, expr.derived()); }
-//template<typename Derived> void assignDiv(Dual<T>& self, const Expr<Derived>& expr) { assignDiv(self, expr.derived()); }
-//
-//template<typename Derived>
-//void assignDiv(Dual<T>& self, const Expr<Derived>& expr) { assignDiv(self, expr.derived()); }
-//
-//template<typename L, typename R>
-//void assign(Dual<T>& self, const AddExpr<L, R>& expr)
-//{
-//    assign(self, expr.l);
-//    assignAdd(self, expr.l);
-//}
-
 
 } // namespace forward
 
