@@ -41,12 +41,12 @@ namespace forward {
 //
 //=====================================================================================================================
 
-struct NegOp    {};  // NEGATIVE OPERATOR
-struct InvOp    {};  // INVERSE OPERATOR
 struct AddOp    {};  // ADDITION OPERATOR
 struct SubOp    {};  // SUBTRACTION OPERATOR
 struct MulOp    {};  // MULTIPLICATION OPERATOR
 struct DivOp    {};  // DIVISION OPERATOR
+struct NegOp    {};  // NEGATIVE OPERATOR
+struct InvOp    {};  // INVERSE OPERATOR
 struct SinOp    {};  // SINE OPERATOR
 struct CosOp    {};  // COSINE OPERATOR
 struct TanOp    {};  // TANGENT OPERATOR
@@ -72,9 +72,6 @@ struct Expr;
 template<typename T>
 struct Dual;
 
-template<typename T>
-struct ConstantExpr;
-
 template<typename R, typename T>
 struct ScaleExpr;
 
@@ -89,12 +86,6 @@ using NegExpr = UnaryExpr<NegOp, R>;
 
 template<typename R>
 using InvExpr = UnaryExpr<InvOp, R>;
-
-template<typename L, typename R>
-using AddExpr = BinaryExpr<AddOp, L, R>;
-
-template<typename L, typename R>
-using MulExpr = BinaryExpr<MulOp, L, R>;
 
 template<typename R>
 using SinExpr = UnaryExpr<SinOp, R>;
@@ -123,14 +114,20 @@ using LogExpr = UnaryExpr<LogOp, R>;
 template<typename R>
 using Log10Expr = UnaryExpr<Log10Op, R>;
 
-template<typename L, typename R>
-using PowExpr = BinaryExpr<PowOp, L, R>;
-
 template<typename R>
 using SqrtExpr = UnaryExpr<SqrtOp, R>;
 
 template<typename R>
 using AbsExpr = UnaryExpr<AbsOp, R>;
+
+template<typename L, typename R>
+using AddExpr = BinaryExpr<AddOp, L, R>;
+
+template<typename L, typename R>
+using MulExpr = BinaryExpr<MulOp, L, R>;
+
+template<typename L, typename R>
+using PowExpr = BinaryExpr<PowOp, L, R>;
 
 //=====================================================================================================================
 //
@@ -155,20 +152,11 @@ namespace traits {
 template<typename T>
 struct isExpr { constexpr static bool value = std::is_base_of<Expr<plain<T>>, plain<T>>::value; };
 
-template<typename Derived>
-struct isExpr<Expr<Derived>> { constexpr static bool value = true; };
-
 template<typename T>
 struct isDual { constexpr static bool value = false; };
 
 template<typename T>
 struct isDual<Dual<T>> { constexpr static bool value = true; };
-
-template<typename T>
-struct isConstantExpr { constexpr static bool value = false; };
-
-template<typename T>
-struct isConstantExpr<ConstantExpr<T>> { constexpr static bool value = true; };
 
 template<typename T>
 struct isNegExpr { constexpr static bool value = false; };
@@ -227,9 +215,6 @@ template<typename T>
 constexpr bool isDual = traits::isDual<plain<T>>::value;
 
 template<typename T>
-constexpr bool isConstantExpr = traits::isConstantExpr<plain<T>>::value;
-
-template<typename T>
 constexpr bool isNegExpr = traits::isNegExpr<plain<T>>::value;
 
 template<typename T>
@@ -275,10 +260,17 @@ struct Dual : Expr<Dual<T>>
     explicit Dual(T val) : val(val), grad(0.0)
     {}
 
-    template<typename Other>
-    Dual(const Expr<Other>& expr)
+    template<typename R, enableif<isExpr<R>>...>
+    Dual(R&& other)
     {
-        assign(*this, expr.derived());
+        assign(*this, std::forward<R>(other));
+    }
+
+    template<typename R, enableif<isNumber<R> || isExpr<R>>...>
+    Dual& operator=(R&& other)
+    {
+        assign(*this, other);
+        return *this;
     }
 
     template<typename R, enableif<isNumber<R> || isExpr<R>>...>
@@ -310,13 +302,6 @@ struct Dual : Expr<Dual<T>>
     }
 };
 
-template<typename T>
-struct ConstantExpr : Expr<ConstantExpr<T>>
-{
-    T val;
-    constexpr ConstantExpr(T&& val) : val(std::forward<T>(val)) {}
-};
-
 template<typename R, typename T>
 struct ScaleExpr : Expr<ScaleExpr<T, R>>
 {
@@ -346,44 +331,40 @@ struct BinaryExpr : Expr<BinaryExpr<Op, L, R>>
 //
 //=====================================================================================================================
 
-
-//-----------------------------------------------------------------------------
-// CONSTANT EXPRESSION GENERATOR FUNCTION
-//-----------------------------------------------------------------------------
-template<typename T>
-constexpr auto constant(T&& val) -> ConstantExpr<T>
-{
-    return { std::forward<T>(val) };
-}
-
 //-----------------------------------------------------------------------------
 // NEGATIVE EXPRESSION GENERATOR FUNCTION
 //-----------------------------------------------------------------------------
-template<typename R>
-constexpr auto negative(const NegExpr<R>& expr) -> decltype(expr.inner)
-{
-    return expr.inner;
-}
-
 template<typename R, enableif<isExpr<R>>..., disableif<isNegExpr<R>>>
 constexpr auto negative(R&& expr) -> NegExpr<R>
 {
     return { std::forward<R>(expr) };
 }
 
+template<typename R>
+constexpr auto negative(const NegExpr<R>& expr)
+{
+    return std::forward<R>(expr.inner);
+}
+
 //-----------------------------------------------------------------------------
 // INVERSE EXPRESSION GENERATOR FUNCTION
 //-----------------------------------------------------------------------------
-template<typename R>
-constexpr auto inverse(const InvExpr<R>& expr) -> decltype(expr.inner)
+template<typename R, enableif<isExpr<R>>..., disableif<isInvExpr<R>>>
+constexpr auto inverse(R&& r) -> InvExpr<R>
 {
-    return expr.inner;
+    return { std::forward<R>(r) };
 }
 
-template<typename R, enableif<isExpr<R>>..., disableif<isInvExpr<R>>>
-constexpr auto inverse(R&& expr) -> InvExpr<R>
+template<typename R>
+constexpr auto inverse(const InvExpr<R>& r)
 {
-    return { std::forward<R>(expr) };
+    return std::forward<R>(r.inner);
+}
+
+template<typename R, enableif<isNumber<R>>...>
+constexpr auto inverse(R&& r)
+{
+    return static_cast<plain<R>>(1) / r;
 }
 
 //=====================================================================================================================
@@ -393,13 +374,13 @@ constexpr auto inverse(R&& expr) -> InvExpr<R>
 //=====================================================================================================================
 
 //-----------------------------------------------------------------------------
-// operator+: +expr
+// operator+: +expr => expr
 //-----------------------------------------------------------------------------
-template<typename R>
-constexpr auto operator+(const Expr<R>& r) -> R
+template<typename R, enableif<isExpr<R>>...>
+constexpr auto operator-(R&& r)
 {
-    return r.derived();
-};
+    return std::forward<R>(r);
+}
 
 //=====================================================================================================================
 //
@@ -410,26 +391,26 @@ constexpr auto operator+(const Expr<R>& r) -> R
 //-----------------------------------------------------------------------------
 // NEGATIVE OPERATOR: -expr
 //-----------------------------------------------------------------------------
-template<typename R, disableif<isNegExpr<R>>..., disableif<isScaleExpr<R>>...>
-constexpr auto operator-(const Expr<R>& expr) -> NegExpr<R>
+template<typename R, enableif<isExpr<R>>..., disableif<isNegExpr<R> || isScaleExpr<R>>...>
+constexpr auto operator-(R&& r) -> NegExpr<R>
 {
-    return { expr.derived() };
+    return { std::forward<R>(r) };
 }
 
 //-----------------------------------------------------------------------------
 // NEGATIVE OPERATOR: -(-expr) => expr
 //-----------------------------------------------------------------------------
 template<typename R>
-constexpr auto operator-(const NegExpr<R>& expr) -> R
+constexpr auto operator-(const NegExpr<R>& expr)
 {
-    return expr.inner;
+    return std::forward<R>(expr.inner);
 }
 
 //-----------------------------------------------------------------------------
 // NEGATIVE OPERATOR: -(scalar * dual) => -scalar * dual
 //-----------------------------------------------------------------------------
-template<typename T, typename R>
-constexpr auto operator-(const ScaleExpr<T, R>& expr)
+template<typename U, typename R>
+constexpr auto operator-(const ScaleExpr<U, R>& expr)
 {
     return (-expr.scalar) * std::forward<R>(expr.inner);
 }
@@ -443,7 +424,7 @@ constexpr auto operator-(const ScaleExpr<T, R>& expr)
 //-----------------------------------------------------------------------------
 // ADDITION OPERATOR: expr + expr
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isExpr<L> && isExpr<R>>, disableif<isNegExpr<L> && isNegExpr<R>>...>
+template<typename L, typename R, enableif<isExpr<L> && isExpr<R>>..., disableif<isNegExpr<L> && isNegExpr<R>>...>
 constexpr auto operator+(L&& l, R&& r) -> AddExpr<L, R>
 {
     return { std::forward<L>(l), std::forward<R>(r) };
@@ -482,13 +463,10 @@ constexpr auto operator+(const NegExpr<L>& l, const NegExpr<R>& r)
 //
 //=====================================================================================================================
 
-template<typename L, typename R>
-constexpr bool isOperable = ( isExpr<L> && isExpr<R> ) || ( isNumber<L> && isExpr<R> ) || ( isExpr<L> && isNumber<R> );
-
 //-----------------------------------------------------------------------------
 // SUBTRACTION OPERATOR: expr - expr, scalar - expr, expr - scalar
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isOperable<L, R>>...>
+template<typename L, typename R, enableif<isExpr<L> && isExpr<R>>..., enableif<isNumber<L> && isExpr<R>>..., enableif<isExpr<L> && isNumber<R>>...>
 constexpr auto operator-(L&& l, R&& r)
 {
     return std::forward<L>(l) + ( -std::forward<R>(r) );
@@ -501,16 +479,9 @@ constexpr auto operator-(L&& l, R&& r)
 //=====================================================================================================================
 
 //-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: Expr * Expr
+// MULTIPLICATION OPERATOR: expr * expr
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isOperable<L, R>>...,
-    disableif<isNegExpr<L> && isNegExpr<R>>...,
-    disableif<isInvExpr<L> && isInvExpr<R>>...,
-    disableif<isScaleExpr<L> && isScaleExpr<R>>...,
-    disableif<isNumber<L> && isScaleExpr<R>>...,
-    disableif<isScaleExpr<L> && isNumber<R>>...,
-    disableif<isNegExpr<L> && isScaleExpr<R>>...,
-    disableif<isScaleExpr<L> && isNegExpr<R>>...>
+template<typename L, typename R, enableif<isExpr<L> && isExpr<R>>..., disableif<isNegExpr<L> && isNegExpr<R>>..., disableif<isInvExpr<L> && isInvExpr<R>>...>
 constexpr auto operator*(L&& l, R&& r) -> MulExpr<L, R>
 {
     return { std::forward<L>(l), std::forward<R>(r) };
@@ -519,55 +490,64 @@ constexpr auto operator*(L&& l, R&& r) -> MulExpr<L, R>
 //-----------------------------------------------------------------------------
 // MULTIPLICATION OPERATOR: scalar * expr
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isNumber<L>>..., enableif<isExpr<R>>..., disableif<isDual<R>>..., disableif<isScaleExpr<R>>...>
+template<typename L, typename R, enableif<isNumber<L> && isExpr<R>>..., disableif<isDual<R>>...>
 constexpr auto operator*(L&& l, R&& r) -> MulExpr<L, R>
 {
-    return { std::forward<L>(l), std::forward<R>(r) };
+    return { std::forward<R>(r), std::forward<L>(l) };
 }
 
 //-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: Expr * scalar
+// MULTIPLICATION OPERATOR: expr * scalar
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isExpr<L>>..., enableif<isNumber<R>>..., disableif<isDual<L>>..., disableif<isScaleExpr<L>>...>
-constexpr auto operator*(L&& l, R&& r) -> decltype(std::forward<R>(r) * std::forward<L>(l))
+template<typename L, typename R, enableif<isExpr<L> && isNumber<R>>...>
+constexpr auto operator*(L&& l, R&& r)
 {
     return std::forward<R>(r) * std::forward<L>(l);
 }
 
 //-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: scalar * Dual
+// MULTIPLICATION OPERATOR: scalar * dual
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isNumber<L>>..., enableif<isDual<R>>...>
+template<typename L, typename R, enableif<isNumber<L> && isDual<R>>...>
 constexpr auto operator*(L&& l, R&& r) -> ScaleExpr<L, R>
 {
     return { std::forward<L>(l), std::forward<R>(r) };
 }
 
 //-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: Dual * scalar
+// MULTIPLICATION OPERATOR: scalar * (-expr) => (-scalar) * expr
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isDual<L>>..., enableif<isNumber<R>>...>
-constexpr auto operator*(L&& l, R&& r) -> decltype(std::forward<R>(r) * std::forward<L>(l))
+template<typename L, typename R, enableif<isNumber<L>>...>
+constexpr auto operator*(L&& l, const NegExpr<R>& r)
 {
-    return std::forward<R>(r) * std::forward<L>(l);
+    return (-l) * std::forward<R>(r.inner);
 }
 
 //-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: scalar * ScaleExpr
+// MULTIPLICATION OPERATOR: alpha * (scalar * dual) => (alpha * scalar) * dual
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isNumber<L>>..., enableif<isScaleExpr<R>>...>
-constexpr auto operator*(L&& l, R&& r) -> decltype((l * r.scalar) * r.inner)
+template<typename L, typename R, typename U, enableif<isNumber<L>>...>
+constexpr auto operator*(L&& l, const ScaleExpr<U, R>& r)
 {
-    return (l * r.scalar) * r.inner;
+    return (l * r.scalar) * std::forward<R>(r.inner);
 }
 
 //-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: ScaleExpr * scalar
+// MULTIPLICATION OPERATOR: (-expr) * (-expr) => expr * expr
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isScaleExpr<L>>..., enableif<isNumber<R>>...>
-constexpr auto operator*(L&& l, R&& r) -> decltype((r * l.scalar) * l.inner)
+template<typename L, typename R>
+constexpr auto operator*(const NegExpr<L>& l, const NegExpr<R>& r)
 {
-    return (r * l.scalar) * l.inner;
+    return std::forward<L>(l.inner) * std::forward<L>(r.inner);
+}
+
+//-----------------------------------------------------------------------------
+// MULTIPLICATION OPERATOR: (1 / expr) * (1 / expr) => 1 / (expr * expr)
+//-----------------------------------------------------------------------------
+template<typename L, typename R>
+constexpr auto operator*(const InvExpr<L>& l, const InvExpr<R>& r)
+{
+    return inverse(std::forward<L>(l.inner) * std::forward<R>(r.inner));
 }
 
 //=====================================================================================================================
@@ -576,119 +556,14 @@ constexpr auto operator*(L&& l, R&& r) -> decltype((r * l.scalar) * l.inner)
 //
 //=====================================================================================================================
 
-
-
-///// >>>>>>>>>>>>>>>>> CONTINUE HERE <<<<<<<<<<<<<<<<<<<<<<
-
-
-
-
 //-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: Expr * scalar
+// SUBTRACTION OPERATOR: expr / expr
 //-----------------------------------------------------------------------------
-template<typename T, typename L, enableif<isNumber<T>>...>
-constexpr auto operator*(const Expr<L>& l, const T& r) -> decltype(constant(r) * l.derived())
+template<typename L, typename R, enableif<isExpr<L> && isExpr<R>>..., enableif<isNumber<L> && isExpr<R>>..., enableif<isExpr<L> && isNumber<R>>...>
+constexpr auto operator/(L&& l, R&& r)
 {
-    return constant(r) * l.derived();
+    return std::forward<L>(l) * inverse(std::forward<R>(r));
 }
-
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: ConstantExpr * ConstantExpr
-//-----------------------------------------------------------------------------
-template<typename L, typename R>
-constexpr auto operator*(const ConstantExpr<L>& l, const ConstantExpr<R>& r) -> decltype(constant(l.val * r.val))
-{
-    return constant(l.val * r.val);
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: NegExpr * NegExpr
-//-----------------------------------------------------------------------------
-template<typename L, typename R>
-constexpr auto operator*(const NegExpr<L>& l, const NegExpr<R>& r) -> decltype(l.inner * r.inner)
-{
-    return l.inner * r.inner;
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: InvExpr * InvExpr
-//-----------------------------------------------------------------------------
-template<typename L, typename R>
-constexpr auto operator*(const InvExpr<L>& l, const InvExpr<R>& r) -> decltype(inverse(l.inner * r.inner))
-{
-    return inverse(l.inner * r.inner);
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: ConstantExpr * ScaleExpr
-//-----------------------------------------------------------------------------
-template<typename T, typename L, typename R>
-constexpr auto operator*(const ConstantExpr<L>& l, const ScaleExpr<T, R>& r) -> decltype((l.val * r.scalar) * r.inner)
-{
-    return (l.val * r.scalar) * r.inner;
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: ScaleExpr * ConstantExpr
-//-----------------------------------------------------------------------------
-template<typename T, typename L, typename R>
-constexpr auto operator*(const ScaleExpr<T, L>& l, const ConstantExpr<R>& r) -> decltype((r.val * l.scalar) * l.inner)
-{
-    return (r.val * l.scalar) * l.inner;
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: NegExpr * ScaleExpr
-//-----------------------------------------------------------------------------
-template<typename T, typename L, typename R>
-constexpr auto operator*(const NegExpr<L>& l, const ScaleExpr<T, R>& r) -> decltype((-r.scalar) * (l.inner * r.inner))
-{
-    return (-r.scalar) * (l.inner * r.inner);
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: ScaleExpr * NegExpr
-//-----------------------------------------------------------------------------
-template<typename T, typename L, typename R>
-constexpr auto operator*(const ScaleExpr<T, L>& l, const NegExpr<R>& r) -> decltype((-l.scalar) * (l.inner * r.inner))
-{
-    return (-l.scalar) * (l.inner * r.inner);
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: ScaleExpr * ScaleExpr
-//-----------------------------------------------------------------------------
-template<typename T, typename U, typename L, typename R>
-constexpr auto operator*(const ScaleExpr<T, L>& l, const ScaleExpr<U, R>& r) -> decltype((l.scalar * l.scalar) * (l.inner * r.inner))
-{
-    return (l.scalar * l.scalar) * (l.inner * r.inner);
-}
-
-//-----------------------------------------------------------------------------
-// DIVISION OPERATOR: GENERAL CASE
-//-----------------------------------------------------------------------------
-template<typename L, typename R>
-constexpr auto operator/(const Expr<L>& l, const Expr<R>& r) -> decltype(l * inverse(r))
-{
-    return l * inverse(r);
-}
-
-template<typename L, typename R> constexpr auto operator+(const Expr<L>& l, const Expr<R>& r) -> AddExpr<L, R> { return { l.derived(), r.derived() }; }
-template<typename L, typename R> constexpr auto operator*(const Expr<L>& l, const Expr<R>& r) -> MulExpr<L, R> { return { l.derived(), r.derived() }; }
-template<typename L, typename R> constexpr auto operator-(const Expr<L>& l, const Expr<R>& r) -> decltype(l + (-r)) { return l + (-r); }
-template<typename L, typename R> constexpr auto operator/(const Expr<L>& l, const Expr<R>& r) -> decltype(l * inverse(r)) { return l * inverse(r); }
-
-template<typename T, typename R, enableif<isNumber<T>>...> constexpr auto operator+(T l, const Expr<R>& r) -> decltype(constant(l) + r.derived()) { return constant(l) + r.derived(); }
-template<typename T, typename R, enableif<isNumber<T>>...> constexpr auto operator-(T l, const Expr<R>& r) -> decltype(constant(l) - r.derived()) { return constant(l) - r.derived(); }
-template<typename T, typename R, enableif<isNumber<T>>...> constexpr auto operator*(T l, const Expr<R>& r) -> ScaleExpr<T, R> { return { l.derived(), r.derived() }; }
-template<typename T, typename R, enableif<isNumber<T>>...> constexpr auto operator/(T l, const Expr<R>& r) -> decltype(constant(l) / r.derived()) { return constant(l) / r.derived(); }
-
-template<typename T, typename L, enableif<isNumber<T>>...> constexpr auto operator+(const Expr<L>& l, T r) -> decltype(l.derived() + constant(r)) { return l.derived() + constant(r); }
-template<typename T, typename L, enableif<isNumber<T>>...> constexpr auto operator-(const Expr<L>& l, T r) -> decltype(l.derived() - constant(r)) { return l.derived() - constant(r); }
-template<typename T, typename L, enableif<isNumber<T>>...> constexpr auto operator*(const Expr<L>& l, T r) -> ScaleExpr<T, L> { return { r, l.derived() }; }
-template<typename T, typename L, enableif<isNumber<T>>...> constexpr auto operator/(const Expr<L>& l, T r) -> decltype((static_cast<T>(1) / r) * l.derived()) { return (static_cast<T>(1) / r) * l.derived(); }
-
 
 //=====================================================================================================================
 //
@@ -696,12 +571,12 @@ template<typename T, typename L, enableif<isNumber<T>>...> constexpr auto operat
 //
 //=====================================================================================================================
 
-template<typename R> constexpr auto sin(const Expr<R>& r) -> SinExpr<R> { return { r.derived() }; }
-template<typename R> constexpr auto cos(const Expr<R>& r) -> CosExpr<R> { return { r.derived() }; }
-template<typename R> constexpr auto tan(const Expr<R>& r) -> TanExpr<R> { return { r.derived() }; }
-template<typename R> constexpr auto asin(const Expr<R>& r) -> ArcSinExpr<R> { return { r.derived() }; }
-template<typename R> constexpr auto acos(const Expr<R>& r) -> ArcCosExpr<R> { return { r.derived() }; }
-template<typename R> constexpr auto atan(const Expr<R>& r) -> ArcTanExpr<R> { return { r.derived() }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto sin(R&& r) -> SinExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto cos(R&& r) -> CosExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto tan(R&& r) -> TanExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto asin(R&& r) -> ArcSinExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto acos(R&& r) -> ArcCosExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto atan(R&& r) -> ArcTanExpr<R> { return { std::forward<R>(r) }; }
 
 //=====================================================================================================================
 //
@@ -716,9 +591,9 @@ template<typename R> constexpr auto atan(const Expr<R>& r) -> ArcTanExpr<R> { re
 //
 //=====================================================================================================================
 
-template<typename R> constexpr auto exp(const Expr<R>& r) -> ExpExpr<R> { return { r.derived() }; }
-template<typename R> constexpr auto log(const Expr<R>& r) -> LogExpr<R> { return { r.derived() }; }
-template<typename R> constexpr auto log10(const Expr<R>& r) -> Log10Expr<R> { return { r.derived() }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto exp(R&& r) -> ExpExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto log(R&& r) -> LogExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto log10(R&& r) -> Log10Expr<R> { return { std::forward<R>(r) }; }
 
 //=====================================================================================================================
 //
@@ -726,8 +601,8 @@ template<typename R> constexpr auto log10(const Expr<R>& r) -> Log10Expr<R> { re
 //
 //=====================================================================================================================
 
-template<typename L, typename R> constexpr auto pow(const Expr<L>& l, const Expr<R>& r) -> PowExpr<L, R> { return { l.derived(), r.derived() }; }
-template<typename R> constexpr auto sqrt(const Expr<R>& r) -> SqrtExpr<R> { return { r.derived() }; }
+template<typename L, typename R, enableif<isExpr<R>>...> constexpr auto pow(L&& l, R&& r) -> PowExpr<L, R> { return { std::forward<L>(l), std::forward<R>(r) }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto sqrt(R&& r) -> SqrtExpr<R> { return { std::forward<R>(r) }; }
 
 //=====================================================================================================================
 //
@@ -735,11 +610,11 @@ template<typename R> constexpr auto sqrt(const Expr<R>& r) -> SqrtExpr<R> { retu
 //
 //=====================================================================================================================
 
-template<typename R> constexpr auto abs(const Expr<R>& r) -> AbsExpr<R> { return { r.derived() }; }
-template<typename R> constexpr auto abs2(const Expr<R>& r) -> decltype(r * r) { return r * r; }
-template<typename R> constexpr auto conj(const Expr<R>& r) -> decltype(r) { return r; }
-template<typename R> constexpr auto real(const Expr<R>& r) -> decltype(r) { return r; }
-template<typename R> constexpr auto imag(const Expr<R>& r) -> decltype(constant(0.0)) { return constant(0.0); }
+template<typename R, enableif<isExpr<R>>...> constexpr auto abs(R&& r) -> AbsExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto abs2(R&& r) { return std::forward<R>(r) * std::forward<R>(r); }
+template<typename R, enableif<isExpr<R>>...> constexpr auto conj(R&& r) { return std::forward<R>(r); }
+template<typename R, enableif<isExpr<R>>...> constexpr auto real(R&& r) { return std::forward<R>(r); }
+template<typename R, enableif<isExpr<R>>...> constexpr auto imag(R&& r) { return 0.0; }
 
 //=====================================================================================================================
 //
@@ -988,14 +863,14 @@ constexpr void assign(Dual<T>& self, const UnaryExpr<Op, R>& other, Dual<T>& tmp
 template<typename T, typename L, typename R>
 constexpr void assign(Dual<T>& self, const AddExpr<L, R>& other)
 {
-    assign(self, other.inner);
+    assign(self, other.r);
     assignAdd(self, other.l);
 }
 
 template<typename T, typename L, typename R>
 constexpr void assign(Dual<T>& self, const AddExpr<L, R>& other, Dual<T>& tmp)
 {
-    assign(self, other.inner, tmp);
+    assign(self, other.r, tmp);
     assignAdd(self, other.l, tmp);
 }
 
@@ -1005,14 +880,14 @@ constexpr void assign(Dual<T>& self, const AddExpr<L, R>& other, Dual<T>& tmp)
 template<typename T, typename L, typename R>
 constexpr void assign(Dual<T>& self, const MulExpr<L, R>& other)
 {
-    assign(self, other.inner);
+    assign(self, other.r);
     assignMul(self, other.l);
 }
 
 template<typename T, typename L, typename R>
 constexpr void assign(Dual<T>& self, const MulExpr<L, R>& other, Dual<T>& tmp)
 {
-    assign(self, other.inner, tmp);
+    assign(self, other.r, tmp);
     assignMul(self, other.l, tmp);
 }
 
@@ -1091,14 +966,14 @@ template<typename T, typename L, typename R>
 constexpr void assignAdd(Dual<T>& self, const AddExpr<L, R>& other)
 {
     assignAdd(self, other.l);
-    assignAdd(self, other.inner);
+    assignAdd(self, other.r);
 }
 
 template<typename T, typename L, typename R>
 constexpr void assignAdd(Dual<T>& self, const AddExpr<L, R>& other, Dual<T>& tmp)
 {
     assignAdd(self, other.l, tmp);
-    assignAdd(self, other.inner, tmp);
+    assignAdd(self, other.r, tmp);
 }
 
 //-----------------------------------------------------------------------------
@@ -1441,7 +1316,25 @@ constexpr void apply(Dual<T>& self)
     apply(self, Op{});
 }
 
+template<typename Function, typename T, typename... Args>
+double grad(const Function& f, Dual<T>& wrt, const Args&... args)
+{
+    wrt.grad = 1.0;
+    Dual<T> res = f(args...);
+    wrt.grad = 0.0;
+    return res.grad;
+}
+
+template<typename T>
+Dual<T>& wrt(Dual<T>& x)
+{
+    return x;
+}
+
 } // namespace forward
+
+using forward::grad;
+using forward::wrt;
 
 using dual = forward::Dual<double>;
 
