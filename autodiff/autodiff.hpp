@@ -1,4 +1,8 @@
-// autodiff - automatic differentiation made easier in C++
+//                  _  _
+//  _   _|_ _  _|o_|__|_
+// (_||_||_(_)(_|| |  |
+//
+// automatic differentiation made easier in C++
 // https://github.com/autodiff/autodiff
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
