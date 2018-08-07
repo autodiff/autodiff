@@ -14,12 +14,33 @@ auto approx(double value)
     return Approx(value).margin(zero);
 }
 
-bool operator==(const dual& l, double r) { return val(l) == Approx(r); }
+auto approx(const dual& value)
+{
+    return approx(val(value));
+}
+
+bool operator==(const dual& l, double r) { return val(l) == approx(r); }
+bool operator==(double l, const dual& r) { return approx(l) == val(r); }
 
 TEST_CASE("autodiff::dual tests", "[dual]")
 {
     dual x = 100;
     dual y = 10;
+
+    SECTION("trivial tests")
+    {
+        dual x = 100;
+
+        REQUIRE( x == 100 );
+        x += 1;
+        REQUIRE( x == 101 );
+        x -= 1;
+        REQUIRE( x == 100 );
+        x *= 2;
+        REQUIRE( x == 200 );
+        x /= 20;
+        REQUIRE( x == 10 );
+    }
 
     SECTION("testing unary operators")
     {
@@ -27,55 +48,145 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 
         // Testing positive operator
         f = [](dual x) -> dual { return +x; };
-        REQUIRE( val(f(x)) == approx(100.0) );
+        REQUIRE( f(x) == x );
         REQUIRE( grad(f, wrt(x), x) == 1.0 );
 
         // Testing negative operator
         f = [](dual x) -> dual { return -x; };
-        REQUIRE( val(f(x)) == approx(-100.0) );
+        REQUIRE( f(x) == -x );
         REQUIRE( grad(f, wrt(x), x) == -1.0 );
+
+        // Testing negative operator on a negative expression
+        f = [](dual x) -> dual { return -(-x); };
+        REQUIRE( f(x) == x );
+        REQUIRE( grad(f, wrt(x), x) == 1.0 );
+
+        // Testing negative operator on a scaling expression expression
+        f = [](dual x) -> dual { return -(2 * x); };
+        REQUIRE( f(x) == -2 * val(x) );
+        REQUIRE( grad(f, wrt(x), x) == -2.0 );
     }
 
-    SECTION("testing binary operators")
+    SECTION("testing binary addition operator")
     {
         std::function<dual(dual, dual)> f;
 
-        f = [](dual x, dual y) -> dual { return x + y; };
-        REQUIRE( val(f(x, y)) == approx(110.0) );
+        // Testing addition operator on a `scalar + dual` expression
+        f = [](dual x, dual y) -> dual { return 1 + x; };
+        REQUIRE( f(x, y) == 1 + val(x) );
         REQUIRE( grad(f, wrt(x), x, y) == 1.0 );
-        REQUIRE( grad(f, wrt(y), x, y) == 1.0 );
+        REQUIRE( grad(f, wrt(y), x, y) == 0.0 );
 
-        f = [](dual x, dual y) -> dual { return x - y; };
-        REQUIRE( val(f(x, y)) == approx(90.0) );
-        REQUIRE( grad(f, wrt(x), x, y) ==  1.0 );
+        // Testing addition operator on a `dual + scalar` expression
+        f = [](dual x, dual y) -> dual { return x + 1; };
+        REQUIRE( f(x, y) == val(x) + 1 );
+        REQUIRE( grad(f, wrt(x), x, y) == 1.0 );
+        REQUIRE( grad(f, wrt(y), x, y) == 0.0 );
+
+        // Testing addition operator on a `(-dual) + (-dual)` expression
+        f = [](dual x, dual y) -> dual { return (-x) + (-y); };
+        REQUIRE( f(x, y) == -(val(x) + val(y)) );
+        REQUIRE( grad(f, wrt(x), x, y) == -1.0 );
         REQUIRE( grad(f, wrt(y), x, y) == -1.0 );
+    }
 
+    SECTION("testing binary subtraction operator")
+    {
+        std::function<dual(dual, dual)> f;
+
+        // Testing subtraction operator on a `scalar - dual` expression
+        f = [](dual x, dual y) -> dual { return 1 - x; };
+        REQUIRE( f(x, y) == 1 - val(x) );
+        REQUIRE( grad(f, wrt(x), x, y) == -1.0 );
+        REQUIRE( grad(f, wrt(y), x, y) ==  0.0 );
+
+        // Testing subtraction operator on a `dual - scalar` expression
+        f = [](dual x, dual y) -> dual { return x - 1; };
+        REQUIRE( f(x, y) == val(x) - 1 );
+        REQUIRE( grad(f, wrt(x), x, y) == 1.0 );
+        REQUIRE( grad(f, wrt(y), x, y) == 0.0 );
+
+        // Testing subtraction operator on a `(-dual) - (-dual)` expression
+        f = [](dual x, dual y) -> dual { return (-x) - (-y); };
+        REQUIRE( f(x, y) == -(val(x) - val(y)) );
+        REQUIRE( grad(f, wrt(x), x, y) == -1.0 );
+        REQUIRE( grad(f, wrt(y), x, y) ==  1.0 );
+    }
+
+    SECTION("testing binary multiplication operator")
+    {
+        std::function<dual(dual, dual)> f;
+
+        // Testing multiplication operator on a `scalar * dual` expression
+        f = [](dual x, dual y) -> dual { return 2 * x; };
+        REQUIRE( f(x, y) == 2 * val(x) );
+        REQUIRE( grad(f, wrt(x), x, y) == 2.0 );
+        REQUIRE( grad(f, wrt(y), x, y) == 0.0 );
+
+        // Testing multiplication operator on a `dual * scalar` expression
+        f = [](dual x, dual y) -> dual { return x * 2; };
+        REQUIRE( f(x, y) == 2 * val(x) );
+        REQUIRE( grad(f, wrt(x), x, y) == 2.0 );
+        REQUIRE( grad(f, wrt(y), x, y) == 0.0 );
+
+        // Testing multiplication operator on a `dual * dual` expression
         f = [](dual x, dual y) -> dual { return x * y; };
-        REQUIRE( val(f(x, y)) == approx(1000.0) );
+        REQUIRE( f(x, y) == val(x) * val(y) );
         REQUIRE( grad(f, wrt(x), x, y) == y );
         REQUIRE( grad(f, wrt(y), x, y) == x );
 
-        f = [](dual x, dual y) -> dual { return x / y; };
-        REQUIRE( val(f(x, y)) == approx(10.0) );
-        REQUIRE( grad(f, wrt(x), x, y) == Approx(val(1.0 / y)) );
-        REQUIRE( grad(f, wrt(y), x, y) == Approx(val(-x / (y * y))) );
+        // Testing multiplication operator on a `scalar * (scalar * dual)` expression
+        f = [](dual x, dual y) -> dual { return 5 * (2 * x); };
+        REQUIRE( f(x, y) == 10 * val(x) );
+        REQUIRE( grad(f, wrt(x), x, y) == 10.0 );
+        REQUIRE( grad(f, wrt(y), x, y) ==  0.0 );
 
-        f = [](dual x, dual y) -> dual { return 2 * x; };
-        REQUIRE( val(f(x, y)) == approx(2 * val(x)) );
-        REQUIRE( grad(f, wrt(x), x, y) == Approx(2.0) );
-        REQUIRE( grad(f, wrt(y), x, y) == Approx(0.0) );
+        // Testing multiplication operator on a `(dual * scalar) * scalar` expression
+        f = [](dual x, dual y) -> dual { return (x * 2) * 5; };
+        REQUIRE( f(x, y) == 10 * val(x) );
+        REQUIRE( grad(f, wrt(x), x, y) == 10.0 );
+        REQUIRE( grad(f, wrt(y), x, y) ==  0.0 );
+
+        // Testing multiplication operator on a `scalar * (-dual)` expression
+        f = [](dual x, dual y) -> dual { return 2 * (-x); };
+        REQUIRE( f(x, y) == -2 * val(x) );
+        REQUIRE( grad(f, wrt(x), x, y) == -2.0 );
+        REQUIRE( grad(f, wrt(y), x, y) ==  0.0 );
+
+        // Testing multiplication operator on a `(-dual) * scalar` expression
+        f = [](dual x, dual y) -> dual { return (-x) * 2; };
+        REQUIRE( f(x, y) == -2 * val(x) );
+        REQUIRE( grad(f, wrt(x), x, y) == -2.0 );
+        REQUIRE( grad(f, wrt(y), x, y) ==  0.0 );
+
+        // Testing multiplication operator on a `(-dual) * (-dual)` expression
+        f = [](dual x, dual y) -> dual { return (-x) * (-y); };
+        REQUIRE( f(x, y) == val(x) * val(y) );
+        REQUIRE( grad(f, wrt(x), x, y) == y );
+        REQUIRE( grad(f, wrt(y), x, y) == x );
+
+        // Testing multiplication operator on a `(1/dual) * (1/dual)` expression
+        f = [](dual x, dual y) -> dual { return (1 / x) * (1 / y); };
+        REQUIRE( f(x, y) == 1 / (val(x) * val(y)) );
+        REQUIRE( grad(f, wrt(x), x, y) == approx(-1/(x * x * y)) );
+        REQUIRE( grad(f, wrt(y), x, y) == approx(-1/(x * y * y)) );
+
+        f = [](dual x, dual y) -> dual { return x / y; };
+        REQUIRE( f(x, y) == val(x) / val(y) );
+        REQUIRE( grad(f, wrt(x), x, y) == approx(1.0 / y) );
+        REQUIRE( grad(f, wrt(y), x, y) == approx(-x / (y * y)) );
 
         f = [](dual x, dual y) -> dual { return 2 * x + y; };
-        REQUIRE( val(f(x, y)) == approx(2 * val(x) + val(y)) );
-        REQUIRE( grad(f, wrt(x), x, y) == Approx(2.0) );
-        REQUIRE( grad(f, wrt(y), x, y) == Approx(1.0) );
+        REQUIRE( f(x, y) == 2 * val(x) + val(y) );
+        REQUIRE( grad(f, wrt(x), x, y) == approx(2.0) );
+        REQUIRE( grad(f, wrt(y), x, y) == approx(1.0) );
 
-//        f = [](dual x, dual y) -> dual { return (2 * x * x - x * y + x/y) / (x * (2 * x - y + 1/y)); };
-        f = [](dual x, dual y) -> dual { return (2 * x * x - x * y) / (x * (2 * x - y)); };
-        REQUIRE( val(f(x, y)) == approx(1.0) );
+        f = [](dual x, dual y) -> dual { return (2 * x * x - x * y + x/y) / (x * (2 * x - y + 1/y)); };
+        REQUIRE( f(x, y) == 1.0 );
         REQUIRE( grad(f, wrt(x), x, y) == approx(0.0) );
         REQUIRE( grad(f, wrt(y), x, y) == approx(0.0) );
     }
+
     //------------------------------------------------------------------------------
     // TEST TRIVIAL DERIVATIVE CALCULATIONS
     //------------------------------------------------------------------------------
