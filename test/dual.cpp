@@ -8,20 +8,74 @@
 #include <dual.hpp>
 using namespace autodiff;
 
+auto approx(double value)
+{
+    const double zero = std::numeric_limits<double>::epsilon();
+    return Approx(value).margin(zero);
+}
+
+bool operator==(const dual& l, double r) { return val(l) == Approx(r); }
+
 TEST_CASE("autodiff::dual tests", "[dual]")
 {
-    dual x(10);
-    dual y(100);
+    dual x = 100;
+    dual y = 10;
 
-    std::function<dual(dual, dual)> f;
+    SECTION("testing unary operators")
+    {
+        std::function<dual(dual)> f;
 
-    f = [](dual x, dual y) -> dual { return x + y; };
+        // Testing positive operator
+        f = [](dual x) -> dual { return +x; };
+        REQUIRE( val(f(x)) == approx(100.0) );
+        REQUIRE( grad(f, wrt(x), x) == 1.0 );
 
-    REQUIRE( f(x, y) == 110.0 );
-    REQUIRE( grad(f, wrt(x), x, y) == 1.0 );
-    REQUIRE( grad(f, wrt(y), x, y) == 1.0 );
+        // Testing negative operator
+        f = [](dual x) -> dual { return -x; };
+        REQUIRE( val(f(x)) == approx(-100.0) );
+        REQUIRE( grad(f, wrt(x), x) == -1.0 );
+    }
 
+    SECTION("testing binary operators")
+    {
+        std::function<dual(dual, dual)> f;
 
+        f = [](dual x, dual y) -> dual { return x + y; };
+        REQUIRE( val(f(x, y)) == approx(110.0) );
+        REQUIRE( grad(f, wrt(x), x, y) == 1.0 );
+        REQUIRE( grad(f, wrt(y), x, y) == 1.0 );
+
+        f = [](dual x, dual y) -> dual { return x - y; };
+        REQUIRE( val(f(x, y)) == approx(90.0) );
+        REQUIRE( grad(f, wrt(x), x, y) ==  1.0 );
+        REQUIRE( grad(f, wrt(y), x, y) == -1.0 );
+
+        f = [](dual x, dual y) -> dual { return x * y; };
+        REQUIRE( val(f(x, y)) == approx(1000.0) );
+        REQUIRE( grad(f, wrt(x), x, y) == y );
+        REQUIRE( grad(f, wrt(y), x, y) == x );
+
+        f = [](dual x, dual y) -> dual { return x / y; };
+        REQUIRE( val(f(x, y)) == approx(10.0) );
+        REQUIRE( grad(f, wrt(x), x, y) == Approx(val(1.0 / y)) );
+        REQUIRE( grad(f, wrt(y), x, y) == Approx(val(-x / (y * y))) );
+
+        f = [](dual x, dual y) -> dual { return 2 * x; };
+        REQUIRE( val(f(x, y)) == approx(2 * val(x)) );
+        REQUIRE( grad(f, wrt(x), x, y) == Approx(2.0) );
+        REQUIRE( grad(f, wrt(y), x, y) == Approx(0.0) );
+
+        f = [](dual x, dual y) -> dual { return 2 * x + y; };
+        REQUIRE( val(f(x, y)) == approx(2 * val(x) + val(y)) );
+        REQUIRE( grad(f, wrt(x), x, y) == Approx(2.0) );
+        REQUIRE( grad(f, wrt(y), x, y) == Approx(1.0) );
+
+//        f = [](dual x, dual y) -> dual { return (2 * x * x - x * y + x/y) / (x * (2 * x - y + 1/y)); };
+        f = [](dual x, dual y) -> dual { return (2 * x * x - x * y) / (x * (2 * x - y)); };
+        REQUIRE( val(f(x, y)) == approx(1.0) );
+        REQUIRE( grad(f, wrt(x), x, y) == approx(0.0) );
+        REQUIRE( grad(f, wrt(y), x, y) == approx(0.0) );
+    }
     //------------------------------------------------------------------------------
     // TEST TRIVIAL DERIVATIVE CALCULATIONS
     //------------------------------------------------------------------------------
