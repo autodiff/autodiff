@@ -447,10 +447,10 @@ constexpr auto inverse(const InvExpr<R>& r)
     return std::forward<R>(r.r);
 }
 
-template<typename R, enableif<isNumber<R>>...>
+template<typename T, typename R, enableif<isNumber<R>>...>
 constexpr auto inverse(R&& r)
 {
-    return static_cast<plain<R>>(1) / r;
+    return static_cast<T>(1) / r;
 }
 
 //=====================================================================================================================
@@ -643,12 +643,31 @@ constexpr auto operator-(L&& l, R&& r)
 //=====================================================================================================================
 
 //-----------------------------------------------------------------------------
-// SUBTRACTION OPERATOR: expr / expr, scalar / expr, expr / scalar
+// DIVISION OPERATOR: expr / expr
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isOperable<L, R>>...>
+template<typename L, typename R, enableif<isExpr<L> && isExpr<R>>...>
 constexpr auto operator/(L&& l, R&& r)
 {
     return std::forward<L>(l) * inverse(std::forward<R>(r));
+}
+
+//-----------------------------------------------------------------------------
+// DIVISION OPERATOR: scalar / expr
+//-----------------------------------------------------------------------------
+template<typename L, typename R, enableif<isNumber<L> && isExpr<R>>...>
+constexpr auto operator/(L&& l, R&& r)
+{
+    return std::forward<L>(l) * inverse(std::forward<R>(r));
+}
+
+//-----------------------------------------------------------------------------
+// DIVISION OPERATOR: expr / scalar
+//-----------------------------------------------------------------------------
+template<typename L, typename R, enableif<isExpr<L> && isNumber<R>>...>
+constexpr auto operator/(L&& l, R&& r)
+{
+    using T = ValueType<L>;
+    return std::forward<L>(l) * inverse<T>(std::forward<R>(r));
 }
 
 //=====================================================================================================================
@@ -1365,7 +1384,7 @@ constexpr void apply(Dual<T>& self, ArcSinOp)
 template<typename T>
 constexpr void apply(Dual<T>& self, ArcCosOp)
 {
-    const auto aux = -1.0 / std::sqrt(1.0 - self.val * self.val);
+    const auto aux = -static_cast<T>(1) / std::sqrt(1.0 - self.val * self.val);
     self.val = std::acos(self.val);
     self.grad *= aux;
 }
@@ -1396,7 +1415,7 @@ constexpr void apply(Dual<T>& self, LogOp)
 template<typename T>
 constexpr void apply(Dual<T>& self, Log10Op)
 {
-    constexpr T ln10 = 2.3025850929940456840179914546843;
+    constexpr auto ln10 = 2.3025850929940456840179914546843;
     const auto aux = static_cast<T>(1) / (ln10 * self.val);
     self.val = std::log10(self.val);
     self.grad *= aux;
