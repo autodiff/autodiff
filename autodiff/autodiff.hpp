@@ -657,6 +657,30 @@ struct var
     var& operator/=(double other) { expr = expr / constant(other); return *this; }
 };
 
+//------------------------------------------------------------------------------
+// COMPARISON OPERATORS (DEFINED FOR ARGUMENTS OF TYPE var)
+//------------------------------------------------------------------------------
+inline bool operator==(const var& l, const var& r) { return l.expr == r.expr; }
+inline bool operator!=(const var& l, const var& r) { return l.expr != r.expr; }
+inline bool operator<=(const var& l, const var& r) { return l.expr <= r.expr; }
+inline bool operator>=(const var& l, const var& r) { return l.expr >= r.expr; }
+inline bool operator<(const var& l, const var& r) { return l.expr < r.expr; }
+inline bool operator>(const var& l, const var& r) { return l.expr > r.expr; }
+
+inline bool operator==(double l, const var& r) { return l == r.expr; }
+inline bool operator!=(double l, const var& r) { return l != r.expr; }
+inline bool operator<=(double l, const var& r) { return l <= r.expr; }
+inline bool operator>=(double l, const var& r) { return l >= r.expr; }
+inline bool operator<(double l, const var& r) { return l < r.expr; }
+inline bool operator>(double l, const var& r) { return l > r.expr; }
+
+inline bool operator==(const var& l, double r) { return l.expr == r; }
+inline bool operator!=(const var& l, double r) { return l.expr != r; }
+inline bool operator<=(const var& l, double r) { return l.expr <= r; }
+inline bool operator>=(const var& l, double r) { return l.expr >= r; }
+inline bool operator<(const var& l, double r) { return l.expr < r; }
+inline bool operator>(const var& l, double r) { return l.expr > r; }
+
 /// Return the value of a variable x.
 inline double val(const var& x)
 {
@@ -807,30 +831,6 @@ inline ExprPtr abs2(const var& x) { return abs2(x.expr); }
 inline ExprPtr conj(const var& x) { return conj(x.expr); }
 inline ExprPtr real(const var& x) { return real(x.expr); }
 inline ExprPtr imag(const var& x) { return imag(x.expr); }
-
-//------------------------------------------------------------------------------
-// COMPARISON OPERATORS (DEFINED FOR ARGUMENTS OF TYPE var)
-//------------------------------------------------------------------------------
-inline bool operator==(const var& l, const var& r) { return l.expr == r.expr; }
-inline bool operator!=(const var& l, const var& r) { return l.expr != r.expr; }
-inline bool operator<=(const var& l, const var& r) { return l.expr <= r.expr; }
-inline bool operator>=(const var& l, const var& r) { return l.expr >= r.expr; }
-inline bool operator<(const var& l, const var& r) { return l.expr < r.expr; }
-inline bool operator>(const var& l, const var& r) { return l.expr > r.expr; }
-
-inline bool operator==(double l, const var& r) { return l == r.expr; }
-inline bool operator!=(double l, const var& r) { return l != r.expr; }
-inline bool operator<=(double l, const var& r) { return l <= r.expr; }
-inline bool operator>=(double l, const var& r) { return l >= r.expr; }
-inline bool operator<(double l, const var& r) { return l < r.expr; }
-inline bool operator>(double l, const var& r) { return l > r.expr; }
-
-inline bool operator==(const var& l, double r) { return l.expr == r; }
-inline bool operator!=(const var& l, double r) { return l.expr != r; }
-inline bool operator<=(const var& l, double r) { return l.expr <= r; }
-inline bool operator>=(const var& l, double r) { return l.expr >= r; }
-inline bool operator<(const var& l, double r) { return l.expr < r; }
-inline bool operator>(const var& l, double r) { return l.expr > r; }
 
 namespace internal {
 
