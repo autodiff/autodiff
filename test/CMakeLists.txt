@@ -1,7 +1,7 @@
-include_directories(${CMAKE_SOURCE_DIR}/autodiff)
+include_directories(${CMAKE_SOURCE_DIR})
 
 add_library(catch OBJECT catch.hpp catch.cpp)
 
-add_executable(var var.cpp $<TARGET_OBJECTS:catch>)
-add_executable(dual dual.cpp $<TARGET_OBJECTS:catch>)
+add_executable(reverse reverse.cpp $<TARGET_OBJECTS:catch>)
+add_executable(forward forward.cpp $<TARGET_OBJECTS:catch>)
 

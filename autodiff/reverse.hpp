@@ -32,9 +32,10 @@
 #include <memory>
 
 /// autodiff namespace where @ref var and @ref grad are defined.
-namespace autodiff {
+namespace autodiff {}
 
-namespace internal {
+namespace autodiff {
+namespace reverse {
 
 struct Expr;
 struct ParameterExpr;
@@ -624,9 +625,9 @@ inline bool operator>=(const ExprPtr& l, double r) { return l->val >= r; }
 inline bool operator<(const ExprPtr& l, double r) { return l->val < r; }
 inline bool operator>(const ExprPtr& l, double r) { return l->val > r; }
 
-} // namespace internal
+} // namespace reverse
 
-using namespace internal;
+using namespace reverse;
 
 /// The autodiff variable type used for automatic differentiation.
 struct var
@@ -832,7 +833,7 @@ inline ExprPtr conj(const var& x) { return conj(x.expr); }
 inline ExprPtr real(const var& x) { return real(x.expr); }
 inline ExprPtr imag(const var& x) { return imag(x.expr); }
 
-namespace internal {
+namespace reverse {
 
 /// Auxiliary function to calculate gradient of y with respect to x
 inline void grad(const var& y, const var& x, double& dydx)
@@ -870,30 +871,30 @@ R grad(const Eigen::Ref<const VectorXv>& y, const Eigen::Ref<const VectorXv>& x)
     return dydx;
 }
 
-} // namespace internal
+} // namespace reverse
 
 /// Return the gradient of variable y with respect to variables x.
 inline RowVectorXd grad(const var& y, const Eigen::Ref<const VectorXv>& x)
 {
-    return internal::grad<RowVectorXd>(y, x);
+    return reverse::grad<RowVectorXd>(y, x);
 }
 
 /// Return the gradient expression of variable y with respect to variables x.
 inline RowVectorXv gradx(const var& y, const Eigen::Ref<const VectorXv>& x)
 {
-    return internal::grad<RowVectorXv>(y, x);
+    return reverse::grad<RowVectorXv>(y, x);
 }
 
 /// Return the Jacobian of variables y with respect to variables x.
 inline MatrixXd grad(const Eigen::Ref<const VectorXv>& y, const Eigen::Ref<const VectorXv>& x)
 {
-    return internal::grad<MatrixXd>(y, x);
+    return reverse::grad<MatrixXd>(y, x);
 }
 
 /// Return the Jacobian expression of variables y with respect to variables x.
 inline MatrixXv gradx(const Eigen::Ref<const VectorXv>& y, const Eigen::Ref<const VectorXv>& x)
 {
-    return internal::grad<MatrixXv>(y, x);
+    return reverse::grad<MatrixXv>(y, x);
 }
 
 } // namespace autodiff

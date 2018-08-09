@@ -47,7 +47,7 @@ The example below demonstrates how to use `autodiff` for calculating derivatives
 using namespace std;
 
 // autodiff include
-#include <autodiff.hpp>
+#include <autodiff/reverse.hpp>
 using namespace autodiff;
 
 // The single-variable function for which derivatives are needed
@@ -83,7 +83,7 @@ dy/dx = 5.25
 using namespace std;
 
 // autodiff include
-#include <autodiff.hpp>
+#include <autodiff/reverse.hpp>
 using namespace autodiff;
 
 // The multi-variable function for which derivatives are needed
@@ -129,7 +129,7 @@ Sometimes, it is necessary to understand how sensitive an output is with respect
 using namespace std;
 
 // autodiff include
-#include <autodiff.hpp>
+#include <autodiff/reverse.hpp>
 using namespace autodiff;
 
 // A type defining parameters for a function of interest
@@ -194,7 +194,7 @@ using namespace Eigen;
 
 // autodiff include
 #define AUTODIFF_ENABLE_EIGEN_SUPPORT
-#include <autodiff.hpp>
+#include <autodiff/reverse.hpp>
 using namespace autodiff;
 
 // The scalar function for which the gradient is needed
@@ -230,7 +230,7 @@ using namespace Eigen;
 
 // autodiff include
 #define AUTODIFF_ENABLE_EIGEN_SUPPORT
-#include <autodiff.hpp>
+#include <autodiff/reverse.hpp>
 using namespace autodiff;
 
 // The vector function for which the Jacobian is needed
@@ -261,7 +261,7 @@ int main()
 using namespace std;
 
 // autodiff include
-#include <autodiff.hpp>
+#include <autodiff/reverse.hpp>
 using namespace autodiff;
 
 int main()
@@ -286,7 +286,7 @@ int main()
 using namespace std;
 
 // autodiff include
-#include <autodiff.hpp>
+#include <autodiff/reverse.hpp>
 using namespace autodiff;
 
 int main()

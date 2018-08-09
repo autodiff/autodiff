@@ -1,4 +1,4 @@
-include_directories(${CMAKE_SOURCE_DIR}/autodiff)
+include_directories(${CMAKE_SOURCE_DIR})
 
 file(GLOB_RECURSE CPPFILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 

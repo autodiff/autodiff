@@ -10,7 +10,7 @@ using namespace Eigen;
 
 // autodiff includes
 #define AUTODIFF_ENABLE_EIGEN_SUPPORT
-#include <autodiff.hpp>
+#include <autodiff/reverse.hpp>
 using namespace autodiff;
 
 template<typename T>
