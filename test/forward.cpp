@@ -276,6 +276,21 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( f(x) == std::sqrt(val(x)) );
         REQUIRE( grad(f, wrt(x), x) == approx(0.5 / sqrt(x)) );
 
+        // Testing pow function (with scalar exponent)
+        f = [](dual x) -> dual { return pow(x, 2.0); };
+        REQUIRE( f(x) == std::pow(val(x), 2.0) );
+        REQUIRE( grad(f, wrt(x), x) == approx(2 * x) );
+
+        // Testing pow function (with dual exponent)
+        f = [](dual x) -> dual { return pow(x, x); };
+        REQUIRE( f(x) == std::pow(val(x), val(x)) );
+        REQUIRE( grad(f, wrt(x), x) == approx((log(x) + 1) * pow(x, x)) );
+
+        // Testing pow function (with expression exponent)
+        f = [](dual x) -> dual { return pow(x, 2 * x); };
+        REQUIRE( f(x) == std::pow(val(x), 2 * val(x)) );
+        REQUIRE( grad(f, wrt(x), x) == approx(2 * (log(x) + 1) * pow(x, 2 * x)) );
+
         // Testing abs function (when x > 0 and when x < 0)
         f = [](dual x) -> dual { return abs(x); };
         x = 1.0;

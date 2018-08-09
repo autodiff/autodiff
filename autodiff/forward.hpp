@@ -64,8 +64,8 @@ struct ExpOp    {};  // EXPONENTIAL OPERATOR
 struct LogOp    {};  // NATURAL LOGARITHM OPERATOR
 struct Log10Op  {};  // BASE-10 LOGARITHM OPERATOR
 struct SqrtOp   {};  // SQUARE ROOT OPERATOR
-struct AbsOp    {};  // ABSOLUTE OPERATOR
 struct PowOp    {};  // POWER OPERATOR
+struct AbsOp    {};  // ABSOLUTE OPERATOR
 
 //-----------------------------------------------------------------------------
 // OTHER OPERATORS
@@ -136,11 +136,11 @@ using Log10Expr = UnaryExpr<Log10Op, R>;
 template<typename R>
 using SqrtExpr = UnaryExpr<SqrtOp, R>;
 
-template<typename R>
-using AbsExpr = UnaryExpr<AbsOp, R>;
-
 template<typename L, typename R>
 using PowExpr = BinaryExpr<PowOp, L, R>;
+
+template<typename R>
+using AbsExpr = UnaryExpr<AbsOp, R>;
 
 //-----------------------------------------------------------------------------
 // DERIVED ARITHMETIC EXPRESSIONS
@@ -748,7 +748,7 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto log10(R&& r) -> Log1
 //
 //=====================================================================================================================
 
-template<typename L, typename R, enableif<isExpr<R>>...> constexpr auto pow(L&& l, R&& r) -> PowExpr<L, R> { return { std::forward<L>(l), std::forward<R>(r) }; }
+template<typename L, typename R, enableif<isOperable<L, R>>...> constexpr auto pow(L&& l, R&& r) -> PowExpr<L, R> { return { std::forward<L>(l), std::forward<R>(r) }; }
 template<typename R, enableif<isExpr<R>>...> constexpr auto sqrt(R&& r) -> SqrtExpr<R> { return { std::forward<R>(r) }; }
 
 //=====================================================================================================================
@@ -906,6 +906,23 @@ constexpr void assign(Dual<T>& self, const MulExpr<L, R>& other, Dual<T>& tmp)
 {
     assign(self, other.r, tmp);
     assignMul(self, other.l, tmp);
+}
+
+//-----------------------------------------------------------------------------
+// assign: self = pow(expr, expr)
+//-----------------------------------------------------------------------------
+template<typename T, typename L, typename R>
+constexpr void assign(Dual<T>& self, const PowExpr<L, R>& other)
+{
+    assign(self, other.l);
+    assignPow(self, other.r);
+}
+
+template<typename T, typename L, typename R>
+constexpr void assign(Dual<T>& self, const PowExpr<L, R>& other, Dual<T>& tmp)
+{
+    assign(self, other.l, tmp);
+    assignPow(self, other.r, tmp);
 }
 
 //=====================================================================================================================
@@ -1256,6 +1273,65 @@ template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...
 constexpr void assignDiv(Dual<T>& self, const R& other, Dual<T>& tmp)
 {
     assignMul(self, inverse(other), tmp);
+}
+
+//=====================================================================================================================
+//
+// ASSIGNMENT-POWER FUNCTIONS
+//
+//=====================================================================================================================
+
+//-----------------------------------------------------------------------------
+// assignPow: self = pow(self, scalar)
+//-----------------------------------------------------------------------------
+template<typename T, typename U, enableif<isNumber<U>>...>
+constexpr void assignPow(Dual<T>& self, const U& other)
+{
+    const auto aux = std::pow(self.val, other);
+    self.grad *= other/self.val * aux;
+    self.val = aux;
+}
+
+template<typename T, typename U, enableif<isNumber<U>>...>
+constexpr void assignPow(Dual<T>& self, const U& other, Dual<T>& tmp)
+{
+    assignPow(self, other);
+}
+
+//-----------------------------------------------------------------------------
+// assignPow: self = pow(self, dual)
+//-----------------------------------------------------------------------------
+template<typename T>
+constexpr void assignPow(Dual<T>& self, const Dual<T>& other)
+{
+    const auto aux1 = std::pow(self.val, other.val);
+    const auto aux2 = std::log(self.val);
+    self.grad *= other.val/self.val;
+    self.grad += aux2 * other.grad;
+    self.grad *= aux1;
+    self.val = aux1;
+}
+
+template<typename T>
+constexpr void assignPow(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
+{
+    assignPow(self, other);
+}
+
+//-----------------------------------------------------------------------------
+// assignPow: self = pow(self, expr)
+//-----------------------------------------------------------------------------
+template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+constexpr void assignPow(Dual<T>& self, const R& other)
+{
+    assignPow(self, eval(other));
+}
+
+template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+constexpr void assignPow(Dual<T>& self, const R& other, Dual<T>& tmp)
+{
+    assign(tmp, other);
+    assignPow(self, tmp);
 }
 
 //=====================================================================================================================
