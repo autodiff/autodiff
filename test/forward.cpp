@@ -31,8 +31,6 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 
     SECTION("trivial tests")
     {
-        dual x = 100;
-
         REQUIRE( x == 100 );
         x += 1;
         REQUIRE( x == 101 );
@@ -42,6 +40,34 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( x == 200 );
         x /= 20;
         REQUIRE( x == 10 );
+    }
+
+    SECTION("testing comparison operators")
+    {
+        x = 6;
+        y = 5;
+
+        REQUIRE( x == 6 );
+        REQUIRE( 6 == x );
+        REQUIRE( x == x );
+
+        REQUIRE( x != 5 );
+        REQUIRE( 5 != x );
+        REQUIRE( x != y );
+
+        REQUIRE( x > 5 );
+        REQUIRE( x > y );
+
+        REQUIRE( x >= 6 );
+        REQUIRE( x >= x );
+        REQUIRE( x >= y );
+
+        REQUIRE( 5 < x );
+        REQUIRE( y < x );
+
+        REQUIRE( 6 <= x );
+        REQUIRE( x <= x );
+        REQUIRE( y <= x );
     }
 
     SECTION("testing unary operators")
@@ -224,7 +250,7 @@ TEST_CASE("autodiff::dual tests", "[dual]")
     {
         std::function<dual(dual)> f;
 
-        dual x = 0.5;
+        x = 0.5;
 
         // Testing sin function
         f = [](dual x) -> dual { return sin(x); };
@@ -299,5 +325,25 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         x = -1.0;
         REQUIRE( f(x) == std::abs(val(x)) );
         REQUIRE( grad(f, wrt(x), x) == approx(-1.0) );
+    }
+
+    SECTION("testing complex expressions")
+    {
+        std::function<dual(dual, dual)> f;
+
+        x = 0.5;
+        y = 0.8;
+
+        // Testing complex function involving sin, cos, and tan
+        f = [](dual x, dual y) -> dual { return sin(x + y) * cos(x / y) + tan(2 * x * y) - sin(4*(x + y)*2/8) * cos(x*x / (y*y) * y/x) - tan((x + y) * (x + y) - x*x - y*y); };
+        REQUIRE( val(f(x, y)) == approx(0.0) );
+        REQUIRE( grad(f, wrt(x), x, y) == approx(0.0) );
+        REQUIRE( grad(f, wrt(y), x, y) == approx(0.0) );
+
+        // Testing complex function involving log, exp, pow, and sqrt
+        f = [](dual x, dual y) -> dual { return log(x + y) * exp(x / y) + sqrt(2 * x * y) - 1 / pow(x, x + y) - exp(x*x / (y*y) * y/x) * log(4*(x + y)*2/8) - 4 * sqrt((x + y) * (x + y) - x*x - y*y) * 0.5 * 0.5 + 2 / pow(2 * x - x, y + x) * 0.5; };
+        REQUIRE( val(f(x, y)) == approx(0.0) );
+        REQUIRE( grad(f, wrt(x), x, y) == approx(0.0) );
+        REQUIRE( grad(f, wrt(y), x, y) == approx(0.0) );
     }
 }
