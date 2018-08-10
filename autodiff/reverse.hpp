@@ -30,6 +30,7 @@
 // C++ includes
 #include <cmath>
 #include <memory>
+#include <unordered_map>
 
 /// autodiff namespace where @ref var and @ref grad are defined.
 namespace autodiff {}
@@ -61,7 +62,9 @@ struct PowExpr;
 struct SqrtExpr;
 struct AbsExpr;
 
-using ExprPtr = std::shared_ptr<Expr>;
+using ExprPtr = std::shared_ptr<const Expr>;
+
+using DerivativesMap = std::unordered_map<const Expr*, double>;
 
 //------------------------------------------------------------------------------
 // CONVENIENT FUNCTIONS (DECLARATION ONLY)
@@ -156,14 +159,13 @@ struct Expr
     /// The numerical value of this expression.
     double val;
 
-    /// The numerical derivative of the root node with respect to this expression.
-    double d_root_d_this;
-
     /// Construct an Expr object with given numerical value.
     explicit Expr(double val) : val(val) {}
 
     /// Update the contribution of this expression in the derivative of the root node of the expression tree.
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this) = 0;
+    /// @param derivatives The container where the derivatives of the root variable w.r.t. to leaf variables are stored.
+    /// @param wprime The derivative of the root variable w.r.t. a child expression of this expression.
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const = 0;
 
     /// Return the gradient value of this expression with respect to given variable.
     virtual double grad(const ExprPtr& other) const = 0;
@@ -176,9 +178,11 @@ struct ParameterExpr : Expr
 {
     using Expr::Expr;
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this = 0.0;
+        const auto it = derivatives.find(this);
+        if(it != derivatives.end()) it->second += wprime;
+        else derivatives.insert({ this, wprime });
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -198,9 +202,12 @@ struct VariableExpr : Expr
 
     VariableExpr(const ExprPtr& expr) : Expr(expr->val), expr(expr) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
+        const auto it = derivatives.find(this);
+        if(it != derivatives.end()) it->second += wprime;
+        else derivatives.insert({ this, wprime });
+        expr->propagate(derivatives, wprime);
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -218,9 +225,8 @@ struct ConstantExpr : Expr
 {
     using Expr::Expr;
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this = 0.0;
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -245,11 +251,9 @@ struct NegativeExpr : UnaryExpr
 {
     using UnaryExpr::UnaryExpr;
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        x->propagate(d_root_d_this, -1.0);
+        x->propagate(derivatives, -wprime);
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -274,12 +278,10 @@ struct AddExpr : BinaryExpr
 {
     using BinaryExpr::BinaryExpr;
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        l->propagate(d_root_d_this, 1.0);
-        r->propagate(d_root_d_this, 1.0);
+        l->propagate(derivatives, wprime);
+        r->propagate(derivatives, wprime);
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -297,12 +299,10 @@ struct SubExpr : BinaryExpr
 {
     using BinaryExpr::BinaryExpr;
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        l->propagate(d_root_d_this,  1.0);
-        r->propagate(d_root_d_this, -1.0);
+        l->propagate(derivatives,  wprime);
+        r->propagate(derivatives, -wprime);
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -320,12 +320,10 @@ struct MulExpr : BinaryExpr
 {
     using BinaryExpr::BinaryExpr;
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        l->propagate(d_root_d_this, r->val);
-        r->propagate(d_root_d_this, l->val);
+        l->propagate(derivatives, wprime * r->val);
+        r->propagate(derivatives, wprime * l->val);
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -343,12 +341,12 @@ struct DivExpr : BinaryExpr
 {
     using BinaryExpr::BinaryExpr;
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        l->propagate(d_root_d_this, 1.0 / r->val);
-        r->propagate(d_root_d_this, - l->val / (r->val * r->val) );
+        const auto aux1 = 1.0 / r->val;
+        const auto aux2 = -l->val * aux1 * aux1;
+        l->propagate(derivatives, wprime * aux1);
+        r->propagate(derivatives, wprime * aux2);
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -368,11 +366,9 @@ struct SinExpr : UnaryExpr
 
     SinExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(std::cos(x->val)) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        x->propagate(d_root_d_this, std::cos(x->val));
+        x->propagate(derivatives, wprime * std::cos(x->val));
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -392,11 +388,9 @@ struct CosExpr : UnaryExpr
 
     CosExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(-std::sin(x->val)) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        x->propagate(d_root_d_this, -std::sin(x->val));
+        x->propagate(derivatives, -wprime * std::sin(x->val));
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -416,11 +410,10 @@ struct TanExpr : UnaryExpr
 
     TanExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(1.0 / std::cos(x->val)) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        x->propagate(d_root_d_this, aux * aux);
+        const double aux = 1.0 / std::cos(x->val);
+        x->propagate(derivatives, wprime * aux * aux);
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -441,11 +434,9 @@ struct ArcSinExpr : UnaryExpr
 
     ArcSinExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(1.0 / std::sqrt(1.0 - x->val * x->val)) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        x->propagate(d_root_d_this, aux);
+        x->propagate(derivatives, wprime / std::sqrt(1.0 - x->val * x->val));
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -465,11 +456,9 @@ struct ArcCosExpr : UnaryExpr
 
     ArcCosExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(-1.0 / std::sqrt(1.0 - x->val * x->val)) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        x->propagate(d_root_d_this, aux);
+        x->propagate(derivatives, -wprime / std::sqrt(1.0 - x->val * x->val));
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -489,11 +478,9 @@ struct ArcTanExpr : UnaryExpr
 
     ArcTanExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(1.0 / (1.0 + x->val * x->val)) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        x->propagate(d_root_d_this, aux);
+        x->propagate(derivatives, wprime / (1.0 + x->val * x->val));
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -511,11 +498,9 @@ struct ExpExpr : UnaryExpr
 {
     using UnaryExpr::UnaryExpr;
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        x->propagate(d_root_d_this, x->val);
+        x->propagate(derivatives, wprime * x->val);
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -533,11 +518,9 @@ struct LogExpr : UnaryExpr
 {
     using UnaryExpr::UnaryExpr;
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        x->propagate(d_root_d_this, 1.0 / x->val);
+        x->propagate(derivatives, wprime / x->val);
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -553,17 +536,15 @@ struct LogExpr : UnaryExpr
 
 struct Log10Expr : UnaryExpr
 {
-    static constexpr double ln10 = 2.3025850929940456840179914546843;
+    constexpr static double ln10 = 2.3025850929940456840179914546843;
 
     double aux;
 
     Log10Expr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(1.0 / (ln10 * x->val)) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        x->propagate(d_root_d_this, aux);
+        x->propagate(derivatives, wprime / (ln10 * x->val));
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -583,11 +564,13 @@ struct PowExpr : BinaryExpr
 
     PowExpr(double val, const ExprPtr& l, const ExprPtr& r) : BinaryExpr(val, l, r), log_l(std::log(l->val)) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-//        x->propagate(d_root_d_this, 1.0 / x->val); // todo
+        const double lval = l->val;
+        const double rval = r->val;
+        const double aux = wprime * val;
+        l->propagate(derivatives, aux * rval / lval);
+        r->propagate(derivatives, aux * std::log(lval));
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -607,11 +590,9 @@ struct PowConstantLeftExpr : BinaryExpr
 
     PowConstantLeftExpr(double val, const ExprPtr& l, const ExprPtr& r) : BinaryExpr(val, l, r), log_l(std::log(l->val)) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-//        x->propagate(d_root_d_this, 1.0 / x->val); // todo
+        r->propagate(derivatives, wprime * val * std::log(l->val));
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -629,11 +610,9 @@ struct PowConstantRightExpr : BinaryExpr
 {
     PowConstantRightExpr(double val, const ExprPtr& l, const ExprPtr& r) : BinaryExpr(val, l, r) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-//        x->propagate(d_root_d_this, 1.0 / x->val); // todo
+        l->propagate(derivatives, wprime * val * r->val / l->val);
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -653,11 +632,9 @@ struct SqrtExpr : UnaryExpr
 
     SqrtExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(0.5 / std::sqrt(x->val)) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        x->propagate(d_root_d_this, aux);
+        x->propagate(derivatives, wprime / (2.0 * std::sqrt(x->val)));
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -677,11 +654,9 @@ struct AbsExpr : UnaryExpr
 
     AbsExpr(double val, const ExprPtr& x) : UnaryExpr(val, x), aux(x->val / std::abs(x->val)) {}
 
-    virtual void propagate(double d_root_d_parent, double d_parent_d_this)
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        d_root_d_this += d_root_d_parent * d_parent_d_this;
-
-        x->propagate(d_root_d_this, aux);
+        x->propagate(derivatives, wprime * std::copysign(1.0, x->val));
     }
 
     virtual double grad(const ExprPtr& other) const
@@ -844,6 +819,23 @@ inline bool operator>(const var& l, double r) { return l.expr > r; }
 inline double val(const var& x)
 {
     return x.expr->val;
+}
+
+using Derivatives = std::function<double(const var&)>;
+
+/// Return the derivatives of a variable y with respect to all independent variables.
+inline Derivatives derivatives(const var& y)
+{
+    DerivativesMap map;
+    y.expr->propagate(map, 1.0);
+
+    auto fn = [=](const var& x)
+    {
+        const auto it = map.find(x.expr.get());
+        return it != map.end() ? it->second : 0.0;
+    };
+
+    return fn;
 }
 
 /// Return the derivative of a variable y with respect to variable x.
