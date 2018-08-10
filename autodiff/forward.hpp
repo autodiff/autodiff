@@ -439,7 +439,7 @@ auto val(const R& expr)
 }
 
 template<typename Function, typename T, typename... Args>
-double grad(const Function& f, Dual<T>& wrt, const Args&... args)
+double derivative(const Function& f, Dual<T>& wrt, const Args&... args)
 {
     wrt.grad = 1.0;
     Dual<T> res = f(args...);
@@ -1455,7 +1455,7 @@ std::ostream& operator<<(std::ostream& out, const Dual<T>& x)
 
 using forward::val;
 using forward::eval;
-using forward::grad;
+using forward::derivative;
 using forward::wrt;
 
 using dual = forward::Dual<double>;
