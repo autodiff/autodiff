@@ -1,3 +1,4 @@
+
 <p align="center">
     <img src="art/autodiff-header.svg" style="max-width:100%;" title="autodiff">
 </p>
@@ -11,20 +12,79 @@ You most likely arrived here because:
 - you are aware that numerical derivatives using finite differences can be inaccurate and inefficient; and
 - you are looking for a straightforward solution to calculate derivatives in C++ using **automatic differentiation**.
 
-Here is how [autodiff][autodiff] can help you. Let's assume you have the following code:
+We'll now see how **autodiff** can be used to compute derivatives. For this, consider the following function:
+```c++
+double f(double x, double y, double z) 
+{
+    return (x + y + z) * exp(x * y * z)
+}
+```
+used to evaluate an output variable `u` as follows:
+```c++
+double x = 1.0, y = 2.0, z = 3.0;
+double u = f(x, y, z);
+```
+We are interested in the derivatives *∂u/∂x*,  *∂u/∂y*, and  *∂u/∂z*, and, as shown next, there are two ways of computing them using automatic differentiation: **forward mode** and **reverse mode**.
+
+## Forward mode
+
+In a *forward automatic differentiation mode*, both output variables and one or more of their derivatives are computed together. For example, the function evaluation *f(x, y, z)* can be transformed in a way that it will not only produce the value of *u*, *the output variable*, but also one or more of its derivatives (*∂u/∂x*,  *∂u/∂y*, *∂u/∂z*) with respect to the *input variables* (*x*, *y*, *z*). 
+
+Enabling the forward calculation of derivatives using **autodiff** is relatively simple. For our previous function *f*, we only need to replace the floating-point type `double` to `autodiff::dual` for both input and output variables:
 
 ```c++
-double x = 0.0;
-double y = f(x);
+dual f(dual x, dual y, dual z) 
+{
+    return (x + y + z) * exp(x * y * z)
+}
 ```
 
-for which you want to calculate `dydx`, that is, the derivative of output variable `y` with respect to input variable `x` when `x = 0.0`. Instead of using type `double` for `x` and `y`, as well as all for all intermediate variables inside `f`, if applicable, use `autodiff::var` instead:
+We can now compute the derivatives *∂u/∂x*,  *∂u/∂y*, and *∂u/∂z* as follows:
 
 ```c++
-var x = 0.0;
-var y = f(x);
+dual x = 1.0, y = 2.0, z = 3.0;
+dual u = f(x, y, z);
+
+double dudx = derivative(f, wrt(x), x, y, z);
+double dudy = derivative(f, wrt(y), x, y, z);
+double dudz = derivative(f, wrt(z), x, y, z);
 ```
 
+where `wrt` means *with respect to* and it is used to indicate which input variable (*x*, *y*, *z*) is being selected to compute the derivative of *f*.
+
+## Reverse mode
+
+In a *reverse automatic differentiation mode*, the output variable of a function is evaluated first, and its derivatives afterwards. As the function is evaluated, all mathematical operations between the input variables are "recorded" in an *expression tree*. By traversing this tree from top-level (output variable as the root node) to bottom-level (input variables as the leaf nodes), it is possible to compute the contribution of each branch on the derivatives of the output variable with respect to input variables. In a single reverse pass, therefore, all derivatives are computed, in contrast with forward mode, which requires one pass for each input variable 
+
+> **Note:** It is possible to change the behavior of a forward pass so that many (even all) derivatives of an output variable are computed simultaneously (e.g., in a single forward pass, *∂u/∂x*,  *∂u/∂y*, and *∂u/∂z* are evaluated together with *u*, in contrast with three forward passes, each one computing the individual derivatives). 
+
+Similar as before, we can use **autodiff** to enable reverse automatic differentiation for our function *f* by simply replacing type `double` by `autodiff::var` as follows:
+
+```c++
+var f(var x, var y, var z) 
+{
+    return (x + y + z) * exp(x * y * z)
+}
+```
+
+The code below demonstrates how the derivatives *∂u/∂x*,  *∂u/∂y*, and *∂u/∂z* can be calculated:
+
+```c++
+dual x = 1.0, y = 2.0, z = 3.0;
+dual u = f(x, y, z);
+
+Derivatives dud = derivatives(u);
+
+double dudx = dud(x);
+double dudy = dud(y);
+double dudz = dud(z);
+```
+
+The function `autodiff::derivatives` will traverse the expression tree stored in variable `u` and compute all its derivatives with respect to the input variables *x*, *y*, and *z*, which are then stored in the object `dud`. The derivative of `u` w.r.t. input variable `x` (i.e., *∂u/∂x*) can then be extracted from `dud` using `dud(x)`.
+
+## What is the difference between reverse and forward modes?
+
+In the forward mode, the `autodiff::derivative` function needed to be called once for each input variable. The function `f` was evaluated three times, each time not only evaluating the function output value, but also the derivative of this output with respect to the input variable selected for the derivative calculation.
 and calculate your derivative `dydx` using the `autodiff::grad` function as follows:
 
 ```cpp
