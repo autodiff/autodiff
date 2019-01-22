@@ -29,11 +29,31 @@
 
 // C++ includes
 #include <cmath>
+#include <functional>
 #include <type_traits>
 #include <utility>
 
 namespace autodiff {
 namespace forward {
+
+//=====================================================================================================================
+//
+// STANDARD TEMPLATE LIBRARY MATH FUNCTIONS
+//
+//=====================================================================================================================
+
+using std::abs;
+using std::acos;
+using std::asin;
+using std::atan;
+using std::cos;
+using std::exp;
+using std::log10;
+using std::log;
+using std::pow;
+using std::sin;
+using std::sqrt;
+using std::tan;
 
 //=====================================================================================================================
 //
@@ -79,7 +99,7 @@ struct NumberDualDualMulOp {};  // NUMBER-DUAL-DUAL MULTIPLICATION OPERATOR
 //
 //=====================================================================================================================
 
-template<typename T>
+template<typename T, typename G>
 struct Dual;
 
 template<typename Op, typename E>
@@ -192,8 +212,8 @@ namespace traits {
 template<typename T>
 struct isExpr { constexpr static bool value = false; };
 
-template<typename T>
-struct isExpr<Dual<T>> { constexpr static bool value = true; };
+template<typename T, typename G>
+struct isExpr<Dual<T, G>> { constexpr static bool value = true; };
 
 template<typename Op, typename R>
 struct isExpr<UnaryExpr<Op, R>> { constexpr static bool value = true; };
@@ -210,8 +230,8 @@ struct isExpr<TernaryExpr<Op, L, C, R>> { constexpr static bool value = true; };
 template<typename T>
 struct isDual { constexpr static bool value = false; };
 
-template<typename T>
-struct isDual<Dual<T>> { constexpr static bool value = true; };
+template<typename T, typename G>
+struct isDual<Dual<T, G>> { constexpr static bool value = true; };
 
 //-----------------------------------------------------------------------------
 // IS TYPE T A NEGATIVE EXPRESSION?
@@ -312,8 +332,8 @@ struct ValueTypeInvalid {};
 template<typename T>
 struct ValueType { using type = std::conditional_t<isNumber<T>, T, ValueTypeInvalid>; };
 
-template<typename T>
-struct ValueType<Dual<T>> { using type = typename ValueType<plain<T>>::type; };
+template<typename T, typename G>
+struct ValueType<Dual<T, G>> { using type = typename ValueType<plain<T>>::type; };
 
 template<typename Op, typename R>
 struct ValueType<UnaryExpr<Op, R>> { using type = typename ValueType<plain<R>>::type; };
@@ -335,17 +355,17 @@ using ValueType = typename traits::ValueType<plain<T>>::type;
 //
 //=====================================================================================================================
 
-template<typename T>
+template<typename T, typename G>
 struct Dual
 {
     T val;
 
-    T grad;
+    G grad;
 
     Dual() : Dual(0.0) {}
 
     template<typename U, enableif<isNumber<U>>...>
-    Dual(const U& val) : val(val), grad(0.0) {}
+    Dual(const U& val) : val(val), grad(0) {}
 
     template<typename R, enableif<isExpr<R>>...>
     Dual(const R& other)
@@ -408,22 +428,42 @@ struct BinaryExpr
 //
 //=====================================================================================================================
 
-template<typename T>
-auto eval(const Dual<T>& dual)
+template<typename T, enableif<isDual<T>>...>
+auto eval(T&& dual)
 {
-    return dual;
+    return std::forward<T>(dual);
 }
 
-template<typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
-auto eval(const R& expr)
+template<typename T, enableif<isExpr<T>>..., disableif<isDual<T>>...>
+auto eval(T&& expr)
 {
-    return Dual<ValueType<R>>(expr);
-}
 
-template<typename T>
-auto val(const Dual<T>& dual)
-{
-    return dual.val;
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // FIXME Implement GradType and use below
+    return Dual<ValueType<T>, ValueType<T>>(std::forward<T>(expr));
+
+
+
+
+
+
+
+
+
+
+
 }
 
 template<typename T, enableif<isNumber<T>>...>
@@ -432,23 +472,48 @@ auto val(const T& scalar)
     return scalar;
 }
 
-template<typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
-auto val(const R& expr)
+template<typename T, typename G>
+auto val(const Dual<T, G>& dual)
 {
-    return eval(expr).val;
+    return val(dual.val);
 }
 
-template<typename Function, typename T, typename... Args>
-T derivative(const Function& f, Dual<T>& wrt, const Args&... args)
+template<typename T, enableif<isExpr<T>>..., disableif<isDual<T>>...>
+auto val(const T& expr)
+{
+    return val(eval(expr).val);
+}
+
+template<typename Function, typename T, typename G, typename... Args>
+auto derivative(const Function& f, Dual<T, G>& wrt, const Args&... args) -> G
 {
     wrt.grad = 1.0;
-    Dual<T> res = f(args...);
+    Dual<T, G> res = f(args...);
     wrt.grad = 0.0;
     return res.grad;
 }
 
-template<typename T>
-Dual<T>& wrt(Dual<T>& x)
+namespace internal {
+
+template<typename T, typename G, typename... Args>
+auto grad(const std::function<Dual<T, G>(Args...)>& f)
+{
+    auto g = [=](Dual<T, G>& wrt, const Args&... args) -> G {
+        return derivative(f, wrt, args...);
+    };
+    return g;
+}
+
+} // namespace internal
+
+template<typename Function>
+auto grad(const Function& f)
+{
+    return internal::grad(std::function{f});
+}
+
+template<typename T, typename G>
+Dual<T, G>& wrt(Dual<T, G>& x)
 {
     return x;
 }
@@ -781,15 +846,15 @@ template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator>(L
 // AUXILIARY FUNCTIONS
 //
 //=====================================================================================================================
-template<typename T>
-constexpr void negate(Dual<T>& self)
+template<typename T, typename G>
+constexpr void negate(Dual<T, G>& self)
 {
     self.val = -self.val;
     self.grad = -self.grad;
 }
 
-template<typename T, typename U>
-constexpr void scale(Dual<T>& self, const U& scalar)
+template<typename T, typename G, typename U>
+constexpr void scale(Dual<T, G>& self, const U& scalar)
 {
     self.val *= scalar;
     self.grad *= scalar;
@@ -801,7 +866,7 @@ constexpr void scale(Dual<T>& self, const U& scalar)
 //
 //=====================================================================================================================
 
-template<typename Op, typename T> constexpr void apply(Dual<T>& self);
+template<typename Op, typename T, typename G> constexpr void apply(Dual<T, G>& self);
 
 //=====================================================================================================================
 //
@@ -812,15 +877,15 @@ template<typename Op, typename T> constexpr void apply(Dual<T>& self);
 //-----------------------------------------------------------------------------
 // assign: self = scalar
 //-----------------------------------------------------------------------------
-template<typename T, typename U, enableif<isNumber<U>>...>
-constexpr void assign(Dual<T>& self, const U& other)
+template<typename T, typename G, typename U, enableif<isNumber<U>>...>
+constexpr void assign(Dual<T, G>& self, const U& other)
 {
     self.val = other;
     self.grad = 0.0;
 }
 
-template<typename T, typename U, enableif<isNumber<U>>...>
-constexpr void assign(Dual<T>& self, const U& other, Dual<T>& tmp)
+template<typename T, typename G, typename U, enableif<isNumber<U>>...>
+constexpr void assign(Dual<T, G>& self, const U& other, Dual<T, G>& tmp)
 {
     assign(self, other);
 }
@@ -828,15 +893,15 @@ constexpr void assign(Dual<T>& self, const U& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assign: self = dual
 //-----------------------------------------------------------------------------
-template<typename T>
-constexpr void assign(Dual<T>& self, const Dual<T>& other)
+template<typename T, typename G>
+constexpr void assign(Dual<T, G>& self, const Dual<T, G>& other)
 {
     self.val = other.val;
     self.grad = other.grad;
 }
 
-template<typename T>
-constexpr void assign(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
+template<typename T, typename G>
+constexpr void assign(Dual<T, G>& self, const Dual<T, G>& other, Dual<T, G>& tmp)
 {
     assign(self, other);
 }
@@ -844,15 +909,15 @@ constexpr void assign(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assign: self = scalar * dual
 //-----------------------------------------------------------------------------
-template<typename T, typename U, typename R>
-constexpr void assign(Dual<T>& self, const NumberDualMulExpr<U, R>& other)
+template<typename T, typename G, typename U, typename R>
+constexpr void assign(Dual<T, G>& self, const NumberDualMulExpr<U, R>& other)
 {
     assign(self, other.r);
     scale(self, other.l);
 }
 
-template<typename T, typename U, typename R>
-constexpr void assign(Dual<T>& self, const NumberDualMulExpr<U, R>& other, Dual<T>& tmp)
+template<typename T, typename G, typename U, typename R>
+constexpr void assign(Dual<T, G>& self, const NumberDualMulExpr<U, R>& other, Dual<T, G>& tmp)
 {
     assign(self, other);
 }
@@ -860,15 +925,15 @@ constexpr void assign(Dual<T>& self, const NumberDualMulExpr<U, R>& other, Dual<
 //-----------------------------------------------------------------------------
 // assign: self = function(expr)
 //-----------------------------------------------------------------------------
-template<typename T, typename Op, typename R>
-constexpr void assign(Dual<T>& self, const UnaryExpr<Op, R>& other)
+template<typename T, typename G, typename Op, typename R>
+constexpr void assign(Dual<T, G>& self, const UnaryExpr<Op, R>& other)
 {
     assign(self, other.r);
     apply<Op>(self);
 }
 
-template<typename T, typename Op, typename R>
-constexpr void assign(Dual<T>& self, const UnaryExpr<Op, R>& other, Dual<T>& tmp)
+template<typename T, typename G, typename Op, typename R>
+constexpr void assign(Dual<T, G>& self, const UnaryExpr<Op, R>& other, Dual<T, G>& tmp)
 {
     assign(self, other.r, tmp);
     apply<Op>(self);
@@ -877,15 +942,15 @@ constexpr void assign(Dual<T>& self, const UnaryExpr<Op, R>& other, Dual<T>& tmp
 //-----------------------------------------------------------------------------
 // assign: self = expr + expr
 //-----------------------------------------------------------------------------
-template<typename T, typename L, typename R>
-constexpr void assign(Dual<T>& self, const AddExpr<L, R>& other)
+template<typename T, typename G, typename L, typename R>
+constexpr void assign(Dual<T, G>& self, const AddExpr<L, R>& other)
 {
     assign(self, other.r);
     assignAdd(self, other.l);
 }
 
-template<typename T, typename L, typename R>
-constexpr void assign(Dual<T>& self, const AddExpr<L, R>& other, Dual<T>& tmp)
+template<typename T, typename G, typename L, typename R>
+constexpr void assign(Dual<T, G>& self, const AddExpr<L, R>& other, Dual<T, G>& tmp)
 {
     assign(self, other.r, tmp);
     assignAdd(self, other.l, tmp);
@@ -894,15 +959,15 @@ constexpr void assign(Dual<T>& self, const AddExpr<L, R>& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assign: self = expr * expr
 //-----------------------------------------------------------------------------
-template<typename T, typename L, typename R>
-constexpr void assign(Dual<T>& self, const MulExpr<L, R>& other)
+template<typename T, typename G, typename L, typename R>
+constexpr void assign(Dual<T, G>& self, const MulExpr<L, R>& other)
 {
     assign(self, other.r);
     assignMul(self, other.l);
 }
 
-template<typename T, typename L, typename R>
-constexpr void assign(Dual<T>& self, const MulExpr<L, R>& other, Dual<T>& tmp)
+template<typename T, typename G, typename L, typename R>
+constexpr void assign(Dual<T, G>& self, const MulExpr<L, R>& other, Dual<T, G>& tmp)
 {
     assign(self, other.r, tmp);
     assignMul(self, other.l, tmp);
@@ -911,15 +976,15 @@ constexpr void assign(Dual<T>& self, const MulExpr<L, R>& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assign: self = pow(expr, expr)
 //-----------------------------------------------------------------------------
-template<typename T, typename L, typename R>
-constexpr void assign(Dual<T>& self, const PowExpr<L, R>& other)
+template<typename T, typename G, typename L, typename R>
+constexpr void assign(Dual<T, G>& self, const PowExpr<L, R>& other)
 {
     assign(self, other.l);
     assignPow(self, other.r);
 }
 
-template<typename T, typename L, typename R>
-constexpr void assign(Dual<T>& self, const PowExpr<L, R>& other, Dual<T>& tmp)
+template<typename T, typename G, typename L, typename R>
+constexpr void assign(Dual<T, G>& self, const PowExpr<L, R>& other, Dual<T, G>& tmp)
 {
     assign(self, other.l, tmp);
     assignPow(self, other.r, tmp);
@@ -934,14 +999,14 @@ constexpr void assign(Dual<T>& self, const PowExpr<L, R>& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignAdd: self += scalar
 //-----------------------------------------------------------------------------
-template<typename T, typename U, enableif<isNumber<U>>...>
-constexpr void assignAdd(Dual<T>& self, const U& other)
+template<typename T, typename G, typename U, enableif<isNumber<U>>...>
+constexpr void assignAdd(Dual<T, G>& self, const U& other)
 {
     self.val += other;
 }
 
-template<typename T, typename U, enableif<isNumber<U>>...>
-constexpr void assignAdd(Dual<T>& self, const U& other, Dual<T>& tmp)
+template<typename T, typename G, typename U, enableif<isNumber<U>>...>
+constexpr void assignAdd(Dual<T, G>& self, const U& other, Dual<T, G>& tmp)
 {
     self.val += other;
 }
@@ -949,15 +1014,15 @@ constexpr void assignAdd(Dual<T>& self, const U& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignAdd: self += dual
 //-----------------------------------------------------------------------------
-template<typename T>
-constexpr void assignAdd(Dual<T>& self, const Dual<T>& other)
+template<typename T, typename G>
+constexpr void assignAdd(Dual<T, G>& self, const Dual<T, G>& other)
 {
     self.val += other.val;
     self.grad += other.grad;
 }
 
-template<typename T>
-constexpr void assignAdd(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
+template<typename T, typename G>
+constexpr void assignAdd(Dual<T, G>& self, const Dual<T, G>& other, Dual<T, G>& tmp)
 {
     assignAdd(self, other);
 }
@@ -965,15 +1030,15 @@ constexpr void assignAdd(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignAdd: self += scalar * dual
 //-----------------------------------------------------------------------------
-template<typename T, typename U, typename R>
-constexpr void assignAdd(Dual<T>& self, const NumberDualMulExpr<U, R>& other)
+template<typename T, typename G, typename U, typename R>
+constexpr void assignAdd(Dual<T, G>& self, const NumberDualMulExpr<U, R>& other)
 {
     self.val += other.l * other.r.val;
     self.grad += other.l * other.r.grad;
 }
 
-template<typename T, typename U, typename R>
-constexpr void assignAdd(Dual<T>& self, const NumberDualMulExpr<U, R>& other, Dual<T>& tmp)
+template<typename T, typename G, typename U, typename R>
+constexpr void assignAdd(Dual<T, G>& self, const NumberDualMulExpr<U, R>& other, Dual<T, G>& tmp)
 {
     assignAdd(self, other);
 }
@@ -981,21 +1046,21 @@ constexpr void assignAdd(Dual<T>& self, const NumberDualMulExpr<U, R>& other, Du
 //-----------------------------------------------------------------------------
 // assignAdd: self += -expr
 //-----------------------------------------------------------------------------
-template<typename T>
-constexpr void assignAddNegativeDual(Dual<T>& self, const Dual<T>& tmp)
+template<typename T, typename G>
+constexpr void assignAddNegativeDual(Dual<T, G>& self, const Dual<T, G>& tmp)
 {
     self.val -= tmp.val;
     self.grad -= tmp.grad;
 }
 
-template<typename T, typename R>
-constexpr void assignAdd(Dual<T>& self, const NegExpr<R>& other)
+template<typename T, typename G, typename R>
+constexpr void assignAdd(Dual<T, G>& self, const NegExpr<R>& other)
 {
     assignAddNegativeDual(self, eval(other.r));
 }
 
-template<typename T, typename R>
-constexpr void assignAdd(Dual<T>& self, const NegExpr<R>& other, Dual<T>& tmp)
+template<typename T, typename G, typename R>
+constexpr void assignAdd(Dual<T, G>& self, const NegExpr<R>& other, Dual<T, G>& tmp)
 {
     tmp = eval(other.r);
     assignAddNegativeDual(self, tmp);
@@ -1004,22 +1069,22 @@ constexpr void assignAdd(Dual<T>& self, const NegExpr<R>& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignAdd: self += 1 / expr
 //-----------------------------------------------------------------------------
-template<typename T>
-constexpr void assignAddInverseDual(Dual<T>& self, const Dual<T>& tmp)
+template<typename T, typename G>
+constexpr void assignAddInverseDual(Dual<T, G>& self, const Dual<T, G>& tmp)
 {
     const auto aux = static_cast<T>(1) / tmp.val;
     self.val += aux;
     self.grad -= aux * aux * tmp.grad;
 }
 
-template<typename T, typename R>
-constexpr void assignAdd(Dual<T>& self, const InvExpr<R>& other)
+template<typename T, typename G, typename R>
+constexpr void assignAdd(Dual<T, G>& self, const InvExpr<R>& other)
 {
     assignAddInverseDual(self, eval(other.r));
 }
 
-template<typename T, typename R>
-constexpr void assignAdd(Dual<T>& self, const InvExpr<R>& other, Dual<T>& tmp)
+template<typename T, typename G, typename R>
+constexpr void assignAdd(Dual<T, G>& self, const InvExpr<R>& other, Dual<T, G>& tmp)
 {
     tmp = eval(other.r);
     assignAddInverseDual(self, tmp);
@@ -1028,15 +1093,15 @@ constexpr void assignAdd(Dual<T>& self, const InvExpr<R>& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignAdd: self += expr + expr
 //-----------------------------------------------------------------------------
-template<typename T, typename L, typename R>
-constexpr void assignAdd(Dual<T>& self, const AddExpr<L, R>& other)
+template<typename T, typename G, typename L, typename R>
+constexpr void assignAdd(Dual<T, G>& self, const AddExpr<L, R>& other)
 {
     assignAdd(self, other.l);
     assignAdd(self, other.r);
 }
 
-template<typename T, typename L, typename R>
-constexpr void assignAdd(Dual<T>& self, const AddExpr<L, R>& other, Dual<T>& tmp)
+template<typename T, typename G, typename L, typename R>
+constexpr void assignAdd(Dual<T, G>& self, const AddExpr<L, R>& other, Dual<T, G>& tmp)
 {
     assignAdd(self, other.l, tmp);
     assignAdd(self, other.r, tmp);
@@ -1045,15 +1110,15 @@ constexpr void assignAdd(Dual<T>& self, const AddExpr<L, R>& other, Dual<T>& tmp
 //-----------------------------------------------------------------------------
 // assignAdd: self += expr
 //-----------------------------------------------------------------------------
-template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R> || isNumberDualMulExpr<R> || isNegExpr<R> || isInvExpr<R> || isAddExpr<R>>...>
-constexpr void assignAdd(Dual<T>& self, const R& other)
+template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R> || isNumberDualMulExpr<R> || isNegExpr<R> || isInvExpr<R> || isAddExpr<R>>...>
+constexpr void assignAdd(Dual<T, G>& self, const R& other)
 {
-    Dual<T> tmp;
+    Dual<T, G> tmp;
     assignAdd(self, other, tmp);
 }
 
-template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R> || isNumberDualMulExpr<R> || isNegExpr<R> || isInvExpr<R> || isAddExpr<R>>...>
-constexpr void assignAdd(Dual<T>& self, const R& other, Dual<T>& tmp)
+template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R> || isNumberDualMulExpr<R> || isNegExpr<R> || isInvExpr<R> || isAddExpr<R>>...>
+constexpr void assignAdd(Dual<T, G>& self, const R& other, Dual<T, G>& tmp)
 {
     assign(tmp, other);
     assignAdd(self, tmp);
@@ -1068,14 +1133,14 @@ constexpr void assignAdd(Dual<T>& self, const R& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignSub: self -= scalar
 //-----------------------------------------------------------------------------
-template<typename T, typename U, enableif<isNumber<U>>...>
-constexpr void assignSub(Dual<T>& self, const U& other)
+template<typename T, typename G, typename U, enableif<isNumber<U>>...>
+constexpr void assignSub(Dual<T, G>& self, const U& other)
 {
     self.val -= other;
 }
 
-template<typename T, typename U, enableif<isNumber<U>>...>
-constexpr void assignSub(Dual<T>& self, const U& other, Dual<T>& tmp)
+template<typename T, typename G, typename U, enableif<isNumber<U>>...>
+constexpr void assignSub(Dual<T, G>& self, const U& other, Dual<T, G>& tmp)
 {
     self.val -= other;
 }
@@ -1083,15 +1148,15 @@ constexpr void assignSub(Dual<T>& self, const U& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignSub: self -= dual
 //-----------------------------------------------------------------------------
-template<typename T>
-constexpr void assignSub(Dual<T>& self, const Dual<T>& other)
+template<typename T, typename G>
+constexpr void assignSub(Dual<T, G>& self, const Dual<T, G>& other)
 {
     self.val -= other.val;
     self.grad -= other.grad;
 }
 
-template<typename T>
-constexpr void assignSub(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
+template<typename T, typename G>
+constexpr void assignSub(Dual<T, G>& self, const Dual<T, G>& other, Dual<T, G>& tmp)
 {
     assignSub(self, other);
 }
@@ -1099,14 +1164,14 @@ constexpr void assignSub(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignSub: self -= expr
 //-----------------------------------------------------------------------------
-template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
-constexpr void assignSub(Dual<T>& self, const R& other)
+template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+constexpr void assignSub(Dual<T, G>& self, const R& other)
 {
     assignAdd(self, negative(other));
 }
 
-template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
-constexpr void assignSub(Dual<T>& self, const R& other, Dual<T>& tmp)
+template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+constexpr void assignSub(Dual<T, G>& self, const R& other, Dual<T, G>& tmp)
 {
     assignAdd(self, negative(other), tmp);
 }
@@ -1120,15 +1185,15 @@ constexpr void assignSub(Dual<T>& self, const R& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignMul: self *= scalar
 //-----------------------------------------------------------------------------
-template<typename T, typename U, enableif<isNumber<U>>...>
-constexpr void assignMul(Dual<T>& self, const U& other)
+template<typename T, typename G, typename U, enableif<isNumber<U>>...>
+constexpr void assignMul(Dual<T, G>& self, const U& other)
 {
     self.val *= other;
     self.grad *= other;
 }
 
-template<typename T, typename U, enableif<isNumber<U>>...>
-constexpr void assignMul(Dual<T>& self, const U& other, Dual<T>& tmp)
+template<typename T, typename G, typename U, enableif<isNumber<U>>...>
+constexpr void assignMul(Dual<T, G>& self, const U& other, Dual<T, G>& tmp)
 {
     assignMul(self, other);
 }
@@ -1136,16 +1201,16 @@ constexpr void assignMul(Dual<T>& self, const U& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignMul: self *= dual
 //-----------------------------------------------------------------------------
-template<typename T>
-constexpr void assignMul(Dual<T>& self, const Dual<T>& other)
+template<typename T, typename G>
+constexpr void assignMul(Dual<T, G>& self, const Dual<T, G>& other)
 {
     self.grad *= other.val;
     self.grad += self.val * other.grad;
     self.val *= other.val;
 }
 
-template<typename T>
-constexpr void assignMul(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
+template<typename T, typename G>
+constexpr void assignMul(Dual<T, G>& self, const Dual<T, G>& other, Dual<T, G>& tmp)
 {
     assignMul(self, other);
 }
@@ -1153,15 +1218,15 @@ constexpr void assignMul(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignMul: self *= -(expr)
 //-----------------------------------------------------------------------------
-template<typename T, typename R>
-constexpr void assignMul(Dual<T>& self, const NegExpr<R>& other)
+template<typename T, typename G, typename R>
+constexpr void assignMul(Dual<T, G>& self, const NegExpr<R>& other)
 {
     assignMul(self, other.r);
     negate(self);
 }
 
-template<typename T, typename R>
-constexpr void assignMul(Dual<T>& self, const NegExpr<R>& other, Dual<T>& tmp)
+template<typename T, typename G, typename R>
+constexpr void assignMul(Dual<T, G>& self, const NegExpr<R>& other, Dual<T, G>& tmp)
 {
     assignMul(self, other.r, tmp);
     negate(self);
@@ -1170,8 +1235,8 @@ constexpr void assignMul(Dual<T>& self, const NegExpr<R>& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignMul: self *= scalar * dual
 //-----------------------------------------------------------------------------
-template<typename T, typename U, typename R>
-constexpr void assignMul(Dual<T>& self, const NumberDualMulExpr<U, R>& other)
+template<typename T, typename G, typename U, typename R>
+constexpr void assignMul(Dual<T, G>& self, const NumberDualMulExpr<U, R>& other)
 {
     self.val *= other.l;
     self.grad *= other.l;
@@ -1180,8 +1245,8 @@ constexpr void assignMul(Dual<T>& self, const NumberDualMulExpr<U, R>& other)
     self.val *= other.r.val;
 }
 
-template<typename T, typename U, typename R>
-constexpr void assignMul(Dual<T>& self, const NumberDualMulExpr<U, R>& other, Dual<T>& tmp)
+template<typename T, typename G, typename U, typename R>
+constexpr void assignMul(Dual<T, G>& self, const NumberDualMulExpr<U, R>& other, Dual<T, G>& tmp)
 {
     assignMul(self, other);
 }
@@ -1189,15 +1254,15 @@ constexpr void assignMul(Dual<T>& self, const NumberDualMulExpr<U, R>& other, Du
 //-----------------------------------------------------------------------------
 // assignMul: self *= expr * expr
 //-----------------------------------------------------------------------------
-template<typename T, typename L, typename R>
-constexpr void assignMul(Dual<T>& self, const MulExpr<L, R>& other)
+template<typename T, typename G, typename L, typename R>
+constexpr void assignMul(Dual<T, G>& self, const MulExpr<L, R>& other)
 {
     assignMul(self, other.l);
     assignMul(self, other.r);
 }
 
-template<typename T, typename L, typename R>
-constexpr void assignMul(Dual<T>& self, const MulExpr<L, R>& other, Dual<T>& tmp)
+template<typename T, typename G, typename L, typename R>
+constexpr void assignMul(Dual<T, G>& self, const MulExpr<L, R>& other, Dual<T, G>& tmp)
 {
     assignMul(self, other.l, tmp);
     assignMul(self, other.r, tmp);
@@ -1206,15 +1271,15 @@ constexpr void assignMul(Dual<T>& self, const MulExpr<L, R>& other, Dual<T>& tmp
 //-----------------------------------------------------------------------------
 // assignMul: self *= expr
 //-----------------------------------------------------------------------------
-template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R> || isNegExpr<R> || isNumberDualMulExpr<R> || isMulExpr<R>>...>
-constexpr void assignMul(Dual<T>& self, const R& other)
+template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R> || isNegExpr<R> || isNumberDualMulExpr<R> || isMulExpr<R>>...>
+constexpr void assignMul(Dual<T, G>& self, const R& other)
 {
-    Dual<T> tmp;
+    Dual<T, G> tmp;
     assignMul(self, other, tmp);
 }
 
-template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R> || isNegExpr<R> || isNumberDualMulExpr<R> || isMulExpr<R>>...>
-constexpr void assignMul(Dual<T>& self, const R& other, Dual<T>& tmp)
+template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R> || isNegExpr<R> || isNumberDualMulExpr<R> || isMulExpr<R>>...>
+constexpr void assignMul(Dual<T, G>& self, const R& other, Dual<T, G>& tmp)
 {
     assign(tmp, other);
     assignMul(self, tmp);
@@ -1229,15 +1294,15 @@ constexpr void assignMul(Dual<T>& self, const R& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignDiv: self /= scalar
 //-----------------------------------------------------------------------------
-template<typename T, typename U, enableif<isNumber<U>>...>
-constexpr void assignDiv(Dual<T>& self, const U& other)
+template<typename T, typename G, typename U, enableif<isNumber<U>>...>
+constexpr void assignDiv(Dual<T, G>& self, const U& other)
 {
     const auto aux = static_cast<T>(1) / other;
     assignMul(self, aux);
 }
 
-template<typename T, typename U, enableif<isNumber<U>>...>
-constexpr void assignDiv(Dual<T>& self, const U& other, Dual<T>& tmp)
+template<typename T, typename G, typename U, enableif<isNumber<U>>...>
+constexpr void assignDiv(Dual<T, G>& self, const U& other, Dual<T, G>& tmp)
 {
     assignDiv(self, other);
 }
@@ -1245,8 +1310,8 @@ constexpr void assignDiv(Dual<T>& self, const U& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignDiv: self /= dual
 //-----------------------------------------------------------------------------
-template<typename T>
-constexpr void assignDiv(Dual<T>& self, const Dual<T>& other)
+template<typename T, typename G>
+constexpr void assignDiv(Dual<T, G>& self, const Dual<T, G>& other)
 {
     const auto aux = static_cast<T>(1) / other.val;
     self.val *= aux;
@@ -1254,8 +1319,8 @@ constexpr void assignDiv(Dual<T>& self, const Dual<T>& other)
     self.grad *= aux;
 }
 
-template<typename T>
-constexpr void assignDiv(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
+template<typename T, typename G>
+constexpr void assignDiv(Dual<T, G>& self, const Dual<T, G>& other, Dual<T, G>& tmp)
 {
     assignDiv(self, other);
 }
@@ -1263,14 +1328,14 @@ constexpr void assignDiv(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignDiv: self /= expr
 //-----------------------------------------------------------------------------
-template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
-constexpr void assignDiv(Dual<T>& self, const R& other)
+template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+constexpr void assignDiv(Dual<T, G>& self, const R& other)
 {
     assignMul(self, inverse(other));
 }
 
-template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
-constexpr void assignDiv(Dual<T>& self, const R& other, Dual<T>& tmp)
+template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+constexpr void assignDiv(Dual<T, G>& self, const R& other, Dual<T, G>& tmp)
 {
     assignMul(self, inverse(other), tmp);
 }
@@ -1284,16 +1349,16 @@ constexpr void assignDiv(Dual<T>& self, const R& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignPow: self = pow(self, scalar)
 //-----------------------------------------------------------------------------
-template<typename T, typename U, enableif<isNumber<U>>...>
-constexpr void assignPow(Dual<T>& self, const U& other)
+template<typename T, typename G, typename U, enableif<isNumber<U>>...>
+constexpr void assignPow(Dual<T, G>& self, const U& other)
 {
     const auto aux = std::pow(self.val, other);
     self.grad *= other/self.val * aux;
     self.val = aux;
 }
 
-template<typename T, typename U, enableif<isNumber<U>>...>
-constexpr void assignPow(Dual<T>& self, const U& other, Dual<T>& tmp)
+template<typename T, typename G, typename U, enableif<isNumber<U>>...>
+constexpr void assignPow(Dual<T, G>& self, const U& other, Dual<T, G>& tmp)
 {
     assignPow(self, other);
 }
@@ -1301,8 +1366,8 @@ constexpr void assignPow(Dual<T>& self, const U& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignPow: self = pow(self, dual)
 //-----------------------------------------------------------------------------
-template<typename T>
-constexpr void assignPow(Dual<T>& self, const Dual<T>& other)
+template<typename T, typename G>
+constexpr void assignPow(Dual<T, G>& self, const Dual<T, G>& other)
 {
     const auto aux1 = std::pow(self.val, other.val);
     const auto aux2 = std::log(self.val);
@@ -1312,8 +1377,8 @@ constexpr void assignPow(Dual<T>& self, const Dual<T>& other)
     self.val = aux1;
 }
 
-template<typename T>
-constexpr void assignPow(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
+template<typename T, typename G>
+constexpr void assignPow(Dual<T, G>& self, const Dual<T, G>& other, Dual<T, G>& tmp)
 {
     assignPow(self, other);
 }
@@ -1321,14 +1386,14 @@ constexpr void assignPow(Dual<T>& self, const Dual<T>& other, Dual<T>& tmp)
 //-----------------------------------------------------------------------------
 // assignPow: self = pow(self, expr)
 //-----------------------------------------------------------------------------
-template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
-constexpr void assignPow(Dual<T>& self, const R& other)
+template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+constexpr void assignPow(Dual<T, G>& self, const R& other)
 {
     assignPow(self, eval(other));
 }
 
-template<typename T, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
-constexpr void assignPow(Dual<T>& self, const R& other, Dual<T>& tmp)
+template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+constexpr void assignPow(Dual<T, G>& self, const R& other, Dual<T, G>& tmp)
 {
     assign(tmp, other);
     assignPow(self, tmp);
@@ -1339,113 +1404,113 @@ constexpr void assignPow(Dual<T>& self, const R& other, Dual<T>& tmp)
 // APPLY-OPERATOR FUNCTIONS
 //
 //=====================================================================================================================
-template<typename T>
-constexpr void apply(Dual<T>& self, NegOp)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, NegOp)
 {
     self.val = -self.val;
     self.grad = -self.grad;
 }
 
-template<typename T>
-constexpr void apply(Dual<T>& self, InvOp)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, InvOp)
 {
     self.val = static_cast<T>(1) / self.val;
     self.grad *= - self.val * self.val;
 }
 
-template<typename T>
-constexpr void apply(Dual<T>& self, SinOp)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, SinOp)
 {
-    self.grad *= std::cos(self.val);
-    self.val = std::sin(self.val);
+    self.grad *= cos(self.val);
+    self.val = sin(self.val);
 }
 
-template<typename T>
-constexpr void apply(Dual<T>& self, CosOp)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, CosOp)
 {
-    self.grad *= -std::sin(self.val);
-    self.val = std::cos(self.val);
+    self.grad *= -sin(self.val);
+    self.val = cos(self.val);
 }
 
-template<typename T>
-constexpr void apply(Dual<T>& self, TanOp)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, TanOp)
 {
     const auto aux = static_cast<T>(1) / std::cos(self.val);
-    self.val = std::tan(self.val);
+    self.val = tan(self.val);
     self.grad *= aux * aux;
 }
 
-template<typename T>
-constexpr void apply(Dual<T>& self, ArcSinOp)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, ArcSinOp)
 {
-    const auto aux = static_cast<T>(1) / std::sqrt(1.0 - self.val * self.val);
-    self.val = std::asin(self.val);
+    const auto aux = static_cast<T>(1) / sqrt(1.0 - self.val * self.val);
+    self.val = asin(self.val);
     self.grad *= aux;
 }
 
-template<typename T>
-constexpr void apply(Dual<T>& self, ArcCosOp)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, ArcCosOp)
 {
-    const auto aux = -static_cast<T>(1) / std::sqrt(1.0 - self.val * self.val);
-    self.val = std::acos(self.val);
+    const auto aux = -static_cast<T>(1) / sqrt(1.0 - self.val * self.val);
+    self.val = acos(self.val);
     self.grad *= aux;
 }
 
-template<typename T>
-constexpr void apply(Dual<T>& self, ArcTanOp)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, ArcTanOp)
 {
     const auto aux = static_cast<T>(1) / (1.0 + self.val * self.val);
-    self.val = std::atan(self.val);
+    self.val = atan(self.val);
     self.grad *= aux;
 }
 
-template<typename T>
-constexpr void apply(Dual<T>& self, ExpOp)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, ExpOp)
 {
-    self.val = std::exp(self.val);
+    self.val = exp(self.val);
     self.grad *= self.val;
 }
 
-template<typename T>
-constexpr void apply(Dual<T>& self, LogOp)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, LogOp)
 {
     const auto aux = static_cast<T>(1) / self.val;
-    self.val = std::log(self.val);
+    self.val = log(self.val);
     self.grad *= aux;
 }
 
-template<typename T>
-constexpr void apply(Dual<T>& self, Log10Op)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, Log10Op)
 {
     constexpr auto ln10 = 2.3025850929940456840179914546843;
     const auto aux = static_cast<T>(1) / (ln10 * self.val);
-    self.val = std::log10(self.val);
+    self.val = log10(self.val);
     self.grad *= aux;
 }
 
-template<typename T>
-constexpr void apply(Dual<T>& self, SqrtOp)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, SqrtOp)
 {
-    self.val = std::sqrt(self.val);
+    self.val = sqrt(self.val);
     self.grad *= 0.5 / self.val;
 }
 
-template<typename T>
-constexpr void apply(Dual<T>& self, AbsOp)
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, AbsOp)
 {
     const auto aux = self.val;
-    self.val = std::abs(self.val);
+    self.val = abs(self.val);
     self.grad *= aux / self.val;
 }
 
-template<typename Op, typename T>
-constexpr void apply(Dual<T>& self)
+template<typename Op, typename T, typename G>
+constexpr void apply(Dual<T, G>& self)
 {
     apply(self, Op{});
 }
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Dual<T>& x)
+template<typename T, typename G>
+std::ostream& operator<<(std::ostream& out, const Dual<T, G>& x)
 {
     out << x.val;
     return out;
@@ -1458,6 +1523,6 @@ using forward::eval;
 using forward::derivative;
 using forward::wrt;
 
-using dual = forward::Dual<double>;
+using dual = forward::Dual<double, double>;
 
 } // namespace autodiff

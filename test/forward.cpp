@@ -13,20 +13,18 @@ using namespace Eigen;
 using namespace autodiff;
 using namespace autodiff::forward;
 
-auto approx(double value)
+template<typename T>
+auto approx(T&& expr) -> Approx
 {
     const double zero = std::numeric_limits<double>::epsilon();
-    return Approx(value).margin(zero);
+    return Approx(val(expr)).margin(zero);
 }
 
-template<typename R, enableif<isExpr<R>>...>
-auto approx(R&& expr) -> Approx
-{
-    return approx(val(std::forward<R>(expr)));
-}
+template<typename T, enableif<isExpr<T>>...>
+auto operator==(T&& l, const Approx& r) { return val(l) == r; }
 
-bool operator==(const dual& l, double r) { return val(l) == approx(r); }
-bool operator==(double l, const dual& r) { return approx(l) == val(r); }
+template<typename T, enableif<isExpr<T>>...>
+auto operator==(const Approx& l, T&& r) { return r == l; }
 
 TEST_CASE("autodiff::dual tests", "[dual]")
 {
@@ -353,22 +351,32 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 
     SECTION("testing higher order derivatives")
     {
-        using dual2nd = Dual<Dual<double>>;
+        using dual2nd = Dual<Dual<double, double>, Dual<double, double>>;
 
         dual2nd x = 0.5;
         dual2nd y = 0.8;
 
         // Testing complex function involving sin and cos
-        auto f = [](dual2nd x, dual2nd y) -> dual2nd { return sin(x + y) - sin(x + y); };
+        auto f = [](dual2nd x, dual2nd y) -> dual2nd
+        {
+            return sin(2*x + y);
+        };
 
-//        REQUIRE( f(x, y) == approx(0.0) );
-//        REQUIRE( derivative(f, wrt(x), x, y) == approx(0.0) );
+        auto g = grad(f);
+
+        REQUIRE( val(f(x, y)) == Approx(sin(2 * val(x) + val(y))) );
+        REQUIRE( val(g(wrt(x), x, y)) == Approx(2 * cos(2 * val(x) + val(y))) );
+        REQUIRE( val(g(wrt(y), x, y)) == Approx(cos(2 * val(x) + val(y))) );
+
+
+//        REQUIRE( derivative(f, wrt(x), x, y) == approx(cos(val(x) + val(y))) );
+//        REQUIRE( derivative(f, wrt(x), x, y) == approx(cos(val(x) + val(y))) );
 //        REQUIRE( derivative(f, wrt(y), x, y) == approx(0.0) );
 
-        // // Testing complex function involving log, exp, pow, and sqrt
-        // f = [](dual x, dual y) -> dual { return log(x + y) * exp(x / y) + sqrt(2 * x * y) - 1 / pow(x, x + y) - exp(x*x / (y*y) * y/x) * log(4*(x + y)*2/8) - 4 * sqrt((x + y) * (x + y) - x*x - y*y) * 0.5 * 0.5 + 2 / pow(2 * x - x, y + x) * 0.5; };
-        // REQUIRE( val(f(x, y)) == approx(0.0) );
-        // REQUIRE( derivative(f, wrt(x), x, y) == approx(0.0) );
-        // REQUIRE( derivative(f, wrt(y), x, y) == approx(0.0) );
+         // Testing complex function involving log, exp, pow, and sqrt
+//         f = [](dual x, dual y) -> dual { return log(x + y) * exp(x / y) + sqrt(2 * x * y) - 1 / pow(x, x + y) - exp(x*x / (y*y) * y/x) * log(4*(x + y)*2/8) - 4 * sqrt((x + y) * (x + y) - x*x - y*y) * 0.5 * 0.5 + 2 / pow(2 * x - x, y + x) * 0.5; };
+//         REQUIRE( val(f(x, y)) == approx(0.0) );
+//         REQUIRE( derivative(f, wrt(x), x, y) == approx(0.0) );
+//         REQUIRE( derivative(f, wrt(y), x, y) == approx(0.0) );
     }
 }

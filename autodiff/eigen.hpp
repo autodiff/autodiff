@@ -36,12 +36,12 @@ struct var;
 
 namespace forward {
 
-template<typename T>
+template<typename T, typename G>
 struct Dual;
 
 } // namespace forward
 
-using dual = forward::Dual<double>;
+using dual = forward::Dual<double, double>;
 
 using Derivatives = std::function<double(const var&)>;
 using DerivativesX = std::function<var(const var&)>;
@@ -93,14 +93,14 @@ template<> struct NumTraits<autodiff::dual> : NumTraits<double> // permits to ge
     };
 };
 
-template<typename T, typename BinOp>
-struct ScalarBinaryOpTraits<autodiff::forward::Dual<T>, T, BinOp>
+template<typename T, typename G, typename BinOp>
+struct ScalarBinaryOpTraits<autodiff::forward::Dual<T, G>, T, BinOp>
 {
     typedef autodiff::dual ReturnType;
 };
 
-template<typename T, typename BinOp>
-struct ScalarBinaryOpTraits<T, autodiff::forward::Dual<T>, BinOp>
+template<typename T, typename G, typename BinOp>
+struct ScalarBinaryOpTraits<T, autodiff::forward::Dual<T, G>, BinOp>
 {
     typedef autodiff::dual ReturnType;
 };
