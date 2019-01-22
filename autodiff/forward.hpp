@@ -313,7 +313,7 @@ template<typename T>
 struct ValueType { using type = std::conditional_t<isNumber<T>, T, ValueTypeInvalid>; };
 
 template<typename T>
-struct ValueType<Dual<T>> { using type = T; };
+struct ValueType<Dual<T>> { using type = typename ValueType<plain<T>>::type; };
 
 template<typename Op, typename R>
 struct ValueType<UnaryExpr<Op, R>> { using type = typename ValueType<plain<R>>::type; };
