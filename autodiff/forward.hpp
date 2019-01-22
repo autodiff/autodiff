@@ -439,7 +439,7 @@ auto val(const R& expr)
 }
 
 template<typename Function, typename T, typename... Args>
-double derivative(const Function& f, Dual<T>& wrt, const Args&... args)
+T derivative(const Function& f, Dual<T>& wrt, const Args&... args)
 {
     wrt.grad = 1.0;
     Dual<T> res = f(args...);
