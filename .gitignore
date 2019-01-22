@@ -37,4 +37,7 @@ build/
 # Eclipse files
 .cproject
 .project
-language.settings.xml
+language.settings.xm
+
+# VSCode files
+.vscode/
