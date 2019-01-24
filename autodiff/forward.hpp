@@ -344,10 +344,30 @@ struct ValueType<BinaryExpr<Op, L, R>> { using type = common<typename ValueType<
 template<typename Op, typename L, typename C, typename R>
 struct ValueType<TernaryExpr<Op, L, C, R>> { using type = common<typename ValueType<plain<L>>::type, common<typename ValueType<plain<C>>::type, typename ValueType<plain<R>>::type>>; };
 
+struct GradTypeInvalid {};
+
+template<typename T>
+struct GradType { using type = std::conditional_t<isNumber<T>, T, GradTypeInvalid>; };
+
+template<typename T, typename G>
+struct GradType<Dual<T, G>> { using type = typename GradType<plain<G>>::type; };
+
+template<typename Op, typename R>
+struct GradType<UnaryExpr<Op, R>> { using type = typename GradType<plain<R>>::type; };
+
+template<typename Op, typename L, typename R>
+struct GradType<BinaryExpr<Op, L, R>> { using type = common<typename GradType<plain<L>>::type, typename GradType<plain<R>>::type>; };
+
+template<typename Op, typename L, typename C, typename R>
+struct GradType<TernaryExpr<Op, L, C, R>> { using type = common<typename GradType<plain<L>>::type, common<typename GradType<plain<C>>::type, typename GradType<plain<R>>::type>>; };
+
 } // namespace traits
 
 template<typename T>
 using ValueType = typename traits::ValueType<plain<T>>::type;
+
+template<typename T>
+using GradType = typename traits::GradType<plain<T>>::type;
 
 //=====================================================================================================================
 //
@@ -437,33 +457,7 @@ auto eval(T&& dual)
 template<typename T, enableif<isExpr<T>>..., disableif<isDual<T>>...>
 auto eval(T&& expr)
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // FIXME Implement GradType and use below
-    return Dual<ValueType<T>, ValueType<T>>(std::forward<T>(expr));
-
-
-
-
-
-
-
-
-
-
-
+    return Dual<ValueType<T>, GradType<T>>(std::forward<T>(expr));
 }
 
 template<typename T, enableif<isNumber<T>>...>
@@ -479,18 +473,77 @@ auto val(const Dual<T, G>& dual)
 }
 
 template<typename T, enableif<isExpr<T>>..., disableif<isDual<T>>...>
-auto val(const T& expr)
+auto val(T&& expr)
 {
-    return val(eval(expr).val);
+    return val(eval(expr));
 }
 
-template<typename Function, typename T, typename G, typename... Args>
-auto derivative(const Function& f, Dual<T, G>& wrt, const Args&... args) -> G
+namespace internal {
+
+template<int num, typename Arg, enableif<isDual<Arg>>...>
+auto seed(Arg& dual)
 {
-    wrt.grad = 1.0;
-    Dual<T, G> res = f(args...);
-    wrt.grad = 0.0;
-    return res.grad;
+    dual.grad = num;
+}
+
+// template<typename Arg, typename... Args, enableif<isDual<Arg>>...>
+template<int num, typename Arg, typename... Args>
+auto seed(Arg& dual, Args&... duals)
+{
+    seed<num>(duals.val...);
+    dual.grad = num;
+}
+
+} // namespace internal
+
+template<typename Arg>
+auto seed(std::tuple<Arg&> dual)
+{
+    internal::seed<1>(std::get<0>(dual));
+}
+
+template<typename... Args>
+auto seed(std::tuple<Args&...> duals)
+{
+    std::apply(internal::seed<1, Args&...>, duals);
+}
+
+template<typename Arg>
+auto unseed(std::tuple<Arg&> dual)
+{
+    internal::seed<0>(std::get<0>(dual));
+}
+
+template<typename... Args>
+auto unseed(std::tuple<Args&...> duals)
+{
+    std::apply(internal::seed<0, Args&...>, duals);
+}
+
+template<typename... Args>
+auto wrt(Args&... duals)
+{
+    return std::tuple<Args&...>(duals...);
+}
+
+template<std::size_t order, typename T, typename G>
+auto derivative(const Dual<T, G>& dual)
+{
+    if constexpr (order == 0)
+        return dual.val;
+    if constexpr (order == 1)
+        return dual.grad;
+    else
+        return derivative<order - 1>(dual.grad);
+}
+
+template<typename Function, typename... Duals, typename... Args>
+auto derivative(const Function& f, std::tuple<Duals&...> wrt, Args&... args)
+{
+    seed<Duals&...>(wrt);
+    auto res = f(args...);
+    unseed<Duals&...>(wrt);
+    return derivative<std::tuple_size<decltype(wrt)>::value>(res);
 }
 
 namespace internal {
@@ -498,7 +551,7 @@ namespace internal {
 template<typename T, typename G, typename... Args>
 auto grad(const std::function<Dual<T, G>(Args...)>& f)
 {
-    auto g = [=](Dual<T, G>& wrt, const Args&... args) -> G {
+    auto g = [=](Dual<T, G>& wrt, Args&... args) -> G {
         return derivative(f, wrt, args...);
     };
     return g;
@@ -510,12 +563,6 @@ template<typename Function>
 auto grad(const Function& f)
 {
     return internal::grad(std::function{f});
-}
-
-template<typename T, typename G>
-Dual<T, G>& wrt(Dual<T, G>& x)
-{
-    return x;
 }
 
 //=====================================================================================================================

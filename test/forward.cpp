@@ -349,34 +349,49 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( derivative(f, wrt(y), x, y) == approx(0.0) );
     }
 
+
     SECTION("testing higher order derivatives")
     {
         using dual2nd = Dual<Dual<double, double>, Dual<double, double>>;
 
-        dual2nd x = 0.5;
-        dual2nd y = 0.8;
+        dual2nd x = 5;
+        dual2nd y = 7;
+
 
         // Testing complex function involving sin and cos
         auto f = [](dual2nd x, dual2nd y) -> dual2nd
         {
-            return sin(2*x + y);
+            return x*x + x*y + y*y;
         };
 
-        auto g = grad(f);
+//        REQUIRE( val(f(x, y)) == Approx(val(x)*val(x)) );
+        REQUIRE( val(derivative(f, wrt(x), x, y)) == Approx(17.0) );
+        REQUIRE( derivative(f, wrt(x, x), x, y) == Approx(2.0) );
+        REQUIRE( derivative(f, wrt(x, y), x, y) == Approx(1.0) );
+        REQUIRE( derivative(f, wrt(y, x), x, y) == Approx(1.0) );
+        REQUIRE( derivative(f, wrt(y, y), x, y) == Approx(2.0) );
 
-        REQUIRE( val(f(x, y)) == Approx(sin(2 * val(x) + val(y))) );
-        REQUIRE( val(g(wrt(x), x, y)) == Approx(2 * cos(2 * val(x) + val(y))) );
-        REQUIRE( val(g(wrt(y), x, y)) == Approx(cos(2 * val(x) + val(y))) );
+    }
+
+    SECTION("testing higher order derivatives")
+    {
+        using dual3rd = Dual<Dual<Dual<double, double>, Dual<double, double>>, Dual<Dual<double, double>, Dual<double, double>>>;
+
+        dual3rd x = 5;
+        dual3rd y = 7;
 
 
-//        REQUIRE( derivative(f, wrt(x), x, y) == approx(cos(val(x) + val(y))) );
-//        REQUIRE( derivative(f, wrt(x), x, y) == approx(cos(val(x) + val(y))) );
-//        REQUIRE( derivative(f, wrt(y), x, y) == approx(0.0) );
+        // Testing complex function involving sin and cos
+        auto f = [](dual3rd x, dual3rd y) -> dual3rd
+        {
+            return (x + y)*(x + y)*(x + y);
+        };
 
-         // Testing complex function involving log, exp, pow, and sqrt
-//         f = [](dual x, dual y) -> dual { return log(x + y) * exp(x / y) + sqrt(2 * x * y) - 1 / pow(x, x + y) - exp(x*x / (y*y) * y/x) * log(4*(x + y)*2/8) - 4 * sqrt((x + y) * (x + y) - x*x - y*y) * 0.5 * 0.5 + 2 / pow(2 * x - x, y + x) * 0.5; };
-//         REQUIRE( val(f(x, y)) == approx(0.0) );
-//         REQUIRE( derivative(f, wrt(x), x, y) == approx(0.0) );
-//         REQUIRE( derivative(f, wrt(y), x, y) == approx(0.0) );
+       // REQUIRE( val(f(x, y)) == Approx(val(x)*val(x)) );
+       REQUIRE( derivative(f, wrt(x, x, x), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(x, x, x), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(x, x, y), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(x, y, y), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(y, y, y), x, y) == Approx(6.0) );
     }
 }
