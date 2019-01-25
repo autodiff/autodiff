@@ -481,14 +481,13 @@ auto val(T&& expr)
 namespace internal {
 
 template<int num, typename Arg, enableif<isDual<Arg>>...>
-auto seed(Arg& dual)
+auto seed(Arg& dual) -> void
 {
     dual.grad = num;
 }
 
-// template<typename Arg, typename... Args, enableif<isDual<Arg>>...>
-template<int num, typename Arg, typename... Args>
-auto seed(Arg& dual, Args&... duals)
+template<int num, typename Arg, typename... Args, enableif<isDual<Arg>>...>
+auto seed(Arg& dual, Args&... duals) -> void
 {
     seed<num>(duals.val...);
     dual.grad = num;
