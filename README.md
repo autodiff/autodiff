@@ -1,8 +1,4 @@
-<img src='docs/img/header.svg' style='max-width:100%;'>
-
----
-
-<span style="font-family:'Comfortaa'">autodiff</span>
+# Overview
 
 **autodiff** is a C++ library that uses modern and advanced programming
 techniques to enable automatic computation of derivatives in an efficient
