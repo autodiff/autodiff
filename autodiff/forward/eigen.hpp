@@ -28,53 +28,12 @@
 // SOFTWARE.
 
 //------------------------------------------------------------------------------
-// FORWARD DECLARATIONS
-//------------------------------------------------------------------------------
-namespace autodiff {
-
-struct var;
-
-namespace forward {
-
-template<typename T, typename G>
-struct Dual;
-
-} // namespace forward
-
-using dual = forward::Dual<double, double>;
-
-using Derivatives = std::function<double(const var&)>;
-using DerivativesX = std::function<var(const var&)>;
-
-Derivatives derivatives(const var&);
-DerivativesX derivativesx(const var&);
-
-} // namespace autodiff
-
-//------------------------------------------------------------------------------
-// SUPPORT FOR EIGEN MATRICES AND VECTORS OF VAR AND DUAL
+// SUPPORT FOR EIGEN MATRICES AND VECTORS OF DUAL
 //------------------------------------------------------------------------------
 namespace Eigen {
 
 template<typename T>
 struct NumTraits;
-
-template<> struct NumTraits<autodiff::var> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
-{
-    typedef autodiff::var Real;
-    typedef autodiff::var NonInteger;
-    typedef autodiff::var Nested;
-    enum
-    {
-        IsComplex = 0,
-        IsInteger = 0,
-        IsSigned = 1,
-        RequireInitialization = 1,
-        ReadCost = 1,
-        AddCost = 3,
-        MulCost = 3
-    };
-};
 
 template<> struct NumTraits<autodiff::dual> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
 {
@@ -123,7 +82,6 @@ EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 2) \
 EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 3) \
 EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 4)
 
-EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::var, var)
 EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::dual, dual)
 
 #undef EIGEN_MAKE_TYPEDEFS_ALL_SIZES
@@ -134,33 +92,22 @@ EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::dual, dual)
 
 namespace autodiff {
 
-/// Return the gradient vector of variable y with respect to variables x.
-template<typename vars>
-Eigen::RowVectorXd gradient(const var& y, const vars& x)
+/// Return the gradient vector of scalar function f with respect to variables x.
+template<typename Function, typename duals>
+Eigen::VectorXd gradient(const Function& f, duals& x)
 {
-    const auto n = x.size();
-    Eigen::RowVectorXd dydx(n);
-    Derivatives dyd = derivatives(y);
-    for(auto i = 0; i < n; ++i)
-        dydx[i] = dyd(x[i]);
-    return dydx;
-}
+    const std::size_t n = x.size();
 
-/// Return the Hessian matrix of variable y with respect to variables x.
-template<typename vars>
-Eigen::MatrixXd hessian(const var& y, const vars& x)
-{
-    const auto n = x.size();
-    Eigen::MatrixXd mat(n, n);
-    DerivativesX dyd = derivativesx(y);
-    for(auto i = 0; i < n; ++i)
+    Eigen::VectorXd g(n);
+
+    for(std::size_t j = 0; j < n; ++j)
     {
-        Derivatives d2yd = derivatives(dyd(x[i]));
-        for(auto j = i; j < n; ++j) {
-            mat(i, j) = mat(j, i) = d2yd(x(j));
-        }
+        forward::seed(wrt(x[j]));
+        g[j] = f(x).grad;
+        forward::unseed(wrt(x[j]));
     }
-    return mat;
+
+    return g;
 }
 
 /// Return the Jacobian matrix of variables y with respect to variables x.

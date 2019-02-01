@@ -1,0 +1,697 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32.883926mm"
+   height="32.883926mm"
+   viewBox="0 0 32.883926 32.883926"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (unknown)"
+   sodipodi:docname="autodiff-logo.svg">
+  <defs
+     id="defs2">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 148.49999 : 1"
+       inkscape:vp_y="0 : 999.99996 : 0"
+       inkscape:vp_z="210 : 148.49999 : 1"
+       inkscape:persp3d-origin="105 : 98.999996 : 1"
+       id="perspective911" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient897">
+      <stop
+         style="stop-color:#ff8282;stop-opacity:1"
+         offset="0"
+         id="stop893" />
+      <stop
+         style="stop-color:#ff5f00;stop-opacity:0"
+         offset="1"
+         id="stop895" />
+    </linearGradient>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter877"
+       x="-0.035385899"
+       width="1.0707718"
+       y="-0.036635794"
+       height="1.0732716">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.21666787"
+         id="feGaussianBlur879" />
+    </filter>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient897"
+       id="linearGradient899"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient897"
+       id="linearGradient941"
+       gradientUnits="userSpaceOnUse"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994"
+       gradientTransform="translate(54.047909,6.1762568)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient897"
+       id="linearGradient941-4"
+       gradientUnits="userSpaceOnUse"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994"
+       gradientTransform="translate(49.261321,39.253218)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient897"
+       id="linearGradient1349"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-22.190723,-96.522061)"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient897"
+       id="linearGradient1388"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-65.956109,138.74194)"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient897"
+       id="linearGradient1407"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-152.32367,135.24566)"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient897"
+       id="linearGradient1437"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-183.88468,223.5031)"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient897"
+       id="linearGradient1453"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-0.02071618,148.10731)"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2"
+     inkscape:cx="-259.84162"
+     inkscape:cy="-106.79075"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="3840"
+     inkscape:window-height="2069"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-108.81627,-204.88757)">
+    <g
+       id="g1476"
+       style="fill:#ff5555;fill-opacity:0.78167114;stroke-width:0.23089716"
+       transform="matrix(4.3309324,0,0,4.3309324,-571.89944,-59.379476)">
+      <g
+         id="g1474"
+         transform="matrix(0.65979282,0,0,0.65979282,68.549214,20.186671)"
+         style="fill:#ff5555;fill-opacity:0.78167114;stroke-width:0.34995404">
+        <text
+           transform="scale(0.99964273,1.0003574)"
+           xml:space="preserve"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.95367336px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffaaaa;fill-opacity:0.78167114;stroke:none;stroke-width:0.092592"
+           x="135.41026"
+           y="71.757782"
+           id="text1464"><tspan
+             sodipodi:role="line"
+             id="tspan1462"
+             x="135.41026"
+             y="71.757782"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#ffaaaa;fill-opacity:0.78167114;stroke-width:0.092592">c</tspan></text>
+        <text
+           id="text1468"
+           y="68.633606"
+           x="142.17412"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.07198048px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ff5555;fill-opacity:0.78167114;stroke:none;stroke-width:0.092592"
+           xml:space="preserve"
+           transform="scale(0.99964273,1.0003574)"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#ff5555;fill-opacity:0.78167114;stroke-width:0.092592"
+             y="68.633606"
+             x="142.17412"
+             id="tspan1466"
+             sodipodi:role="line">+</tspan></text>
+        <text
+           transform="scale(0.99964273,1.0003574)"
+           xml:space="preserve"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.07198048px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ff5555;fill-opacity:0.78167114;stroke:none;stroke-width:0.092592"
+           x="139.88055"
+           y="68.633606"
+           id="text1472"><tspan
+             sodipodi:role="line"
+             id="tspan1470"
+             x="139.88055"
+             y="68.633606"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#ff5555;fill-opacity:0.78167114;stroke-width:0.092592">+</tspan></text>
+      </g>
+    </g>
+    <g
+       id="g1330"
+       style="fill:#ffd42a;fill-opacity:0.68235294;stroke-width:0.21779688"
+       transform="matrix(4.591434,0,0,4.591434,-560.90009,-220.93444)">
+      <g
+         id="g1328"
+         transform="matrix(0.65979282,0,0,0.65979282,68.549214,20.186671)"
+         style="fill:#ffd42a;fill-opacity:0.68235294;stroke-width:0.3300989">
+        <g
+           aria-label="c"
+           transform="scale(0.99964273,1.0003574)"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.95367336px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffd42a;fill-opacity:0.68235294;stroke:none;stroke-width:0.08733866"
+           id="text1318" />
+        <g
+           aria-label="+"
+           transform="scale(0.99964273,1.0003574)"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.07198048px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffd42a;fill-opacity:0.68235294;stroke:none;stroke-width:0.08733866"
+           id="text1322" />
+        <g
+           aria-label="+"
+           transform="scale(0.99964273,1.0003574)"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.07198048px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffd42a;fill-opacity:0.68235294;stroke:none;stroke-width:0.08733866"
+           id="text1326" />
+      </g>
+    </g>
+    <text
+       id="text821"
+       y="141.17366"
+       x="117.44106"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:37.34137726px;line-height:1.25;font-family:'Lohit Gurmukhi';-inkscape-font-specification:'Lohit Gurmukhi';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458329"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Lohit Gurmukhi';-inkscape-font-specification:'Lohit Gurmukhi';fill:#000000;fill-opacity:1;stroke-width:0.26458329"
+         y="141.17366"
+         x="117.44106"
+         id="tspan819"
+         sodipodi:role="line">∂</tspan></text>
+    <circle
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path823"
+       cx="67.374252"
+       cy="66.340027"
+       r="16.441963" />
+    <text
+       xml:space="preserve"
+       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:36.43712997px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458329"
+       x="56.540031"
+       y="76.581093"
+       id="text817-6"><tspan
+         sodipodi:role="line"
+         id="tspan815-8"
+         x="56.540031"
+         y="76.581093"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';fill:#ffffff;stroke-width:0.26458329">∂</tspan></text>
+    <circle
+       r="16.441963"
+       cy="73.222214"
+       cx="125.27895"
+       id="circle843"
+       style="opacity:1;fill:url(#linearGradient899);fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <g
+       id="g857"
+       style="fill:#ff80b2;stroke-width:0.69348681;filter:url(#filter877)"
+       transform="matrix(1.4414733,0,0,1.4425039,-91.290953,8.5414716)">
+      <text
+         id="text817"
+         y="69.755966"
+         x="126.3543"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:15.27863121px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ff80b2;fill-opacity:1;stroke:none;stroke-width:0.18348502"
+         xml:space="preserve"><tspan
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';fill:#ff80b2;stroke-width:0.18348502"
+           y="69.755966"
+           x="126.3543"
+           id="tspan815"
+           sodipodi:role="line">f</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16.02090454px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ff80b2;fill-opacity:1;stroke:none;stroke-width:0.18348502"
+         x="118.42307"
+         y="70.93972"
+         id="text851"><tspan
+           sodipodi:role="line"
+           id="tspan849"
+           x="118.42307"
+           y="70.93972"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';fill:#ff80b2;stroke-width:0.18348502">∂</tspan></text>
+    </g>
+    <text
+       id="text861"
+       y="82.608704"
+       x="84.995834"
+       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:22.03161049px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.26458329"
+       xml:space="preserve"
+       transform="scale(0.99964271,1.0003574)"><tspan
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola Italic';fill:#333333;stroke-width:0.26458329"
+         y="82.608704"
+         x="84.995834"
+         id="tspan859"
+         sodipodi:role="line">∂f++</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:23.10196114px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.26458329"
+       x="77.369049"
+       y="83.580933"
+       id="text865"
+       transform="scale(0.99964271,1.0003574)"><tspan
+         sodipodi:role="line"
+         id="tspan863"
+         x="77.369049"
+         y="104.58548"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';fill:#333333;stroke-width:0.26458329" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:22.03161049px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.26458329"
+       x="91.479431"
+       y="51.683311"
+       id="text919"
+       transform="scale(0.99964271,1.0003574)"><tspan
+         sodipodi:role="line"
+         id="tspan917"
+         x="91.479431"
+         y="51.683311"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola Italic';fill:#333333;stroke-width:0.26458329">∂fx</tspan></text>
+    <g
+       style="fill:#333333;stroke-width:0.69348681"
+       transform="matrix(1.4414733,0,0,1.4425039,-90.394142,-17.106544)"
+       id="g933">
+      <text
+         id="text923"
+         y="67.208061"
+         x="149.57465"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.57641029px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.18348502"
+         xml:space="preserve"><tspan
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola Italic';fill:#333333;stroke-width:0.18348502"
+           y="67.208061"
+           x="149.57465"
+           id="tspan921"
+           sodipodi:role="line">x</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:15.27863121px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.18348502"
+         x="146.19362"
+         y="66.698814"
+         id="text927"><tspan
+           sodipodi:role="line"
+           id="tspan925"
+           x="146.19362"
+           y="66.698814"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola Italic';fill:#333333;stroke-width:0.18348502">f</tspan></text>
+    </g>
+    <circle
+       style="opacity:1;fill:url(#linearGradient941);fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle939"
+       cx="179.32686"
+       cy="79.39846"
+       r="16.441963" />
+    <g
+       id="g1372"
+       transform="translate(1.5625315,3.3560724)">
+      <text
+         id="text956"
+         y="82.251205"
+         x="170.67886"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:22.91419411px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:0.78436656;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"
+         transform="scale(0.99964272,1.0003574)"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola';fill:#333333;fill-opacity:0.78436656;stroke-width:0.26458332"
+           y="82.251205"
+           x="170.67886"
+           id="tspan954"
+           sodipodi:role="line">Δ</tspan></text>
+      <g
+         style="fill:#ffffff;fill-opacity:0.9380054;stroke-width:0.47016922"
+         transform="matrix(2.1261339,0,0,2.1276542,-152.5522,-88.413928)"
+         id="g966">
+        <text
+           xml:space="preserve"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.42682648px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:0.9380054;stroke:none;stroke-width:0.12439891"
+           x="156.2959"
+           y="82.299408"
+           id="text964"><tspan
+             sodipodi:role="line"
+             id="tspan962"
+             x="156.2959"
+             y="82.299408"
+             style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.77354813px;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola Italic';fill:#ffffff;fill-opacity:0.9380054;stroke-width:0.12439891">f</tspan></text>
+      </g>
+    </g>
+    <g
+       transform="matrix(5.8016231,0,0,5.8016231,-819.6834,-200.61649)"
+       style="fill:#1a1a1a;fill-opacity:0.78167114;stroke-width:0.17236556"
+       id="g1151">
+      <g
+         style="fill:#1a1a1a;fill-opacity:0.78167114;stroke-width:0.26124194"
+         transform="matrix(0.65979282,0,0,0.65979282,68.549214,20.186671)"
+         id="g1149">
+        <text
+           id="text1139"
+           y="71.757782"
+           x="135.41026"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.95367336px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#1a1a1a;fill-opacity:0.78167114;stroke:none;stroke-width:0.06912026"
+           xml:space="preserve"
+           transform="scale(0.99964273,1.0003574)"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#1a1a1a;fill-opacity:0.78167114;stroke-width:0.06912026"
+             y="71.757782"
+             x="135.41026"
+             id="tspan1137"
+             sodipodi:role="line">c</tspan></text>
+        <text
+           transform="scale(0.99964273,1.0003574)"
+           xml:space="preserve"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.07198048px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#1a1a1a;fill-opacity:0.78167114;stroke:none;stroke-width:0.06912026"
+           x="142.17412"
+           y="68.633606"
+           id="text1143"><tspan
+             sodipodi:role="line"
+             id="tspan1141"
+             x="142.17412"
+             y="68.633606"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#1a1a1a;fill-opacity:0.78167114;stroke-width:0.06912026">+</tspan></text>
+        <text
+           id="text1147"
+           y="68.633606"
+           x="139.88055"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.07198048px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#1a1a1a;fill-opacity:0.78167114;stroke:none;stroke-width:0.06912026"
+           xml:space="preserve"
+           transform="scale(0.99964273,1.0003574)"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#1a1a1a;fill-opacity:0.78167114;stroke-width:0.06912026"
+             y="68.633606"
+             x="139.88055"
+             id="tspan1145"
+             sodipodi:role="line">+</tspan></text>
+      </g>
+    </g>
+    <circle
+       style="opacity:1;fill:url(#linearGradient941-4);fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle939-8"
+       cx="174.54027"
+       cy="112.47543"
+       r="16.441963" />
+    <g
+       id="g966-6"
+       transform="matrix(1.4414733,0,0,1.4425039,-51.819199,0.88427131)"
+       style="fill:#ffffff;fill-opacity:0.78436656;stroke-width:0.69348681" />
+    <g
+       transform="matrix(4.6907852,0,0,4.6907852,-580.54353,-191.5574)"
+       style="fill:#ffcbcb;fill-opacity:1;stroke-width:0.21318392"
+       id="g1151-8">
+      <g
+         style="fill:#ffcbcb;fill-opacity:1;stroke-width:0.32310739"
+         transform="matrix(0.65979282,0,0,0.65979282,68.549214,20.186671)"
+         id="g1149-1">
+        <text
+           id="text1139-7"
+           y="71.757782"
+           x="135.41026"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.95367336px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffcbcb;fill-opacity:1;stroke:none;stroke-width:0.08548881"
+           xml:space="preserve"
+           transform="scale(0.99964273,1.0003574)"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#ffcbcb;fill-opacity:1;stroke-width:0.08548881"
+             y="71.757782"
+             x="135.41026"
+             id="tspan1137-4"
+             sodipodi:role="line">c</tspan></text>
+        <text
+           transform="scale(0.99964273,1.0003574)"
+           xml:space="preserve"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.07198048px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffcbcb;fill-opacity:1;stroke:none;stroke-width:0.08548881"
+           x="142.17412"
+           y="68.633606"
+           id="text1143-4"><tspan
+             sodipodi:role="line"
+             id="tspan1141-8"
+             x="142.17412"
+             y="68.633606"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#ffcbcb;fill-opacity:1;stroke-width:0.08548881">+</tspan></text>
+        <text
+           id="text1147-3"
+           y="68.633606"
+           x="139.88055"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.07198048px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffcbcb;fill-opacity:1;stroke:none;stroke-width:0.08548881"
+           xml:space="preserve"
+           transform="scale(0.99964273,1.0003574)"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#ffcbcb;fill-opacity:1;stroke-width:0.08548881"
+             y="68.633606"
+             x="139.88055"
+             id="tspan1145-4"
+             sodipodi:role="line">+</tspan></text>
+      </g>
+    </g>
+    <text
+       transform="scale(0.99964272,1.0003574)"
+       xml:space="preserve"
+       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.49901199px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:0.77628036;stroke:none;stroke-width:0.26458332"
+       x="165.97993"
+       y="118.79189"
+       id="text956-2"><tspan
+         sodipodi:role="line"
+         id="tspan954-9"
+         x="165.97993"
+         y="118.79189"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola Italic';fill:#333333;fill-opacity:0.77628036;stroke-width:0.26458332">Δ</tspan></text>
+    <text
+       transform="scale(0.99964272,1.0003574)"
+       id="text964-0"
+       y="118.22931"
+       x="172.60432"
+       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16.47735214px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:0.78436656;stroke:none;stroke-width:0.26458329"
+       xml:space="preserve"><tspan
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola Italic';fill:#ffffff;fill-opacity:0.78436656;stroke-width:0.26458329"
+         y="118.22931"
+         x="172.60432"
+         id="tspan962-2"
+         sodipodi:role="line">f</tspan></text>
+    <text
+       id="text1301"
+       y="37.979897"
+       x="170.36557"
+       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.4623332px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"
+       transform="scale(0.99964273,1.0003574)"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.46666622px;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola';fill:#ffcc00;fill-opacity:1;stroke-width:0.26458332"
+         y="37.979897"
+         x="170.36557"
+         id="tspan1299"
+         sodipodi:role="line">Δ</tspan></text>
+    <g
+       style="fill:#ffcc00;fill-opacity:1;stroke-width:1.40740013"
+       transform="matrix(0.71027605,0,0,0.71078395,58.192858,-2.6962775)"
+       id="g1307">
+      <text
+         xml:space="preserve"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.42682648px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:0.37237453"
+         x="158.49626"
+         y="82.43235"
+         id="text1305"><tspan
+           sodipodi:role="line"
+           id="tspan1303"
+           x="158.49626"
+           y="82.43235"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.91598797px;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola Italic';fill:#ffcc00;fill-opacity:1;stroke-width:0.37237453">f</tspan></text>
+    </g>
+    <circle
+       r="16.441963"
+       cy="-23.299852"
+       cx="103.08823"
+       id="circle1347"
+       style="opacity:1;fill:url(#linearGradient1349);fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       id="text1353"
+       y="-15.03374"
+       x="93.846169"
+       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:31.79675484px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:0.90566041;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"
+       transform="scale(0.99964272,1.0003574)"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola';fill:#333333;fill-opacity:0.90566041;stroke-width:0.26458332"
+         y="-15.03374"
+         x="93.846169"
+         id="tspan1351"
+         sodipodi:role="line">Δ</tspan></text>
+    <circle
+       r="16.441963"
+       cy="211.96414"
+       cx="59.322842"
+       id="circle1374"
+       style="opacity:1;fill:url(#linearGradient1388);fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <text
+       id="text1378"
+       y="228.00986"
+       x="43.37286"
+       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:51.65093613px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:0.78436656;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"
+       transform="scale(0.99964272,1.0003574)"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola';fill:#333333;fill-opacity:0.78436656;stroke-width:0.26458332"
+         y="228.00986"
+         x="43.37286"
+         id="tspan1376"
+         sodipodi:role="line">Δ</tspan></text>
+    <g
+       style="fill:#ffffff;fill-opacity:0.9380054;stroke-width:0.33340493"
+       transform="matrix(2.9982842,0,0,3.0004282,-409.19584,-21.810383)"
+       id="g1384">
+      <text
+         xml:space="preserve"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.42682648px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:0.9380054;stroke:none;stroke-width:0.08821336"
+         x="156.2959"
+         y="82.299408"
+         id="text1382"><tspan
+           sodipodi:role="line"
+           id="tspan1380"
+           x="156.2959"
+           y="82.299408"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.77354813px;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola Italic';fill:#ffffff;fill-opacity:0.9380054;stroke-width:0.08821336">f</tspan></text>
+    </g>
+    <circle
+       style="opacity:1;fill:url(#linearGradient1407);fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle1395"
+       cx="-27.044718"
+       cy="208.46786"
+       r="16.441963" />
+    <text
+       transform="scale(0.99964272,1.0003574)"
+       xml:space="preserve"
+       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:51.65093613px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:0.78436656;stroke:none;stroke-width:0.26458332"
+       x="-43.025566"
+       y="224.51483"
+       id="text1399"><tspan
+         sodipodi:role="line"
+         id="tspan1397"
+         x="-43.025566"
+         y="224.51483"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola';fill:#333333;fill-opacity:0.78436656;stroke-width:0.26458332">Δ</tspan></text>
+    <circle
+       r="16.441963"
+       cy="296.72531"
+       cx="-58.605728"
+       id="circle1435"
+       style="opacity:1;fill:url(#linearGradient1437);fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <path
+       style="opacity:1;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m -58.579224,280.28335 a 16.441963,16.441963 0 0 0 -0.479039,0.017 l -12.413712,26.6268 a 16.441963,16.441963 0 0 0 1.622639,1.74201 l 10.278443,-22.11647 9.75806,23.6647 H -67.96573 a 16.441963,16.441963 0 0 0 6.205823,2.63498 h 6.311759 a 16.441963,16.441963 0 0 0 9.829891,-6.04201 l -10.758517,-26.36009 a 16.441963,16.441963 0 0 0 -2.20245,-0.16692 z"
+       id="circle1395-5"
+       inkscape:connector-curvature="0" />
+    <g
+       id="g1405"
+       transform="matrix(2.9982842,0,0,3.0004282,-527.27493,63.373366)"
+       style="fill:#ffffff;fill-opacity:0.9380054;stroke-width:0.33340493">
+      <text
+         id="text1403"
+         y="82.299408"
+         x="156.2959"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.42682648px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:0.9380054;stroke:none;stroke-width:0.08821336"
+         xml:space="preserve"><tspan
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.77354813px;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola Italic';fill:#ffffff;fill-opacity:0.9380054;stroke-width:0.08821336"
+           y="82.299408"
+           x="156.2959"
+           id="tspan1401"
+           sodipodi:role="line">f</tspan></text>
+    </g>
+    <circle
+       r="16.441963"
+       cy="221.32953"
+       cx="125.25823"
+       id="circle1439"
+       style="opacity:1;fill:url(#linearGradient1453);fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    <g
+       transform="matrix(1.2461156,0,0,1.2461156,-100.1443,123.01064)"
+       id="g1451"
+       style="stroke-width:0.80249375">
+      <g
+         id="g1460"
+         transform="translate(0.27508293)">
+        <text
+           id="text1443"
+           y="85.747505"
+           x="170.62088"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:22.91419411px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:0.78436656;stroke:none;stroke-width:0.21232647"
+           xml:space="preserve"
+           transform="scale(0.99964272,1.0003574)"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola';fill:#333333;fill-opacity:0.78436656;stroke-width:0.21232647"
+             y="85.747505"
+             x="170.62088"
+             id="tspan1441"
+             sodipodi:role="line">Δ</tspan></text>
+        <g
+           style="fill:#f9f9f9;fill-opacity:0.9380054;stroke-width:0.37730786"
+           transform="matrix(2.1261339,0,0,2.1276542,-152.5511,-88.226256)"
+           id="g1449">
+          <text
+             xml:space="preserve"
+             style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.42682648px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#f9f9f9;fill-opacity:0.9380054;stroke:none;stroke-width:0.09982935"
+             x="156.2959"
+             y="82.299408"
+             id="text1447"><tspan
+               sodipodi:role="line"
+               id="tspan1445"
+               x="156.2959"
+               y="82.299408"
+               style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.77354813px;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola Italic';fill:#f9f9f9;fill-opacity:0.9380054;stroke-width:0.09982935">f</tspan></text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

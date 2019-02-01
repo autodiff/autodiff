@@ -1,15 +1,8 @@
-// C++ includes
-#include <iostream>
-
 // Catch includes
 #include "catch.hpp"
 
-#include <eigen3/Eigen/Core>
-using namespace Eigen;
-
 // autodiff includes
 #include <autodiff/forward.hpp>
-#include <autodiff/eigen.hpp>
 using namespace autodiff;
 using namespace autodiff::forward;
 

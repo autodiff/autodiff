@@ -1,3 +1,6 @@
+# mkdocs
+site/
+
 # Prerequisites
 *.d
 
@@ -15,6 +18,9 @@
 *.so
 *.dylib
 *.dll
+
+# Python cache files
+__pycache__/
 
 # Fortran module files
 *.mod
