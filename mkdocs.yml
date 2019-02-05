@@ -19,7 +19,7 @@ theme:
   palette:
     primary: 'teal'
     accent: 'pink'
-  favicon: 'img/favicon.ico'
+  favicon: 'img/logo.png'
 
 markdown_extensions:
   - admonition
