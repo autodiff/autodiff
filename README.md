@@ -2,10 +2,6 @@
     <img src='docs/img/header.svg' width='100%'>
 </a>
 
-<a href="https://autodiff.github.io" target="_blank">
-    <img src='docs/img/autodiff.github.io.svg' width='100%'>
-</a>
-
 # Overview
 
 **autodiff** is a C++17 library that uses modern and advanced programming
@@ -134,6 +130,12 @@ derivative of `u` with respect to input variable `x` (i.e., *∂u/∂x*) can the
 be extracted from `dud` using `dud(x)`. The operations `dud(x)`, `dud(y)`,
 `dud(z)` involve no computations! Just extraction of derivatives previously
 computed with a call to function `autodiff::derivatives`.
+
+Check the documentation website for more details:
+
+<a href="https://autodiff.github.io" target="_blank">
+    <img src='docs/img/autodiff.github.io.svg' width='100%'>
+</a>
 
 # License
 
