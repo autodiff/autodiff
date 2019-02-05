@@ -345,7 +345,7 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 
     SECTION("testing higher order derivatives")
     {
-        using dual2nd = Dual<Dual<double, double>, Dual<double, double>>;
+        using dual2nd = HigherOrderDual<2>;
 
         dual2nd x = 5;
         dual2nd y = 7;
@@ -368,7 +368,7 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 
     SECTION("testing higher order derivatives")
     {
-        using dual3rd = Dual<Dual<Dual<double, double>, Dual<double, double>>, Dual<Dual<double, double>, Dual<double, double>>>;
+        using dual3rd = HigherOrderDual<3>;
 
         dual3rd x = 5;
         dual3rd y = 7;

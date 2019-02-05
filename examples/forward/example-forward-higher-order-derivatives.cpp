@@ -6,7 +6,8 @@ using namespace std;
 #include <autodiff/forward.hpp>
 using namespace autodiff;
 
-using dual2nd = forward::Dual<forward::Dual<double, double>, forward::Dual<double, double>>;
+// Define a 2nd order dual type using HigherOrderDual<N> construct.
+using dual2nd = HigherOrderDual<2>;
 
 // The single-variable function for which derivatives are needed
 dual2nd f(dual2nd x, dual2nd y)
@@ -28,6 +29,7 @@ int main()
     double uyx = derivative(f, wrt(y, x), x, y);  // evaluate the derivative d²u/dydx
     double uyy = derivative(f, wrt(y, y), x, y);  // evaluate the derivative d²u/dydy
 
+    cout << "Allan" << endl;
     cout << "u   = " << u << endl;    // print the evaluated output u
     cout << "ux  = " << ux << endl;   // print the evaluated derivative du/dx
     cout << "uy  = " << uy << endl;   // print the evaluated derivative du/dy
