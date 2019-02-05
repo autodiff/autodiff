@@ -1,4 +1,4 @@
-<img src='docs/img/header.svg' style='width:100%;'>
+<img src='docs/img/header.svg' width='100%'>
 
 # Overview
 
