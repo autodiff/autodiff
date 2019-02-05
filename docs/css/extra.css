@@ -1,9 +1,14 @@
+@font-face {
+    font-family: 'Comfortaa';
+    src: url("/fonts/Comfortaa-Regular.ttf") format("ttf");
+}
+
 .md-header-nav__topic {
-    font-family: Comfortaa;
+    font-family: 'Comfortaa', cursive;
     font-weight: bold;
 }
 
 .md-nav__title--site {
-    font-family: Comfortaa;
+    font-family: 'Comfortaa', cursive;
     font-weight: bold;
 }
