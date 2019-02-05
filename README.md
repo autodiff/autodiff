@@ -2,6 +2,10 @@
     <img src='docs/img/header.svg' width='100%'>
 </a>
 
+<a href="https://autodiff.github.io" target="_blank">
+    <img src='docs/img/autodiff.github.io.svg' width='100%'>
+</a>
+
 # Overview
 
 **autodiff** is a C++17 library that uses modern and advanced programming
