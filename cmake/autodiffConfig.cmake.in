@@ -1,0 +1,10 @@
+# Recommended cmake macro use to write a cmake config file.
+@PACKAGE_INIT@
+
+# Include the cmake targets of the project if they have not been yet.
+if(NOT TARGET autodiff::autodiff)
+    include("@PACKAGE_AUTODIFF_INSTALL_CONFIGDIR@/autodiffTargets.cmake")
+endif()
+
+# Recommended check at the end of a cmake config file.
+check_required_components(autodiff)

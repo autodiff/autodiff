@@ -4,7 +4,7 @@
 
 # {{autodiff}}
 
-{{autodiff}} is a C++ library that uses modern and advanced programming
+{{autodiff}} is a C++17 library that uses modern and advanced programming
 techniques to enable automatic computation of derivatives in an efficient
 and easy way.
 
