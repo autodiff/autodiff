@@ -1562,13 +1562,37 @@ std::ostream& operator<<(std::ostream& out, const Dual<T, G>& x)
     return out;
 }
 
+namespace internal {
+
+template<std::size_t N>
+struct HigherOrderDual;
+
+template<>
+struct HigherOrderDual<0>
+{
+    using type = double;
+};
+
+template<std::size_t N>
+struct HigherOrderDual
+{
+    using type = Dual<typename HigherOrderDual<N-1>::type, typename HigherOrderDual<N-1>::type>;
+};
+
+} // namespace internal
+
+template<std::size_t N>
+using HigherOrderDual = typename internal::HigherOrderDual<N>::type;
+
+using dual = forward::Dual<double, double>;
+
 } // namespace forward
 
+using forward::dual;
 using forward::val;
 using forward::eval;
 using forward::derivative;
 using forward::wrt;
-
-using dual = forward::Dual<double, double>;
+using forward::HigherOrderDual;
 
 } // namespace autodiff
