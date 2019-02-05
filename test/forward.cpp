@@ -1,32 +1,23 @@
-// C++ includes
-#include <iostream>
-
 // Catch includes
 #include "catch.hpp"
 
-#include <eigen3/Eigen/Core>
-using namespace Eigen;
-
 // autodiff includes
 #include <autodiff/forward.hpp>
-#include <autodiff/eigen.hpp>
 using namespace autodiff;
 using namespace autodiff::forward;
 
-auto approx(double value)
+template<typename T>
+auto approx(T&& expr) -> Approx
 {
     const double zero = std::numeric_limits<double>::epsilon();
-    return Approx(value).margin(zero);
+    return Approx(val(expr)).margin(zero);
 }
 
-template<typename R, enableif<isExpr<R>>...>
-auto approx(R&& expr) -> Approx
-{
-    return approx(val(std::forward<R>(expr)));
-}
+template<typename T, enableif<isExpr<T>>...>
+auto operator==(T&& l, const Approx& r) { return val(l) == r; }
 
-bool operator==(const dual& l, double r) { return val(l) == approx(r); }
-bool operator==(double l, const dual& r) { return approx(l) == val(r); }
+template<typename T, enableif<isExpr<T>>...>
+auto operator==(const Approx& l, T&& r) { return r == l; }
 
 TEST_CASE("autodiff::dual tests", "[dual]")
 {
@@ -349,5 +340,51 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( val(f(x, y)) == approx(0.0) );
         REQUIRE( derivative(f, wrt(x), x, y) == approx(0.0) );
         REQUIRE( derivative(f, wrt(y), x, y) == approx(0.0) );
+    }
+
+
+    SECTION("testing higher order derivatives")
+    {
+        using dual2nd = HigherOrderDual<2>;
+
+        dual2nd x = 5;
+        dual2nd y = 7;
+
+
+        // Testing complex function involving sin and cos
+        auto f = [](dual2nd x, dual2nd y) -> dual2nd
+        {
+            return x*x + x*y + y*y;
+        };
+
+//        REQUIRE( val(f(x, y)) == Approx(val(x)*val(x)) );
+        REQUIRE( val(derivative(f, wrt(x), x, y)) == Approx(17.0) );
+        REQUIRE( derivative(f, wrt(x, x), x, y) == Approx(2.0) );
+        REQUIRE( derivative(f, wrt(x, y), x, y) == Approx(1.0) );
+        REQUIRE( derivative(f, wrt(y, x), x, y) == Approx(1.0) );
+        REQUIRE( derivative(f, wrt(y, y), x, y) == Approx(2.0) );
+
+    }
+
+    SECTION("testing higher order derivatives")
+    {
+        using dual3rd = HigherOrderDual<3>;
+
+        dual3rd x = 5;
+        dual3rd y = 7;
+
+
+        // Testing complex function involving sin and cos
+        auto f = [](dual3rd x, dual3rd y) -> dual3rd
+        {
+            return (x + y)*(x + y)*(x + y);
+        };
+
+       // REQUIRE( val(f(x, y)) == Approx(val(x)*val(x)) );
+       REQUIRE( derivative(f, wrt(x, x, x), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(x, x, x), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(x, x, y), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(x, y, y), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(y, y, y), x, y) == Approx(6.0) );
     }
 }

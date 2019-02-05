@@ -1,3 +1,16 @@
+# About
+
+## Philosophy
+
+{{autodiff}} aims to be both *efficient* and *easy to use* C++ library for
+automatic differentiation. If you appreciate how it has been developed so far,
+and want to contribute, you are most welcome to join us in its development. And
+if you dislike it, please let us know how we can improve!
+
+You can contact us [here][issues].
+
+## License
+
 MIT License
 
 Copyright (c) 2018–2019 Allan Leal
@@ -19,3 +32,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+[issues]: https://github.com/autodiff/autodiff/issues/new
