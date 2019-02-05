@@ -1,3 +1,5 @@
+<img src='docs/img/header.svg' style='width:100%;'>
+
 # Overview
 
 **autodiff** is a C++ library that uses modern and advanced programming
