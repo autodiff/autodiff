@@ -8,6 +8,14 @@
 techniques to enable automatic computation of derivatives in an efficient
 and easy way.
 
+!!! attention
+
+    {{autodiff}} is planned to be a long-term maintained automatic differentiation
+    project, with many more algorithms being implemented in the future. Please have
+    in mind, however, that {{autodiff}} is still in its earlier stages of
+    development. We welcome you to use {{autodiff}} and recommend us any
+    improvements you think it is necessary.
+
 ## Demonstration
 
 Consider the following function *f(x, y, z)*:

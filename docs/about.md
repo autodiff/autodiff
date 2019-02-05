@@ -2,12 +2,12 @@
 
 ## Philosophy
 
-**autodiff** aims to be both *efficient* :rocket: and *easy to use* :+1: C++
-library for automatic differentiation. If you appreciate how it has been
-developed so far, and want to contribute, you are most welcome. If you dislike
-it, please let us know how we can improve! :wink:
+{{autodiff}} aims to be both *efficient* and *easy to use* C++ library for
+automatic differentiation. If you appreciate how it has been developed so far,
+and want to contribute, you are most welcome to join us in its development. And
+if you dislike it, please let us know how we can improve!
 
-Either way, you can [contact us here][issues].
+You can contact us [here][issues].
 
 ## License
 
