@@ -1,14 +1,14 @@
 @font-face {
-    font-family: 'Comfortaa';
-    src: url("../assets/fonts/Comfortaa-Regular.ttf") format("ttf");
+    font-family: 'Oswald';
+    src: url("../fonts/Comfortaa-Regular.ttf") format("truetype");
 }
 
 .md-header-nav__topic {
-    font-family: 'Comfortaa', cursive;
+    font-family: 'Oswald', cursive;
     font-weight: bold;
 }
 
 .md-nav__title--site {
-    font-family: 'Comfortaa', cursive;
+    font-family: 'Oswald', cursive;
     font-weight: bold;
 }
