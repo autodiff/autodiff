@@ -2,6 +2,7 @@ site_name: autodiff
 site_description: autodiff documentation.
 site_author: Allan leal
 
+repo_name: autodiff/autodiff
 repo_url: https://github.com/autodiff/autodiff/
 
 nav:
