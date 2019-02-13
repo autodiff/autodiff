@@ -5,6 +5,10 @@ if [ ! $HOME/miniconda/bin/conda ]; then
     rm -rf $HOME/miniconda
     bash miniconda.sh -b -p $HOME/miniconda
 fi
+if [ ! -f $HOME/miniconda/bin/conda ]
+    echo ERROR: conda was not installed.
+    exit 1
+fi
 bash $HOME/miniconda/etc/profile.d/conda.sh
 export PATH=$HOME/miniconda/bin/:$PATH
 conda config --set always_yes yes --set changeps1 no
