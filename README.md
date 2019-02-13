@@ -2,6 +2,8 @@
     <img src='docs/img/header.svg' width='100%'>
 </a>
 
+[![Build Status](https://travis-ci.com/autodiff/autodiff.svg?branch=master)](https://travis-ci.com/autodiff/autodiff)
+
 # Overview
 
 **autodiff** is a C++17 library that uses modern and advanced programming
