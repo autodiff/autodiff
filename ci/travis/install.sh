@@ -20,6 +20,6 @@ conda devenv
 source activate autodiff
 mkdir build
 cd build
-cmake ..
+cmake .. -DCMAKE_INSTALL_PREFIX=install
 make -j
 make install
