@@ -1,0 +1,13 @@
+language: c++
+
+install:
+  - bash ci/travis/conda.sh
+  - conda devenv
+  - conda activate autodiff
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make -j
+
+script:
+  - ./build/test/tests
