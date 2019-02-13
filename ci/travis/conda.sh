@@ -14,4 +14,4 @@ conda update --quiet conda
 conda info -a
 
 # Install some conda development tools
-conda instal conda-forge::conda-devenv
+conda install conda-forge::conda-devenv
