@@ -10,7 +10,8 @@ install:
   - bash $HOME/miniconda/etc/profile.d/conda.sh
   - export PATH=$HOME/miniconda/bin/:$PATH
   - conda config --set always_yes yes --set changeps1 no
-  - conda install conda-forge::conda-devenv
+  - conda config --add channels conda-forge
+  - conda install conda-devenv
   - conda info -a
   - conda devenv
   - conda activate autodiff
