@@ -1,7 +1,9 @@
 if [ ! $HOME/miniconda/bin/conda ]; then
+    echo "Downloading and installing miniconda"
     if [ $TRAVIS_OS_NAME = "linux" ]; then OS=Linux-x86_64; else OS=MacOSX-x86_64; fi
     wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-$OS.sh
-    bash miniconda.sh -b -p -u $HOME/miniconda
+    rm -rf $HOME/miniconda
+    bash miniconda.sh -b -p $HOME/miniconda
 fi
 bash $HOME/miniconda/etc/profile.d/conda.sh
 export PATH=$HOME/miniconda/bin/:$PATH
