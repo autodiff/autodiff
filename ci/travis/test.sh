@@ -1,1 +1,2 @@
+cd build
 ./test/tests
