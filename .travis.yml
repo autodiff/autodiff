@@ -22,4 +22,4 @@ install:
   - make -j
 
 script:
-  - ./build/test/tests
+  - ./test/tests
