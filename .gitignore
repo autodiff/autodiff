@@ -1,3 +1,9 @@
+# Build files
+build/
+
+# conda
+environment.yml
+
 # mkdocs
 site/
 
@@ -36,9 +42,6 @@ __pycache__/
 *.exe
 *.out
 *.app
-
-# Build files
-build/
 
 # Eclipse files
 .cproject
