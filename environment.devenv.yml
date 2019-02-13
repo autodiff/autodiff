@@ -1,0 +1,16 @@
+name: autodiff
+
+dependencies:
+  - cmake>=3.13
+  - eigen
+  - pip:
+    - mkdocs
+    - mkdocs-material
+    - mkdocs-macros-plugin
+{% if sys.platform.startswith('linux') %}
+  - gxx_linux-64=7.3.0
+{% endif %}
+
+environment:
+  CPATH:
+    - $CONDA_PREFIX/include
