@@ -25,7 +25,7 @@ cache:
 #   - cmake ..
 #   - make -j
 install:
-  - bash ci/travis/install
+  - bash ci/travis/install.sh
 
 script:
-  - bash ci/travis/test
+  - bash ci/travis/test.sh
