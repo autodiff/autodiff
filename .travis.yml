@@ -7,15 +7,15 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then OS=Linux-x86_64; else OS=MacOSX-x86_64; fi
   - wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-$OS.sh
   - bash miniconda.sh -b -p $HOME/miniconda
-  - export CONDA_BIN=$HOME/miniconda/bin
-  - export CONDA=$CONDA_BIN/conda
-  - $CONDA config --system --set always_yes yes --set changeps1 no
-  - $CONDA config --system --append channels conda-forge
-  - $CONDA install -n base conda-devenv
+  - bash $HOME/miniconda/etc/profile.d/conda.sh
+  - export PATH=$HOME/miniconda/bin/:$PATH
+  - conda config --system --set always_yes yes --set changeps1 no
+  - conda config --system --append channels conda-forge
+  - conda install -n base conda-devenv
 
 install:
-  - $CONDA devenv
-  - $CONDA activate autodiff
+  - conda devenv
+  - conda activate autodiff
   - mkdir build
   - cd build
   - cmake ..
