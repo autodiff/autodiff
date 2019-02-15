@@ -14,8 +14,11 @@ environment:
 init:
   - set PATH=%CONDA_DIR%;%CONDA_DIR%\Scripts;%CONDA_DIR%\Library\bin;%PATH%
 
-build_script:
+install:
   - call ci\appveyor\install.bat
+
+build_script:
+  - call ci\appveyor\build.bat
 
 test_script:
   - call ci\appveyor\test.bat
