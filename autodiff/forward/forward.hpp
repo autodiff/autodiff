@@ -450,47 +450,39 @@ struct BinaryExpr
 //
 //=====================================================================================================================
 
-template<typename T, enableif<isDual<T>>...>
-auto eval(T&& dual)
-{
-    return std::forward<T>(dual);
-}
-
-template<typename T, enableif<isExpr<T>>..., disableif<isDual<T>>...>
+template<typename T>
 auto eval(T&& expr)
 {
-    return Dual<ValueType<T>, GradType<T>>(std::forward<T>(expr));
+    if constexpr (isDual<T>)
+        return std::forward<T>(expr);
+    else if constexpr (isExpr<T>)
+        return Dual<ValueType<T>, GradType<T>>(std::forward<T>(expr));
+    else return expr;
 }
 
-template<typename T, enableif<isNumber<T>>...>
-auto val(const T& scalar)
-{
-    return scalar;
-}
-
-template<typename T, typename G>
-auto val(const Dual<T, G>& dual)
-{
-    return val(dual.val);
-}
-
-template<typename T, enableif<isExpr<T>>..., disableif<isDual<T>>...>
+template<typename T>
 auto val(T&& expr)
 {
-    return val(eval(expr));
+    if constexpr (isDual<T>)
+        return val(expr.val);
+    else if constexpr (isExpr<T>)
+        return val(eval(expr));
+    else return expr;
 }
 
 namespace internal {
 
-template<int num, typename Arg, enableif<isDual<Arg>>...>
+template<int num, typename Arg>
 auto seed(Arg& dual) -> void
 {
+    static_assert(isDual<Arg>);
     dual.grad = num;
 }
 
-template<int num, typename Arg, typename... Args, enableif<isDual<Arg>>...>
+template<int num, typename Arg, typename... Args>
 auto seed(Arg& dual, Args&... duals) -> void
 {
+    static_assert(isDual<Arg>);
     seed<num>(duals.val...);
     dual.grad = num;
 }
@@ -500,6 +492,7 @@ auto seed(Arg& dual, Args&... duals) -> void
 template<typename Arg>
 auto seed(std::tuple<Arg&> dual)
 {
+    static_assert(isDual<Arg>);
     internal::seed<1>(std::get<0>(dual));
 }
 
@@ -512,6 +505,7 @@ auto seed(std::tuple<Args&...> duals)
 template<typename Arg>
 auto unseed(std::tuple<Arg&> dual)
 {
+    static_assert(isDual<Arg>);
     internal::seed<0>(std::get<0>(dual));
 }
 
@@ -578,15 +572,17 @@ auto derivative(const Function& f, std::tuple<Duals&...> wrt, Args&... args)
 //-----------------------------------------------------------------------------
 // NEGATIVE EXPRESSION GENERATOR FUNCTION
 //-----------------------------------------------------------------------------
-template<typename R, enableif<isExpr<R>>..., disableif<isNegExpr<R>>>
+template<typename R, disableif<isNegExpr<R>>...>
 constexpr auto negative(R&& expr) -> NegExpr<R>
 {
+    static_assert(isExpr<R>);
     return { std::forward<R>(expr) };
 }
 
 template<typename R, enableif<isNegExpr<R>>...>
 constexpr auto negative(R&& expr)
 {
+    static_assert(isExpr<R>);
     return expr.r;
 }
 
