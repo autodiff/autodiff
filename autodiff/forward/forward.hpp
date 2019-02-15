@@ -547,24 +547,27 @@ auto derivative(const Function& f, std::tuple<Duals&...> wrt, Args&... args)
     return derivative<std::tuple_size<decltype(wrt)>::value>(res);
 }
 
-namespace internal {
+// Code below requires template argument deduction, which is not available in clang v4,
+// only osx supported compiler in conda-forge at the moment
 
-template<typename T, typename G, typename... Args>
-auto grad(const std::function<Dual<T, G>(Args...)>& f)
-{
-    auto g = [=](Dual<T, G>& wrt, Args&... args) -> G {
-        return derivative(f, wrt, args...);
-    };
-    return g;
-}
+// namespace internal {
 
-} // namespace internal
+// template<typename T, typename G, typename... Args>
+// auto grad(const std::function<Dual<T, G>(Args...)>& f)
+// {
+//     auto g = [=](Dual<T, G>& wrt, Args&... args) -> G {
+//         return derivative(f, wrt, args...);
+//     };
+//     return g;
+// }
 
-template<typename Function>
-auto grad(const Function& f)
-{
-    return internal::grad(std::function{f});
-}
+// } // namespace internal
+
+// template<typename Function>
+// auto grad(const Function& f)
+// {
+//     return internal::grad(std::function{f});
+// }
 
 //=====================================================================================================================
 //
