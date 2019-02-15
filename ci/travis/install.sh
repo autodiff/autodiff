@@ -20,6 +20,5 @@ conda devenv
 source activate autodiff
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=install
-make -j
-make install
+cmake .. -GNinja
+ninja

@@ -4,9 +4,4 @@ conda install conda-devenv
 conda update -q conda
 conda info -a
 conda devenv
-activate autodiff
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=install
-make -j
-make install
+call activate autodiff
