@@ -11,4 +11,4 @@ cd build
 echo "Configuring..."
 cmake ..
 echo "Building..."
-cmake --build build --target install
+cmake --build . --target install
