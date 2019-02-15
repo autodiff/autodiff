@@ -2,6 +2,7 @@ name: autodiff
 
 dependencies:
   - cmake>=3.13
+  - ninja
   - eigen
   - pip:
     - mkdocs
