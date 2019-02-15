@@ -9,8 +9,5 @@ dependencies:
     - mkdocs-macros-plugin
 {% if sys.platform.startswith('linux') %}
   - gxx_linux-64=7.3.0
+  - ccache
 {% endif %}
-
-environment:
-  CPATH:
-    - $CONDA_PREFIX/include
