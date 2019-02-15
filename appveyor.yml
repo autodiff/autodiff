@@ -15,7 +15,7 @@ init:
   - set PATH=%CONDA_DIR%;%CONDA_DIR%\Scripts;%CONDA_DIR%\Library\bin;%PATH%
 
 build_script:
-  - call ci/appveyor/install.bat
+  - call ci\appveyor\install.bat
 
 test_script:
-  - call ci/appveyor/test.bat
+  - call ci\appveyor\test.bat

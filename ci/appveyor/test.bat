@@ -1,2 +1,1 @@
-cd build
-test/tests.bat
+call build\test\tests.bat
