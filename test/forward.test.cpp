@@ -84,6 +84,26 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( f(x) == x );
         REQUIRE( derivative(f, wrt(x), x) == 1.0 );
 
+        // Testing negative operator on a negative number x dual multiplication expression
+        f = [](dual x) -> dual { return -(2 * x); };
+        REQUIRE( f(x) == -2 * x );
+        REQUIRE( derivative(f, wrt(x), x) == -2 );
+
+        // Testing inverse operator
+        f = [](dual x) -> dual { return 1/x; };
+        REQUIRE( f(x) == 1/x );
+        REQUIRE( derivative(f, wrt(x), x) == -1/(x * x) );
+
+        // Testing inverse operator
+        f = [](dual x) -> dual { return x/x; };
+        REQUIRE( f(x) == 1.0 );
+        REQUIRE( derivative(f, wrt(x), x) == 0.0 );
+
+        // Testing inverse operator on a inverse expression
+        f = [](dual x) -> dual { return 1/(1/x); };
+        REQUIRE( f(x) == x );
+        REQUIRE( derivative(f, wrt(x), x) == 1.0 );
+
         // Testing negative operator on a scaling expression expression
         f = [](dual x) -> dual { return -(2 * x); };
         REQUIRE( f(x) == -2 * val(x) );

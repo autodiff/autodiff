@@ -32,6 +32,7 @@
 // C++ includes
 #include <cmath>
 #include <functional>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 
@@ -236,6 +237,33 @@ template<typename T, typename G>
 struct isDual<Dual<T, G>> { constexpr static bool value = true; };
 
 //-----------------------------------------------------------------------------
+// IS TYPE T AN UNARY EXPRESSION?
+//-----------------------------------------------------------------------------
+template<typename T>
+struct isUnaryExpr { constexpr static bool value = false; };
+
+template<typename Op, typename R>
+struct isUnaryExpr<UnaryExpr<Op, R>> { constexpr static bool value = true; };
+
+//-----------------------------------------------------------------------------
+// IS TYPE T A BINARY EXPRESSION?
+//-----------------------------------------------------------------------------
+template<typename T>
+struct isBinaryExpr { constexpr static bool value = false; };
+
+template<typename Op, typename L, typename R>
+struct isBinaryExpr<BinaryExpr<Op, L, R>> { constexpr static bool value = true; };
+
+//-----------------------------------------------------------------------------
+// IS TYPE T A TERNARY EXPRESSION?
+//-----------------------------------------------------------------------------
+template<typename T>
+struct isTernaryExpr { constexpr static bool value = false; };
+
+template<typename Op, typename L, typename C, typename R>
+struct isTernaryExpr<TernaryExpr<Op, L, C, R>> { constexpr static bool value = true; };
+
+//-----------------------------------------------------------------------------
 // IS TYPE T A NEGATIVE EXPRESSION?
 //-----------------------------------------------------------------------------
 template<typename T>
@@ -272,6 +300,15 @@ template<typename L, typename R>
 struct isMulExpr<MulExpr<L, R>> { constexpr static bool value = true; };
 
 //-----------------------------------------------------------------------------
+// IS TYPE T A POWER EXPRESSION?
+//-----------------------------------------------------------------------------
+template<typename T>
+struct isPowExpr { constexpr static bool value = false; };
+
+template<typename L, typename R>
+struct isPowExpr<PowExpr<L, R>> { constexpr static bool value = true; };
+
+//-----------------------------------------------------------------------------
 // IS TYPE T A NUMBER-DUAL MULTIPLICATION EXPRESSION?
 //-----------------------------------------------------------------------------
 template<typename T>
@@ -301,6 +338,15 @@ template<typename T>
 constexpr bool isDual = traits::isDual<plain<T>>::value;
 
 template<typename T>
+constexpr bool isUnaryExpr = traits::isUnaryExpr<plain<T>>::value;
+
+template<typename T>
+constexpr bool isBinaryExpr = traits::isBinaryExpr<plain<T>>::value;
+
+template<typename T>
+constexpr bool isTernaryExpr = traits::isTernaryExpr<plain<T>>::value;
+
+template<typename T>
 constexpr bool isNegExpr = traits::isNegExpr<plain<T>>::value;
 
 template<typename T>
@@ -311,6 +357,9 @@ constexpr bool isAddExpr = traits::isAddExpr<plain<T>>::value;
 
 template<typename T>
 constexpr bool isMulExpr = traits::isMulExpr<plain<T>>::value;
+
+template<typename T>
+constexpr bool isPowExpr = traits::isPowExpr<plain<T>>::value;
 
 template<typename T>
 constexpr bool isNumberDualMulExpr = traits::isNumberDualMulExpr<plain<T>>::value;
@@ -324,10 +373,11 @@ constexpr bool isNumberDualDualMulExpr = traits::isNumberDualDualMulExpr<plain<T
 template<typename L, typename R>
 constexpr bool isOperable = (isExpr<L> && isExpr<R>) || (isNumber<L> && isExpr<R>) || (isExpr<L> && isNumber<R>);
 
+namespace traits {
+
 //-----------------------------------------------------------------------------
 // WHAT IS THE VALUE TYPE OF AN EXPRESSION NODE?
 //-----------------------------------------------------------------------------
-namespace traits {
 
 struct ValueTypeInvalid {};
 
@@ -346,6 +396,10 @@ struct ValueType<BinaryExpr<Op, L, R>> { using type = common<typename ValueType<
 template<typename Op, typename L, typename C, typename R>
 struct ValueType<TernaryExpr<Op, L, C, R>> { using type = common<typename ValueType<plain<L>>::type, common<typename ValueType<plain<C>>::type, typename ValueType<plain<R>>::type>>; };
 
+//-----------------------------------------------------------------------------
+// WHAT IS THE GRADIENT TYPE OF AN EXPRESSION NODE?
+//-----------------------------------------------------------------------------
+
 struct GradTypeInvalid {};
 
 template<typename T>
@@ -363,6 +417,24 @@ struct GradType<BinaryExpr<Op, L, R>> { using type = common<typename GradType<pl
 template<typename Op, typename L, typename C, typename R>
 struct GradType<TernaryExpr<Op, L, C, R>> { using type = common<typename GradType<plain<L>>::type, common<typename GradType<plain<C>>::type, typename GradType<plain<R>>::type>>; };
 
+//-----------------------------------------------------------------------------
+// WHAT IS THE OPERATOR TYPE OF AN EXPRESSION NODE?
+//-----------------------------------------------------------------------------
+
+struct OperatorTypeInvalid {};
+
+template<typename T>
+struct OperatorType { using type = OperatorTypeInvalid; };
+
+template<typename Op, typename R>
+struct OperatorType<UnaryExpr<Op, R>> { using type = Op; };
+
+template<typename Op, typename L, typename R>
+struct OperatorType<BinaryExpr<Op, L, R>> { using type = Op; };
+
+template<typename Op, typename L, typename C, typename R>
+struct OperatorType<TernaryExpr<Op, L, C, R>> { using type = Op; };
+
 } // namespace traits
 
 template<typename T>
@@ -370,6 +442,9 @@ using ValueType = typename traits::ValueType<plain<T>>::type;
 
 template<typename T>
 using GradType = typename traits::GradType<plain<T>>::type;
+
+template<typename T>
+using OperatorType = typename traits::OperatorType<plain<T>>::type;
 
 //=====================================================================================================================
 //
@@ -572,40 +647,35 @@ auto derivative(const Function& f, std::tuple<Duals&...> wrt, Args&... args)
 //-----------------------------------------------------------------------------
 // NEGATIVE EXPRESSION GENERATOR FUNCTION
 //-----------------------------------------------------------------------------
-template<typename R, disableif<isNegExpr<R>>...>
-constexpr auto negative(R&& expr) -> NegExpr<R>
-{
-    static_assert(isExpr<R>);
-    return { std::forward<R>(expr) };
-}
-
-template<typename R, enableif<isNegExpr<R>>...>
+template<typename R>
 constexpr auto negative(R&& expr)
 {
     static_assert(isExpr<R>);
-    return expr.r;
+    if constexpr (isNegExpr<R>)
+        return expr.r;
+    else return NegExpr<R>{ std::forward<R>(expr) };
 }
 
 //-----------------------------------------------------------------------------
 // INVERSE EXPRESSION GENERATOR FUNCTION
 //-----------------------------------------------------------------------------
-template<typename R, enableif<isExpr<R>>..., disableif<isInvExpr<R>>...>
-constexpr auto inverse(R&& r) -> InvExpr<R>
+template<typename R>
+constexpr auto inverse(R&& expr)
 {
-    return { std::forward<R>(r) };
+    static_assert(isExpr<R>);
+    if constexpr (isInvExpr<R>)
+        return expr.r;
+    else return InvExpr<R>{ std::forward<R>(expr) };
 }
+
+//-----------------------------------------------------------------------------
+// AUXILIARY CONSTANTS WITH VALUE TYPE AS THE VALUE TYPE OF EXPRESSION
+//-----------------------------------------------------------------------------
+template<typename R>
+constexpr auto zero = static_cast<ValueType<R>>(0);
 
 template<typename R>
-constexpr auto inverse(const InvExpr<R>& r)
-{
-    return std::forward<R>(r.r);
-}
-
-template<typename T, typename R, enableif<isNumber<R>>...>
-constexpr auto inverse(R&& r)
-{
-    return static_cast<T>(1) / r;
-}
+constexpr auto one = static_cast<ValueType<R>>(1);
 
 //=====================================================================================================================
 //
@@ -614,12 +684,12 @@ constexpr auto inverse(R&& r)
 //=====================================================================================================================
 
 //-----------------------------------------------------------------------------
-// operator+: +expr => expr
+// POSITIVE OPERATOR: +x
 //-----------------------------------------------------------------------------
 template<typename R, enableif<isExpr<R>>...>
-constexpr auto operator+(R&& r)
+constexpr auto operator+(R&& expr)
 {
-    return std::forward<R>(r);
+    return std::forward<R>(expr); // expression optimization: +(expr) => expr
 }
 
 //=====================================================================================================================
@@ -628,31 +698,17 @@ constexpr auto operator+(R&& r)
 //
 //=====================================================================================================================
 
-//-----------------------------------------------------------------------------
-// NEGATIVE OPERATOR: -expr
-//-----------------------------------------------------------------------------
-template<typename R, enableif<isExpr<R>>..., disableif<isNegExpr<R> || isNumberDualMulExpr<R>>...>
-constexpr auto operator-(R&& r) -> NegExpr<R>
+template<typename R, enableif<isExpr<R>>...>
+constexpr auto operator-(R&& expr)
 {
-    return { std::forward<R>(r) };
-}
-
-//-----------------------------------------------------------------------------
-// NEGATIVE OPERATOR: -(-expr) => expr
-//-----------------------------------------------------------------------------
-template<typename R>
-constexpr auto operator-(const NegExpr<R>& expr)
-{
-    return std::forward<R>(expr.r);
-}
-
-//-----------------------------------------------------------------------------
-// NEGATIVE OPERATOR: -(scalar * dual) => -scalar * dual
-//-----------------------------------------------------------------------------
-template<typename U, typename R>
-constexpr auto operator-(const NumberDualMulExpr<U, R>& expr) -> NumberDualMulExpr<U, R>
-{
-    return { (-expr.l), std::forward<R>(expr.r) };
+    // NEGATIVE EXPRESSION CASE: -(-x) => x when expr is (-x)
+    if constexpr (isNegExpr<R>)
+        return expr.r;
+    // NEGATIVE EXPRESSION CASE: -(number * dual) => (-number) * dual
+    else if constexpr (isNumberDualMulExpr<R>)
+        return (-expr.l) * expr.r;
+    // default expression
+    else return NegExpr<R>{ std::forward<R>(expr) };
 }
 
 //=====================================================================================================================
@@ -661,40 +717,17 @@ constexpr auto operator-(const NumberDualMulExpr<U, R>& expr) -> NumberDualMulEx
 //
 //=====================================================================================================================
 
-//-----------------------------------------------------------------------------
-// ADDITION OPERATOR: expr + expr
-//-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isExpr<L> && isExpr<R>>..., disableif<isNegExpr<L> && isNegExpr<R>>...>
-constexpr auto operator+(L&& l, R&& r) -> AddExpr<L, R>
+template<typename L, typename R, enableif<isOperable<L, R>>...>
+constexpr auto operator+(L&& l, R&& r)
 {
-    return { std::forward<L>(l), std::forward<R>(r) };
-}
-
-//-----------------------------------------------------------------------------
-// ADDITION OPERATOR: scalar + expr
-//-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isNumber<L> && isExpr<R>>...>
-constexpr auto operator+(L&& l, R&& r) -> AddExpr<L, R>
-{
-    return { std::forward<L>(l), std::forward<R>(r) };
-}
-
-//-----------------------------------------------------------------------------
-// ADDITION OPERATOR: expr + scalar => scalar + expr
-//-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isExpr<L> && isNumber<R>>...>
-constexpr auto operator+(L&& l, R&& r) -> AddExpr<R, L>
-{
-    return { std::forward<R>(r), std::forward<L>(l) };
-}
-
-//-----------------------------------------------------------------------------
-// ADDITION OPERATOR: (-expr) + (-expr)
-//-----------------------------------------------------------------------------
-template<typename L, typename R>
-constexpr auto operator+(const NegExpr<L>& l, const NegExpr<R>& r)
-{
-    return -( std::forward<L>(l.r) + std::forward<R>(r.r) );
+    // ADDITION EXPRESSION CASE: (-x) + (-y) => -(x + y)
+    if constexpr (isNegExpr<L> && isNegExpr<R>)
+        return -( l.r + r.r );
+    // ADDITION EXPRESSION CASE: expr + number => number + expr (number always on the left)
+    else if constexpr (isExpr<L> && isNumber<R>)
+        return std::forward<R>(r) + std::forward<L>(l);
+    // DEFAULT ADDITION EXPRESSION
+    else return AddExpr<L, R>{ std::forward<L>(l), std::forward<R>(r) };
 }
 
 //=====================================================================================================================
@@ -703,76 +736,29 @@ constexpr auto operator+(const NegExpr<L>& l, const NegExpr<R>& r)
 //
 //=====================================================================================================================
 
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: scalar * expr
-//-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isNumber<L> && isExpr<R>>..., disableif<isDual<R> || isNumberDualMulExpr<R> || isNegExpr<R>>...>
-constexpr auto operator*(L&& l, R&& r) -> MulExpr<L, R>
+template<typename L, typename R, enableif<isOperable<L, R>>...>
+constexpr auto operator*(L&& l, R&& r)
 {
-    return { std::forward<L>(l), std::forward<R>(r) };
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: scalar * dual
-//-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isNumber<L> && isDual<R>>...>
-constexpr auto operator*(L&& l, R&& r) -> NumberDualMulExpr<L, R>
-{
-    return { std::forward<L>(l), std::forward<R>(r) };
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: scalar * (scalar * expr) => (scalar * scalar) * expr
-//-----------------------------------------------------------------------------
-template<typename L, typename U, typename R, enableif<isNumber<L>>...>
-constexpr auto operator*(L&& l, const NumberDualMulExpr<U, R>& r)
-{
-    return (l * r.l) * std::forward<R>(r.r);
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: scalar * (-expr) => (-scalar) * expr
-//-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isNumber<L>>...>
-constexpr auto operator*(L&& l, const NegExpr<R>& r)
-{
-    return (-l) * std::forward<R>(r.r);
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: expr * scalar => scalar * expr
-//-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isExpr<L> && isNumber<R>>...>
-constexpr auto operator*(L&& l, R&& r) ->  MulExpr<R, L>
-{
-    return { std::forward<R>(r), std::forward<L>(l) };
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: expr * expr
-//-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isExpr<L> && isExpr<R>>..., disableif<isNegExpr<L> && isNegExpr<R>>..., disableif<isInvExpr<L> && isInvExpr<R>>...>
-constexpr auto operator*(L&& l, R&& r) -> MulExpr<L, R>
-{
-    return { std::forward<L>(l), std::forward<R>(r) };
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: (-expr) * (-expr) => expr * expr
-//-----------------------------------------------------------------------------
-template<typename L, typename R>
-constexpr auto operator*(const NegExpr<L>& l, const NegExpr<R>& r)
-{
-    return std::forward<L>(l.r) * std::forward<L>(r.r);
-}
-
-//-----------------------------------------------------------------------------
-// MULTIPLICATION OPERATOR: (1 / expr) * (1 / expr) => 1 / (expr * expr)
-//-----------------------------------------------------------------------------
-template<typename L, typename R>
-constexpr auto operator*(const InvExpr<L>& l, const InvExpr<R>& r)
-{
-    return inverse(std::forward<L>(l.r) * std::forward<R>(r.r));
+    // MULTIPLICATION EXPRESSION CASE: (-expr) * (-expr) => expr * expr
+    if constexpr (isNegExpr<L> && isNegExpr<R>)
+        return l.r * r.r;
+    // // MULTIPLICATION EXPRESSION CASE: (1 / expr) * (1 / expr) => 1 / (expr * expr)
+    else if constexpr (isInvExpr<L> && isInvExpr<R>)
+        return inverse(l.r * r.r);
+    // // MULTIPLICATION EXPRESSION CASE: expr * number => number * expr
+    else if constexpr (isExpr<L> && isNumber<R>)
+        return std::forward<R>(r) * std::forward<L>(l);
+    // // MULTIPLICATION EXPRESSION CASE: number * (-expr) => (-number) * expr
+    else if constexpr (isNumber<L> && isNegExpr<R>)
+        return (-l) * r.r;
+    // // MULTIPLICATION EXPRESSION CASE: number * (number * expr) => (number * number) * expr
+    else if constexpr (isNumber<L> && isNumberDualMulExpr<R>)
+        return (l * r.l) * r.r;
+    // MULTIPLICATION EXPRESSION CASE: number * dual => NumberDualMulExpr
+    else if constexpr (isNumber<L> && isDual<R>)
+        return NumberDualMulExpr<L, R>{ std::forward<L>(l), std::forward<R>(r) };
+    // DEFAULT MULTIPLICATION EXPRESSION: expr * expr => MulExpr
+    else return MulExpr<L, R>{ std::forward<L>(l), std::forward<R>(r) };
 }
 
 //=====================================================================================================================
@@ -799,29 +785,12 @@ constexpr auto operator-(L&& l, R&& r)
 //-----------------------------------------------------------------------------
 // DIVISION OPERATOR: expr / expr
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isExpr<L> && isExpr<R>>...>
+template<typename L, typename R, enableif<isOperable<L, R>>...>
 constexpr auto operator/(L&& l, R&& r)
 {
-    return std::forward<L>(l) * inverse(std::forward<R>(r));
-}
-
-//-----------------------------------------------------------------------------
-// DIVISION OPERATOR: scalar / expr
-//-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isNumber<L> && isExpr<R>>...>
-constexpr auto operator/(L&& l, R&& r)
-{
-    return std::forward<L>(l) * inverse(std::forward<R>(r));
-}
-
-//-----------------------------------------------------------------------------
-// DIVISION OPERATOR: expr / scalar
-//-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isExpr<L> && isNumber<R>>...>
-constexpr auto operator/(L&& l, R&& r)
-{
-    using T = ValueType<L>;
-    return std::forward<L>(l) * inverse<T>(std::forward<R>(r));
+    if constexpr (isNumber<R>)
+        return std::forward<L>(l) * (one<L> / std::forward<R>(r));
+    else return std::forward<L>(l) * inverse(std::forward<R>(r));
 }
 
 //=====================================================================================================================
@@ -913,7 +882,8 @@ constexpr void scale(Dual<T, G>& self, const U& scalar)
 //
 //=====================================================================================================================
 
-template<typename Op, typename T, typename G> constexpr void apply(Dual<T, G>& self);
+template<typename Op, typename T, typename G>
+constexpr void apply(Dual<T, G>& self);
 
 //=====================================================================================================================
 //
@@ -921,120 +891,80 @@ template<typename Op, typename T, typename G> constexpr void apply(Dual<T, G>& s
 //
 //=====================================================================================================================
 
-//-----------------------------------------------------------------------------
-// assign: self = scalar
-//-----------------------------------------------------------------------------
-template<typename T, typename G, typename U, enableif<isNumber<U>>...>
-constexpr void assign(Dual<T, G>& self, const U& other)
+template<typename T, typename G, typename U>
+constexpr void assign(Dual<T, G>& self, U&& expr)
 {
-    self.val = other;
-    self.grad = 0.0;
+    static_assert(isExpr<U> || isNumber<U>);
+
+    // ASSIGN A NUMBER: self = number
+    if constexpr (isNumber<U>) {
+        self.val = expr;
+        self.grad = static_cast<T>(0);
+    }
+    // ASSIGN A DUAL NUMBER: self = dual
+    else if constexpr (isDual<U>) {
+        self.val = expr.val;
+        self.grad = expr.grad;
+    }
+    // ASSIGN A NUMBER-DUAL MULTIPLICATION EXPRESSION: self = number * dual
+    else if constexpr (isNumberDualMulExpr<U>) {
+        assign(self, expr.r);
+        scale(self, expr.l);
+    }
+    // ASSIGN A UNARY EXPRESSION: self = unaryexpr
+    else if constexpr (isUnaryExpr<U>) {
+        using Op = OperatorType<U>;
+        assign(self, expr.r);
+        apply<Op>(self);
+    }
+    // ASSIGN AN ADDITION EXPRESSION: self = expr + expr
+    else if constexpr (isAddExpr<U>) {
+        assign(self, expr.r);
+        assignAdd(self, expr.l);
+    }
+    // ASSIGN A MULTIPLICATION EXPRESSION: self = expr * expr
+    else if constexpr (isMulExpr<U>) {
+        assign(self, expr.r);
+        assignMul(self, expr.l);
+    }
+    // ASSIGN A POWER EXPRESSION: self = pow(expr)
+    else if constexpr (isPowExpr<U>) {
+        assign(self, expr.l);
+        assignPow(self, expr.r);
+    }
 }
 
-template<typename T, typename G, typename U, enableif<isNumber<U>>...>
-constexpr void assign(Dual<T, G>& self, const U& other, Dual<T, G>& tmp)
+template<typename T, typename G, typename U>
+constexpr void assign(Dual<T, G>& self, U&& expr, Dual<T, G>& tmp)
 {
-    assign(self, other);
-}
+    static_assert(isExpr<U> || isNumber<U>);
 
-//-----------------------------------------------------------------------------
-// assign: self = dual
-//-----------------------------------------------------------------------------
-template<typename T, typename G>
-constexpr void assign(Dual<T, G>& self, const Dual<T, G>& other)
-{
-    self.val = other.val;
-    self.grad = other.grad;
-}
-
-template<typename T, typename G>
-constexpr void assign(Dual<T, G>& self, const Dual<T, G>& other, Dual<T, G>& tmp)
-{
-    assign(self, other);
-}
-
-//-----------------------------------------------------------------------------
-// assign: self = scalar * dual
-//-----------------------------------------------------------------------------
-template<typename T, typename G, typename U, typename R>
-constexpr void assign(Dual<T, G>& self, const NumberDualMulExpr<U, R>& other)
-{
-    assign(self, other.r);
-    scale(self, other.l);
-}
-
-template<typename T, typename G, typename U, typename R>
-constexpr void assign(Dual<T, G>& self, const NumberDualMulExpr<U, R>& other, Dual<T, G>& tmp)
-{
-    assign(self, other);
-}
-
-//-----------------------------------------------------------------------------
-// assign: self = function(expr)
-//-----------------------------------------------------------------------------
-template<typename T, typename G, typename Op, typename R>
-constexpr void assign(Dual<T, G>& self, const UnaryExpr<Op, R>& other)
-{
-    assign(self, other.r);
-    apply<Op>(self);
-}
-
-template<typename T, typename G, typename Op, typename R>
-constexpr void assign(Dual<T, G>& self, const UnaryExpr<Op, R>& other, Dual<T, G>& tmp)
-{
-    assign(self, other.r, tmp);
-    apply<Op>(self);
-}
-
-//-----------------------------------------------------------------------------
-// assign: self = expr + expr
-//-----------------------------------------------------------------------------
-template<typename T, typename G, typename L, typename R>
-constexpr void assign(Dual<T, G>& self, const AddExpr<L, R>& other)
-{
-    assign(self, other.r);
-    assignAdd(self, other.l);
-}
-
-template<typename T, typename G, typename L, typename R>
-constexpr void assign(Dual<T, G>& self, const AddExpr<L, R>& other, Dual<T, G>& tmp)
-{
-    assign(self, other.r, tmp);
-    assignAdd(self, other.l, tmp);
-}
-
-//-----------------------------------------------------------------------------
-// assign: self = expr * expr
-//-----------------------------------------------------------------------------
-template<typename T, typename G, typename L, typename R>
-constexpr void assign(Dual<T, G>& self, const MulExpr<L, R>& other)
-{
-    assign(self, other.r);
-    assignMul(self, other.l);
-}
-
-template<typename T, typename G, typename L, typename R>
-constexpr void assign(Dual<T, G>& self, const MulExpr<L, R>& other, Dual<T, G>& tmp)
-{
-    assign(self, other.r, tmp);
-    assignMul(self, other.l, tmp);
-}
-
-//-----------------------------------------------------------------------------
-// assign: self = pow(expr, expr)
-//-----------------------------------------------------------------------------
-template<typename T, typename G, typename L, typename R>
-constexpr void assign(Dual<T, G>& self, const PowExpr<L, R>& other)
-{
-    assign(self, other.l);
-    assignPow(self, other.r);
-}
-
-template<typename T, typename G, typename L, typename R>
-constexpr void assign(Dual<T, G>& self, const PowExpr<L, R>& other, Dual<T, G>& tmp)
-{
-    assign(self, other.l, tmp);
-    assignPow(self, other.r, tmp);
+    // ASSIGN A UNARY EXPRESSION: self = unaryexpr
+    if constexpr (isUnaryExpr<U>) {
+        using Op = OperatorType<U>;
+        assign(self, expr.r, tmp);
+        apply<Op>(self);
+    }
+    // ASSIGN AN ADDITION EXPRESSION: self = expr + expr
+    else if constexpr (isAddExpr<U>) {
+        assign(self, expr.r, tmp);
+        assignAdd(self, expr.l, tmp);
+    }
+    // ASSIGN A MULTIPLICATION EXPRESSION: self = expr * expr
+    else if constexpr (isMulExpr<U>) {
+        assign(self, expr.r, tmp);
+        assignMul(self, expr.l, tmp);
+    }
+    // ASSIGN A POWER EXPRESSION: self = pow(expr)
+    else if constexpr (isPowExpr<U>) {
+        assign(self, expr.l, tmp);
+        assignPow(self, expr.r, tmp);
+    }
+    // DEFAULT ASSIGNMENT WITHOUT TEMPORARY
+    else {
+        assign(tmp, expr);
+        assign(self, tmp);
+    }
 }
 
 //=====================================================================================================================
@@ -1043,6 +973,71 @@ constexpr void assign(Dual<T, G>& self, const PowExpr<L, R>& other, Dual<T, G>& 
 //
 //=====================================================================================================================
 
+/**/
+template<typename T, typename G, typename U>
+constexpr void assignAdd(Dual<T, G>& self, U&& other)
+{
+    static_assert(isExpr<U> || isNumber<U>);
+
+    // ASSIGN-ADD A NUMBER: self += number
+    if constexpr (isNumber<U>) {
+        self.val += other;
+    }
+    // ASSIGN-ADD A DUAL NUMBER: self += dual
+    else if constexpr (isDual<U>) {
+        self.val += other.val;
+        self.grad += other.grad;
+    }
+    // ASSIGN-ADD A NUMBER-DUAL MULTIPLICATION EXPRESSION: self += number * dual
+    else if constexpr (isNumberDualMulExpr<U>) {
+        self.val += other.l * other.r.val;
+        self.grad += other.l * other.r.grad;
+    }
+    // ASSIGN-ADD AN ADDITION EXPRESSION: self += expr + expr
+    else if constexpr (isAddExpr<U>) {
+        assignAdd(self, other.l);
+        assignAdd(self, other.r);
+    }
+    // ASSIGN-ADD ALL OTHER EXPRESSIONS
+    else {
+        Dual<T, G> tmp;
+        assignAdd(self, other, tmp);
+    }
+}
+
+template<typename T, typename G, typename U>
+constexpr void assignAdd(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
+{
+    static_assert(isExpr<U> || isNumber<U>);
+
+    // ASSIGN-ADD: self += -expr
+    if constexpr (isNegExpr<U>) {
+        assign(tmp, other.r);
+        self.val -= tmp.val;
+        self.grad -= tmp.grad;
+    }
+    // ASSIGN-ADD: self += 1/expr
+    else if constexpr (isInvExpr<U>) {
+        assign(tmp, other.r);
+        const auto aux = static_cast<T>(1) / tmp.val;
+        self.val += aux;
+        self.grad -= aux * aux * tmp.grad;
+    }
+    // ASSIGN-ADD: self += expr + expr
+    else if constexpr (isAddExpr<U>) {
+        assignAdd(self, other.l, tmp);
+        assignAdd(self, other.r, tmp);
+    }
+    // ASSIGN-ADD ALL OTHER EXPRESSIONS
+    else {
+        assign(tmp, other);
+        assignAdd(self, tmp);
+    }
+}
+
+//*/
+
+/**
 //-----------------------------------------------------------------------------
 // assignAdd: self += scalar
 //-----------------------------------------------------------------------------
@@ -1157,19 +1152,21 @@ constexpr void assignAdd(Dual<T, G>& self, const AddExpr<L, R>& other, Dual<T, G
 //-----------------------------------------------------------------------------
 // assignAdd: self += expr
 //-----------------------------------------------------------------------------
-template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R> || isNumberDualMulExpr<R> || isNegExpr<R> || isInvExpr<R> || isAddExpr<R>>...>
+template<typename T, typename G, typename R, enableif<isExpr<R> && !( isDual<R> || isNumberDualMulExpr<R> || isNegExpr<R> || isInvExpr<R> || isAddExpr<R> )>...>
 constexpr void assignAdd(Dual<T, G>& self, const R& other)
 {
     Dual<T, G> tmp;
     assignAdd(self, other, tmp);
 }
 
-template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R> || isNumberDualMulExpr<R> || isNegExpr<R> || isInvExpr<R> || isAddExpr<R>>...>
+template<typename T, typename G, typename R, enableif<isExpr<R> && !( isDual<R> || isNumberDualMulExpr<R> || isNegExpr<R> || isInvExpr<R> || isAddExpr<R> )>...>
 constexpr void assignAdd(Dual<T, G>& self, const R& other, Dual<T, G>& tmp)
 {
     assign(tmp, other);
     assignAdd(self, tmp);
 }
+//*/
+
 
 //=====================================================================================================================
 //
@@ -1211,13 +1208,13 @@ constexpr void assignSub(Dual<T, G>& self, const Dual<T, G>& other, Dual<T, G>& 
 //-----------------------------------------------------------------------------
 // assignSub: self -= expr
 //-----------------------------------------------------------------------------
-template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+template<typename T, typename G, typename R, enableif<isExpr<R> && !isDual<R>>...>
 constexpr void assignSub(Dual<T, G>& self, const R& other)
 {
     assignAdd(self, negative(other));
 }
 
-template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+template<typename T, typename G, typename R, enableif<isExpr<R> && !isDual<R>>...>
 constexpr void assignSub(Dual<T, G>& self, const R& other, Dual<T, G>& tmp)
 {
     assignAdd(self, negative(other), tmp);
@@ -1318,14 +1315,14 @@ constexpr void assignMul(Dual<T, G>& self, const MulExpr<L, R>& other, Dual<T, G
 //-----------------------------------------------------------------------------
 // assignMul: self *= expr
 //-----------------------------------------------------------------------------
-template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R> || isNegExpr<R> || isNumberDualMulExpr<R> || isMulExpr<R>>...>
+template<typename T, typename G, typename R, enableif<isExpr<R> && ! ( isDual<R> || isNegExpr<R> || isNumberDualMulExpr<R> || isMulExpr<R> )>...>
 constexpr void assignMul(Dual<T, G>& self, const R& other)
 {
     Dual<T, G> tmp;
     assignMul(self, other, tmp);
 }
 
-template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R> || isNegExpr<R> || isNumberDualMulExpr<R> || isMulExpr<R>>...>
+template<typename T, typename G, typename R, enableif<isExpr<R> && ! ( isDual<R> || isNegExpr<R> || isNumberDualMulExpr<R> || isMulExpr<R> )>...>
 constexpr void assignMul(Dual<T, G>& self, const R& other, Dual<T, G>& tmp)
 {
     assign(tmp, other);
@@ -1375,13 +1372,13 @@ constexpr void assignDiv(Dual<T, G>& self, const Dual<T, G>& other, Dual<T, G>& 
 //-----------------------------------------------------------------------------
 // assignDiv: self /= expr
 //-----------------------------------------------------------------------------
-template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+template<typename T, typename G, typename R, enableif<isExpr<R> && !isDual<R>>...>
 constexpr void assignDiv(Dual<T, G>& self, const R& other)
 {
     assignMul(self, inverse(other));
 }
 
-template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+template<typename T, typename G, typename R, enableif<isExpr<R> && !isDual<R>>...>
 constexpr void assignDiv(Dual<T, G>& self, const R& other, Dual<T, G>& tmp)
 {
     assignMul(self, inverse(other), tmp);
@@ -1433,13 +1430,13 @@ constexpr void assignPow(Dual<T, G>& self, const Dual<T, G>& other, Dual<T, G>& 
 //-----------------------------------------------------------------------------
 // assignPow: self = pow(self, expr)
 //-----------------------------------------------------------------------------
-template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+template<typename T, typename G, typename R, enableif<isExpr<R> && !isDual<R>>...>
 constexpr void assignPow(Dual<T, G>& self, const R& other)
 {
     assignPow(self, eval(other));
 }
 
-template<typename T, typename G, typename R, enableif<isExpr<R>>..., disableif<isDual<R>>...>
+template<typename T, typename G, typename R, enableif<isExpr<R> && !isDual<R>>...>
 constexpr void assignPow(Dual<T, G>& self, const R& other, Dual<T, G>& tmp)
 {
     assign(tmp, other);
