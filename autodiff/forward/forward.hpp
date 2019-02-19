@@ -1056,14 +1056,52 @@ template<typename T, typename G, typename U>
 constexpr void assignSub(Dual<T, G>& self, U&& other)
 {
     static_assert(isExpr<U> || isNumber<U>);
-    assignAdd(self, negative(other));
+
+    // ASSIGN-SUBTRACT A NUMBER: self -= number
+    if constexpr (isNumber<U>) {
+        self.val -= other;
+    }
+    // ASSIGN-SUBTRACT A DUAL NUMBER: self -= dual
+    else if constexpr (isDual<U>) {
+        self.val -= other.val;
+        self.grad -= other.grad;
+    }
+    // ASSIGN-SUBTRACT A NUMBER-DUAL MULTIPLICATION EXPRESSION: self -= number * dual
+    else if constexpr (isNumberDualMulExpr<U>) {
+        self.val -= other.l * other.r.val;
+        self.grad -= other.l * other.r.grad;
+    }
+    // ASSIGN-SUBTRACT AN ADDITION EXPRESSION: self -= expr + expr
+    else if constexpr (isAddExpr<U>) {
+        assignSub(self, other.l);
+        assignSub(self, other.r);
+    }
+    // ASSIGN-SUBTRACT ALL OTHER EXPRESSIONS
+    else {
+        Dual<T, G> tmp;
+        assignSub(self, std::forward<U>(other), tmp);
+    }
 }
 
 template<typename T, typename G, typename U>
 constexpr void assignSub(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
     static_assert(isExpr<U> || isNumber<U>);
-    assignAdd(self, negative(other), tmp);
+
+    // ASSIGN-SUBTRACT A NEGATIVE EXPRESSION: self -= -expr => self += expr
+    if constexpr (isNegExpr<U>) {
+        assignAdd(self, other.r, tmp);
+    }
+    // ASSIGN-SUBTRACT AN ADDITION EXPRESSION: self -= expr + expr
+    else if constexpr (isAddExpr<U>) {
+        assignSub(self, other.l, tmp);
+        assignSub(self, other.r, tmp);
+    }
+    // ASSIGN-SUBTRACT ALL OTHER EXPRESSIONS
+    else {
+        assign(tmp, other);
+        assignSub(self, tmp);
+    }
 }
 
 //=====================================================================================================================
