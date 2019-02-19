@@ -594,7 +594,6 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         dual2nd x = 5;
         dual2nd y = 7;
 
-
         // Testing complex function involving sin and cos
         auto f = [](dual2nd x, dual2nd y) -> dual2nd
         {
@@ -606,7 +605,6 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( derivative(f, wrt(x, y), x, y) == Approx(1.0) );
         REQUIRE( derivative(f, wrt(y, x), x, y) == Approx(1.0) );
         REQUIRE( derivative(f, wrt(y, y), x, y) == Approx(2.0) );
-
     }
 
     SECTION("testing higher order derivatives")
@@ -615,7 +613,6 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 
         dual3rd x = 5;
         dual3rd y = 7;
-
 
         // Testing complex function involving sin and cos
         auto f = [](dual3rd x, dual3rd y) -> dual3rd
