@@ -1,0 +1,30 @@
+image:
+# - Visual Studio 2015
+- Visual Studio 2017
+
+build:
+  parallel: true
+
+platform:
+  - x64
+
+configuration:
+  - Release
+
+environment:
+  CONDA_DIR: C:\Miniconda36-x64
+
+matrix:
+  fast_finish: true
+
+init:
+  - set PATH=%CONDA_DIR%;%CONDA_DIR%\Scripts;%CONDA_DIR%\Library\bin;%PATH%
+
+install:
+  - call ci\appveyor\install.bat
+
+build_script:
+  - call ci\appveyor\build.bat
+
+test_script:
+  - call ci\appveyor\test.bat

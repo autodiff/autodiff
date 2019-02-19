@@ -19,25 +19,35 @@ if(DEFINED ENV{CONDA_PREFIX})
     message(STATUS "CondaAware: conda environment recognized!")
     message(STATUS "CondaAware: CONDA_PREFIX=$ENV{CONDA_PREFIX}")
 
-    # Set a cmake variable CONDA_AWARE_PREFIX
-    set(CONDA_AWARE_PREFIX $ENV{CONDA_PREFIX})
-
-    # Check if we are in a conda-build context
-    if(DEFINED ENV{CONDA_BUILD})
-        message(STATUS "CondaAware: conda build task recognized!")
-        message(STATUS "CondaAware: PREFIX=$ENV{PREFIX}")
-        if(UNIX)
-            # In Unix, set CONDA_AWARE_PREFIX cmake variable to $ENV{PREFIX}
-            set(CONDA_AWARE_PREFIX $ENV{PREFIX})
-            message(STATUS "CondaAware: CONDA_AWARE_PREFIX=PREFIX (${CONDA_AWARE_PREFIX})")
-        else()
-            # In Windows, set CONDA_AWARE_PREFIX cmake variable to $ENV{LIBRARY_PREFIX} instead
-            set(CONDA_AWARE_PREFIX $ENV{LIBRARY_PREFIX})
-            message(STATUS "CondaAware: CONDA_AWARE_PREFIX=LIBRARY_PREFIX (${CONDA_AWARE_PREFIX})")
-        endif()
-    else()
-        # We are in a regular conda environment, not created by conda-build
+    # Check if in Unix and not in a conda build task
+    if(UNIX AND NOT DEFINED ENV{CONDA_BUILD})
+        set(CONDA_AWARE_PREFIX "$ENV{CONDA_PREFIX}")
         message(STATUS "CondaAware: CONDA_AWARE_PREFIX=CONDA_PREFIX (${CONDA_AWARE_PREFIX})")
+    endif()
+
+    # Check if in Unix and not in a conda build task
+    if(WIN32 AND NOT DEFINED ENV{CONDA_BUILD})
+        set(CONDA_AWARE_PREFIX "$ENV{CONDA_PREFIX}\\Library")
+        message(STATUS "CondaAware: CONDA_AWARE_PREFIX=CONDA_PREFIX\\Library (${CONDA_AWARE_PREFIX})")
+    endif()
+
+    # Check if in Unix and in a conda build task
+    if(UNIX AND DEFINED ENV{CONDA_BUILD})
+        set(CONDA_AWARE_PREFIX "$ENV{PREFIX}")
+        message(STATUS "CondaAware: conda build task recognized!")
+        message(STATUS "CondaAware: CONDA_AWARE_PREFIX=PREFIX (${CONDA_AWARE_PREFIX})")
+    endif()
+
+    # Check if in Windows and in a conda build task
+    if(WIN32 AND DEFINED ENV{CONDA_BUILD})
+        set(CONDA_AWARE_PREFIX "$ENV{LIBRARY_PREFIX}")
+        message(STATUS "CondaAware: conda build task recognized!")
+        message(STATUS "CondaAware: CONDA_AWARE_PREFIX=LIBRARY_PREFIX (${CONDA_AWARE_PREFIX})")
+    endif()
+
+    # Fatal error if none of the previous checks succeeded
+    if(NOT DEFINED CONDA_AWARE_PREFIX)
+        message(FATAL_ERROR "Could not determine a value for CONDA_AWARE_PREFIX")
     endif()
 
     # Set CMAKE_INSTALL_PREFIX to CONDA_AWARE_PREFIX if not specified by the user
