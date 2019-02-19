@@ -10,14 +10,14 @@ template<typename T>
 auto approx(T&& expr) -> Approx
 {
     const double zero = std::numeric_limits<double>::epsilon();
-    return Approx(val(expr)).margin(zero);
+    return Approx(val(std::forward<T>(expr))).margin(zero);
 }
 
 template<typename T, enableif<isExpr<T>>...>
-auto operator==(T&& l, const Approx& r) { return val(l) == r; }
+auto operator==(T&& l, const Approx& r) { return val(std::forward<T>(l)) == r; }
 
 template<typename T, enableif<isExpr<T>>...>
-auto operator==(const Approx& l, T&& r) { return r == l; }
+auto operator==(const Approx& l, T&& r) { return std::forward<T>(r) == l; }
 
 TEST_CASE("autodiff::dual tests", "[dual]")
 {
