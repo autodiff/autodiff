@@ -13,11 +13,15 @@ auto approx(T&& expr) -> Approx
     return Approx(val(std::forward<T>(expr))).margin(zero);
 }
 
-template<typename T, enableif<isExpr<T>>...>
-auto operator==(T&& l, const Approx& r) { return val(std::forward<T>(l)) == r; }
+namespace autodiff::forward {
 
-template<typename T, enableif<isExpr<T>>...>
-auto operator==(const Approx& l, T&& r) { return std::forward<T>(r) == l; }
+template<typename U, enableif<isExpr<U>>...>
+auto operator==(U&& l, const Approx& r) { return val(std::forward<U>(l)) == r; }
+
+template<typename U, enableif<isExpr<U>>...>
+auto operator==(const Approx& l, U&& r) { return std::forward<U>(r) == l; }
+
+} // namespace autodiff::forward
 
 TEST_CASE("autodiff::dual tests", "[dual]")
 {
@@ -94,7 +98,6 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( f(x) == -2.0 * x );
         REQUIRE( derivative(f, wrt(x), x) == -2.0 );
     }
-
     SECTION("testing unary inverse operator")
     {
         std::function<dual(dual)> f;
@@ -620,10 +623,10 @@ TEST_CASE("autodiff::dual tests", "[dual]")
             return (x + y)*(x + y)*(x + y);
         };
 
-    //    REQUIRE( derivative(f, wrt(x, x, x), x, y) == Approx(6.0) );
-    //    REQUIRE( derivative(f, wrt(x, x, x), x, y) == Approx(6.0) );
-    //    REQUIRE( derivative(f, wrt(x, x, y), x, y) == Approx(6.0) );
-    //    REQUIRE( derivative(f, wrt(x, y, y), x, y) == Approx(6.0) );
-    //    REQUIRE( derivative(f, wrt(y, y, y), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(x, x, x), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(x, x, x), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(x, x, y), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(x, y, y), x, y) == Approx(6.0) );
+       REQUIRE( derivative(f, wrt(y, y, y), x, y) == Approx(6.0) );
     }
 }
