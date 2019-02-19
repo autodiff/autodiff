@@ -2,7 +2,8 @@
     <img src='docs/img/header.svg' width='100%'>
 </a>
 
-[![Build Status](https://travis-ci.com/autodiff/autodiff.svg?branch=master)](https://travis-ci.com/autodiff/autodiff)
+[![Travis Build Status](https://travis-ci.com/autodiff/autodiff.svg?branch=master)](https://travis-ci.com/autodiff/autodiff)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/autodiff/autodiff?branch=master&svg=true)](https://ci.appveyor.com/project/allanleal/autodiff)
 
 # Overview
 
