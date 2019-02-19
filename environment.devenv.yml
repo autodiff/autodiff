@@ -4,11 +4,9 @@ dependencies:
   - cmake>=3.13
   - ninja
   - eigen
+  - gxx_linux-64=7.3.0  # [linux]
+  - ccache  # [unix]
   - pip:
     - mkdocs
     - mkdocs-material
     - mkdocs-macros-plugin
-{% if sys.platform.startswith('linux') %}
-  - gxx_linux-64=7.3.0
-  - ccache
-{% endif %}
