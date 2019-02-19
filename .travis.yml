@@ -2,6 +2,7 @@ language: cpp
 
 os:
   - linux
+  - osx
 
 cache:
   directories:
@@ -12,6 +13,6 @@ install:
 
 script:
   - bash ci/travis/test.sh
-  
+
 before_cache:
   - rm -f $HOME/miniconda/envs/autodiff/conda-meta/history*  # Delete these history files to prevent a new cache upload step.
