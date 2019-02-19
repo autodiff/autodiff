@@ -9,4 +9,4 @@ if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (
 echo "Configuring..."
 cmake -S . -B build
 echo "Building..."
-cmake --build build --target install
+cmake --build build --config %CONFIGURATION% --target install

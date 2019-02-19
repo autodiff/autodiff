@@ -1,1 +1,1 @@
-call build\test\tests.exe
+call build\test\%CONFIGURATION%\tests.exe

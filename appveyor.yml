@@ -8,8 +8,14 @@ build:
 platform:
   - x64
 
+configuration:
+  - Release
+
 environment:
   CONDA_DIR: C:\Miniconda36-x64
+
+matrix:
+  fast_finish: true
 
 init:
   - set PATH=%CONDA_DIR%;%CONDA_DIR%\Scripts;%CONDA_DIR%\Library\bin;%PATH%
