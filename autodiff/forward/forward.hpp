@@ -904,77 +904,77 @@ constexpr void apply(Dual<T, G>& self);
 //=====================================================================================================================
 
 template<typename T, typename G, typename U>
-constexpr void assign(Dual<T, G>& self, U&& expr)
+constexpr void assign(Dual<T, G>& self, U&& other)
 {
     static_assert(isExpr<U> || isNumber<U>);
 
     // ASSIGN A NUMBER: self = number
     if constexpr (isNumber<U>) {
-        self.val = expr;
+        self.val = other;
         self.grad = static_cast<T>(0);
     }
     // ASSIGN A DUAL NUMBER: self = dual
     else if constexpr (isDual<U>) {
-        self.val = expr.val;
-        self.grad = expr.grad;
+        self.val = other.val;
+        self.grad = other.grad;
     }
     // ASSIGN A NUMBER-DUAL MULTIPLICATION EXPRESSION: self = number * dual
     else if constexpr (isNumberDualMulExpr<U>) {
-        assign(self, expr.r);
-        scale(self, expr.l);
+        assign(self, other.r);
+        scale(self, other.l);
     }
     // ASSIGN A UNARY EXPRESSION: self = unaryexpr
     else if constexpr (isUnaryExpr<U>) {
         using Op = OperatorType<U>;
-        assign(self, expr.r);
+        assign(self, other.r);
         apply<Op>(self);
     }
     // ASSIGN AN ADDITION EXPRESSION: self = expr + expr
     else if constexpr (isAddExpr<U>) {
-        assign(self, expr.r);
-        assignAdd(self, expr.l);
+        assign(self, other.r);
+        assignAdd(self, other.l);
     }
     // ASSIGN A MULTIPLICATION EXPRESSION: self = expr * expr
     else if constexpr (isMulExpr<U>) {
-        assign(self, expr.r);
-        assignMul(self, expr.l);
+        assign(self, other.r);
+        assignMul(self, other.l);
     }
     // ASSIGN A POWER EXPRESSION: self = pow(expr)
     else if constexpr (isPowExpr<U>) {
-        assign(self, expr.l);
-        assignPow(self, expr.r);
+        assign(self, other.l);
+        assignPow(self, other.r);
     }
 }
 
 template<typename T, typename G, typename U>
-constexpr void assign(Dual<T, G>& self, U&& expr, Dual<T, G>& tmp)
+constexpr void assign(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
     static_assert(isExpr<U> || isNumber<U>);
 
     // ASSIGN A UNARY EXPRESSION: self = unaryexpr
     if constexpr (isUnaryExpr<U>) {
         using Op = OperatorType<U>;
-        assign(self, expr.r, tmp);
+        assign(self, other.r, tmp);
         apply<Op>(self);
     }
     // ASSIGN AN ADDITION EXPRESSION: self = expr + expr
     else if constexpr (isAddExpr<U>) {
-        assign(self, expr.r, tmp);
-        assignAdd(self, expr.l, tmp);
+        assign(self, other.r, tmp);
+        assignAdd(self, other.l, tmp);
     }
     // ASSIGN A MULTIPLICATION EXPRESSION: self = expr * expr
     else if constexpr (isMulExpr<U>) {
-        assign(self, expr.r, tmp);
-        assignMul(self, expr.l, tmp);
+        assign(self, other.r, tmp);
+        assignMul(self, other.l, tmp);
     }
-    // ASSIGN A POWER EXPRESSION: self = pow(expr)
+    // ASSIGN A POWER EXPRESSION: self = pow(expr, expr)
     else if constexpr (isPowExpr<U>) {
-        assign(self, expr.l, tmp);
-        assignPow(self, expr.r, tmp);
+        assign(self, other.l, tmp);
+        assignPow(self, other.r, tmp);
     }
     // ALL OTHER EXPRESSIONS
     else {
-        assign(tmp, expr);
+        assign(tmp, other);
         assign(self, tmp);
     }
 }
