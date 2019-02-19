@@ -1246,57 +1246,6 @@ constexpr void assignDiv(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
     }
 }
 
-
-
-// //-----------------------------------------------------------------------------
-// // assignDiv: self /= scalar
-// //-----------------------------------------------------------------------------
-// template<typename T, typename G, typename U, enableif<isNumber<U>>...>
-// constexpr void assignDiv(Dual<T, G>& self, const U& other)
-// {
-//     const auto aux = static_cast<T>(1) / other;
-//     assignMul(self, aux);
-// }
-
-// template<typename T, typename G, typename U, enableif<isNumber<U>>...>
-// constexpr void assignDiv(Dual<T, G>& self, const U& other, Dual<T, G>& tmp)
-// {
-//     assignDiv(self, other);
-// }
-
-// //-----------------------------------------------------------------------------
-// // assignDiv: self /= dual
-// //-----------------------------------------------------------------------------
-// template<typename T, typename G>
-// constexpr void assignDiv(Dual<T, G>& self, const Dual<T, G>& other)
-// {
-//     const auto aux = static_cast<T>(1) / other.val;
-//     self.val *= aux;
-//     self.grad -= self.val * other.grad;
-//     self.grad *= aux;
-// }
-
-// template<typename T, typename G>
-// constexpr void assignDiv(Dual<T, G>& self, const Dual<T, G>& other, Dual<T, G>& tmp)
-// {
-//     assignDiv(self, other);
-// }
-
-// //-----------------------------------------------------------------------------
-// // assignDiv: self /= expr
-// //-----------------------------------------------------------------------------
-// template<typename T, typename G, typename R, enableif<isExpr<R> && !isDual<R>>...>
-// constexpr void assignDiv(Dual<T, G>& self, const R& other)
-// {
-//     assignMul(self, inverse(other));
-// }
-
-// template<typename T, typename G, typename R, enableif<isExpr<R> && !isDual<R>>...>
-// constexpr void assignDiv(Dual<T, G>& self, const R& other, Dual<T, G>& tmp)
-// {
-//     assignMul(self, inverse(other), tmp);
-// }
-
 //=====================================================================================================================
 //
 // ASSIGNMENT-POWER FUNCTIONS
