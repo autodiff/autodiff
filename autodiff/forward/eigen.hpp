@@ -124,9 +124,10 @@ Eigen::MatrixXd jacobian(const Function& f, const duals& y, duals& x)
     for(auto j = 0; j < n; ++j)
     {
         x[j].grad = 1.0;
-        auto tmp = f(x);
+        tmp = f(x);
         x[j].grad = 0.0;
-        for(auto i = 0; i < n; ++i)
+
+        for(auto i = 0; i < m; ++i)
             mat(i, j) = tmp[i].grad;
     }
 

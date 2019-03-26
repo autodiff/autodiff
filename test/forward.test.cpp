@@ -1,8 +1,13 @@
 // Catch includes
 #include "catch.hpp"
 
+// Eigen includes
+#include <eigen3/Eigen/Core>
+using namespace Eigen;
+
 // autodiff includes
 #include <autodiff/forward.hpp>
+#include <autodiff/forward/eigen.hpp>
 using namespace autodiff;
 using namespace autodiff::forward;
 
@@ -620,10 +625,48 @@ TEST_CASE("autodiff::dual tests", "[dual]")
             return (x + y)*(x + y)*(x + y);
         };
 
-       REQUIRE( derivative(f, wrt(x, x, x), x, y) == Approx(6.0) );
-       REQUIRE( derivative(f, wrt(x, x, x), x, y) == Approx(6.0) );
-       REQUIRE( derivative(f, wrt(x, x, y), x, y) == Approx(6.0) );
-       REQUIRE( derivative(f, wrt(x, y, y), x, y) == Approx(6.0) );
-       REQUIRE( derivative(f, wrt(y, y, y), x, y) == Approx(6.0) );
+        REQUIRE( derivative(f, wrt(x, x, x), x, y) == Approx(6.0) );
+        REQUIRE( derivative(f, wrt(x, x, x), x, y) == Approx(6.0) );
+        REQUIRE( derivative(f, wrt(x, x, y), x, y) == Approx(6.0) );
+        REQUIRE( derivative(f, wrt(x, y, y), x, y) == Approx(6.0) );
+        REQUIRE( derivative(f, wrt(y, y, y), x, y) == Approx(6.0) );
+    }
+
+    SECTION("testing gradient derivatives")
+    {
+        // Testing complex function involving sin and cos
+        auto f = [](const VectorXdual& x) -> dual
+        {
+            return 0.5 * ( x.array() * x.array() ).sum();
+        };
+
+        VectorXdual x(3);
+        x << 1.0, 2.0, 3.0;
+
+        VectorXd g = gradient(f, x);
+
+        REQUIRE( g[0] == approx(x[0]) );
+        REQUIRE( g[1] == approx(x[1]) );
+        REQUIRE( g[2] == approx(x[2]) );
+    }
+
+    SECTION("testing jacobian derivatives")
+    {
+        // Testing complex function involving sin and cos
+        auto f = [](const VectorXdual& x) -> VectorXdual
+        {
+            return x / x.array().sum();
+        };
+
+        VectorXdual x(3);
+        x << 0.5, 0.2, 0.3;
+
+        VectorXdual u = f(x);
+
+        MatrixXd J = jacobian(f, u, x);
+
+        for(auto i = 0; i < 3; ++i)
+            for(auto j = 0; j < 3; ++j)
+                REQUIRE( J(i, j) == approx(-u[i] + ((i == j) ? 1.0 : 0.0)) );
     }
 }
