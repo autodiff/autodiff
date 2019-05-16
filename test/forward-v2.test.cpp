@@ -50,17 +50,23 @@ TEST_CASE("dual tests", "[dual]")
 
     // int i = grad(x);
     // int j = grad(grad(x));
-    grad(x) = 1.0;
-    grad(y) = 1.0;
+    x[1] = 0.0;
+    y[1] = 1.0;
 
-    grad(grad(x)) = 2.0;
-    grad(grad(y)) = 2.0;
+    x[2] = 0.0;
+    y[2] = 0.0;
 
     a = x * y;
 
-    REQUIRE(val(a) == 1000);
-    REQUIRE(val(grad(a)) == val(y) + val(x));
-    REQUIRE(val(grad(grad(a))) == val(y) + val(x));
+    REQUIRE(a[0] == Approx( x[0] * y[0] ));
+    REQUIRE(a[1] == Approx( x[1] * y[0] + x[0] * y[1] ));
+    REQUIRE(a[2] == Approx( x[2] * y[0] + 2 * x[1] * y[1] + x[0] * y[2] ));
+
+    a = x / y;
+
+    REQUIRE(a[0] == Approx( x[0]/y[0] ));
+    REQUIRE(a[1] == Approx( (x[1] - y[1]*a[0])/y[0] ));
+    REQUIRE(a[2] == Approx( (x[2] - y[2]*a[0] - 2*y[1]*a[1])/y[0] ));
     // REQUIRE(grad(a).data()[0] == 0);
     // REQUIRE(grad(a).data()[1] == 0);
 

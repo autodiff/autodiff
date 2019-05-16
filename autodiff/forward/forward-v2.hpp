@@ -65,9 +65,6 @@ public:
     constexpr numarray() = delete;
     constexpr numarray(const numarray&) = delete;
 
-    template<typename U>
-    constexpr numarray(const numarray<M, U>&) = delete;
-
     constexpr explicit numarray(T* data)
     : m_data(data)
     {}
@@ -80,6 +77,20 @@ public:
     constexpr auto operator[](size_t i) const -> const T&
     {
         return m_data[i];
+    }
+
+    constexpr auto operator=(const numarray& other) -> numarray&
+    {
+        foreach<M>([&](auto i) constexpr { m_data[i] = other[i]; });
+        return *this;
+    }
+
+    template<size_t N, typename U>
+    constexpr auto operator=(const numarray<N, U>& other) -> numarray&
+    {
+        static_assert(M <= N);
+        foreach<M>([&](auto i) constexpr { m_data[i] = other[i]; });
+        return *this;
     }
 
     constexpr auto operator=(const T& scalar) -> numarray&
@@ -112,69 +123,63 @@ public:
         return *this;
     }
 
-    // constexpr auto operator=(const numarray& other) -> numarray&
-    // {
-    //     foreach<M>([&](auto i) constexpr { m_data[i] = other[i]; });
-    //     return *this;
-    // }
-
-    // constexpr auto operator+=(const numarray& other) -> numarray&
-    // {
-    //     foreach<M>([&](auto i) constexpr { m_data[i] += other[i]; });
-    //     return *this;
-    // }
-
-    // constexpr auto operator-=(const numarray& other) -> numarray&
-    // {
-    //     foreach<M>([&](auto i) constexpr { m_data[i] -= other[i]; });
-    //     return *this;
-    // }
-
-    // constexpr auto operator*=(const numarray& other) -> numarray&
-    // {
-    //     foreach<M>([&](auto i) constexpr { m_data[i] *= other[i]; });
-    //     return *this;
-    // }
-
-    // constexpr auto operator/=(const numarray& other) -> numarray&
-    // {
-    //     foreach<M>([&](auto i) constexpr { m_data[i] /= other[i]; });
-    //     return *this;
-    // }
-
-    template<typename U>
-    constexpr auto operator=(const numarray<M, U>& other) -> numarray&
+    template<size_t N, typename U>
+    constexpr auto operator+=(const numarray<N, U>& other) -> numarray&
     {
-        // foreach<M>([&](auto i) constexpr { m_data[i] = other[i]; });
-        foreach<M>([&](auto i) constexpr { m_data[i] = 12345; });
-        return *this;
-    }
-
-    template<typename U>
-    constexpr auto operator+=(const numarray<M, U>& other) -> numarray&
-    {
+        static_assert(M <= N);
         foreach<M>([&](auto i) constexpr { m_data[i] += other[i]; });
         return *this;
     }
 
-    template<typename U>
-    constexpr auto operator-=(const numarray<M, U>& other) -> numarray&
+    template<size_t N, typename U>
+    constexpr auto operator-=(const numarray<N, U>& other) -> numarray&
     {
+        static_assert(M <= N);
         foreach<M>([&](auto i) constexpr { m_data[i] -= other[i]; });
         return *this;
     }
 
-    template<typename U>
-    constexpr auto operator*=(const numarray<M, U>& other) -> numarray&
+    template<size_t N, typename U>
+    constexpr auto operator*=(const numarray<N, U>& other) -> numarray&
     {
+        static_assert(M <= N);
         foreach<M>([&](auto i) constexpr { m_data[i] *= other[i]; });
         return *this;
     }
 
-    template<typename U>
-    constexpr auto operator/=(const numarray<M, U>& other) -> numarray&
+    template<size_t N, typename U>
+    constexpr auto operator/=(const numarray<N, U>& other) -> numarray&
     {
+        static_assert(M <= N);
         foreach<M>([&](auto i) constexpr { m_data[i] /= other[i]; });
+        return *this;
+    }
+
+    template<size_t N, typename U>
+    auto assignNegative(const numarray<N, U>& other) -> numarray&
+    {
+        static_assert(M <= N);
+        foreach<M>([&](auto i) constexpr { m_data[i] = -other[i]; });
+        return *this;
+    }
+
+    template<size_t N, typename U>
+    auto assignScaled(const T& scalar, const numarray<N, U>& other) -> numarray&
+    {
+        static_assert(M <= N);
+        foreach<M>([&](auto i) constexpr { m_data[i] += scalar * other[i]; });
+        return *this;
+    }
+
+    auto fill(const T& value) -> numarray&
+    {
+        foreach<M>([&](auto i) constexpr { m_data[i] = value; });
+        return *this;
+    }
+
+    auto negate() -> numarray&
+    {
+        foreach<M>([&](auto i) constexpr { m_data[i] = -m_data[i]; });
         return *this;
     }
 
@@ -374,6 +379,9 @@ namespace traits {
 //-----------------------------------------------------------------------------
 template<typename T>
 struct isExpr { constexpr static bool value = false; };
+
+template<size_t N, typename T, typename W>
+struct isExpr<BaseDual<N, T, W>> { constexpr static bool value = true; };
 
 template<size_t N, typename T>
 struct isExpr<Dual<N, T>> { constexpr static bool value = true; };
@@ -679,6 +687,16 @@ public:
     : m_data(data)
     {}
 
+    constexpr auto begin() -> T*
+    {
+        return detail::begin(m_data);
+    }
+
+    constexpr auto begin() const -> const T*
+    {
+        return detail::begin(m_data);
+    }
+
     constexpr auto data() -> numarray<N + 1, T>
     {
         return numarray<N + 1, T>{ begin() };
@@ -689,14 +707,36 @@ public:
         return numarray<N + 1, const T>{ begin() };
     }
 
-    constexpr auto begin() -> T*
+    constexpr auto val() -> T&
     {
-        return detail::begin(m_data);
+        return begin()[0];
     }
 
-    constexpr auto begin() const -> const T*
+    constexpr auto val() const -> const T&
     {
-        return detail::begin(m_data);
+        return begin()[0];
+    }
+
+    constexpr auto grad() -> SubDual<N - 1, T>
+    {
+        static_assert(N > 0);
+        return SubDual<N - 1, T>{ begin() + 1 };
+    }
+
+    constexpr auto grad() const -> SubDual<N - 1, const T>
+    {
+        static_assert(N > 0);
+        return SubDual<N - 1, const T>{ begin() + 1 };
+    }
+
+    constexpr auto operator[](size_t i) -> T&
+    {
+        return begin()[i];
+    }
+
+    constexpr auto operator[](size_t i) const -> const T&
+    {
+        return begin()[i];
     }
 
     template<typename U, enableif<isExpr<U>>...>
@@ -820,68 +860,16 @@ struct BinaryExpr
 //
 //=====================================================================================================================
 
-template<size_t N, typename T, typename W>
-constexpr auto val(BaseDual<N, T, W>& x) -> T&
+template<typename X, enableif<isDual<X>>...>
+constexpr auto val(X&& x) -> decltype(x.val())
 {
-    return x.begin()[0];
+    return x.val();
 }
 
-template<size_t N, typename T, typename W>
-constexpr auto val(const BaseDual<N, T, W>& x) -> const T&
+template<typename X, enableif<isDual<X>>...>
+constexpr auto grad(X&& x) -> decltype(x.grad())
 {
-    return x.begin()[0];
-}
-
-
-template<typename Dual>
-constexpr auto grad(Dual&& x)
-{
-    constexpr auto N = OrderNumber<Dual>;
-    using T = ValueType<Dual>;
-    static_assert(N > 0);
-    return SubDual<N - 1, T>{ x.begin() + 1 };
-}
-
-// template<size_t N, typename T, typename W>
-// constexpr auto grad(BaseDual<N, T, W>& x) -> SubDual<N - 1, T>
-// {
-//     static_assert(N > 0);
-//     return SubDual<N - 1, T>{ x.begin() + 1 };
-// }
-
-// template<size_t N, typename T, typename W>
-// constexpr auto grad(const BaseDual<N, T, W>& x) -> SubDual<N - 1, const T>
-// {
-//     static_assert(N > 0);
-//     return SubDual<N - 1, const T>{ x.begin() + 1 };
-// }
-
-template<size_t N, typename T, typename W>
-constexpr auto head(BaseDual<N, T, W>& x) -> SubDual<N - 1, T>
-{
-    static_assert(N > 0);
-    return SubDual<N - 1, T>{ x.begin() };
-}
-
-template<size_t N, typename T, typename W>
-constexpr auto head(const BaseDual<N, T, W>& x) -> SubDual<N - 1, const T>
-{
-    static_assert(N > 0);
-    return SubDual<N - 1, const T>{ x.begin() };
-}
-
-template<size_t N, typename T, typename W>
-constexpr auto tail(BaseDual<N, T, W>& x) -> SubDual<N - 1, T>
-{
-    static_assert(N > 0);
-    return SubDual<N - 1, T>{ x.begin() + 1 };
-}
-
-template<size_t N, typename T, typename W>
-constexpr auto tail(const BaseDual<N, T, W>& x) -> SubDual<N - 1, const T>
-{
-    static_assert(N > 0);
-    return SubDual<N - 1, const T>{ x.begin() + 1 };
+    return x.grad();
 }
 
 // template<typename T>
@@ -1019,7 +1007,7 @@ constexpr auto negative(U&& expr)
 // INVERSE EXPRESSION GENERATOR FUNCTION
 //-----------------------------------------------------------------------------
 template<typename U>
-constexpr size_t inverse(U&& expr)
+constexpr auto inverse(U&& expr)
 {
     static_assert(isExpr<U>);
     if constexpr (isInvExpr<U>)
@@ -1274,17 +1262,17 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto sqrt(R&& r) -> SqrtE
 //     impl::scale<0, N>(array, scalar);
 // }
 
-template<size_t N, typename T, typename W>
-constexpr void negate(BaseDual<N, T, W>& self)
-{
-    self.data() *= static_cast<T>(-1);
-}
+// template<size_t N, typename T, typename W>
+// constexpr void negate(BaseDual<N, T, W>& self)
+// {
+//     self.data() *= static_cast<T>(-1);
+// }
 
-template<size_t N, typename T, typename W, typename U>
-constexpr void scale(BaseDual<N, T, W>& self, const U& scalar)
-{
-    self.data() *= scalar;
-}
+// template<size_t N, typename T, typename W, typename U>
+// constexpr void scale(BaseDual<N, T, W>& self, const U& scalar)
+// {
+//     self.data() *= scalar;
+// }
 
 //=====================================================================================================================
 //
@@ -1308,7 +1296,7 @@ constexpr void assign(BaseDual<N, T, W>& self, U&& other)
 
     // ASSIGN A NUMBER: self = number
     if constexpr (isNumber<U>) {
-        self.data() = Zero<T>;
+        self.data().fill(0.0);
         val(self) = other;
     }
     // ASSIGN A DUAL NUMBER: self = dual
@@ -1317,8 +1305,7 @@ constexpr void assign(BaseDual<N, T, W>& self, U&& other)
     }
     // ASSIGN A NUMBER-DUAL MULTIPLICATION EXPRESSION: self = number * dual
     else if constexpr (isNumberDualMulExpr<U>) {
-        assign(self, other.r);
-        scale(self, other.l);
+        self.data().assignScaled(other.l, other.r);
     }
     // ASSIGN A UNARY EXPRESSION: self = unaryexpr
     else if constexpr (isUnaryExpr<U>) {
@@ -1328,9 +1315,8 @@ constexpr void assign(BaseDual<N, T, W>& self, U&& other)
     }
     // ASSIGN AN ADDITION EXPRESSION: self = expr + expr
     else if constexpr (isAddExpr<U>) {
-        assign(self, other.l);
-        // assign(self, other.r);
-        // assignAdd(self, other.l);
+        assign(self, other.r);
+        assignAdd(self, other.l);
     }
     // ASSIGN A MULTIPLICATION EXPRESSION: self = expr * expr
     else if constexpr (isMulExpr<U>) {
@@ -1521,33 +1507,20 @@ constexpr void assignMul(BaseDual<N, T, W>& self, U&& other)
     }
     // ASSIGN-MULTIPLY A DUAL NUMBER: self *= dual
     else if constexpr (isDual<U>) {
-        // grad(self) = val(self) * grad(other) + grad(self) * val(other);
-        // Dual<N - 1, T> aux1 = head(self) * grad(other);
-        // Dual<N - 1, T> aux2 = grad(self) * head(other);
-        // grad(self) = aux1 + aux2;
-
-        const Dual<N - 1, T> aux = grad(other) * head(self);
-        grad(self) *= head(other);
+        const Dual<N - 1, T> aux = self * grad(other);
+        grad(self) *= other;
         grad(self) += aux;
-
-        // grad(self) = head(self) * grad(other) + grad(self) * head(other);
-        // grad(self) = head(self) * grad(other);
-        // tail(self) = head(self) * tail(other);
         val(self) *= val(other);
-        // const auto aux = self.val() * other.grad(); // to avoid aliasing when self === other
-        // self.grad() *= other.val();
-        // self.grad() += aux;
-        // self.val() *= other.val();
     }
     // ASSIGN-MULTIPLY A NEGATIVE EXPRESSION: self *= (-expr)
     else if constexpr (isNegExpr<U>) {
         assignMul(self, other.r);
-        negate(self);
+        self.data().negate();
     }
     // ASSIGN-MULTIPLY A NUMBER-DUAL MULTIPLICATION EXPRESSION: self *= number * dual
     else if constexpr (isNumberDualMulExpr<U>) {
         assignMul(self, other.r);
-        scale(self, other.l);
+        self *= other.l;
     }
     // ASSIGN-MULTIPLY A MULTIPLICATION EXPRESSION: self *= expr * expr
     else if constexpr (isMulExpr<U>) {
@@ -1569,7 +1542,7 @@ constexpr void assignMul(BaseDual<N, T, W>& self, U&& other, Dual<N, T>& tmp)
     // ASSIGN-MULTIPLY A NEGATIVE EXPRESSION: self *= (-expr)
     if constexpr (isNegExpr<U>) {
         assignMul(self, other.r, tmp);
-        negate(self);
+        self.data().negate();
     }
     // ASSIGN-MULTIPLY A MULTIPLICATION EXPRESSION: self *= expr * expr
     else if constexpr (isMulExpr<U>) {
@@ -1596,20 +1569,32 @@ constexpr void assignDiv(Dual<N, T>& self, U&& other)
 
     // ASSIGN-DIVIDE A NUMBER: self /= number
     if constexpr (isNumber<U>) {
-        self.val /= other;
-        self.grad /= other;
+        self.data() /= other;
+        // val(self) /= other;
+        // grad(self) /= other;
     }
     // ASSIGN-DIVIDE A DUAL NUMBER: self /= dual
     else if constexpr (isDual<U>) {
-        const auto aux = One<T> / other.val; // to avoid aliasing when self === other
-        self.val *= aux;
-        self.grad -= self.val * other.grad;
-        self.grad *= aux;
+        // const Dual<N - 1, T> aux = grad(other) * head(self);
+        // grad(self) *= head(other);
+        // grad(self) += aux;
+        // val(self) *= val(other);
+
+        // const Dual<N - 1, T> aux = One<T> / other.val; // to avoid aliasing when self === other
+        // self.val *= aux;
+        // self.grad -= self.val * other.grad;
+        // self.grad *= aux;
+
+
+        // const auto aux = One<T> / other.val; // to avoid aliasing when self === other
+        // self.val *= aux;
+        // self.grad -= self.val * other.grad;
+        // self.grad *= aux;
     }
     // ASSIGN-DIVIDE A NEGATIVE EXPRESSION: self /= (-expr)
     else if constexpr (isNegExpr<U>) {
         assignDiv(self, other.r);
-        negate(self);
+        self.data().negate();
     }
     // ASSIGN-DIVIDE AN INVERSE EXPRESSION: self /= 1/expr
     else if constexpr (isInvExpr<U>) {
@@ -1640,7 +1625,7 @@ constexpr void assignDiv(Dual<N, T>& self, U&& other, Dual<N, T>& tmp)
     // ASSIGN-DIVIDE A NEGATIVE EXPRESSION: self /= (-expr)
     if constexpr (isNegExpr<U>) {
         assignDiv(self, other.r, tmp);
-        negate(self);
+        self.data().negate();
     }
     // ASSIGN-DIVIDE AN INVERSE EXPRESSION: self /= 1/expr
     else if constexpr (isInvExpr<U>) {
@@ -1710,8 +1695,9 @@ constexpr void apply(BaseDual<N, T, W>& self, NegOp)
 template<size_t N, typename T, typename W>
 constexpr void apply(BaseDual<N, T, W>& self, InvOp)
 {
-    self.val = One<T> / self.val;
-    self.grad *= - self.val * self.val;
+    val(self) = One<T> / val(self);
+    const Dual<N, T> aux = - self * self;
+    grad(self) *= aux;
 }
 
 template<size_t N, typename T, typename W>
