@@ -36,26 +36,64 @@
 #include <type_traits>
 #include <utility>
 
+// autodiff includes
+#include <autodiff/forward/binomialcoefficient.hpp>
+
 namespace autodiff {
 
 namespace impl {
 
-template<size_t I, size_t M, typename Function>
-auto foreach(Function&& f)
+template<size_t I>
+struct Index
 {
-    if constexpr (I < M)
+    constexpr static size_t index = I;
+    constexpr operator size_t() const { return index; }
+};
+
+template<size_t I, size_t Imin, size_t Imax, typename Function>
+constexpr auto For(Function&& f)
+{
+    if constexpr (I < Imax)
     {
-        std::forward<Function>(f)(I);
-        foreach<I + 1, M>(std::forward<Function>(f));
+        f(Index<I>{});
+        For<I + 1, Imin, Imax>(std::forward<Function>(f));
+    }
+}
+
+template<size_t I, size_t Imin, size_t Imax, typename Function>
+constexpr auto ReverseFor(Function&& f)
+{
+    if constexpr (I < Imax)
+    {
+        ReverseFor<I + 1, Imin, Imax>(std::forward<Function>(f));
+        f(Index<I>{});
     }
 }
 
 } // namespace impl
 
-template<size_t M, typename Function>
-auto foreach(Function&& f)
+template<size_t Imin, size_t Imax, typename Function>
+constexpr auto For(Function&& f)
 {
-    impl::foreach<0, M>(std::forward<Function>(f));
+    impl::For<Imin, Imin, Imax>(std::forward<Function>(f));
+}
+
+template<size_t Imax, typename Function>
+constexpr auto For(Function&& f)
+{
+    For<0, Imax>(std::forward<Function>(f));
+}
+
+template<size_t Imin, size_t Imax, typename Function>
+constexpr auto ReverseFor(Function&& f)
+{
+    impl::ReverseFor<Imin, Imin, Imax>(std::forward<Function>(f));
+}
+
+template<size_t Imax, typename Function>
+constexpr auto ReverseFor(Function&& f)
+{
+    ReverseFor<0, Imax>(std::forward<Function>(f));
 }
 
 template<size_t M, typename T>
@@ -81,7 +119,7 @@ public:
 
     constexpr auto operator=(const numarray& other) -> numarray&
     {
-        foreach<M>([&](auto i) constexpr { m_data[i] = other[i]; });
+        For<M>([&](auto i) constexpr { m_data[i] = other[i]; });
         return *this;
     }
 
@@ -89,37 +127,37 @@ public:
     constexpr auto operator=(const numarray<N, U>& other) -> numarray&
     {
         static_assert(M <= N);
-        foreach<M>([&](auto i) constexpr { m_data[i] = other[i]; });
+        For<M>([&](auto i) constexpr { m_data[i] = other[i]; });
         return *this;
     }
 
     constexpr auto operator=(const T& scalar) -> numarray&
     {
-        foreach<M>([&](auto i) constexpr { m_data[i] = scalar; });
+        For<M>([&](auto i) constexpr { m_data[i] = scalar; });
         return *this;
     }
 
     constexpr auto operator+=(const T& scalar) -> numarray&
     {
-        foreach<M>([&](auto i) constexpr { m_data[i] += scalar; });
+        For<M>([&](auto i) constexpr { m_data[i] += scalar; });
         return *this;
     }
 
     constexpr auto operator-=(const T& scalar) -> numarray&
     {
-        foreach<M>([&](auto i) constexpr { m_data[i] -= scalar; });
+        For<M>([&](auto i) constexpr { m_data[i] -= scalar; });
         return *this;
     }
 
     constexpr auto operator*=(const T& scalar) -> numarray&
     {
-        foreach<M>([&](auto i) constexpr { m_data[i] *= scalar; });
+        For<M>([&](auto i) constexpr { m_data[i] *= scalar; });
         return *this;
     }
 
     constexpr auto operator/=(const T& scalar) -> numarray&
     {
-        foreach<M>([&](auto i) constexpr { m_data[i] /= scalar; });
+        For<M>([&](auto i) constexpr { m_data[i] /= scalar; });
         return *this;
     }
 
@@ -127,7 +165,7 @@ public:
     constexpr auto operator+=(const numarray<N, U>& other) -> numarray&
     {
         static_assert(M <= N);
-        foreach<M>([&](auto i) constexpr { m_data[i] += other[i]; });
+        For<M>([&](auto i) constexpr { m_data[i] += other[i]; });
         return *this;
     }
 
@@ -135,7 +173,7 @@ public:
     constexpr auto operator-=(const numarray<N, U>& other) -> numarray&
     {
         static_assert(M <= N);
-        foreach<M>([&](auto i) constexpr { m_data[i] -= other[i]; });
+        For<M>([&](auto i) constexpr { m_data[i] -= other[i]; });
         return *this;
     }
 
@@ -143,7 +181,7 @@ public:
     constexpr auto operator*=(const numarray<N, U>& other) -> numarray&
     {
         static_assert(M <= N);
-        foreach<M>([&](auto i) constexpr { m_data[i] *= other[i]; });
+        For<M>([&](auto i) constexpr { m_data[i] *= other[i]; });
         return *this;
     }
 
@@ -151,7 +189,7 @@ public:
     constexpr auto operator/=(const numarray<N, U>& other) -> numarray&
     {
         static_assert(M <= N);
-        foreach<M>([&](auto i) constexpr { m_data[i] /= other[i]; });
+        For<M>([&](auto i) constexpr { m_data[i] /= other[i]; });
         return *this;
     }
 
@@ -159,7 +197,7 @@ public:
     auto assignNegative(const numarray<N, U>& other) -> numarray&
     {
         static_assert(M <= N);
-        foreach<M>([&](auto i) constexpr { m_data[i] = -other[i]; });
+        For<M>([&](auto i) constexpr { m_data[i] = -other[i]; });
         return *this;
     }
 
@@ -167,19 +205,19 @@ public:
     auto assignScaled(const T& scalar, const numarray<N, U>& other) -> numarray&
     {
         static_assert(M <= N);
-        foreach<M>([&](auto i) constexpr { m_data[i] += scalar * other[i]; });
+        For<M>([&](auto i) constexpr { m_data[i] += scalar * other[i]; });
         return *this;
     }
 
     auto fill(const T& value) -> numarray&
     {
-        foreach<M>([&](auto i) constexpr { m_data[i] = value; });
+        For<M>([&](auto i) constexpr { m_data[i] = value; });
         return *this;
     }
 
     auto negate() -> numarray&
     {
-        foreach<M>([&](auto i) constexpr { m_data[i] = -m_data[i]; });
+        For<M>([&](auto i) constexpr { m_data[i] = -m_data[i]; });
         return *this;
     }
 
@@ -1507,10 +1545,20 @@ constexpr void assignMul(BaseDual<N, T, W>& self, U&& other)
     }
     // ASSIGN-MULTIPLY A DUAL NUMBER: self *= dual
     else if constexpr (isDual<U>) {
-        const Dual<N - 1, T> aux = self * grad(other);
-        grad(self) *= other;
-        grad(self) += aux;
-        val(self) *= val(other);
+        // const auto& x = self;
+        // const auto& y = other;
+        // ReverseFor<N + 1>([=](auto n) {
+        //     For<n + 1>([=](auto i) {
+        //         // constexpr double c = forward::BinomialCoefficient<n, i>;
+        //         double c = forward::BinomialCoefficient<n, i>;
+        //         // self[n] += c * x[n - 1] * y[i];
+        //     });
+        // });
+
+        // const Dual<N - 1, T> aux = self * grad(other);
+        // grad(self) *= other;
+        // grad(self) += aux;
+        // val(self) *= val(other);
     }
     // ASSIGN-MULTIPLY A NEGATIVE EXPRESSION: self *= (-expr)
     else if constexpr (isNegExpr<U>) {
@@ -1695,9 +1743,10 @@ constexpr void apply(BaseDual<N, T, W>& self, NegOp)
 template<size_t N, typename T, typename W>
 constexpr void apply(BaseDual<N, T, W>& self, InvOp)
 {
-    val(self) = One<T> / val(self);
-    const Dual<N, T> aux = - self * self;
-    grad(self) *= aux;
+    const Dual<N, T> aux1 = self;
+    val(self) = 1.0 / val(self);
+    const Dual<N, T> aux2 = -self * self;
+    grad(self) = aux2 * grad(aux1);
 }
 
 template<size_t N, typename T, typename W>
@@ -1799,6 +1848,28 @@ std::ostream& operator<<(std::ostream& out, const Dual<N, T>& x)
 }
 
 using dual = forward2::Dual<2, double>;
+
+
+
+
+
+
+
+template<size_t N, typename T>
+constexpr auto assignMul2(Dual<N, T>& self, const Dual<N, T>& x, const Dual<N, T>& y)
+{
+    ReverseFor<N + 1>([&](auto n) {
+        For<n + 1>([&](auto i) {
+            constexpr auto c = forward::BinomialCoefficient<n.index, i.index>;
+            self[n] += c * x[n - i] * y[i];
+        });
+    });
+}
+
+
+
+
+
 
 } // namespace forward
 

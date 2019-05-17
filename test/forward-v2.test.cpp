@@ -28,10 +28,52 @@ using namespace autodiff::forward2;
 //
 //} // namespace autodiff::forward
 
+
+#include <iostream>
+using namespace std;
+
 TEST_CASE("dual tests", "[dual]")
 {
+
+
+    // ReverseFor<10>([&](auto I) {
+    //     constexpr size_t i = I;
+    //     For<i+1>([&](auto J) {
+    //         constexpr size_t j = J;
+    //         cout << forward::BinomialCoefficient<i, j> << (j == i ? '\n' : ' ');
+    //         // cout << "(" << i << ", " << j << ")" << (j == i ? '\n' : ' ');
+    //     });
+    // });
+    // cout << endl;
+
+    // ReverseFor<10>([&](auto n) {
+    //     For<n + 1>([&](auto i) {
+    //         // cout << "(" << n << ", " << i << ")" << (n == i ? '\n' : ' ');
+    //         cout << forward::BinomialCoefficient<0, 0> << (n == i ? '\n' : ' ');
+    //         // constexpr size_t nn = n.index;
+    //         // constexpr size_t ii = i.index;
+    //         // // constexpr double c = forward::BinomialCoefficient<nn, ii>;
+    //         // constexpr double c = forward::BinomialCoefficient<nn, ii>;
+    //         // self[n] += c * x[n - 1] * y[i];
+    //     });
+    // });
+
+
     dual x = 100.;
     dual y = 10.;
+    dual z;
+
+    x[1] = 1.0;
+    y[1] = 1.0;
+
+    x[2] = 2.0;
+    y[2] = 2.0;
+
+    assignMul2(z, x, y);
+
+    REQUIRE(z[0] == x[0] * y[0]);
+    REQUIRE(z[1] == x[1] * y[0] + x[0] * y[1]);
+    REQUIRE(z[2] == x[2] * y[0] + 2*x[1] * y[1] + x[0] * y[2]);
 
     // auto z = head(x);
 
@@ -50,11 +92,6 @@ TEST_CASE("dual tests", "[dual]")
 
     // int i = grad(x);
     // int j = grad(grad(x));
-    x[1] = 0.0;
-    y[1] = 1.0;
-
-    x[2] = 0.0;
-    y[2] = 0.0;
 
     a = x * y;
 
