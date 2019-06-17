@@ -92,48 +92,77 @@ EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::dual, dual)
 
 } // namespace Eigen
 
-namespace autodiff {
+namespace autodiff::forward {
 
-/// Return the gradient vector of scalar function f with respect to variables x.
-template<typename Function, typename duals>
-Eigen::VectorXd gradient(const Function& f, duals& x)
+/// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
+template<typename Function, typename Wrt, typename Args, typename Result>
+auto gradient(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::VectorXd
 {
-    const std::size_t n = x.size();
+    const std::size_t n = std::get<0>(wrt).size();
 
     Eigen::VectorXd g(n);
 
     for(std::size_t j = 0; j < n; ++j)
     {
-        forward::seed(wrt(x[j]));
-        g[j] = f(x).grad;
-        forward::unseed(wrt(x[j]));
+        std::get<0>(wrt)[j].grad = 1.0;
+        u = std::apply(f, args);
+        std::get<0>(wrt)[j].grad = 0.0;
+        g[j] = u.grad;
     }
 
     return g;
 }
 
-/// Return the Jacobian matrix of variables y with respect to variables x.
-template<typename Function, typename duals>
-Eigen::MatrixXd jacobian(const Function& f, const duals& y, duals& x)
+/// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
+template<typename Function, typename Wrt, typename Args>
+auto gradient(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::VectorXd
 {
-    const auto m = y.size();
-    const auto n = x.size();
-    Eigen::VectorXdual tmp;
-
-    Eigen::MatrixXd mat(m, n);
-    for(auto j = 0; j < n; ++j)
-    {
-        x[j].grad = 1.0;
-        tmp = f(x);
-        x[j].grad = 0.0;
-
-        for(auto i = 0; i < m; ++i)
-            mat(i, j) = tmp[i].grad;
-    }
-
-    return mat;
+    using Result = decltype(std::apply(f, args));
+    Result u;
+    return gradient(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u);
 }
 
-} // namespace autodiff
+/// Return the Jacobian matrix of a function *f* with respect to some or all variables.
+template<typename Function, typename Wrt, typename Args, typename Result>
+auto jacobian(const Function& f, Wrt&& wrt, Args&& args, Result& F) -> Eigen::MatrixXd
+{
+    const auto n = std::get<0>(wrt).size();
+
+    if(n == 0) return {};
+
+    std::get<0>(wrt)[0].grad = 1.0;
+    F = std::apply(f, args);
+    std::get<0>(wrt)[0].grad = 0.0;
+
+    const auto m = F.size();
+
+    Eigen::MatrixXd J(m, n);
+
+    for(auto i = 0; i < m; ++i)
+        J(i, 0) = F[i].grad;
+
+    for(auto j = 1; j < n; ++j)
+    {
+        std::get<0>(wrt)[j].grad = 1.0;
+        F = std::apply(f, args);
+        std::get<0>(wrt)[j].grad = 0.0;
+
+        for(auto i = 0; i < m; ++i)
+            J(i, j) = F[i].grad;
+    }
+
+    return J;
+}
+
+/// Return the Jacobian matrix of a function *f* with respect to some or all variables.
+template<typename Function, typename Wrt, typename Args>
+auto jacobian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
+{
+    using Result = decltype(std::apply(f, args));
+    Result F;
+    return jacobian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), F);
+}
+
+} // namespace autodiff::forward
 
 

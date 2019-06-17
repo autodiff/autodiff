@@ -18,9 +18,17 @@
 
 {{ inputcpp('examples/forward/example-forward-gradient-derivatives-using-eigen.cpp') }}
 
+### Gradient of a scalar function with parameters
+
+{{ inputcpp('examples/forward/example-forward-gradient-derivatives-using-eigen-with-parameters.cpp') }}
+
 ### Jacobian of a vector function
 
 {{ inputcpp('examples/forward/example-forward-jacobian-derivatives-using-eigen.cpp') }}
+
+### Jacobian of a vector function with parameters
+
+{{ inputcpp('examples/forward/example-forward-jacobian-derivatives-using-eigen-with-parameters.cpp') }}
 
 ### Higher-order derivatives of a multi-variable function
 

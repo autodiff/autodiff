@@ -17,7 +17,7 @@ int main()
     dual x = 2.0;   // the input variable x
     dual u = f(x);  // the output variable u
 
-    double dudx = derivative(f, wrt(x), x);  // evaluate the derivative du/dx
+    double dudx = derivative(f, wrt(x), at(x));  // evaluate the derivative du/dx
 
     cout << "u = " << u << endl;         // print the evaluated output u
     cout << "du/dx = " << dudx << endl;  // print the evaluated derivative du/dx
