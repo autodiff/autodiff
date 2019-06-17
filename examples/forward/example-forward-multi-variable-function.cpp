@@ -14,14 +14,15 @@ dual f(dual x, dual y, dual z)
 
 int main()
 {
-    dual x = 1.0;         // the input variable x
-    dual y = 2.0;         // the input variable y
-    dual z = 3.0;         // the input variable z
-    dual u = f(x, y, z);  // the output variable u
+    dual x = 1.0;  // the input variable x
+    dual y = 2.0;  // the input variable y
+    dual z = 3.0;  // the input variable z
 
-    double dudx = derivative(f, wrt(x), x, y, z);  // evaluate the derivative du/dx
-    double dudy = derivative(f, wrt(y), x, y, z);  // evaluate the derivative du/dy
-    double dudz = derivative(f, wrt(z), x, y, z);  // evaluate the derivative du/dz
+    dual u = f(x, y, z);  // the output scalar u = f(x, y, z)
+
+    double dudx = derivative(f, wrt(x), at(x, y, z));  // evaluate du/dx
+    double dudy = derivative(f, wrt(y), at(x, y, z));  // evaluate du/dy
+    double dudz = derivative(f, wrt(z), at(x, y, z));  // evaluate du/dz
 
     cout << "u = " << u << endl;         // print the evaluated output u
     cout << "du/dx = " << dudx << endl;  // print the evaluated derivative du/dx

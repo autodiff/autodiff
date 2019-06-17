@@ -48,12 +48,12 @@ its derivatives *(∂u/∂x,  ∂u/∂y, ∂u/∂z)* with respect to the *input
 variables* *(x, y, z)*.
 
 Enabling forward automatic differentiation for the calculation of derivatives
-using **autodiff** is relatively simple. For our previous function *f*, we only
+using {{autodiff}} is relatively simple. For our previous function *f*, we only
 need to replace the floating-point type `double` to `autodiff::dual` for both
 input and output variables:
 
 ```c++
-dual f(dual x, dual y, dual z)
+dual f(const dual& x, const dual& y, const dual& z)
 {
     return (x + y + z) * exp(x * y * z);
 }
@@ -67,14 +67,16 @@ dual y = 2.0;
 dual z = 3.0;
 dual u = f(x, y, z);
 
-double dudx = derivative(f, wrt(x), x, y, z);
-double dudy = derivative(f, wrt(y), x, y, z);
-double dudz = derivative(f, wrt(z), x, y, z);
+double dudx = derivative(f, wrt(x), at(x, y, z));
+double dudy = derivative(f, wrt(y), at(x, y, z));
+double dudz = derivative(f, wrt(z), at(x, y, z));
 ```
 
-where the auxiliary function `autodiff::wrt`, which has the meaning of **with
-respect to**, is used to indicate which input variable *(x, y, z)* is the
-selected one to compute the partial derivative of *f*.
+The auxiliary function `autodiff::wrt`, an acronym for **with respect to**,
+is used to indicate which input variable *(x, y, z)* is the selected one to
+compute the partial derivative of *f*. The auxiliary function `autodiff::at`
+is used to indicate where (at which values of its parameters) the derivative
+of *f* is evaluated.
 
 ### Reverse mode
 
@@ -87,7 +89,7 @@ possible to compute the contribution of each branch on the derivatives of the
 output variable with respect to input variables.
 
 <img
-    src='docs/img/expression-tree-diagram.svg'
+    src='img/expression-tree-diagram.svg'
     style='max-width:100%;'
     title='Expression tree diagram.'>
 
@@ -99,7 +101,7 @@ simultaneously (e.g., in a single forward pass, *∂u/∂x*,  *∂u/∂y*, and *
 are evaluated together with *u*, in contrast with three forward passes, each
 one computing the individual derivatives).
 
-Similar as before, we can use **autodiff** to enable reverse automatic
+Similar as before, we can use {{autodiff}} to enable reverse automatic
 differentiation for our function *f* by simply replacing type `double` by
 `autodiff::var` as follows:
 

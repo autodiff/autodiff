@@ -22,10 +22,10 @@ int main()
     VectorXdual x(5);    // the input vector x with 5 variables
     x << 1, 2, 3, 4, 5;  // x = [1, 2, 3, 4, 5]
 
-    dual u = f(x);  // the output variable u
+    dual u;  // the output scalar u = f(x) evaluated together with gradient below
 
-    VectorXd dudx = gradient(f, x);  // evaluate the gradient vector du/dx
+    VectorXd g = gradient(f, wrt(x), at(x), u);  // evaluate the function value u and its gradient vector g = du/dx
 
-    cout << "u = " << u << endl;             // print the evaluated output u
-    cout << "grad(u) = \n" << dudx << endl;  // print the evaluated gradient vector du/dx
+    cout << "u = " << u << endl;    // print the evaluated output u
+    cout << "g = \n" << g << endl;  // print the evaluated gradient vector g = du/dx
 }

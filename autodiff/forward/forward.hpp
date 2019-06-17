@@ -588,9 +588,15 @@ auto unseed(std::tuple<Args&...> duals)
 }
 
 template<typename... Args>
-auto wrt(Args&... duals)
+auto wrt(Args&&... args)
 {
-    return std::tuple<Args&...>(duals...);
+    return std::forward_as_tuple(std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+auto at(Args&&... args)
+{
+    return std::forward_as_tuple(std::forward<Args>(args)...);
 }
 
 template<std::size_t order, typename T, typename G>
@@ -604,13 +610,21 @@ auto derivative(const Dual<T, G>& dual)
         return derivative<order - 1>(dual.grad);
 }
 
-template<typename Function, typename... Duals, typename... Args>
-auto derivative(const Function& f, std::tuple<Duals&...> wrt, Args&... args)
+template<typename Function, typename Wrt, typename Args, typename Result>
+auto derivative(const Function& f, Wrt&& wrt, Args&& args, Result& u)
 {
-    seed<Duals&...>(wrt);
-    auto res = f(args...);
-    unseed<Duals&...>(wrt);
-    return derivative<std::tuple_size<decltype(wrt)>::value>(res);
+    seed(wrt);
+    u = std::apply(f, args);
+    unseed(wrt);
+    return derivative<std::tuple_size<Wrt>::value>(u);
+}
+
+template<typename Function, typename Wrt, typename Args>
+auto derivative(const Function& f, Wrt&& wrt, Args&& args)
+{
+    using Result = decltype(std::apply(f, args));
+    Result u;
+    return derivative(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u);
 }
 
 // Code below requires template argument deduction, which is not available in clang v4,
