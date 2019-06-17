@@ -39,16 +39,17 @@
 // autodiff includes
 #include <autodiff/forward/binomialcoefficient.hpp>
 
-namespace autodiff {
-
-namespace impl {
+namespace autodiff::forward {
 
 template<size_t I>
 struct Index
 {
     constexpr static size_t index = I;
-    constexpr operator size_t() const { return index; }
+    constexpr operator const size_t() const { return index; }
+    constexpr operator size_t() { return index; }
 };
+
+namespace impl {
 
 template<size_t I, size_t Imin, size_t Imax, typename Function>
 constexpr auto For(Function&& f)
@@ -94,6 +95,25 @@ template<size_t Imax, typename Function>
 constexpr auto ReverseFor(Function&& f)
 {
     ReverseFor<0, Imax>(std::forward<Function>(f));
+}
+
+template<size_t Imin, size_t Imax, typename Function>
+constexpr auto Sum(Function&& f)
+{
+    using T = std::invoke_result_t<Function, Index<0>>;
+    auto aux = T{};
+    For<Imin, Imax>([&](auto i) constexpr {
+        aux += f(i);
+    });
+    return aux;
+}
+
+template<size_t i, size_t j>
+constexpr double binomialCoefficient()
+{
+    static_assert(i <= detail::binomialcoeffs_nmax, "Violation of maximum order for binomial coefficient retrieval.");
+    static_assert(j <= i, "Violation of j <= i condition for retrieving binomial coefficient C(i,j).");
+    return detail::binomialcoeffs_data[detail::binomialcoeffs_offsets[i] + j];
 }
 
 template<size_t M, typename T>
@@ -236,8 +256,6 @@ private:
 // {
 //     return { a.data() };
 // }
-
-namespace forward2 {
 
 //=====================================================================================================================
 //
@@ -778,43 +796,70 @@ public:
     }
 
     template<typename U, enableif<isExpr<U>>...>
-    BaseDual(U&& other)
+    constexpr BaseDual(U&& other)
     {
         assign(*this, std::forward<U>(other));
     }
 
     template<typename U, enableif<isNumber<U> || isExpr<U>>...>
-    auto operator=(U&& other) -> BaseDual&
+    constexpr auto operator=(U&& other) -> BaseDual&
     {
         assign(*this, std::forward<U>(other));
         return *this;
     }
 
     template<typename U, enableif<isNumber<U> || isExpr<U>>...>
-    auto operator+=(U&& other) -> BaseDual&
+    constexpr auto operator+=(U&& other) -> BaseDual&
     {
         assignAdd(*this, std::forward<U>(other));
         return *this;
     }
 
     template<typename U, enableif<isNumber<U> || isExpr<U>>...>
-    auto operator-=(U&& other) -> BaseDual&
+    constexpr auto operator-=(U&& other) -> BaseDual&
     {
         assignSub(*this, std::forward<U>(other));
         return *this;
     }
 
-    template<typename U, enableif<isNumber<U> || isExpr<U>>...>
-    auto operator*=(U&& other) -> BaseDual&
+    template<typename U, enableif<isNumber<U> || isExpr<U> && !isDual<U>>...>
+    constexpr auto operator*=(U&& other) -> BaseDual&
     {
         assignMul(*this, std::forward<U>(other));
         return *this;
     }
 
-    template<typename U, enableif<isNumber<U> || isExpr<U>>...>
-    auto operator/=(U&& other) -> BaseDual&
+    template<typename U, enableif<isNumber<U> || isExpr<U> && !isDual<U>>...>
+    constexpr auto operator/=(U&& other) -> BaseDual&
     {
         assignDiv(*this, std::forward<U>(other));
+        return *this;
+    }
+
+    constexpr auto operator*=(const BaseDual& y)
+    {
+        auto& x = *this;
+        ReverseFor<N + 1>([&](auto i) constexpr {
+            x[i] = Sum<0, i + 1>([&](auto j) constexpr {
+                constexpr auto c = BinomialCoefficient<i.index, j.index>;
+                // constexpr auto c = binomialCoefficient<i.index, j.index>();
+                return c * x[i - j] * y[j];
+                // return 0.0;
+            });
+        });
+        return *this;
+    }
+
+    constexpr auto operator/=(const BaseDual& y)
+    {
+        auto& x = *this;
+        For<N + 1>([&](auto i) constexpr {
+            x[i] -= Sum<0, i>([&](auto j) constexpr {
+                constexpr auto c = BinomialCoefficient<i.index, j.index>;
+                return c * x[j] * y[i - j];
+            });
+            x[i] /= y[0];
+        });
         return *this;
     }
 
@@ -1847,7 +1892,7 @@ std::ostream& operator<<(std::ostream& out, const Dual<N, T>& x)
     return out;
 }
 
-using dual = forward2::Dual<2, double>;
+using dual = Dual<2, double>;
 
 
 
@@ -1855,28 +1900,22 @@ using dual = forward2::Dual<2, double>;
 
 
 
-template<size_t N, typename T>
-constexpr auto assignMul2(Dual<N, T>& self, const Dual<N, T>& x, const Dual<N, T>& y)
-{
-    ReverseFor<N + 1>([&](auto n) {
-        For<n + 1>([&](auto i) {
-            constexpr auto c = forward::BinomialCoefficient<n.index, i.index>;
-            self[n] += c * x[n - i] * y[i];
-        });
-    });
-}
 
 
 
 
 
 
-} // namespace forward
 
-using forward2::dual;
-// using forward2::val;
-// using forward2::eval;
-// using forward2::derivative;
-// using forward2::wrt;
+// using forward::val;
+// using forward::eval;
+// using forward::derivative;
+// using forward::wrt;
+
+} // namespace autodiff::forward
+
+namespace autodiff {
+
+using forward::dual;
 
 } // namespace autodiff

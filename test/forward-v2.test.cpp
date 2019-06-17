@@ -9,7 +9,7 @@ using namespace Eigen;
 #include <autodiff/forward/forward-v2.hpp>
 //#include <autodiff/forward/eigen.hpp>
 using namespace autodiff;
-using namespace autodiff::forward2;
+using namespace autodiff::forward;
 //
 //template<typename T>
 //auto approx(T&& expr) -> Approx
@@ -69,11 +69,19 @@ TEST_CASE("dual tests", "[dual]")
     x[2] = 2.0;
     y[2] = 2.0;
 
-    assignMul2(z, x, y);
+    z  = x;
+    z *= y;
 
     REQUIRE(z[0] == x[0] * y[0]);
     REQUIRE(z[1] == x[1] * y[0] + x[0] * y[1]);
     REQUIRE(z[2] == x[2] * y[0] + 2*x[1] * y[1] + x[0] * y[2]);
+
+    z  = x;
+    z /= y;
+
+    REQUIRE(z[0] == ( x[0] ) / y[0]);
+    REQUIRE(z[1] == ( x[1] - y[1] * z[0] ) / y[0] );
+    REQUIRE(z[2] == ( x[2] - y[2] * z[0] - 2*y[1] * z[1] ) / y[0] );
 
     // auto z = head(x);
 
