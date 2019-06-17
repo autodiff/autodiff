@@ -97,19 +97,19 @@ constexpr size_t binomialcoeffs_offsets[] = { 0, 1, 3, 6, 10, 15, 21, 28, 36, 45
 /// The maximum order for binomial coefficients supported currently (50).
 constexpr size_t binomialcoeffs_nmax = 50;
 
-/// Return the binomial coefficient C(n,k) at compile time.
-template<size_t n, size_t k>
+/// Return the binomial coefficient C(i,j) at compile time.
+template<size_t i, size_t j>
 struct BinomialCoefficient
 {
-    static_assert(n <= binomialcoeffs_nmax, "Violation of maximum order for binomial coefficient retrieval.");
-    static_assert(k <= n, "Violation of k <= n condition for retrieving binomial coefficients.");
-    constexpr static double value = binomialcoeffs_data[binomialcoeffs_offsets[n] + k];
+    static_assert(i <= binomialcoeffs_nmax, "Violation of maximum order for binomial coefficient retrieval.");
+    static_assert(j <= i, "Violation of j <= i condition for retrieving binomial coefficient C(i,j).");
+    constexpr static double value = binomialcoeffs_data[binomialcoeffs_offsets[i] + j];
 };
 
 } // namespace detail
 
-/// The binomial coefficient C(n,k) at compile time.
-template<size_t n, size_t k>
-constexpr double BinomialCoefficient = detail::BinomialCoefficient<n, k>::value;
+/// The binomial coefficient C(i,j) at compile time.
+template<size_t i, size_t j>
+constexpr double BinomialCoefficient = detail::BinomialCoefficient<i, j>::value;
 
 } // namespace autodiff::forward
