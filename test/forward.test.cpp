@@ -46,6 +46,24 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( x == 10 );
     }
 
+    SECTION("aliasing tests")
+    {
+        x = 1; x = x + 3*x - 2*x + x;
+        REQUIRE( x == 3 );
+
+        x = 1; x += x + 3*x - 2*x + x;
+        REQUIRE( x == 4 );
+
+        x = 1; x -= x + 3*x - 2*x + x;
+        REQUIRE( x == -2 );
+
+        x = 1; x *= x + 3*x - 2*x + x;
+        REQUIRE( x == 3 );
+
+        x = 1; x /= x + x;
+        REQUIRE( x == 0.5 );
+    }
+
     SECTION("testing comparison operators")
     {
         x = 6;
@@ -394,38 +412,38 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 
         f = [](dual x, dual y) -> dual { return x *= 2; };
         REQUIRE( f(x, y) == approx(2.0 * x) );
-        REQUIRE( derivative(f, wrt(x), at(x, y)) == 2.0 );
-        REQUIRE( derivative(f, wrt(y), at(x, y)) == 0.0 );
+        REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(2.0) );
+        REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(0.0) );
 
         f = [](dual x, dual y) -> dual { return x *= y; };
         REQUIRE( f(x, y) == approx(x * y) );
-        REQUIRE( derivative(f, wrt(x), at(x, y)) == y );
-        REQUIRE( derivative(f, wrt(y), at(x, y)) == x );
+        REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(y) );
+        REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(x) );
 
         f = [](dual x, dual y) -> dual { return x *= -x; };
         REQUIRE( f(x, y) == approx(-x * x) );
         REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(-2.0 * x) );
-        REQUIRE( derivative(f, wrt(y), at(x, y)) == 0.0 );
+        REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(0.0) );
 
         f = [](dual x, dual y) -> dual { return x *= (2.0 / y); };
         REQUIRE( f(x, y) == approx(2.0 * x / y) );
-        REQUIRE( derivative(f, wrt(x), at(x, y)) ==  2.0 / y );
+        REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(2.0 / y) );
         REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(-2.0 * x / (y * y)) );
 
         f = [](dual x, dual y) -> dual { return x *= (2.0 * x); };
         REQUIRE( f(x, y) == approx(2.0 * x * x) );
         REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(4.0 * x) );
-        REQUIRE( derivative(f, wrt(y), at(x, y)) == 0.0 );
+        REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(0.0) );
 
         f = [](dual x, dual y) -> dual { return x *= (2.0 * y); };
         REQUIRE( f(x, y) == approx(2.0 * x * y) );
-        REQUIRE( derivative(f, wrt(x), at(x, y)) == 2.0 * y );
-        REQUIRE( derivative(f, wrt(y), at(x, y)) == 2.0 * x );
+        REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(2.0 * y) );
+        REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(2.0 * x) );
 
         f = [](dual x, dual y) -> dual { return x *= x + y; };
         REQUIRE( f(x, y) == approx(x * (x + y)) );
-        REQUIRE( derivative(f, wrt(x), at(x, y)) == 2.0 * x + y );
-        REQUIRE( derivative(f, wrt(y), at(x, y)) == x );
+        REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(2.0 * x + y) );
+        REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(x) );
 
         f = [](dual x, dual y) -> dual { return x *= x * y; };
         REQUIRE( f(x, y) == approx(x * (x * y)) );
@@ -439,8 +457,8 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 
         f = [](dual x, dual y) -> dual { return x /= 2; };
         REQUIRE( f(x, y) == approx(0.5 * x) );
-        REQUIRE( derivative(f, wrt(x), at(x, y)) == 0.5 );
-        REQUIRE( derivative(f, wrt(y), at(x, y)) == 0.0 );
+        REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(0.5) );
+        REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(0.0) );
 
         f = [](dual x, dual y) -> dual { return x /= y; };
         REQUIRE( f(x, y) == approx(x / y) );
@@ -449,13 +467,13 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 
         f = [](dual x, dual y) -> dual { return x /= -x; };
         REQUIRE( f(x, y) == approx(-1.0) );
-        REQUIRE( derivative(f, wrt(x), at(x, y)) == 0.0 );
-        REQUIRE( derivative(f, wrt(y), at(x, y)) == 0.0 );
+        REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(0.0) );
+        REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(0.0) );
 
         f = [](dual x, dual y) -> dual { return x /= (2.0 / y); };
         REQUIRE( f(x, y) == approx(0.5 * x * y) );
-        REQUIRE( derivative(f, wrt(x), at(x, y)) == 0.5 * y );
-        REQUIRE( derivative(f, wrt(y), at(x, y)) == 0.5 * x );
+        REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(0.5 * y) );
+        REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(0.5 * x) );
 
         f = [](dual x, dual y) -> dual { return x /= (2.0 * y); };
         REQUIRE( f(x, y) == approx(0.5 * x / y) );
@@ -469,7 +487,7 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 
         f = [](dual x, dual y) -> dual { return x /= x * y; };
         REQUIRE( f(x, y) == approx(1.0 / y) );
-        REQUIRE( derivative(f, wrt(x), at(x, y)) == 0.0 );
+        REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(0.0) );
         REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(-1.0 / (y * y)) );
     }
 

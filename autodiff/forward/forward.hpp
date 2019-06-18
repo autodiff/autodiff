@@ -470,35 +470,45 @@ struct Dual
     template<typename U, enableif<isNumber<U> || isExpr<U>>...>
     Dual& operator=(U&& other)
     {
-        assign(*this, std::forward<U>(other));
+        Dual tmp;
+        assign(tmp, std::forward<U>(other));
+        assign(*this, tmp);
         return *this;
     }
 
     template<typename U, enableif<isNumber<U> || isExpr<U>>...>
     Dual& operator+=(U&& other)
     {
-        assignAdd(*this, std::forward<U>(other));
+        Dual tmp;
+        assign(tmp, std::forward<U>(other));
+        assignAdd(*this, tmp);
         return *this;
     }
 
     template<typename U, enableif<isNumber<U> || isExpr<U>>...>
     Dual& operator-=(U&& other)
     {
-        assignSub(*this, std::forward<U>(other));
+        Dual tmp;
+        assign(tmp, std::forward<U>(other));
+        assignSub(*this, tmp);
         return *this;
     }
 
     template<typename U, enableif<isNumber<U> || isExpr<U>>...>
     Dual& operator*=(U&& other)
     {
-        assignMul(*this, std::forward<U>(other));
+        Dual tmp;
+        assign(tmp, std::forward<U>(other));
+        assignMul(*this, tmp);
         return *this;
     }
 
     template<typename U, enableif<isNumber<U> || isExpr<U>>...>
     Dual& operator/=(U&& other)
     {
-        assignDiv(*this, std::forward<U>(other));
+        Dual tmp;
+        assign(tmp, std::forward<U>(other));
+        assignDiv(*this, tmp);
         return *this;
     }
 };
