@@ -724,4 +724,24 @@ TEST_CASE("autodiff::dual tests", "[dual]")
             for(auto j = 0; j < 2; ++j)
                 REQUIRE( J(i, j) == approx(-F[i] + ((i == j + 1) ? 1.0 : 0.0)) );
     }
+
+    SECTION("testing casting to VectorXd")
+    {
+	VectorXdual x(3);
+        x << 0.5, 0.2, 0.3;
+	VectorXd y = x.cast<double>();
+
+	for(auto i = 0; i < 3; ++i)
+	    REQUIRE( x(i) == approx(y(i)) );
+    }
+
+    SECTION("testing casting to VectorXf")
+    {
+	MatrixXdual x(2,2);
+        x << 0.5, 0.2, 0.3, 0.7;
+	MatrixXd y = x.cast<double>();
+	for(auto i = 0; i < 2; ++i)
+	    for(auto j = 0; j < 2; ++j)
+		REQUIRE( x(i,j) == approx(y(i,j)) );
+    }
 }

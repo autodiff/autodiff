@@ -458,6 +458,8 @@ struct Dual
 
     Dual() : Dual(0.0) {}
 
+    explicit operator T() const { return this->val; }
+
     template<typename U, enableif<isNumber<U>>...>
     Dual(U&& other) : val(other), grad(0) {}
 
