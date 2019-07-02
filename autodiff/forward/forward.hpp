@@ -1267,9 +1267,9 @@ constexpr void assignPow(Dual<T, G>& self, U&& other)
 {
     // ASSIGN-POW A NUMBER: self = pow(self, number)
     if constexpr (isNumber<U>) {
-        const auto aux = std::pow(self.val, other);
-        self.grad *= other/self.val * aux;
-        self.val = aux;
+        const auto aux = std::pow(self.val, other - 1);
+        self.grad *= other * aux;
+        self.val = aux * self.val;
     }
     // ASSIGN-POW A DUAL NUMBER: self = pow(self, dual)
     else if constexpr (isDual<U>) {
