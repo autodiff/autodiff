@@ -487,9 +487,9 @@ struct PowExpr : BinaryExpr
 
     virtual void propagate(DerivativesMapX& derivatives, const ExprPtr& wprime) const
     {
-        const auto aux = wprime * pow(l, r);
-        l->propagate(derivatives, aux * r / l);
-        r->propagate(derivatives, aux * log(l));
+        const auto aux = wprime * pow(l, r - 1);
+        l->propagate(derivatives, aux * r);
+        r->propagate(derivatives, aux *l * log(l));
     }
 };
 
@@ -519,7 +519,7 @@ struct PowConstantRightExpr : BinaryExpr
 
     virtual void propagate(DerivativesMapX& derivatives, const ExprPtr& wprime) const
     {
-        l->propagate(derivatives, wprime * pow(l, r) * r / l);
+        l->propagate(derivatives, wprime * pow(l, r - 1) * r);
     }
 };
 
