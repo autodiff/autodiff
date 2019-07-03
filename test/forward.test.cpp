@@ -18,16 +18,6 @@ auto approx(T&& expr) -> Approx
     return Approx(val(std::forward<T>(expr))).margin(zero);
 }
 
-namespace autodiff::forward {
-
-template<typename U, enableif<isExpr<U>>...>
-auto operator==(U&& l, const Approx& r) { return val(std::forward<U>(l)) == r; }
-
-template<typename U, enableif<isExpr<U>>...>
-auto operator==(const Approx& l, U&& r) { return std::forward<U>(r) == l; }
-
-} // namespace autodiff::forward
-
 TEST_CASE("autodiff::dual tests", "[dual]")
 {
     dual x = 100;
@@ -120,7 +110,23 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         f = [](dual x) -> dual { return -(2.0 * x); };
         REQUIRE( f(x) == -2.0 * x );
         REQUIRE( derivative(f, wrt(x), at(x)) == -2.0 );
+
+        // Testing negative operator on a more complex expression
+        f = [](dual x) -> dual { return -x - (2*x); };
+        REQUIRE( f(x) == -val(x) - 2.0 * val(x) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == -3.0 );
+
+        // Testing negative operator on a more complex expression
+        f = [](dual x) -> dual { return -x - 2.0 * log(1.0 + exp(-x)); };
+        REQUIRE( f(x) == -val(x) - 2.0 * std::log(1.0 + std::exp(-val(x))) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == -1.0 - 2.0/(1.0 + std::exp(-val(x))) * (-std::exp(-val(x))) );
+
+        // Testing negative operator on a more complex expression
+        f = [](dual x) -> dual { return -x - log(1.0 + exp(-x)); };
+        REQUIRE( f(x) == -val(x) - std::log(1.0 + std::exp(-val(x))) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == -1.0 - 1.0/(1.0 + std::exp(-val(x))) * (-std::exp(-val(x))) );
     }
+
     SECTION("testing unary inverse operator")
     {
         std::function<dual(dual)> f;
