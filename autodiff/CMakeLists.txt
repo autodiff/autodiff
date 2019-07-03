@@ -1,6 +1,11 @@
+# Find Eigen library
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 # Create the autodiff interface library
 add_library(autodiff INTERFACE)
+
+# Link autodiff against Eigen
+target_link_libraries(autodiff INTERFACE Eigen3::Eigen)
 
 # Set autodiff compilation features to be propagated to client code.
 target_compile_features(autodiff INTERFACE cxx_std_17)

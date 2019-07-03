@@ -1,6 +1,9 @@
 # Recommended cmake macro use to write a cmake config file.
 @PACKAGE_INIT@
 
+# Find dependencies
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+
 # Include the cmake targets of the project if they have not been yet.
 if(NOT TARGET autodiff::autodiff)
     include("@PACKAGE_AUTODIFF_INSTALL_CONFIGDIR@/autodiffTargets.cmake")
