@@ -460,16 +460,18 @@ struct Dual
 
     explicit operator T() const { return this->val; }
 
-    template<typename U, enableif<isNumber<U>>...>
-    Dual(U&& other) : val(other), grad(0) {}
+    Dual(const ValueType<T>& val)
+    : val(val), grad(0)
+    {
+    }
 
-    template<typename U, enableif<isExpr<U>>...>
+    template<typename U, enableif<isExpr<U> && !isDual<U>>...>
     Dual(U&& other)
     {
         assign(*this, std::forward<U>(other));
     }
 
-    template<typename U, enableif<isNumber<U> || isExpr<U>>...>
+    template<typename U, enableif<isExpr<U> && !isDual<U>>...>
     Dual& operator=(U&& other)
     {
         Dual tmp;
@@ -527,6 +529,24 @@ struct BinaryExpr
     L l;
     R r;
 };
+
+template<typename Op, typename R>
+auto inner(const UnaryExpr<Op, R>& expr) -> const R
+{
+    return expr.r;
+}
+
+template<typename Op, typename L, typename R>
+auto left(const BinaryExpr<Op, L, R>& expr) -> const L
+{
+    return expr.l;
+}
+
+template<typename Op, typename L, typename R>
+auto right(const BinaryExpr<Op, L, R>& expr) -> const R
+{
+    return expr.r;
+}
 
 //=====================================================================================================================
 //
@@ -675,7 +695,7 @@ constexpr auto negative(U&& expr)
 {
     static_assert(isExpr<U> || isNumber<U>);
     if constexpr (isNegExpr<U>)
-        return expr.r;
+        return inner(expr);
     else return NegExpr<U>{ std::forward<U>(expr) };
 }
 
@@ -687,7 +707,7 @@ constexpr auto inverse(U&& expr)
 {
     static_assert(isExpr<U>);
     if constexpr (isInvExpr<U>)
-        return expr.r;
+        return inner(expr);
     else return InvExpr<U>{ std::forward<U>(expr) };
 }
 
@@ -726,10 +746,10 @@ constexpr auto operator-(R&& expr)
 {
     // NEGATIVE EXPRESSION CASE: -(-x) => x when expr is (-x)
     if constexpr (isNegExpr<R>)
-        return expr.r;
+        return inner(expr);
     // NEGATIVE EXPRESSION CASE: -(number * dual) => (-number) * dual
     else if constexpr (isNumberDualMulExpr<R>)
-        return (-expr.l) * expr.r;
+        return (-left(expr)) * right(expr);
     // default expression
     else return NegExpr<R>{ std::forward<R>(expr) };
 }
@@ -745,7 +765,7 @@ constexpr auto operator+(L&& l, R&& r)
 {
     // ADDITION EXPRESSION CASE: (-x) + (-y) => -(x + y)
     if constexpr (isNegExpr<L> && isNegExpr<R>)
-        return -( l.r + r.r );
+        return -( inner(l) + inner(r) );
     // ADDITION EXPRESSION CASE: expr + number => number + expr (number always on the left)
     else if constexpr (isExpr<L> && isNumber<R>)
         return std::forward<R>(r) + std::forward<L>(l);
@@ -764,19 +784,19 @@ constexpr auto operator*(L&& l, R&& r)
 {
     // MULTIPLICATION EXPRESSION CASE: (-expr) * (-expr) => expr * expr
     if constexpr (isNegExpr<L> && isNegExpr<R>)
-        return l.r * r.r;
+        return inner(l) * inner(r);
     // // MULTIPLICATION EXPRESSION CASE: (1 / expr) * (1 / expr) => 1 / (expr * expr)
     else if constexpr (isInvExpr<L> && isInvExpr<R>)
-        return inverse(l.r * r.r);
+        return inverse(inner(l) * inner(r));
     // // MULTIPLICATION EXPRESSION CASE: expr * number => number * expr
     else if constexpr (isExpr<L> && isNumber<R>)
         return std::forward<R>(r) * std::forward<L>(l);
     // // MULTIPLICATION EXPRESSION CASE: number * (-expr) => (-number) * expr
     else if constexpr (isNumber<L> && isNegExpr<R>)
-        return (-l) * r.r;
+        return (-l) * inner(r);
     // // MULTIPLICATION EXPRESSION CASE: number * (number * expr) => (number * number) * expr
     else if constexpr (isNumber<L> && isNumberDualMulExpr<R>)
-        return (l * r.l) * r.r;
+        return (l * left(r)) * right(r);
     // MULTIPLICATION EXPRESSION CASE: number * dual => NumberDualMulExpr
     else if constexpr (isNumber<L> && isDual<R>)
         return NumberDualMulExpr<L, R>{ std::forward<L>(l), std::forward<R>(r) };
