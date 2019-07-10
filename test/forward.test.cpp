@@ -2,7 +2,7 @@
 #include "catch.hpp"
 
 // Eigen includes
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 using namespace Eigen;
 
 // autodiff includes
