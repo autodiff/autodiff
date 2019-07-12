@@ -16,6 +16,8 @@ include(GNUInstallDirs)
 # Ensure proper configuration if in a conda environment
 include(CondaAware)
 
+find_package(Eigen3 REQUIRED)
+
 # autodiff requires a c++17 enabled compiler
 set(CMAKE_CXX_STANDARD 17)
 
