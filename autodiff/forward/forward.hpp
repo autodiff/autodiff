@@ -1152,9 +1152,9 @@ constexpr void assignMul(Dual<T, G>& self, U&& other)
     }
     // ASSIGN-MULTIPLY A DUAL NUMBER: self *= dual
     else if constexpr (isDual<U>) {
-        const auto aux = self.val * other.grad; // to avoid aliasing when self === other
+        const G aux = other.grad; // to avoid aliasing when self === other
         self.grad *= other.val;
-        self.grad += aux;
+        self.grad += self.val * aux;
         self.val *= other.val;
     }
     // ASSIGN-MULTIPLY A NEGATIVE EXPRESSION: self *= (-expr)
@@ -1219,7 +1219,7 @@ constexpr void assignDiv(Dual<T, G>& self, U&& other)
     }
     // ASSIGN-DIVIDE A DUAL NUMBER: self /= dual
     else if constexpr (isDual<U>) {
-        const auto aux = One<T> / other.val; // to avoid aliasing when self === other
+        const T aux = One<T> / other.val; // to avoid aliasing when self === other
         self.val *= aux;
         self.grad -= self.val * other.grad;
         self.grad *= aux;
@@ -1287,14 +1287,14 @@ constexpr void assignPow(Dual<T, G>& self, U&& other)
 {
     // ASSIGN-POW A NUMBER: self = pow(self, number)
     if constexpr (isNumber<U>) {
-        const auto aux = std::pow(self.val, other - 1);
+        const T aux = std::pow(self.val, other - 1);
         self.grad *= other * aux;
         self.val = aux * self.val;
     }
     // ASSIGN-POW A DUAL NUMBER: self = pow(self, dual)
     else if constexpr (isDual<U>) {
-        const auto aux1 = std::pow(self.val, other.val);
-        const auto aux2 = std::log(self.val);
+        const T aux1 = std::pow(self.val, other.val);
+        const T aux2 = std::log(self.val);
         self.grad *= other.val/self.val;
         self.grad += aux2 * other.grad;
         self.grad *= aux1;
@@ -1350,7 +1350,7 @@ constexpr void apply(Dual<T, G>& self, CosOp)
 template<typename T, typename G>
 constexpr void apply(Dual<T, G>& self, TanOp)
 {
-    const auto aux = One<T> / std::cos(self.val);
+    const T aux = One<T> / std::cos(self.val);
     self.val = tan(self.val);
     self.grad *= aux * aux;
 }
@@ -1358,7 +1358,7 @@ constexpr void apply(Dual<T, G>& self, TanOp)
 template<typename T, typename G>
 constexpr void apply(Dual<T, G>& self, ArcSinOp)
 {
-    const auto aux = One<T> / sqrt(1.0 - self.val * self.val);
+    const T aux = One<T> / sqrt(1.0 - self.val * self.val);
     self.val = asin(self.val);
     self.grad *= aux;
 }
@@ -1366,7 +1366,7 @@ constexpr void apply(Dual<T, G>& self, ArcSinOp)
 template<typename T, typename G>
 constexpr void apply(Dual<T, G>& self, ArcCosOp)
 {
-    const auto aux = -One<T> / sqrt(1.0 - self.val * self.val);
+    const T aux = -One<T> / sqrt(1.0 - self.val * self.val);
     self.val = acos(self.val);
     self.grad *= aux;
 }
@@ -1374,7 +1374,7 @@ constexpr void apply(Dual<T, G>& self, ArcCosOp)
 template<typename T, typename G>
 constexpr void apply(Dual<T, G>& self, ArcTanOp)
 {
-    const auto aux = One<T> / (1.0 + self.val * self.val);
+    const T aux = One<T> / (1.0 + self.val * self.val);
     self.val = atan(self.val);
     self.grad *= aux;
 }
@@ -1389,7 +1389,7 @@ constexpr void apply(Dual<T, G>& self, ExpOp)
 template<typename T, typename G>
 constexpr void apply(Dual<T, G>& self, LogOp)
 {
-    const auto aux = One<T> / self.val;
+    const T aux = One<T> / self.val;
     self.val = log(self.val);
     self.grad *= aux;
 }
@@ -1398,7 +1398,7 @@ template<typename T, typename G>
 constexpr void apply(Dual<T, G>& self, Log10Op)
 {
     constexpr T ln10 = 2.3025850929940456840179914546843;
-    const auto aux = One<T> / (ln10 * self.val);
+    const T aux = One<T> / (ln10 * self.val);
     self.val = log10(self.val);
     self.grad *= aux;
 }
@@ -1413,7 +1413,7 @@ constexpr void apply(Dual<T, G>& self, SqrtOp)
 template<typename T, typename G>
 constexpr void apply(Dual<T, G>& self, AbsOp)
 {
-    const auto aux = self.val;
+    const T aux = self.val;
     self.val = abs(self.val);
     self.grad *= aux / self.val;
 }

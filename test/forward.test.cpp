@@ -620,11 +620,13 @@ TEST_CASE("autodiff::dual tests", "[dual]")
     {
         using dual2nd = HigherOrderDual<2>;
 
+        std::function<dual2nd(dual2nd, dual2nd)> f;
+
         dual2nd x = 5;
         dual2nd y = 7;
 
-        // Testing complex function involving sin and cos
-        auto f = [](dual2nd x, dual2nd y) -> dual2nd
+        // Testing simpler functions
+        f = [](dual2nd x, dual2nd y) -> dual2nd
         {
             return x*x + x*y + y*y;
         };
@@ -634,6 +636,23 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( derivative(f, wrt(x, y), at(x, y)) == Approx(1.0) );
         REQUIRE( derivative(f, wrt(y, x), at(x, y)) == Approx(1.0) );
         REQUIRE( derivative(f, wrt(y, y), at(x, y)) == Approx(2.0) );
+
+        // Testing complex function involving log
+        x = 2.0;
+        y = 1.0;
+
+        f = [](dual2nd x, dual2nd y) -> dual2nd
+        {
+            return 1 + x + y + x * y + y / x + log(x / y);
+        };
+
+        REQUIRE( val(f(x, y)) == Approx( 1 + val(x) + val(y) + val(x) * val(y) + val(y) / val(x) + log(val(x) / val(y)) ) );
+        REQUIRE( val(derivative(f, wrt(x), at(x, y))) == Approx( 1 + val(y) - val(y) / (val(x) * val(x)) + 1.0/val(x) - log(val(y)) ) );
+        REQUIRE( val(derivative(f, wrt(y), at(x, y))) == Approx( 1 + val(x) + 1.0 / val(x) - 1.0/val(y) ) );
+        REQUIRE( val(derivative(f, wrt(x, x), at(x, y))) == Approx( 2 * val(y) / (val(x) * val(x) * val(x)) + -1.0/(val(x) * val(x)) ) );
+        REQUIRE( val(derivative(f, wrt(y, y), at(x, y))) == Approx( 1.0/(val(y)*val(y)) ) );
+        REQUIRE( val(derivative(f, wrt(y, x), at(x, y))) == Approx( 1 - 1.0 / (val(x) * val(x)) ) );
+        REQUIRE( val(derivative(f, wrt(x, y), at(x, y))) == Approx( 1 - 1.0 / (val(x) * val(x)) ) );
     }
 
     SECTION("testing higher order derivatives")
