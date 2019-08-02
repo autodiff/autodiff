@@ -94,11 +94,22 @@ EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::dual, dual)
 
 namespace autodiff::forward {
 
+namespace detail {
+template <typename Tuple, typename Callable>
+void for_each(Tuple&& tuple, Callable&& callable) 
+{
+    std::apply(
+        [&callable](auto&&... args) { (callable(std::forward<decltype(args)>(args)), ...); },
+        std::forward<Tuple>(tuple)
+    );
+}
+}
 /// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
 template<typename Function, typename Wrt, typename Args, typename Result>
 auto gradient(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::VectorXd
 {
-    const std::size_t n = std::get<0>(wrt).size();
+    std::size_t n = 0;
+    detail::for_each(wrt, [&n](auto&& arg){ n += arg.size(); });
 
     Eigen::VectorXd g(n);
 
