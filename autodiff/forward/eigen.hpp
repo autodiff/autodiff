@@ -112,14 +112,21 @@ auto gradient(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::Ve
     detail::for_each(wrt, [&n](auto&& arg){ n += arg.size(); });
 
     Eigen::VectorXd g(n);
-
-    for(std::size_t j = 0; j < n; ++j)
+    
+    detail::for_each(wrt, [f, &args, &u, &g, index_aligment = std::size_t(0)](auto&& arg) mutable
     {
-        std::get<0>(wrt)[j].grad = 1.0;
-        u = std::apply(f, args);
-        std::get<0>(wrt)[j].grad = 0.0;
-        g[j] = u.grad;
-    }
+        std::size_t size = arg.size();
+
+        for (std::size_t j = 0; j < size; ++j)
+        {
+            arg[j].grad = 1.0;
+            u = std::apply(f, args);
+            arg[j].grad = 0.0;
+            g[j + index_aligment] = u.grad;
+        }
+
+        index_aligment += size;
+    });
 
     return g;
 }
