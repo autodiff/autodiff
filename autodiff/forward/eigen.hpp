@@ -103,6 +103,24 @@ void for_each(Tuple&& tuple, Callable&& callable)
         std::forward<Tuple>(tuple)
     );
 }
+
+template <typename T>
+struct is_eigen_dual_matrix : std::false_type { };
+
+template <typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
+struct is_eigen_dual_matrix<Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>> : traits::isDual<plain<_Scalar>> { };
+
+template <typename T>
+inline constexpr bool is_eigen_dual_container_v = is_eigen_dual_matrix<plain<T>>::value;
+
+template <typename T, typename Enable = void>
+struct is_eigen_dual_vector : std::false_type { };
+
+template <typename T>
+struct is_eigen_dual_vector<T, std::enable_if_t<is_eigen_dual_container_v<T>>> : std::bool_constant<plain<T>::IsVectorAtCompileTime> { };
+
+template <typename T>
+inline constexpr bool is_eigen_dual_vector_v = is_eigen_dual_vector<T>::value;
 }
 /// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
 template<typename Function, typename Wrt, typename Args, typename Result>
