@@ -122,28 +122,71 @@ struct is_eigen_dual_vector<T, std::enable_if_t<is_eigen_dual_container_v<T>>> :
 template <typename T>
 inline constexpr bool is_eigen_dual_vector_v = is_eigen_dual_vector<T>::value;
 }
+
+/// Evaluate derivative of multi variable function at point args by 'wrt' variable arg 
+template<typename Function, typename Args, typename Arg, typename Result>
+void evaluate(const Function& function, Args&& args, Arg&& arg, Result& u)
+{
+    arg.grad = 1.0;
+    u = std::apply(function, args);
+    arg.grad = 0.0;
+}
+
+/// Helper class for computing gradient vector for different type of arguments
+/// Example of function signature : VectorXdual f(VectorXdual x, VectorXdual y, dual p) 
+template <typename Function, typename Args, typename Gradient, typename Result>
+struct gradient_filler
+{
+    gradient_filler(Function f, Args args, Gradient& g, Result& u) :
+        f(f), args(args), g(g), u(u), index_aligment(0) { }
+    
+    /// Fill gradient vector for duals vector
+    template <typename Arg, std::enable_if_t<detail::is_eigen_dual_vector_v<Arg>>...>
+    void operator()(Arg&& arg) 
+    {
+        for (std::size_t j = 0; j < arg.size(); ++j)
+        {
+            evaluate(f, args, arg[j], u);
+            g[j + index_aligment] = u.grad;
+        }        
+        index_aligment += arg.size();
+    }
+    
+    /// Fill gradient vector for single dual variable
+    template <typename Arg, std::enable_if_t<isDual<Arg>>...>
+    void operator()(Arg&& arg)
+    {
+        evaluate(f, args, arg, u);
+        g[index_aligment] = u.grad;
+        index_aligment += 1;
+    }
+private:
+    Function f;
+    Args args;
+    Gradient& g;
+    Result& u;
+    std::size_t index_aligment;
+};
+
 /// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
 template<typename Function, typename Wrt, typename Args, typename Result>
 auto gradient(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::VectorXd
 {
     std::size_t n = 0;
-    detail::for_each(wrt, [&n](auto&& arg){ n += arg.size(); });
+    detail::for_each(wrt, [&n](auto&& arg)
+    {
+        if constexpr (detail::is_eigen_dual_vector_v<decltype(arg)>)
+            n += arg.size();
+        else if constexpr (isDual<decltype(arg)>)
+            n += 1;
+    });
 
     Eigen::VectorXd g(n);
-    
-    detail::for_each(wrt, [f, &args, &u, &g, index_aligment = std::size_t(0)](auto&& arg) mutable
+    gradient_filler fill_gradient_vector(f, args, g, u);
+
+    detail::for_each(wrt, [&fill_gradient_vector](auto&& arg)
     {
-        std::size_t size = arg.size();
-
-        for (std::size_t j = 0; j < size; ++j)
-        {
-            arg[j].grad = 1.0;
-            u = std::apply(f, args);
-            arg[j].grad = 0.0;
-            g[j + index_aligment] = u.grad;
-        }
-
-        index_aligment += size;
+        fill_gradient_vector(arg);
     });
 
     return g;
