@@ -104,6 +104,23 @@ void forEach(Tuple&& tuple, Callable&& callable)
         std::forward<Tuple>(tuple)
     );
 }
+
+/// Wrap T to compatible array interface
+template<typename T>
+struct EigenVectorAdaptor {
+    /// implicit construct from value
+    constexpr EigenVectorAdaptor(T val) : val(val) { }
+    /// operator [] to add array like access
+    T operator[](Eigen::Index) const {
+        return val;
+    }
+    /// size for compatibility
+    Eigen::Index size() const {
+        return 1;
+    }
+private:
+    T val;
+};
 }
 
 /// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
