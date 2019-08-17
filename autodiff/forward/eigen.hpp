@@ -213,7 +213,10 @@ auto gradient(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::VectorXd
 template<typename Function, typename Wrt, typename Args, typename Result>
 auto jacobian(const Function& f, Wrt&& wrt, Args&& args, Result& F) -> Eigen::MatrixXd
 {
-    const auto n = std::get<0>(wrt).size();
+    std::size_t n = 0;
+    detail::forEach(wrt, [&n] (auto&& element) {
+        n += element.size();
+    });
 
     if(n == 0) return {};
 
@@ -228,15 +231,33 @@ auto jacobian(const Function& f, Wrt&& wrt, Args&& args, Result& F) -> Eigen::Ma
     for(auto i = 0; i < m; ++i)
         J(i, 0) = F[i].grad;
 
-    for(auto j = 1; j < n; ++j)
-    {
-        std::get<0>(wrt)[j].grad = 1.0;
+    Eigen::Index current_index_pos = std::get<0>(wrt).size();
+    constexpr auto wrt_count = std::tuple_size_v<std::remove_reference_t<Wrt>>;
+    detail::forEach(detail::tailView<wrt_count - 1>(wrt), [&] (auto&& w) {
+        w[0].grad = 1.0;
         F = std::apply(f, args);
-        std::get<0>(wrt)[j].grad = 0.0;
+        w[0].grad = 0.0;
 
         for(auto i = 0; i < m; ++i)
-            J(i, j) = F[i].grad;
-    }
+            J(i, current_index_pos) = F[i].grad;
+
+        current_index_pos += w.size();
+    });
+
+    current_index_pos = 0;
+    detail::forEach(wrt, [&] (auto&& w) {
+        for(auto j = 1; j < w.size(); ++j)
+        {
+            w[j].grad = 1.0;
+            F = std::apply(f, args);
+            w[j].grad = 0.0;
+
+            for(auto i = 0; i < m; ++i)
+                J(i, j + current_index_pos) = F[i].grad;
+        }
+
+        current_index_pos += w.size();
+    });
 
     return J;
 }
