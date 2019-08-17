@@ -105,6 +105,32 @@ void forEach(Tuple&& tuple, Callable&& callable)
     );
 }
 
+/// Create index sequence at interval [Start, End)
+template <std::size_t Start, std::size_t End, std::size_t... Is>
+auto makeIndexSequenceImpl() {
+    if constexpr (End == Start) return std::index_sequence<Is...>();
+    else return makeIndexSequenceImpl<Start, End - 1, End - 1, Is...>();
+}
+
+/// Create tuple view using index sequence
+template <class Tuple, size_t... Is>
+constexpr auto viewImpl(Tuple&& t,
+    std::index_sequence<Is...>) {
+    return std::forward_as_tuple(std::get<Is>(t)...);
+}
+
+/// Create index sequence on [Start, End)
+template <std::size_t Start, std::size_t End>
+using makeIndexSequence = std::decay_t<decltype(makeIndexSequenceImpl<Start, End>())>;
+
+/// Create view on tuple tail size N
+template <size_t N, class Tuple>
+constexpr auto tailView(Tuple&& t) {
+    constexpr auto size = std::tuple_size<std::remove_reference_t<Tuple>>::value;
+    static_assert(N <= size, "N must be smaller or equal than size of tuple");
+    return viewImpl(t, makeIndexSequence<size - N, size>{});
+}
+
 /// Wrap T to compatible array interface
 template<typename T>
 struct EigenVectorAdaptor {
