@@ -121,6 +121,30 @@ struct EigenVectorAdaptor {
 private:
     T val;
 };
+
+/// Meta function to endow floating point array compatible
+template<typename T>
+using makeTypeCompatible = std::conditional<isDual<std::decay_t<T>>, EigenVectorAdaptor<T>, T>;
+
+/// Transform pack of types
+template <typename Pack, template <typename> class Operation>
+struct transformImpl;
+
+/// Partial specialization
+template <template <typename...> class Pack, typename... Types, template <typename> class Operation>
+struct transformImpl<Pack<Types...>, Operation> { using type = Pack<typename Operation<Types>::type...>; };
+
+/// Transformed Pack alias
+template <typename Pack, template <typename> class Operation>
+using transform = typename transformImpl<Pack, Operation>::type;
+}
+
+/// Create tuple with eigen compatible types from args
+template<typename... Args>
+constexpr auto wrtpack(Args&&... args)
+{
+    using comatible_tuple = detail::transform<std::tuple<Args...>, detail::makeTypeCompatible>;
+    return (comatible_tuple(std::forward<typename detail::makeTypeCompatible<Args>::type>(args)...));
 }
 
 /// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
@@ -194,4 +218,7 @@ auto jacobian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
 
 } // namespace autodiff::forward
 
+namespace autodiff {
+using forward::wrtpack;
+}
 
