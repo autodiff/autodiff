@@ -11,6 +11,8 @@ using namespace Eigen;
 using namespace autodiff;
 using namespace autodiff::forward;
 
+#include <iostream>
+
 template<typename T>
 auto approx(T&& expr) -> Approx
 {
@@ -768,5 +770,119 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 	for(auto i = 0; i < 2; ++i)
 	    for(auto j = 0; j < 2; ++j)
 		REQUIRE( x(i,j) == approx(y(i,j)) );
+    }
+
+    SECTION("test gradient size with respect to few arguments")
+    {
+        // Testing complex function involving sin and cos
+        auto f = [](const VectorXdual& x, dual y, const VectorXdual& z) -> dual
+        {
+            return 0.5 * (( x.array() * x.array() ).sum() + y * y + (z.array() * z.array()).sum());
+        };
+
+        VectorXdual x(3);
+        x << 1.0, 2.0, 3.0;
+        
+        dual y = 2;
+   
+        VectorXdual z(4);
+        z << 1.0, 2.0, 3.0, 4.0;
+
+        VectorXd g = gradient(f, wrtpack(x.tail(2), y, z), at(x, y, z));
+        
+        REQUIRE( g.size() == 7 );
+    }
+
+    SECTION("testing gradient derivatives wrt pack variables")
+    {
+        auto f = [](const VectorXdual& x, dual y, const VectorXdual& z) -> dual
+        {
+            return 0.5 * (( x.array() * x.array() ).sum() + y * y + (z.array() * z.array()).sum());
+        };
+
+        VectorXdual x(2);
+        x << 1.0, 2.0;
+        
+        dual y = 3.0;
+   
+        VectorXdual z(1);
+        z << 4.0;
+
+        VectorXd g = gradient(f, wrtpack(x, y, z), at(x, y, z));
+        
+        REQUIRE(g[0] == approx(x[0]));
+        REQUIRE(g[1] == approx(x[1]));
+        REQUIRE(g[2] == approx(y));
+        REQUIRE(g[3] == approx(z[0]));
+    }
+
+    SECTION("test jacobian size with respect to few arguments")
+    {
+        auto f = [](const VectorXdual& x, dual y, const VectorXdual& z) -> VectorXdual
+        {
+            VectorXdual ret(x.size() + z.size());
+            ret.head(x.size()) = x * y / x.array().sum();
+            ret.tail(z.size()) = y * z;
+            
+            return ret;
+        };
+
+        VectorXdual x(3);
+        x << 0.5, 0.2, 0.3;
+
+        dual y = 2.0;
+
+        VectorXdual z(3);
+        z << 1.0, 2.0, 3.0;
+
+        VectorXdual F;
+
+        const MatrixXd J = jacobian(f, wrtpack(x.tail(2), y), at(x, y, z), F);
+
+        REQUIRE(J.rows() == 6);
+        REQUIRE(J.cols() == 3);
+    }
+
+    SECTION("test jacobian size with respect to few arguments")
+    {
+        auto f = [](const VectorXdual& x, dual y, const VectorXdual& z) -> VectorXdual
+        {
+            VectorXdual ret(x.size() + z.size());
+            ret.head(x.size()) = x * y / x.array().sum();
+            ret.tail(z.size()) = y * z;
+
+            return ret;
+        };
+
+        VectorXdual x(3);
+        x << 0.5, 0.2, 0.3;
+
+        dual y = 2.0;
+
+        VectorXdual z(3);
+        z << 1.0, 2.0, 3.0;
+
+        VectorXdual F;
+
+        const MatrixXd J = jacobian(f, wrtpack(x, y, z), at(x, y, z), F);
+
+        for (auto i = 0; i < 3; ++i)
+            for (auto j = 0; j < 3; ++j)
+                REQUIRE(J(i, j) == approx(-F[i] + ((i == j) ? y.val : 0.0)));
+
+        for (auto i = 0; i < 3; ++i)
+            for (auto j = 0; j < 3; ++j)
+                REQUIRE(J(i + 3, j) == approx(0.0));
+
+        for (auto i = 0; i < 6; ++i)
+                REQUIRE(J(i, 3) == approx( i < 3 ? x(i) : z(i - 3)));
+
+        for (auto i = 0; i < 3; ++i)
+            for (auto j = 0; j < 3; ++j)
+                REQUIRE(J(i, j + 4) == approx(0.0));
+
+        for (auto i = 0; i < 3; ++i)
+            for (auto j = 0; j < 3; ++j)
+                REQUIRE(J(i + 3, j + 4) == approx((i == j) ? y.val : 0.0));
     }
 }
