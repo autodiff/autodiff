@@ -301,6 +301,54 @@ auto jacobian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
     return jacobian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), F);
 }
 
+/// Return the hessian matrix of scalar function *f* with respect to some or all variables *x*.
+template<typename Function, typename Wrt, typename Args, typename Result>
+auto hessian(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::MatrixXd
+{
+    std::size_t n = 0;
+    detail::forEach(wrt, [&n](auto&& element) {
+        n += element.size();
+    });
+
+    Eigen::MatrixXd H(n, n);
+
+    // TODO: take symmetry into account (for tuple forEach)
+    Eigen::Index current_index_pos_outer = 0;
+    detail::forEach(wrt, [&](auto&& outer) {
+        Eigen::Index current_index_pos_inner = 0;
+        detail::forEach(wrt, [&](auto&& inner) {
+            for (auto i = 0; i < outer.size(); i++)
+            {
+                outer[i].grad = 1.0;
+                for (auto j = i; j < inner.size(); ++j)
+                {
+                    const auto ii = i + current_index_pos_outer;
+                    const auto jj = j + current_index_pos_inner;
+
+                    inner[j].val.grad = 1.0;
+                    u = std::apply(f, args);
+                    inner[j].val.grad = 0.0;
+
+                    H(jj, ii) = H(ii, jj) = u.grad.grad;
+                }
+                outer[i].grad = 0.0;
+            }
+            current_index_pos_inner += inner.size();
+        });
+        current_index_pos_outer += outer.size();
+    });
+
+    return H;
+}
+
+/// Return the hessian matrix of scalar function *f* with respect to some or all variables *x*.
+template<typename Function, typename Wrt, typename Args>
+auto hessian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
+{
+    using Result = decltype(std::apply(f, args));
+    Result u;
+    return hessian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u);
+}
 } // namespace autodiff::forward
 
 namespace autodiff {
