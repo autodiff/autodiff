@@ -54,6 +54,23 @@ template<> struct NumTraits<autodiff::dual> : NumTraits<double> // permits to ge
     };
 };
 
+template<> struct NumTraits<autodiff::HigherOrderDual<2>> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
+{
+    typedef autodiff::HigherOrderDual<2> Real;
+    typedef autodiff::HigherOrderDual<2> NonInteger;
+    typedef autodiff::HigherOrderDual<2> Nested;
+    enum
+    {
+        IsComplex = 0,
+        IsInteger = 0,
+        IsSigned = 1,
+        RequireInitialization = 1,
+        ReadCost = 1,
+        AddCost = 3,
+        MulCost = 3
+    };
+};
+
 template<typename T, typename G, typename BinOp>
 struct ScalarBinaryOpTraits<autodiff::forward::Dual<T, G>, T, BinOp>
 {
@@ -64,6 +81,18 @@ template<typename T, typename G, typename BinOp>
 struct ScalarBinaryOpTraits<T, autodiff::forward::Dual<T, G>, BinOp>
 {
     typedef autodiff::dual ReturnType;
+};
+
+template<typename T, typename G, typename BinOp>
+struct ScalarBinaryOpTraits<autodiff::forward::Dual<autodiff::forward::Dual<T, G>, autodiff::forward::Dual<T, G>>, T, BinOp>
+{
+    typedef autodiff::HigherOrderDual<2> ReturnType;
+};
+
+template<typename T, typename G, typename BinOp>
+struct ScalarBinaryOpTraits<T, autodiff::forward::Dual<autodiff::forward::Dual<T, G>, autodiff::forward::Dual<T, G>>, BinOp>
+{
+    typedef autodiff::HigherOrderDual<2> ReturnType;
 };
 
 #define EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)   \
@@ -85,6 +114,7 @@ EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 3) \
 EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 4)
 
 EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::dual, dual)
+EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::HigherOrderDual<2>, dual2nd)
 
 #undef EIGEN_MAKE_TYPEDEFS_ALL_SIZES
 #undef EIGEN_MAKE_TYPEDEFS
