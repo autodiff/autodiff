@@ -29,8 +29,10 @@ int main()
 
     MatrixXd Jx = jacobian(f, wrt(x), at(x, p), F);  // evaluate the function and the Jacobian matrix dF/dx
     MatrixXd Jp = jacobian(f, wrt(p), at(x, p), F);  // evaluate the function and the Jacobian matrix dF/dp
+    MatrixXd Jpx = jacobian(f, wrtpack(p, x), at(x, p), F);  // evaluate the function and the Jacobian matrix [dF/dp, dF/dx]
 
     cout << "F = \n" << F << endl;    // print the evaluated output vector F
     cout << "Jx = \n" << Jx << endl;  // print the evaluated Jacobian matrix dF/dx
     cout << "Jp = \n" << Jp << endl;  // print the evaluated Jacobian matrix dF/dp
+    cout << "Jpx = \n" << Jpx << endl;  // print the evaluated Jacobian matrix [dF/dp, dF/dx]
 }
