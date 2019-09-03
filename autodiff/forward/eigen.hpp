@@ -302,8 +302,8 @@ auto jacobian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
 }
 
 /// Return the hessian matrix of scalar function *f* with respect to some or all variables *x*.
-template<typename Function, typename Wrt, typename Args, typename Result>
-auto hessian(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::MatrixXd
+template<typename Function, typename Wrt, typename Args, typename Result, typename Gradient>
+auto hessian(const Function& f, Wrt&& wrt, Args&& args, Result& u, Gradient& g) -> Eigen::MatrixXd
 {
     std::size_t n = 0;
     detail::forEach(wrt, [&n](auto&& element) {
@@ -311,6 +311,7 @@ auto hessian(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::Mat
     });
 
     Eigen::MatrixXd H(n, n);
+    g.resize(n);
 
     // TODO: take symmetry into account (for tuple forEach)
     Eigen::Index current_index_pos_outer = 0;
@@ -330,6 +331,7 @@ auto hessian(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::Mat
                     inner[j].val.grad = 0.0;
 
                     H(jj, ii) = H(ii, jj) = u.grad.grad;
+                    g(ii) = static_cast<double>(u.grad);
                 }
                 outer[i].grad = 0.0;
             }
@@ -347,7 +349,8 @@ auto hessian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
 {
     using Result = decltype(std::apply(f, args));
     Result u;
-    return hessian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u);
+    VectorXd g;
+    return hessian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u, g);
 }
 } // namespace autodiff::forward
 

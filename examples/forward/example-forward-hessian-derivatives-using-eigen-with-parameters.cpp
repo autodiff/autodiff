@@ -29,9 +29,11 @@ int main()
     y << 4, 5; // x = [1, 2, 3]
 
     dual2nd u; // the output scalar u = f(x) evaluated together with Hessian below
+    VectorXdual g; // gradient of f(x) evaluated together with Hessian below
 
-    MatrixXd H = hessian(f, wrtpack(x, y), at(x, y), u); // evaluate the function value u and its Hessian matrix H
+    MatrixXd H = hessian(f, wrtpack(x, y), at(x, y), u, g); // evaluate the function value u and its Hessian matrix H
 
     cout << "u = " << u << endl; // print the evaluated output u
     cout << "Hessian = \n" << H << endl; // print the evaluated Hessian matrix H
+    cout << "g =\n" << g << endl; // print the evaluated gradient vector g = [du/dx, du/dy]
 }
