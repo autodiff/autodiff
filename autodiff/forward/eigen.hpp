@@ -161,6 +161,17 @@ constexpr auto tailView(Tuple&& t) {
     return viewImpl(t, makeIndexSequence<size - N, size>{});
 }
 
+/// Return count of 'joined' tuple elements
+template<typename Tuple>
+auto count(Tuple&& t) -> std::size_t
+{
+    std::size_t n = 0;
+    forEach(t, [&n](auto&& element) {
+        n += element.size();
+    });
+    return n;
+}
+
 /// Wrap T to compatible array interface
 template<typename T>
 struct EigenVectorAdaptor {
@@ -207,10 +218,7 @@ constexpr auto wrtpack(Args&&... args)
 template<typename Function, typename Wrt, typename Args, typename Result>
 auto gradient(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::VectorXd
 {
-    std::size_t n = 0;
-    detail::forEach(wrt, [&n] (auto&& element) {
-        n += element.size();
-    });
+    std::size_t n = detail::count(wrt);
 
     Eigen::VectorXd g(n);
 
@@ -243,10 +251,7 @@ auto gradient(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::VectorXd
 template<typename Function, typename Wrt, typename Args, typename Result>
 auto jacobian(const Function& f, Wrt&& wrt, Args&& args, Result& F) -> Eigen::MatrixXd
 {
-    std::size_t n = 0;
-    detail::forEach(wrt, [&n] (auto&& element) {
-        n += element.size();
-    });
+    std::size_t n = detail::count(wrt);
 
     if(n == 0) return {};
 
@@ -305,10 +310,7 @@ auto jacobian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
 template<typename Function, typename Wrt, typename Args, typename Result, typename Gradient>
 auto hessian(const Function& f, Wrt&& wrt, Args&& args, Result& u, Gradient& g) -> Eigen::MatrixXd
 {
-    std::size_t n = 0;
-    detail::forEach(wrt, [&n](auto&& element) {
-        n += element.size();
-    });
+    std::size_t n = detail::count(wrt);
 
     Eigen::MatrixXd H(n, n);
     g.resize(n);
