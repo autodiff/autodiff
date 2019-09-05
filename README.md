@@ -89,7 +89,7 @@ possible to compute the contribution of each branch on the derivatives of the
 output variable with respect to input variables.
 
 <img
-    src='img/expression-tree-diagram.svg'
+    src='art/expression-tree-diagram.svg'
     style='max-width:100%;'
     title='Expression tree diagram.'>
 
