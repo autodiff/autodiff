@@ -663,6 +663,9 @@ struct var
     /// Implicitly convert this var object variable into an expression pointer
     operator ExprPtr() const { return expr; }
 
+    /// Explicitly convert this var object variable into a double value
+    explicit operator double() const { return expr->val; }
+
 	// Arithmetic-assignment operators
     var& operator+=(const ExprPtr& other) { expr = expr + other; return *this; }
     var& operator-=(const ExprPtr& other) { expr = expr - other; return *this; }
