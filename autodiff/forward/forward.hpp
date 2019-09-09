@@ -1287,14 +1287,14 @@ constexpr void assignPow(Dual<T, G>& self, U&& other)
 {
     // ASSIGN-POW A NUMBER: self = pow(self, number)
     if constexpr (isNumber<U>) {
-        const T aux = std::pow(self.val, other - 1);
+        const T aux = pow(self.val, other - 1);
         self.grad *= other * aux;
         self.val = aux * self.val;
     }
     // ASSIGN-POW A DUAL NUMBER: self = pow(self, dual)
     else if constexpr (isDual<U>) {
-        const T aux1 = std::pow(self.val, other.val);
-        const T aux2 = std::log(self.val);
+        const T aux1 = pow(self.val, other.val);
+        const T aux2 = log(self.val);
         self.grad *= other.val/self.val;
         self.grad += aux2 * other.grad;
         self.grad *= aux1;
@@ -1350,7 +1350,7 @@ constexpr void apply(Dual<T, G>& self, CosOp)
 template<typename T, typename G>
 constexpr void apply(Dual<T, G>& self, TanOp)
 {
-    const T aux = One<T> / std::cos(self.val);
+    const T aux = One<T> / cos(self.val);
     self.val = tan(self.val);
     self.grad *= aux * aux;
 }
