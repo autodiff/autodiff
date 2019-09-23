@@ -640,6 +640,12 @@ auto wrt(Args&&... args)
     return std::forward_as_tuple(std::forward<Args>(args)...);
 }
 
+template<std::size_t N, typename Wrt>
+auto wrt(Wrt&& arg) 
+{
+    return internal::repeat<Wrt>(std::forward<Wrt>(arg), std::make_index_sequence<N>{});
+}
+
 template<typename... Args>
 auto at(Args&&... args)
 {
