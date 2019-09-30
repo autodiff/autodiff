@@ -58,7 +58,7 @@ need to replace the floating-point type `double` to `autodiff::dual` for both
 input and output variables:
 
 ```c++
-dual f(dual x, dual y, dual z)
+dual f(const dual& x, const dual& y, const dual& z)
 {
     return (x + y + z) * exp(x * y * z);
 }
@@ -72,14 +72,16 @@ dual y = 2.0;
 dual z = 3.0;
 dual u = f(x, y, z);
 
-double dudx = derivative(f, wrt(x), x, y, z);
-double dudy = derivative(f, wrt(y), x, y, z);
-double dudz = derivative(f, wrt(z), x, y, z);
+double dudx = derivative(f, wrt(x), at(x, y, z));
+double dudy = derivative(f, wrt(y), at(x, y, z));
+double dudz = derivative(f, wrt(z), at(x, y, z));
 ```
 
-where the auxiliary function `autodiff::wrt`, which has the meaning of **with
-respect to**, is used to indicate which input variable *(x, y, z)* is the
-selected one to compute the partial derivative of *f*.
+The auxiliary function `autodiff::wrt`, an acronym for **with respect to**,
+is used to indicate which input variable *(x, y, z)* is the selected one to
+compute the partial derivative of *f*. The auxiliary function `autodiff::at`
+is used to indicate where (at which values of its parameters) the derivative
+of *f* is evaluated.
 
 ### Reverse mode
 

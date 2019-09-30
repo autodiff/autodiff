@@ -21,15 +21,14 @@ int main()
     dual2nd y = 1.0;      // the input variable y
     dual2nd u = f(x, y);  // the output variable u
 
-    dual ux = derivative(f, wrt(x), x, y);  // evaluate the derivative du/dx
-    dual uy = derivative(f, wrt(y), x, y);  // evaluate the derivative du/dy
+    dual ux = derivative(f, wrt(x), at(x, y));  // evaluate the derivative du/dx
+    dual uy = derivative(f, wrt(y), at(x, y));  // evaluate the derivative du/dy
 
-    double uxx = derivative(f, wrt(x, x), x, y);  // evaluate the derivative d²u/dxdx
-    double uxy = derivative(f, wrt(x, y), x, y);  // evaluate the derivative d²u/dxdy
-    double uyx = derivative(f, wrt(y, x), x, y);  // evaluate the derivative d²u/dydx
-    double uyy = derivative(f, wrt(y, y), x, y);  // evaluate the derivative d²u/dydy
+    double uxx = derivative(f, wrt(x, x), at(x, y));  // evaluate the derivative d²u/dxdx
+    double uxy = derivative(f, wrt(x, y), at(x, y));  // evaluate the derivative d²u/dxdy
+    double uyx = derivative(f, wrt(y, x), at(x, y));  // evaluate the derivative d²u/dydx
+    double uyy = derivative(f, wrt(y, y), at(x, y));  // evaluate the derivative d²u/dydy
 
-    cout << "Allan" << endl;
     cout << "u   = " << u << endl;    // print the evaluated output u
     cout << "ux  = " << ux << endl;   // print the evaluated derivative du/dx
     cout << "uy  = " << uy << endl;   // print the evaluated derivative du/dy

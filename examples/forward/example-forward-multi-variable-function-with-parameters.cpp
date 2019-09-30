@@ -27,13 +27,14 @@ int main()
     params.b = 2.0;  // the parameter b of type dual, not double!
     params.c = 3.0;  // the parameter c of type dual, not double!
 
-    dual x = 0.5;           // the input variable x
+    dual x = 0.5;  // the input variable x
+
     dual u = f(x, params);  // the output variable u
 
-    double dudx = derivative(f, wrt(x), x, params);        // evaluate the derivative du/dx
-    double duda = derivative(f, wrt(params.a), x, params); // evaluate the derivative du/da
-    double dudb = derivative(f, wrt(params.b), x, params); // evaluate the derivative du/db
-    double dudc = derivative(f, wrt(params.c), x, params); // evaluate the derivative du/dc
+    double dudx = derivative(f, wrt(x), at(x, params));        // evaluate the derivative du/dx
+    double duda = derivative(f, wrt(params.a), at(x, params)); // evaluate the derivative du/da
+    double dudb = derivative(f, wrt(params.b), at(x, params)); // evaluate the derivative du/db
+    double dudc = derivative(f, wrt(params.c), at(x, params)); // evaluate the derivative du/dc
 
     cout << "u = " << u << endl;         // print the evaluated output u
     cout << "du/dx = " << dudx << endl;  // print the evaluated derivative du/dx
