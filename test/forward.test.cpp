@@ -537,6 +537,21 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( f(x) == std::tan(val(x)) );
         REQUIRE( derivative(f, wrt(x), at(x)) == approx(1 / (cos(x) * cos(x))) );
 
+        // Testing sinh function
+        f = [](dual x) -> dual { return sinh(x); };
+        REQUIRE( f(x) == std::sinh(val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(cosh(x)) );
+
+        // Testing cosh function
+        f = [](dual x) -> dual { return cosh(x); };
+        REQUIRE( f(x) == std::cosh(val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(sinh(x)) );
+
+        // Testing tanh function
+        f = [](dual x) -> dual { return tanh(x); };
+        REQUIRE( f(x) == std::tanh(val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(1 / (cosh(x) * cosh(x))) );
+
         // Testing asin function
         f = [](dual x) -> dual { return asin(x); };
         REQUIRE( f(x) == std::asin(val(x)) );
