@@ -38,6 +38,7 @@ using autodiff::forward::For;
 
 #define CHECK_FOR(i, from, to, check) for(size_t i = from; i < to; ++i) CHECK( chec k)
 
+#define CHECK_APPROX(a, b) CHECK(a == Approx(b))
 
 TEST_CASE("dual tests", "[dual]")
 {
@@ -51,13 +52,13 @@ TEST_CASE("dual tests", "[dual]")
     CHECK( x[3] == Approx( 0.0 ) );
     CHECK( x[4] == Approx( 0.0 ) );
 
-    x = {1.0, 2.0, 3.0, 4.0, 5.0};
+    x = {2.0, 3.0, 4.0, 5.0, 6.0};
 
-    CHECK( x[0] == Approx( 1.0 ) );
-    CHECK( x[1] == Approx( 2.0 ) );
-    CHECK( x[2] == Approx( 3.0 ) );
-    CHECK( x[3] == Approx( 4.0 ) );
-    CHECK( x[4] == Approx( 5.0 ) );
+    CHECK( x[0] == Approx( 2.0 ) );
+    CHECK( x[1] == Approx( 3.0 ) );
+    CHECK( x[2] == Approx( 4.0 ) );
+    CHECK( x[3] == Approx( 5.0 ) );
+    CHECK( x[4] == Approx( 6.0 ) );
 
     y = +x;
 
@@ -130,6 +131,35 @@ TEST_CASE("dual tests", "[dual]")
     CHECK( z[2] == Approx( -(y[2]*z[0] + 2*y[1]*z[1])/y[0] ) );
     CHECK( z[3] == Approx( -(y[3]*z[0] + 3*y[2]*z[1] + 3*y[1]*z[2])/y[0] ) );
     CHECK( z[4] == Approx( -(y[4]*z[0] + 4*y[3]*z[1] + 6*y[2]*z[2] + 4*y[1]*z[3])/y[0] ) );
+
+    //=====================================================================================================================
+    //
+    // TESTING EXPONENTIAL AND LOGARITHMIC FUNCTIONS
+    //
+    //=====================================================================================================================
+
+    y = exp(x);
+
+    CHECK_APPROX( y[0], exp(x[0]) );
+    CHECK_APPROX( y[1], x[1] * y[0] );
+    CHECK_APPROX( y[2], x[2] * y[0] + x[1] * y[1] );
+    CHECK_APPROX( y[3], x[3] * y[0] + 2*x[2] * y[1] + x[1] * y[2] );
+    CHECK_APPROX( y[4], x[4] * y[0] + 3*x[3] * y[1] + 3*x[2] * y[2] + x[1] * y[3] );
+
+    y = log(x);
+
+    CHECK_APPROX( y[0], log(x[0]) );
+    CHECK_APPROX( y[1], (x[1]) / x[0] );
+    CHECK_APPROX( y[2], (x[2] - x[1]*y[1]) / x[0] );
+    CHECK_APPROX( y[3], (x[3] - x[2]*y[1] - 2*x[1]*y[2]) / x[0] );
+    // CHECK_APPROX( y[4], (x[4] - x[3]*y[1] - 3*x[2]*y[2] - 3*x[1]*y[3]) / x[0] );
+
+
+    //=====================================================================================================================
+    //
+    // TESTING TRIGONOMETRIC FUNCTIONS
+    //
+    //=====================================================================================================================
 
     y = sin(x);
     z = cos(x);
