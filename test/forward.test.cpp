@@ -535,6 +535,21 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( f(x) == std::tan(val(x)) );
         REQUIRE( derivative(f, wrt(x), at(x)) == approx(1 / (cos(x) * cos(x))) );
 
+        // Testing sinh function
+        f = [](dual x) -> dual { return sinh(x); };
+        REQUIRE( f(x) == std::sinh(val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(cosh(x)) );
+
+        // Testing cosh function
+        f = [](dual x) -> dual { return cosh(x); };
+        REQUIRE( f(x) == std::cosh(val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(sinh(x)) );
+
+        // Testing tanh function
+        f = [](dual x) -> dual { return tanh(x); };
+        REQUIRE( f(x) == std::tanh(val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(1 / (cosh(x) * cosh(x))) );
+
         // Testing asin function
         f = [](dual x) -> dual { return asin(x); };
         REQUIRE( f(x) == std::asin(val(x)) );
@@ -632,10 +647,10 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         };
 
         REQUIRE( val(derivative(f, wrt(x), at(x, y))) == Approx(17.0) );
-        REQUIRE( derivative(f, wrt(x, x), at(x, y)) == Approx(2.0) );
+        REQUIRE( derivative(f, wrt<2>(x), at(x, y)) == Approx(2.0) );
         REQUIRE( derivative(f, wrt(x, y), at(x, y)) == Approx(1.0) );
         REQUIRE( derivative(f, wrt(y, x), at(x, y)) == Approx(1.0) );
-        REQUIRE( derivative(f, wrt(y, y), at(x, y)) == Approx(2.0) );
+        REQUIRE( derivative(f, wrt<2>(y), at(x, y)) == Approx(2.0) );
 
         // Testing complex function involving log
         x = 2.0;
@@ -649,7 +664,7 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( val(f(x, y)) == Approx( 1 + val(x) + val(y) + val(x) * val(y) + val(y) / val(x) + log(val(x) / val(y)) ) );
         REQUIRE( val(derivative(f, wrt(x), at(x, y))) == Approx( 1 + val(y) - val(y) / (val(x) * val(x)) + 1.0/val(x) - log(val(y)) ) );
         REQUIRE( val(derivative(f, wrt(y), at(x, y))) == Approx( 1 + val(x) + 1.0 / val(x) - 1.0/val(y) ) );
-        REQUIRE( val(derivative(f, wrt(x, x), at(x, y))) == Approx( 2 * val(y) / (val(x) * val(x) * val(x)) + -1.0/(val(x) * val(x)) ) );
+        REQUIRE( val(derivative(f, wrt<2>(x), at(x, y))) == Approx( 2 * val(y) / (val(x) * val(x) * val(x)) + -1.0/(val(x) * val(x)) ) );
         REQUIRE( val(derivative(f, wrt(y, y), at(x, y))) == Approx( 1.0/(val(y)*val(y)) ) );
         REQUIRE( val(derivative(f, wrt(y, x), at(x, y))) == Approx( 1 - 1.0 / (val(x) * val(x)) ) );
         REQUIRE( val(derivative(f, wrt(x, y), at(x, y))) == Approx( 1 - 1.0 / (val(x) * val(x)) ) );
@@ -668,11 +683,11 @@ TEST_CASE("autodiff::dual tests", "[dual]")
             return (x + y)*(x + y)*(x + y);
         };
 
-        REQUIRE( derivative(f, wrt(x, x, x), at(x, y)) == Approx(6.0) );
+        REQUIRE( derivative(f, wrt<3>(x), at(x, y)) == Approx(6.0) );
         REQUIRE( derivative(f, wrt(x, x, x), at(x, y)) == Approx(6.0) );
         REQUIRE( derivative(f, wrt(x, x, y), at(x, y)) == Approx(6.0) );
         REQUIRE( derivative(f, wrt(x, y, y), at(x, y)) == Approx(6.0) );
-        REQUIRE( derivative(f, wrt(y, y, y), at(x, y)) == Approx(6.0) );
+        REQUIRE( derivative(f, wrt<3>(y), at(x, y)) == Approx(6.0) );
     }
 
     SECTION("testing gradient derivatives")

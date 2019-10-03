@@ -57,6 +57,9 @@ using std::pow;
 using std::sin;
 using std::sqrt;
 using std::tan;
+using std::cosh;
+using std::sinh;
+using std::tanh;
 
 //=====================================================================================================================
 //
@@ -80,6 +83,9 @@ struct InvOp    {};  // INVERSE OPERATOR
 struct SinOp    {};  // SINE OPERATOR
 struct CosOp    {};  // COSINE OPERATOR
 struct TanOp    {};  // TANGENT OPERATOR
+struct SinhOp    {};  // HYPERBOLIC SINE OPERATOR
+struct CoshOp    {};  // HYPERBOLIC COSINE OPERATOR
+struct TanhOp    {};  // HYPERBOLIC TANGENT OPERATOR
 struct ArcSinOp {};  // ARC SINE OPERATOR
 struct ArcCosOp {};  // ARC COSINE OPERATOR
 struct ArcTanOp {};  // ARC TANGENT OPERATOR
@@ -137,6 +143,15 @@ using CosExpr = UnaryExpr<CosOp, R>;
 
 template<typename R>
 using TanExpr = UnaryExpr<TanOp, R>;
+
+template<typename R>
+using SinhExpr = UnaryExpr<SinhOp, R>;
+
+template<typename R>
+using CoshExpr = UnaryExpr<CoshOp, R>;
+
+template<typename R>
+using TanhExpr = UnaryExpr<TanhOp, R>;
 
 template<typename R>
 using ArcSinExpr = UnaryExpr<ArcSinOp, R>;
@@ -591,6 +606,21 @@ auto seed(Arg& dual, Args&... duals) -> void
     dual.grad = num;
 }
 
+template<typename T>
+constexpr auto repeat(T&& t, std::index_sequence<0>) 
+{
+    // Just stop recursion
+    return std::forward_as_tuple(std::forward<T>(t));
+}
+
+template<typename T, std::size_t I, std::size_t... N>
+constexpr auto repeat(T&& t, std::index_sequence<I, N...>) 
+{
+    // concat tuple with rest N
+    return std::tuple_cat(std::forward_as_tuple(std::forward<T>(t)),
+        repeat<T>(std::forward<T>(t), std::make_index_sequence<sizeof...(N)>{}));
+}
+
 } // namespace internal
 
 template<typename Arg>
@@ -623,6 +653,12 @@ template<typename... Args>
 auto wrt(Args&&... args)
 {
     return std::forward_as_tuple(std::forward<Args>(args)...);
+}
+
+template<std::size_t N, typename Wrt>
+auto wrt(Wrt&& arg) 
+{
+    return internal::repeat<Wrt>(std::forward<Wrt>(arg), std::make_index_sequence<N>{});
 }
 
 template<typename... Args>
@@ -855,6 +891,9 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto atan(R&& r) -> ArcTa
 //
 //=====================================================================================================================
 
+template<typename R, enableif<isExpr<R>>...> constexpr auto sinh(R&& r) -> SinhExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto cosh(R&& r) -> CoshExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto tanh(R&& r) -> TanhExpr<R> { return { std::forward<R>(r) }; }
 
 //=====================================================================================================================
 //
@@ -1352,6 +1391,28 @@ constexpr void apply(Dual<T, G>& self, TanOp)
 {
     const T aux = One<T> / cos(self.val);
     self.val = tan(self.val);
+    self.grad *= aux * aux;
+}
+
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, SinhOp)
+{
+    self.grad *= cosh(self.val);
+    self.val = sinh(self.val);
+}
+
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, CoshOp)
+{
+    self.grad *= sinh(self.val);
+    self.val = cosh(self.val);
+}
+
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, TanhOp)
+{
+    const T aux = One<T> / cosh(self.val);
+    self.val = tanh(self.val);
     self.grad *= aux * aux;
 }
 
