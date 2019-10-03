@@ -702,6 +702,14 @@ auto derivative(const Function& f, Wrt&& wrt, Args&& args)
 //
 //=====================================================================================================================
 
+/// Alias template used to prevent expression nodes to be stored as references.
+/// For example, the following should not exist `BinaryExpr<AddOp, const dual&, const UnaryExpr<NegOp, const dual&>&>>`.
+/// It should be instead `BinaryExpr<AddOp, const dual&, UnaryExpr<NegOp, const dual&>>`.
+/// This alias template allows only dual numbers to have their original type.
+/// All other types become plain, without reference and const attributes.
+template<typename T>
+using PreventExprRef = std::conditional_t<isDual<T>, T, plain<T>>;
+
 //-----------------------------------------------------------------------------
 // NEGATIVE EXPRESSION GENERATOR FUNCTION
 //-----------------------------------------------------------------------------
@@ -711,7 +719,7 @@ constexpr auto negative(U&& expr)
     static_assert(isExpr<U> || isNumber<U>);
     if constexpr (isNegExpr<U>)
         return inner(expr);
-    else return NegExpr<U>{ expr };
+    else return NegExpr<PreventExprRef<U>>{ expr };
 }
 
 //-----------------------------------------------------------------------------
@@ -723,7 +731,7 @@ constexpr auto inverse(U&& expr)
     static_assert(isExpr<U>);
     if constexpr (isInvExpr<U>)
         return inner(expr);
-    else return InvExpr<U>{ expr };
+    else return InvExpr<PreventExprRef<U>>{ expr };
 }
 
 //-----------------------------------------------------------------------------
@@ -766,7 +774,7 @@ constexpr auto operator-(R&& expr)
     else if constexpr (isNumberDualMulExpr<R>)
         return (-left(expr)) * right(expr);
     // default expression
-    else return NegExpr<R>{ expr };
+    else return NegExpr<PreventExprRef<R>>{ expr };
 }
 
 //=====================================================================================================================
@@ -785,7 +793,7 @@ constexpr auto operator+(L&& l, R&& r)
     else if constexpr (isExpr<L> && isNumber<R>)
         return std::forward<R>(r) + std::forward<L>(l);
     // DEFAULT ADDITION EXPRESSION
-    else return AddExpr<L, R>{ l, r };
+    else return AddExpr<PreventExprRef<L>, PreventExprRef<R>>{ l, r };
 }
 
 //=====================================================================================================================
@@ -814,9 +822,9 @@ constexpr auto operator*(L&& l, R&& r)
         return (l * left(r)) * right(r);
     // MULTIPLICATION EXPRESSION CASE: number * dual => NumberDualMulExpr
     else if constexpr (isNumber<L> && isDual<R>)
-        return NumberDualMulExpr<L, R>{ l, r };
+        return NumberDualMulExpr<PreventExprRef<L>, PreventExprRef<R>>{ l, r };
     // DEFAULT MULTIPLICATION EXPRESSION: expr * expr => MulExpr
-    else return MulExpr<L, R>{ l, r };
+    else return MulExpr<PreventExprRef<L>, PreventExprRef<R>>{ l, r };
 }
 
 //=====================================================================================================================

@@ -18,6 +18,20 @@ auto approx(T&& expr) -> Approx
     return Approx(val(std::forward<T>(expr))).margin(zero);
 }
 
+template<typename T>
+auto pow2(T&& x)
+// dual pow2(const dual& x)
+{
+    return x*x;
+}
+
+template<typename T>
+auto rosenbrock(T&& x, T&& y)
+// dual rosenbrock(const dual& x, const dual& y)
+{
+    return 100.0 * pow2(x*x - y) + pow2(1.0 - x);
+}
+
 TEST_CASE("autodiff::dual tests", "[dual]")
 {
     dual x = 100;
@@ -690,6 +704,24 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( derivative(f, wrt(y, y, y), at(x, y)) == Approx(6.0) );
     }
 
+    SECTION("testing reference to unary and binary expression nodes are not present")
+    {
+        x = -0.3;
+        y =  0.5;
+
+        auto f = [](const dual& x, const dual& y)
+        {
+            return rosenbrock(x, y);
+        };
+
+        REQUIRE( val(f(x, y)) == Approx(18.5));//Approx(100 * pow2(val(x)*val(x) - val(y)) + pow2(1 - val(x))) );
+        // REQUIRE( derivative(f, wrt(x), at(x, y)) == Approx(400*(x*x - y)*x - 2*(1 - x)) );
+        // REQUIRE( derivative(f, wrt(y), at(x, y)) == Approx(-200*(x*x - y)) );
+    }
+}
+
+TEST_CASE("Eigen::VectorXdual tests", "[dual]")
+{
     SECTION("testing gradient derivatives")
     {
         // Testing complex function involving sin and cos
@@ -767,21 +799,22 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 
     SECTION("testing casting to VectorXd")
     {
-	VectorXdual x(3);
+        VectorXdual x(3);
         x << 0.5, 0.2, 0.3;
-	VectorXd y = x.cast<double>();
 
-	for(auto i = 0; i < 3; ++i)
-	    REQUIRE( x(i) == approx(y(i)) );
+        VectorXd y = x.cast<double>();
+
+        for(auto i = 0; i < 3; ++i)
+            REQUIRE( x(i) == approx(y(i)) );
     }
 
     SECTION("testing casting to VectorXf")
     {
-	MatrixXdual x(2,2);
+    	MatrixXdual x(2, 2);
         x << 0.5, 0.2, 0.3, 0.7;
-	MatrixXd y = x.cast<double>();
-	for(auto i = 0; i < 2; ++i)
-	    for(auto j = 0; j < 2; ++j)
-		REQUIRE( x(i,j) == approx(y(i,j)) );
+        MatrixXd y = x.cast<double>();
+        for(auto i = 0; i < 2; ++i)
+            for(auto j = 0; j < 2; ++j)
+                REQUIRE( x(i, j) == approx(y(i, j)) );
     }
 }
