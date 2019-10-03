@@ -18,20 +18,6 @@ auto approx(T&& expr) -> Approx
     return Approx(val(std::forward<T>(expr))).margin(zero);
 }
 
-template<typename T>
-auto pow2(T&& x)
-// dual pow2(const dual& x)
-{
-    return x*x;
-}
-
-template<typename T>
-auto rosenbrock(T&& x, T&& y)
-// dual rosenbrock(const dual& x, const dual& y)
-{
-    return 100.0 * pow2(x*x - y) + pow2(1.0 - x);
-}
-
 TEST_CASE("autodiff::dual tests", "[dual]")
 {
     dual x = 100;
@@ -709,14 +695,24 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         x = -0.3;
         y =  0.5;
 
-        auto f = [](const dual& x, const dual& y)
+        auto pow2 = [](const auto& x)
+        {
+            return x*x;
+        };
+
+        auto rosenbrock = [&](const auto& x, const auto& y)
+        {
+            return 100.0 * pow2(x*x - y) + pow2(1.0 - x);
+        };
+
+        auto f = [&](const auto& x, const auto& y) -> dual
         {
             return rosenbrock(x, y);
         };
 
-        REQUIRE( val(f(x, y)) == Approx(18.5));//Approx(100 * pow2(val(x)*val(x) - val(y)) + pow2(1 - val(x))) );
-        // REQUIRE( derivative(f, wrt(x), at(x, y)) == Approx(400*(x*x - y)*x - 2*(1 - x)) );
-        // REQUIRE( derivative(f, wrt(y), at(x, y)) == Approx(-200*(x*x - y)) );
+        REQUIRE( val(f(x, y)) == approx(100 * (x*x - y)*(x*x - y) + (1 - x)*(1 - x)) );
+        REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(400*(x*x - y)*x - 2*(1 - x)) );
+        REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(-200*(x*x - y)) );
     }
 }
 

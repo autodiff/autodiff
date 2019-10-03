@@ -607,14 +607,14 @@ auto seed(Arg& dual, Args&... duals) -> void
 }
 
 template<typename T>
-constexpr auto repeat(T&& t, std::index_sequence<0>) 
+constexpr auto repeat(T&& t, std::index_sequence<0>)
 {
     // Just stop recursion
     return std::forward_as_tuple(std::forward<T>(t));
 }
 
 template<typename T, std::size_t I, std::size_t... N>
-constexpr auto repeat(T&& t, std::index_sequence<I, N...>) 
+constexpr auto repeat(T&& t, std::index_sequence<I, N...>)
 {
     // concat tuple with rest N
     return std::tuple_cat(std::forward_as_tuple(std::forward<T>(t)),
@@ -656,7 +656,7 @@ auto wrt(Args&&... args)
 }
 
 template<std::size_t N, typename Wrt>
-auto wrt(Wrt&& arg) 
+auto wrt(Wrt&& arg)
 {
     return internal::repeat<Wrt>(std::forward<Wrt>(arg), std::make_index_sequence<N>{});
 }
