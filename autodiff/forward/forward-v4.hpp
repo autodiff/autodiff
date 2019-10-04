@@ -112,150 +112,9 @@ template<size_t i, size_t j>
 constexpr double binomialCoefficient()
 {
     static_assert(i <= detail::binomialcoeffs_nmax, "Violation of maximum order for binomial coefficient retrieval.");
-    static_assert(j <= i, "Violation of j <= i condition for retrieving binomial coefficient C(i,j).");
+    static_assert(j <= i, "Violation of j <= i condition for retrieving binomial coefficient C(i, j).");
     return detail::binomialcoeffs_data[detail::binomialcoeffs_offsets[i] + j];
 }
-
-template<size_t M, typename T>
-class numarray
-{
-public:
-    constexpr numarray() = delete;
-    constexpr numarray(const numarray&) = delete;
-
-    constexpr explicit numarray(T* data)
-    : m_data(data)
-    {}
-
-    constexpr auto operator[](size_t i) -> T&
-    {
-        return m_data[i];
-    }
-
-    constexpr auto operator[](size_t i) const -> const T&
-    {
-        return m_data[i];
-    }
-
-    constexpr auto operator=(const numarray& other) -> numarray&
-    {
-        For<M>([&](auto i) constexpr { m_data[i] = other[i]; });
-        return *this;
-    }
-
-    template<size_t N, typename U>
-    constexpr auto operator=(const numarray<N, U>& other) -> numarray&
-    {
-        static_assert(M <= N);
-        For<M>([&](auto i) constexpr { m_data[i] = other[i]; });
-        return *this;
-    }
-
-    constexpr auto operator=(const T& scalar) -> numarray&
-    {
-        For<M>([&](auto i) constexpr { m_data[i] = scalar; });
-        return *this;
-    }
-
-    constexpr auto operator+=(const T& scalar) -> numarray&
-    {
-        For<M>([&](auto i) constexpr { m_data[i] += scalar; });
-        return *this;
-    }
-
-    constexpr auto operator-=(const T& scalar) -> numarray&
-    {
-        For<M>([&](auto i) constexpr { m_data[i] -= scalar; });
-        return *this;
-    }
-
-    constexpr auto operator*=(const T& scalar) -> numarray&
-    {
-        For<M>([&](auto i) constexpr { m_data[i] *= scalar; });
-        return *this;
-    }
-
-    constexpr auto operator/=(const T& scalar) -> numarray&
-    {
-        For<M>([&](auto i) constexpr { m_data[i] /= scalar; });
-        return *this;
-    }
-
-    template<size_t N, typename U>
-    constexpr auto operator+=(const numarray<N, U>& other) -> numarray&
-    {
-        static_assert(M <= N);
-        For<M>([&](auto i) constexpr { m_data[i] += other[i]; });
-        return *this;
-    }
-
-    template<size_t N, typename U>
-    constexpr auto operator-=(const numarray<N, U>& other) -> numarray&
-    {
-        static_assert(M <= N);
-        For<M>([&](auto i) constexpr { m_data[i] -= other[i]; });
-        return *this;
-    }
-
-    template<size_t N, typename U>
-    constexpr auto operator*=(const numarray<N, U>& other) -> numarray&
-    {
-        static_assert(M <= N);
-        For<M>([&](auto i) constexpr { m_data[i] *= other[i]; });
-        return *this;
-    }
-
-    template<size_t N, typename U>
-    constexpr auto operator/=(const numarray<N, U>& other) -> numarray&
-    {
-        static_assert(M <= N);
-        For<M>([&](auto i) constexpr { m_data[i] /= other[i]; });
-        return *this;
-    }
-
-    template<size_t N, typename U>
-    auto assignNegative(const numarray<N, U>& other) -> numarray&
-    {
-        static_assert(M <= N);
-        For<M>([&](auto i) constexpr { m_data[i] = -other[i]; });
-        return *this;
-    }
-
-    template<size_t N, typename U>
-    auto assignScaled(const T& scalar, const numarray<N, U>& other) -> numarray&
-    {
-        static_assert(M <= N);
-        For<M>([&](auto i) constexpr { m_data[i] += scalar * other[i]; });
-        return *this;
-    }
-
-    auto fill(const T& value) -> numarray&
-    {
-        For<M>([&](auto i) constexpr { m_data[i] = value; });
-        return *this;
-    }
-
-    auto negate() -> numarray&
-    {
-        For<M>([&](auto i) constexpr { m_data[i] = -m_data[i]; });
-        return *this;
-    }
-
-private:
-    T* m_data;
-};
-
-// template<size_t M, typename T>
-// constexpr auto numwrap(std::array<T, M>& a) -> numarray<M, T>
-// {
-//     return { a.data() };
-// }
-
-// template<size_t M, typename T>
-// constexpr auto numwrap(const std::array<T, M>& a) -> numarray<M, const T>
-// {
-//     return { a.data() };
-// }
 
 //=====================================================================================================================
 //
@@ -303,17 +162,6 @@ using plain = typename std::remove_cv<typename std::remove_reference<T>::type>::
 template<typename A, typename B>
 using common = typename std::common_type<A, B>::type;
 
-
-
-
-
-
-template<typename T>
-constexpr bool isNumber = std::is_arithmetic<plain<T>>::value;
-
-
-
-
 //-----------------------------------------------------------------------------
 // AUXILIARY CONSTEXPR CONSTANTS
 //-----------------------------------------------------------------------------
@@ -323,41 +171,8 @@ constexpr T Zero = static_cast<T>(0);
 template<typename T>
 constexpr T One = static_cast<T>(1);
 
-
-
-
-
-
-
-
-
-//=====================================================================================================================
-//
-// EXPRESSION TYPES DEFINITION
-//
-//=====================================================================================================================
-
-namespace detail {
-
-template<size_t M, typename T>
-auto begin(const std::array<T, M>& a)
-{
-    return a.begin();
-}
-
-template<size_t M, typename T>
-auto begin(std::array<T, M>& a)
-{
-    return a.begin();
-}
-
 template<typename T>
-auto begin(T* a) -> T*
-{
-    return a;
-}
-
-} // namespace detail
+constexpr bool isNumber = std::is_arithmetic<plain<T>>::value;
 
 /// The type used to represent a *N*-th order dual number.
 template<size_t N, typename T>
@@ -397,22 +212,12 @@ public:
 
     constexpr auto begin() -> T*
     {
-        return detail::begin(m_data);
+        return m_data.begin();
     }
 
     constexpr auto begin() const -> const T*
     {
-        return detail::begin(m_data);
-    }
-
-    constexpr auto data() -> numarray<N + 1, T>
-    {
-        return numarray<N + 1, T>{ begin() };
-    }
-
-    constexpr auto data() const -> numarray<N + 1, const T>
-    {
-        return numarray<N + 1, const T>{ begin() };
+        return m_data.begin();
     }
 
     constexpr auto operator[](size_t i) -> T&
@@ -506,14 +311,6 @@ public:
     }
 };
 
-/// Return the inverse of a Dual number.
-template<size_t N, typename T>
-constexpr auto inverse(const Dual<N, T>& x)
-{
-    Dual<N, T> y = One<T>;
-    return y /= x;
-}
-
 //=====================================================================================================================
 //
 // UNARY OPERATORS +(Dual) AND -(Dual)
@@ -527,10 +324,11 @@ auto operator+(const Dual<N, T>& x)
 }
 
 template<size_t N, typename T>
-auto operator-(Dual<N, T> x)
+auto operator-(const Dual<N, T>& x)
 {
-    For<0, N+1>([&](auto i) constexpr { x[i] = -x[i]; });
-    return x;
+    Dual<N, T> res;
+    For<0, N+1>([&](auto i) constexpr { res[i] = -x[i]; });
+    return res;
 }
 
 //=====================================================================================================================
@@ -653,7 +451,7 @@ constexpr auto exp(const Dual<N, T>& x)
 template<size_t N, typename T>
 constexpr auto log(const Dual<N, T>& x)
 {
-    assert(x[0] != 0 && "autodiff: log has undefined value at zero");
+    assert(x[0] != 0 && "autodiff: log(x) has undefined value and derivatives when x = 0");
     Dual<N, T> logx;
     logx[0] = log(x[0]);
     For<1, N + 1>([&](auto i) constexpr {
@@ -669,7 +467,7 @@ constexpr auto log(const Dual<N, T>& x)
 template<size_t N, typename T>
 constexpr auto log10(const Dual<N, T>& x)
 {
-    assert(x[0] != 0 && "autodiff: log10 has undefined value at zero");
+    assert(x[0] != 0 && "autodiff: log10(x) has undefined value and derivatives when x = 0");
     const auto ln10 = 2.302585092994046;
     Dual<N, T> res = log(x);
     return res /= ln10;
@@ -678,22 +476,26 @@ constexpr auto log10(const Dual<N, T>& x)
 template<size_t N, typename T>
 constexpr auto sqrt(const Dual<N, T>& x)
 {
-    assert(x[0] != 0 && "autodiff: sqrt has undefined derivatives at zero");
-    Dual<N, T> a;
     Dual<N, T> res;
     res[0] = sqrt(x[0]);
-    For<1, N + 1>([&](auto i) constexpr {
-        a[i] = x[i] - Sum<1, i>([&](auto j) constexpr {
-            constexpr auto c = BinomialCoefficient<i.index - 1, j.index - 1>;
-            return c * x[i - j] * a[j];
-        });
-        a[i] /= x[0];
 
-        res[i] = 0.5 * Sum<0, i>([&](auto j) constexpr {
-            constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-            return c * a[i - j] * res[j];
+    if constexpr (N > 0)
+    {
+        assert(x[0] != 0 && "autodiff: sqrt(x) has undefined derivatives when x = 0");
+        Dual<N, T> a;
+        For<1, N + 1>([&](auto i) constexpr {
+            a[i] = x[i] - Sum<1, i>([&](auto j) constexpr {
+                constexpr auto c = BinomialCoefficient<i.index - 1, j.index - 1>;
+                return c * x[i - j] * a[j];
+            });
+            a[i] /= x[0];
+
+            res[i] = 0.5 * Sum<0, i>([&](auto j) constexpr {
+                constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+                return c * a[i - j] * res[j];
+            });
         });
-    });
+    }
     return res;
 }
 
@@ -704,7 +506,7 @@ constexpr auto pow(const Dual<N, T>& x, const Dual<N, T>& y)
     res[0] = pow(x[0], y[0]);
     if constexpr (N > 0)
     {
-        assert(x[0] != 0 && "autodiff: pow has undefined derivatives at zero");
+        assert(x[0] != 0 && "autodiff: pow(x, y) has undefined derivatives when x = 0");
         Dual<N, T> lnx = log(x);
         Dual<N, T> a;
         For<1, N + 1>([&](auto i) constexpr {
@@ -729,7 +531,7 @@ constexpr auto pow(const Dual<N, T>& x, const U& c)
     res[0] = pow(x[0], static_cast<T>(c));
     if constexpr (N > 0)
     {
-        assert(x[0] != 0 && "autodiff: pow has undefined derivatives at zero");
+        assert(x[0] != 0 && "autodiff: pow(x, y) has undefined derivatives when x = 0");
         Dual<N, T> a = c * log(x);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = Sum<0, i>([&](auto j) constexpr {
@@ -748,7 +550,7 @@ constexpr auto pow(const U& c, const Dual<N, T>& y)
     res[0] = pow(static_cast<T>(c), y[0]);
     if constexpr (N > 0)
     {
-        assert(c != 0 && "autodiff: pow has undefined derivatives at zero");
+        assert(c != 0 && "autodiff: pow(x, y) has undefined derivatives when x = 0");
         Dual<N, T> a = y * log(c);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = Sum<0, i>([&](auto j) constexpr {
@@ -806,60 +608,77 @@ template<size_t N, typename T>
 auto tan(const Dual<N, T>& x)
 {
     Dual<N, T> tanx;
-    Dual<N, T> aux;
-
     tanx[0] = tan(x[0]);
-    aux[0] = 1 + tanx[0]*tanx[0];
 
-    For<1, N+1>([&](auto i) constexpr {
-        tanx[i] = Sum<0, i>([&](auto j) constexpr {
-            constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-            return c * x[i - j] * aux[j];
-        });
+    if constexpr (N > 0)
+    {
+        Dual<N, T> aux;
+        aux[0] = 1 + tanx[0]*tanx[0];
 
-        aux[i] = 2*Sum<0, i>([&](auto j) constexpr {
-            constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-            return c * tanx[i - j] * tanx[j];
+        For<1, N+1>([&](auto i) constexpr {
+            tanx[i] = Sum<0, i>([&](auto j) constexpr {
+                constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+                return c * x[i - j] * aux[j];
+            });
+
+            aux[i] = 2*Sum<0, i>([&](auto j) constexpr {
+                constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+                return c * tanx[i - j] * tanx[j];
+            });
         });
-    });
+    }
 
     return tanx;
 }
 
 template<size_t N, typename T>
-constexpr auto asin(Dual<N, T> x)
+constexpr auto asin(const Dual<N, T>& x)
 {
-    Dual<N - 1, T> aux(x);
-    aux = 1/sqrt(1 - aux*aux);
-    x[0] = asin(x[0]);
-    For<1, N + 1>([&](auto i) constexpr {
-        x[i] = aux[i - 1];
-    });
-    return x;
+    Dual<N, T> res;
+    res[0] = asin(x[0]);
+    if constexpr (N > 0)
+    {
+        assert(x[0] < 1.0 && "autodiff: asin(x) has undefined derivative when |x| >= 1");
+        Dual<N - 1, T> aux(x);
+        aux = 1/sqrt(1 - aux*aux);
+        For<1, N + 1>([&](auto i) constexpr {
+            res[i] = aux[i - 1];
+        });
+    }
+    return res;
 }
 
 template<size_t N, typename T>
-constexpr auto acos(Dual<N, T> x)
+constexpr auto acos(const Dual<N, T>& x)
 {
-    Dual<N - 1, T> aux(x);
-    aux = -1/sqrt(1 - aux*aux);
-    x[0] = acos(x[0]);
-    For<1, N + 1>([&](auto i) constexpr {
-        x[i] = aux[i - 1];
-    });
-    return x;
+    Dual<N, T> res;
+    res[0] = acos(x[0]);
+    if constexpr (N > 0)
+    {
+        assert(x[0] < 1.0 && "autodiff: acos(x) has undefined derivative when |x| >= 1");
+        Dual<N - 1, T> aux(x);
+        aux = -1/sqrt(1 - aux*aux);
+        For<1, N + 1>([&](auto i) constexpr {
+            res[i] = aux[i - 1];
+        });
+    }
+    return res;
 }
 
 template<size_t N, typename T>
-constexpr auto atan(Dual<N, T> x)
+constexpr auto atan(const Dual<N, T>& x)
 {
-    Dual<N - 1, T> aux(x);
-    aux = 1/(1 + aux*aux);
-    x[0] = atan(x[0]);
-    For<1, N + 1>([&](auto i) constexpr {
-        x[i] = aux[i - 1];
-    });
-    return x;
+    Dual<N, T> res;
+    res[0] = atan(x[0]);
+    if constexpr (N > 0)
+    {
+        Dual<N - 1, T> aux(x);
+        aux = 1/(1 + aux*aux);
+        For<1, N + 1>([&](auto i) constexpr {
+            res[i] = aux[i - 1];
+        });
+    }
+    return res;
 }
 
 //=====================================================================================================================
@@ -909,60 +728,78 @@ template<size_t N, typename T>
 auto tanh(const Dual<N, T>& x)
 {
     Dual<N, T> tanhx;
-    Dual<N, T> aux;
-
     tanhx[0] = tanh(x[0]);
-    aux[0] = 1 - tanhx[0]*tanhx[0];
 
-    For<1, N+1>([&](auto i) constexpr {
-        tanhx[i] = Sum<0, i>([&](auto j) constexpr {
-            constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-            return c * x[i - j] * aux[j];
-        });
+    if constexpr (N > 0)
+    {
+        Dual<N, T> aux;
 
-        aux[i] = -2*Sum<0, i>([&](auto j) constexpr {
-            constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-            return c * tanhx[i - j] * tanhx[j];
+        aux[0] = 1 - tanhx[0]*tanhx[0];
+
+        For<1, N+1>([&](auto i) constexpr {
+            tanhx[i] = Sum<0, i>([&](auto j) constexpr {
+                constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+                return c * x[i - j] * aux[j];
+            });
+
+            aux[i] = -2*Sum<0, i>([&](auto j) constexpr {
+                constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+                return c * tanhx[i - j] * tanhx[j];
+            });
         });
-    });
+    }
 
     return tanhx;
 }
 
 template<size_t N, typename T>
-constexpr auto asinh(Dual<N, T> x)
+constexpr auto asinh(const Dual<N, T>& x)
 {
-    Dual<N - 1, T> aux(x);
-    aux = 1/sqrt(aux*aux + 1);
-    x[0] = asinh(x[0]);
-    For<1, N + 1>([&](auto i) constexpr {
-        x[i] = aux[i - 1];
-    });
-    return x;
+    Dual<N, T> res;
+    res[0] = asinh(x[0]);
+    if constexpr (N > 0)
+    {
+        Dual<N - 1, T> aux(x);
+        aux = 1/sqrt(aux*aux + 1);
+        For<1, N + 1>([&](auto i) constexpr {
+            res[i] = aux[i - 1];
+        });
+    }
+    return res;
 }
 
 template<size_t N, typename T>
-constexpr auto acosh(Dual<N, T> x)
+constexpr auto acosh(const Dual<N, T>& x)
 {
-    Dual<N - 1, T> aux(x);
-    aux = 1/sqrt(aux*aux - 1);
-    x[0] = acosh(x[0]);
-    For<1, N + 1>([&](auto i) constexpr {
-        x[i] = aux[i - 1];
-    });
-    return x;
+    Dual<N, T> res;
+    res[0] = acosh(x[0]);
+    if constexpr (N > 0)
+    {
+        assert(x[0] > 1.0 && "autodiff: acosh(x) has undefined derivative when |x| <= 1");
+        Dual<N - 1, T> aux(x);
+        aux = 1/sqrt(aux*aux - 1);
+        For<1, N + 1>([&](auto i) constexpr {
+            res[i] = aux[i - 1];
+        });
+    }
+    return res;
 }
 
 template<size_t N, typename T>
-constexpr auto atanh(Dual<N, T> x)
+constexpr auto atanh(const Dual<N, T>& x)
 {
-    Dual<N - 1, T> aux(x);
-    aux = 1/(1 - aux*aux);
-    x[0] = atanh(x[0]);
-    For<1, N + 1>([&](auto i) constexpr {
-        x[i] = aux[i - 1];
-    });
-    return x;
+    Dual<N, T> res;
+    res[0] = atanh(x[0]);
+    if constexpr (N > 0)
+    {
+        assert(x[0] < 1.0 && "autodiff: atanh(x) has undefined derivative when |x| >= 1");
+        Dual<N - 1, T> aux(x);
+        aux = 1/(1 - aux*aux);
+        For<1, N + 1>([&](auto i) constexpr {
+            res[i] = aux[i - 1];
+        });
+    }
+    return res;
 }
 
 //=====================================================================================================================
@@ -978,7 +815,7 @@ constexpr auto abs(const Dual<N, T>& x)
     res[0] = std::abs(x[0]);
     if constexpr (N > 0)
     {
-        assert(x[0] != 0 && "autodiff: abs has undefined derivative at zero");
+        assert(x[0] != 0 && "autodiff: abs(x) has undefined derivative when x = 0");
         const T s = std::copysign(1.0, x[0]);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = s * x[i];
