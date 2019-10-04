@@ -10,7 +10,7 @@
 // Copyright (c) 2018-2019 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and `associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
@@ -265,16 +265,22 @@ private:
 
 using std::abs;
 using std::acos;
+using std::acosh;
 using std::asin;
+using std::asinh;
 using std::atan;
+using std::atanh;
 using std::cos;
+using std::cosh;
 using std::exp;
-using std::log10;
 using std::log;
+using std::log10;
 using std::pow;
 using std::sin;
+using std::sinh;
 using std::sqrt;
 using std::tan;
+using std::tanh;
 
 //=====================================================================================================================
 //
@@ -677,13 +683,13 @@ constexpr auto sqrt(const Dual<N, T>& x)
     Dual<N, T> res;
     res[0] = sqrt(x[0]);
     For<1, N + 1>([&](auto i) constexpr {
-        a[i] = x[i] - 0.5 * Sum<1, i>([&](auto j) constexpr {
-            constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+        a[i] = x[i] - Sum<1, i>([&](auto j) constexpr {
+            constexpr auto c = BinomialCoefficient<i.index - 1, j.index - 1>;
             return c * x[i - j] * a[j];
         });
         a[i] /= x[0];
 
-        res[i] = Sum<1, i>([&](auto j) constexpr {
+        res[i] = 0.5 * Sum<0, i>([&](auto j) constexpr {
             constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
             return c * a[i - j] * res[j];
         });
@@ -707,7 +713,7 @@ constexpr auto pow(const Dual<N, T>& x, const Dual<N, T>& y)
                 return c * y[i - j] * lnx[j];
             });
 
-            res[i] = Sum<1, i>([&](auto j) constexpr {
+            res[i] = Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
                 return c * a[i - j] * res[j];
             });
@@ -726,7 +732,7 @@ constexpr auto pow(const Dual<N, T>& x, const U& c)
         assert(x[0] != 0 && "autodiff: pow has undefined derivatives at zero");
         Dual<N, T> a = c * log(x);
         For<1, N + 1>([&](auto i) constexpr {
-            res[i] = Sum<1, i>([&](auto j) constexpr {
+            res[i] = Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
                 return c * a[i - j] * res[j];
             });
@@ -742,10 +748,10 @@ constexpr auto pow(const U& c, const Dual<N, T>& y)
     res[0] = pow(static_cast<T>(c), y[0]);
     if constexpr (N > 0)
     {
-        assert(x[0] != 0 && "autodiff: pow has undefined derivatives at zero");
+        assert(c != 0 && "autodiff: pow has undefined derivatives at zero");
         Dual<N, T> a = y * log(c);
         For<1, N + 1>([&](auto i) constexpr {
-            res[i] = Sum<1, i>([&](auto j) constexpr {
+            res[i] = Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
                 return c * a[i - j] * res[j];
             });
@@ -800,18 +806,18 @@ template<size_t N, typename T>
 auto tan(const Dual<N, T>& x)
 {
     Dual<N, T> tanx;
-    Dual<N, T> sec2;
+    Dual<N, T> aux;
 
     tanx[0] = tan(x[0]);
-    sec2[0] = 1 + tanx[0]*tanx[0];
+    aux[0] = 1 + tanx[0]*tanx[0];
 
     For<1, N+1>([&](auto i) constexpr {
         tanx[i] = Sum<0, i>([&](auto j) constexpr {
             constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-            return c * x[i - j] * sec2[j];
+            return c * x[i - j] * aux[j];
         });
 
-        sec2[i] = 2*Sum<0, i>([&](auto j) constexpr {
+        aux[i] = 2*Sum<0, i>([&](auto j) constexpr {
             constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
             return c * tanx[i - j] * tanx[j];
         });
@@ -856,14 +862,124 @@ constexpr auto atan(Dual<N, T> x)
     return x;
 }
 
+//=====================================================================================================================
+//
+// HYPERBOLIC FUNCTIONS
+//
+//=====================================================================================================================
+
+template<size_t N, typename T>
+auto sinhcosh(const Dual<N, T>& x) -> std::tuple<Dual<N, T>, Dual<N, T>>
+{
+    Dual<N, T> sinhx;
+    Dual<N, T> coshx;
+
+    coshx[0] = cosh(x[0]);
+    sinhx[0] = sinh(x[0]);
+
+    For<1, N+1>([&](auto i) constexpr {
+        coshx[i] = Sum<0, i>([&](auto j) constexpr {
+            constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+            return c * x[i - j] * sinhx[j];
+        });
+
+        sinhx[i] = Sum<0, i>([&](auto j) constexpr {
+            constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+            return c * x[i - j] * coshx[j];
+        });
+    });
+
+    return {sinhx, coshx};
+}
+
+template<size_t N, typename T>
+auto sinh(const Dual<N, T>& x)
+{
+    return std::get<0>(sinhcosh(x));
+}
+
+template<size_t N, typename T>
+auto cosh(const Dual<N, T>& x)
+{
+    return std::get<1>(sinhcosh(x));
+}
+
+
+template<size_t N, typename T>
+auto tanh(const Dual<N, T>& x)
+{
+    Dual<N, T> tanhx;
+    Dual<N, T> aux;
+
+    tanhx[0] = tanh(x[0]);
+    aux[0] = 1 - tanhx[0]*tanhx[0];
+
+    For<1, N+1>([&](auto i) constexpr {
+        tanhx[i] = Sum<0, i>([&](auto j) constexpr {
+            constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+            return c * x[i - j] * aux[j];
+        });
+
+        aux[i] = -2*Sum<0, i>([&](auto j) constexpr {
+            constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+            return c * tanhx[i - j] * tanhx[j];
+        });
+    });
+
+    return tanhx;
+}
+
+template<size_t N, typename T>
+constexpr auto asinh(Dual<N, T> x)
+{
+    Dual<N - 1, T> aux(x);
+    aux = 1/sqrt(aux*aux + 1);
+    x[0] = asinh(x[0]);
+    For<1, N + 1>([&](auto i) constexpr {
+        x[i] = aux[i - 1];
+    });
+    return x;
+}
+
+template<size_t N, typename T>
+constexpr auto acosh(Dual<N, T> x)
+{
+    Dual<N - 1, T> aux(x);
+    aux = 1/sqrt(aux*aux - 1);
+    x[0] = acosh(x[0]);
+    For<1, N + 1>([&](auto i) constexpr {
+        x[i] = aux[i - 1];
+    });
+    return x;
+}
+
+template<size_t N, typename T>
+constexpr auto atanh(Dual<N, T> x)
+{
+    Dual<N - 1, T> aux(x);
+    aux = 1/(1 - aux*aux);
+    x[0] = atanh(x[0]);
+    For<1, N + 1>([&](auto i) constexpr {
+        x[i] = aux[i - 1];
+    });
+    return x;
+}
+
+//=====================================================================================================================
+//
+// OTHER FUNCTIONS
+//
+//=====================================================================================================================
+
 template<size_t N, typename T>
 constexpr auto abs(const Dual<N, T>& x)
 {
     Dual<N, T> res;
-    res[0] = abs(x[0]);
+    res[0] = std::abs(x[0]);
     if constexpr (N > 0)
     {
-        const T s = std::signbit(x[0]);
+        assert(x[0] != 0 && "autodiff: abs has undefined derivative at zero");
+        const T s = std::copysign(1.0, x[0]);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = s * x[i];
         });
