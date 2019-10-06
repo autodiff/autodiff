@@ -37,9 +37,9 @@
 #include <utility>
 
 // autodiff includes
-#include <autodiff/forward/binomialcoefficient.hpp>
+#include <autodiff/utils/binomialcoefficient.hpp>
 
-namespace autodiff::forward {
+namespace autodiff::impl {
 
 template<size_t I>
 struct Index
@@ -106,14 +106,6 @@ constexpr auto Sum(Function&& f)
         aux += f(i);
     });
     return aux;
-}
-
-template<size_t i, size_t j>
-constexpr double binomialCoefficient()
-{
-    static_assert(i <= detail::binomialcoeffs_nmax, "Violation of maximum order for binomial coefficient retrieval.");
-    static_assert(j <= i, "Violation of j <= i condition for retrieving binomial coefficient C(i, j).");
-    return detail::binomialcoeffs_data[detail::binomialcoeffs_offsets[i] + j];
 }
 
 //=====================================================================================================================
@@ -832,31 +824,33 @@ std::ostream& operator<<(std::ostream& out, const Real<N, T>& x)
     return out;
 }
 
-using real1st = Real<1, double>;
-using real2nd = Real<2, double>;
-using real3rd = Real<3, double>;
-using real4th = Real<4, double>;
-using real5th = Real<5, double>;
-using real6th = Real<6, double>;
-using real7th = Real<7, double>;
-using real8th = Real<8, double>;
-using real9th = Real<9, double>;
 
-using real = real1st;
+template<size_t N, typename T>
+bool operator==(const Real<N, T>& x, const Real<N, T>& y)
+{
+    bool res = true;
+    For<0, N + 1>([&](auto i) constexpr {
+        res = res && x[i] == y[i];
+    });
+    return res;
+}
 
-} // namespace autodiff::forward
+
+
+} // namespace autodiff::impl
 
 namespace autodiff {
 
-using forward::real1st;
-using forward::real2nd;
-using forward::real3rd;
-using forward::real4th;
-using forward::real5th;
-using forward::real6th;
-using forward::real7th;
-using forward::real8th;
-using forward::real9th;
-using forward::real;
+using real1st = impl::Real<1, double>;
+using real2nd = impl::Real<2, double>;
+using real3rd = impl::Real<3, double>;
+using real4th = impl::Real<4, double>;
+using real5th = impl::Real<5, double>;
+using real6th = impl::Real<6, double>;
+using real7th = impl::Real<7, double>;
+using real8th = impl::Real<8, double>;
+using real9th = impl::Real<9, double>;
+
+using real = real1st;
 
 } // namespace autodiff
