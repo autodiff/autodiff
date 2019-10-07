@@ -382,6 +382,9 @@ constexpr bool isNumberDualMulExpr = traits::isNumberDualMulExpr<plain<T>>::valu
 template<typename T>
 constexpr bool isNumberDualDualMulExpr = traits::isNumberDualDualMulExpr<plain<T>>::value;
 
+template<typename... Args>
+constexpr bool areDual = (... && isDual<Args>);
+
 //-----------------------------------------------------------------------------
 // ARE TYPES L AND R EXPRESSION NODES OR NUMBERS, BUT NOT BOTH NUMBERS?
 //-----------------------------------------------------------------------------
@@ -592,83 +595,56 @@ auto val(T&& expr)
     else return std::forward<T>(expr);
 }
 
-namespace internal {
+//=====================================================================================================================
+//
+// SEED/UNSEED FUNCTIONS
+//
+//=====================================================================================================================
 
 template<int num, typename Arg>
-auto seed(Arg& dual) -> void
+auto _seed_wrt_duals_with_num(Arg& dual) -> void
 {
     static_assert(isDual<Arg>);
     dual.grad = num;
 }
 
 template<int num, typename Arg, typename... Args>
-auto seed(Arg& dual, Args&... duals) -> void
+auto _seed_wrt_duals_with_num(Arg& dual, Args&... duals) -> void
 {
     static_assert(isDual<Arg>);
-    seed<num>(duals.val...);
+    _seed_wrt_duals_with_num<num>(duals.val...);
     dual.grad = num;
 }
 
-template<typename T>
-constexpr auto repeat(T&& t, std::index_sequence<0>)
-{
-    // Just stop recursion
-    return std::forward_as_tuple(std::forward<T>(t));
-}
-
-template<typename T, std::size_t I, std::size_t... N>
-constexpr auto repeat(T&& t, std::index_sequence<I, N...>)
-{
-    // concat tuple with rest N
-    return std::tuple_cat(std::forward_as_tuple(std::forward<T>(t)),
-        repeat<T>(std::forward<T>(t), std::make_index_sequence<sizeof...(N)>{}));
-}
-
-} // namespace internal
-
-template<typename Arg>
+template<typename Arg, enableif<isDual<Arg>>...>
 auto seed(std::tuple<Arg&> dual)
 {
-    static_assert(isDual<Arg>);
-    internal::seed<1>(std::get<0>(dual));
+    _seed_wrt_duals_with_num<1>(std::get<0>(dual));
 }
 
-template<typename... Args>
+template<typename... Args, enableif<areDual<Args...>>...>
 auto seed(std::tuple<Args&...> duals)
 {
-    std::apply(internal::seed<1, Args&...>, duals);
+    std::apply(_seed_wrt_duals_with_num<1, Args&...>, duals);
 }
 
-template<typename Arg>
+template<typename Arg, enableif<isDual<Arg>>...>
 auto unseed(std::tuple<Arg&> dual)
 {
-    static_assert(isDual<Arg>);
-    internal::seed<0>(std::get<0>(dual));
+    _seed_wrt_duals_with_num<0>(std::get<0>(dual));
 }
 
-template<typename... Args>
+template<typename... Args, enableif<areDual<Args...>>...>
 auto unseed(std::tuple<Args&...> duals)
 {
-    std::apply(internal::seed<0, Args&...>, duals);
+    std::apply(_seed_wrt_duals_with_num<0, Args&...>, duals);
 }
 
-// template<typename... Args>
-// auto wrt(Args&&... args)
-// {
-//     return std::forward_as_tuple(std::forward<Args>(args)...);
-// }
-
-// template<std::size_t N, typename Wrt>
-// auto wrt(Wrt&& arg)
-// {
-//     return internal::repeat<Wrt>(std::forward<Wrt>(arg), std::make_index_sequence<N>{});
-// }
-
-// template<typename... Args>
-// auto at(Args&&... args)
-// {
-//     return std::forward_as_tuple(std::forward<Args>(args)...);
-// }
+//=====================================================================================================================
+//
+// DERIVATIVE FUNCTIONS
+//
+//=====================================================================================================================
 
 template<std::size_t order, typename T, typename G>
 auto derivative(const Dual<T, G>& dual)
