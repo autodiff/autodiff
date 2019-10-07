@@ -36,6 +36,9 @@
 #include <type_traits>
 #include <utility>
 
+// autodiff includes
+#include <autodiff/utils/aliases.hpp>
+
 namespace autodiff {
 namespace forward {
 
@@ -617,18 +620,6 @@ template<typename... Args>
 auto unseed(std::tuple<Args&...> duals)
 {
     std::apply(internal::seed<0, Args&...>, duals);
-}
-
-template<typename... Args>
-auto wrt(Args&&... args)
-{
-    return std::forward_as_tuple(std::forward<Args>(args)...);
-}
-
-template<typename... Args>
-auto at(Args&&... args)
-{
-    return std::forward_as_tuple(std::forward<Args>(args)...);
 }
 
 template<std::size_t order, typename T, typename G>
@@ -1461,7 +1452,6 @@ using forward::dual;
 using forward::val;
 using forward::eval;
 using forward::derivative;
-using forward::wrt;
 using forward::HigherOrderDual;
 
 } // namespace autodiff
