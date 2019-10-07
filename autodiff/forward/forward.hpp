@@ -657,8 +657,8 @@ auto derivative(const Dual<T, G>& dual)
         return derivative<order - 1>(dual.grad);
 }
 
-template<typename Function, typename Wrt, typename Args, typename Result>
-auto derivative(const Function& f, Wrt&& wrt, Args&& args, Result& u)
+template<typename Fun, typename Wrt, typename Args, typename Result>
+auto derivative(const Fun& f, Wrt&& wrt, Args&& args, Result& u)
 {
     seed(wrt);
     u = std::apply(f, args);
@@ -666,8 +666,8 @@ auto derivative(const Function& f, Wrt&& wrt, Args&& args, Result& u)
     return derivative<std::tuple_size<Wrt>::value>(u);
 }
 
-template<typename Function, typename Wrt, typename Args>
-auto derivative(const Function& f, Wrt&& wrt, Args&& args)
+template<typename Fun, typename Wrt, typename Args>
+auto derivative(const Fun& f, Wrt&& wrt, Args&& args)
 {
     using Result = decltype(std::apply(f, args));
     Result u;
@@ -690,8 +690,8 @@ auto derivative(const Function& f, Wrt&& wrt, Args&& args)
 
 // } // namespace internal
 
-// template<typename Function>
-// auto grad(const Function& f)
+// template<typename Fun>
+// auto grad(const Fun& f)
 // {
 //     return internal::grad(std::function{f});
 // }
