@@ -31,140 +31,16 @@
 
 // C++ includes
 #include <cmath>
-#include <functional>
 #include <tuple>
-#include <type_traits>
 #include <utility>
 
 // autodiff includes
+#include <autodiff/utils/aliases.hpp>
 #include <autodiff/utils/binomialcoefficient.hpp>
+#include <autodiff/utils/meta.hpp>
+#include <autodiff/utils/traits.hpp>
 
-namespace autodiff::impl {
-
-template<size_t I>
-struct Index
-{
-    constexpr static size_t index = I;
-    constexpr operator const size_t() const { return index; }
-    constexpr operator size_t() { return index; }
-};
-
-namespace impl {
-
-template<size_t I, size_t Imin, size_t Imax, typename Function>
-constexpr auto For(Function&& f)
-{
-    if constexpr (I < Imax)
-    {
-        f(Index<I>{});
-        For<I + 1, Imin, Imax>(std::forward<Function>(f));
-    }
-}
-
-template<size_t I, size_t Imin, size_t Imax, typename Function>
-constexpr auto ReverseFor(Function&& f)
-{
-    if constexpr (I < Imax)
-    {
-        ReverseFor<I + 1, Imin, Imax>(std::forward<Function>(f));
-        f(Index<I>{});
-    }
-}
-
-} // namespace impl
-
-template<size_t Imin, size_t Imax, typename Function>
-constexpr auto For(Function&& f)
-{
-    impl::For<Imin, Imin, Imax>(std::forward<Function>(f));
-}
-
-template<size_t Imax, typename Function>
-constexpr auto For(Function&& f)
-{
-    For<0, Imax>(std::forward<Function>(f));
-}
-
-template<size_t Imin, size_t Imax, typename Function>
-constexpr auto ReverseFor(Function&& f)
-{
-    impl::ReverseFor<Imin, Imin, Imax>(std::forward<Function>(f));
-}
-
-template<size_t Imax, typename Function>
-constexpr auto ReverseFor(Function&& f)
-{
-    ReverseFor<0, Imax>(std::forward<Function>(f));
-}
-
-template<size_t Imin, size_t Imax, typename Function>
-constexpr auto Sum(Function&& f)
-{
-    using T = std::invoke_result_t<Function, Index<Imin>>;
-    auto aux = T{};
-    For<Imin, Imax>([&](auto i) constexpr {
-        aux += f(i);
-    });
-    return aux;
-}
-
-//=====================================================================================================================
-//
-// STANDARD TEMPLATE LIBRARY MATH FUNCTIONS
-//
-//=====================================================================================================================
-
-using std::abs;
-using std::acos;
-using std::acosh;
-using std::asin;
-using std::asinh;
-using std::atan;
-using std::atanh;
-using std::cos;
-using std::cosh;
-using std::exp;
-using std::log;
-using std::log10;
-using std::pow;
-using std::sin;
-using std::sinh;
-using std::sqrt;
-using std::tan;
-using std::tanh;
-
-//=====================================================================================================================
-//
-// TYPE TRAITS UTILITIES
-//
-//=====================================================================================================================
-
-//-----------------------------------------------------------------------------
-// ENABLE-IF FOR SFINAE USE
-//-----------------------------------------------------------------------------
-template<bool value>
-using enableif = typename std::enable_if<value>::type;
-
-//-----------------------------------------------------------------------------
-// CONVENIENT TYPE TRAIT UTILITIES
-//-----------------------------------------------------------------------------
-template<typename T>
-using plain = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
-
-template<typename A, typename B>
-using common = typename std::common_type<A, B>::type;
-
-//-----------------------------------------------------------------------------
-// AUXILIARY CONSTEXPR CONSTANTS
-//-----------------------------------------------------------------------------
-template<typename T>
-constexpr T Zero = static_cast<T>(0);
-
-template<typename T>
-constexpr T One = static_cast<T>(1);
-
-template<typename T>
-constexpr bool isNumber = std::is_arithmetic<plain<T>>::value;
+namespace autodiff {
 
 /// The type used to represent a real number that supports up to *N*-th order derivative calculation.
 template<size_t N, typename T>
@@ -184,7 +60,7 @@ public:
     constexpr Real(const T& value)
     {
         m_data[0] = value;
-        For<1, N+1>([&](auto i) constexpr { m_data[i] = Zero<T>; });
+        For<1, N + 1>([&](auto i) constexpr { m_data[i] = Zero<T>; });
     }
 
     /// Construct a Real number with given data.
@@ -226,7 +102,7 @@ public:
     constexpr auto operator=(const U& value) -> Real&
     {
         m_data[0] = value;
-        For<1, N+1>([&](auto i) constexpr { m_data[i] = Zero<T>; });
+        For<1, N + 1>([&](auto i) constexpr { m_data[i] = Zero<T>; });
         return *this;
     }
 
@@ -252,28 +128,28 @@ public:
     template<typename U, enableif<isNumber<U>>...>
     constexpr auto operator*=(const U& value) -> Real&
     {
-        For<0, N+1>([&](auto i) constexpr { m_data[i] *= static_cast<T>(value); });
+        For<0, N + 1>([&](auto i) constexpr { m_data[i] *= static_cast<T>(value); });
         return *this;
     }
 
     template<typename U, enableif<isNumber<U>>...>
     constexpr auto operator/=(const U& value) -> Real&
     {
-        For<0, N+1>([&](auto i) constexpr { m_data[i] /= static_cast<T>(value); });
+        For<0, N + 1>([&](auto i) constexpr { m_data[i] /= static_cast<T>(value); });
         return *this;
     }
 
     constexpr auto operator+=(const Real& y)
     {
         auto& x = *this;
-        For<0, N+1>([&](auto i) constexpr { x[i] += y[i]; });
+        For<0, N + 1>([&](auto i) constexpr { x[i] += y[i]; });
         return *this;
     }
 
     constexpr auto operator-=(const Real& y)
     {
         auto& x = *this;
-        For<0, N+1>([&](auto i) constexpr { x[i] -= y[i]; });
+        For<0, N + 1>([&](auto i) constexpr { x[i] -= y[i]; });
         return *this;
     }
 
@@ -305,6 +181,46 @@ public:
 
 //=====================================================================================================================
 //
+// STANDARD TEMPLATE LIBRARY MATH FUNCTIONS
+//
+//=====================================================================================================================
+
+using std::abs;
+using std::acos;
+using std::acosh;
+using std::asin;
+using std::asinh;
+using std::atan;
+using std::atanh;
+using std::cos;
+using std::cosh;
+using std::exp;
+using std::log;
+using std::log10;
+using std::pow;
+using std::sin;
+using std::sinh;
+using std::sqrt;
+using std::tan;
+using std::tanh;
+
+//=====================================================================================================================
+//
+// TYPE TRAITS
+//
+//=====================================================================================================================
+
+template<typename T>
+struct _isReal { constexpr static bool value = false; };
+
+template<size_t N, typename T>
+struct _isReal<Real<N, T>> { constexpr static bool value = true; };
+
+template<typename T>
+constexpr bool isReal = _isReal<plain<T>>::value;
+
+//=====================================================================================================================
+//
 // UNARY OPERATORS +(Real) AND -(Real)
 //
 //=====================================================================================================================
@@ -319,7 +235,7 @@ template<size_t N, typename T>
 auto operator-(const Real<N, T>& x)
 {
     Real<N, T> res;
-    For<0, N+1>([&](auto i) constexpr { res[i] = -x[i]; });
+    For<0, N + 1>([&](auto i) constexpr { res[i] = -x[i]; });
     return res;
 }
 
@@ -367,7 +283,7 @@ auto operator-(Real<N, T> x, const U& y)
 template<size_t N, typename T, typename U, enableif<isNumber<U>>...>
 auto operator-(const U& x, Real<N, T> y)
 {
-    For<0, N+1>([&](auto i) constexpr { y[i] = static_cast<T>(x) - y[i]; });
+    For<0, N + 1>([&](auto i) constexpr { y[i] = static_cast<T>(x) - y[i]; });
     return y;
 }
 
@@ -569,7 +485,7 @@ auto sincos(const Real<N, T>& x) -> std::tuple<Real<N, T>, Real<N, T>>
     cosx[0] = cos(x[0]);
     sinx[0] = sin(x[0]);
 
-    For<1, N+1>([&](auto i) constexpr {
+    For<1, N + 1>([&](auto i) constexpr {
         cosx[i] = -Sum<0, i>([&](auto j) constexpr {
             constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
             return c * x[i - j] * sinx[j];
@@ -607,7 +523,7 @@ auto tan(const Real<N, T>& x)
         Real<N, T> aux;
         aux[0] = 1 + tanx[0]*tanx[0];
 
-        For<1, N+1>([&](auto i) constexpr {
+        For<1, N + 1>([&](auto i) constexpr {
             tanx[i] = Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
                 return c * x[i - j] * aux[j];
@@ -688,7 +604,7 @@ auto sinhcosh(const Real<N, T>& x) -> std::tuple<Real<N, T>, Real<N, T>>
     coshx[0] = cosh(x[0]);
     sinhx[0] = sinh(x[0]);
 
-    For<1, N+1>([&](auto i) constexpr {
+    For<1, N + 1>([&](auto i) constexpr {
         coshx[i] = Sum<0, i>([&](auto j) constexpr {
             constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
             return c * x[i - j] * sinhx[j];
@@ -728,7 +644,7 @@ auto tanh(const Real<N, T>& x)
 
         aux[0] = 1 - tanhx[0]*tanhx[0];
 
-        For<1, N+1>([&](auto i) constexpr {
+        For<1, N + 1>([&](auto i) constexpr {
             tanhx[i] = Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
                 return c * x[i - j] * aux[j];
@@ -816,6 +732,11 @@ constexpr auto abs(const Real<N, T>& x)
     return res;
 }
 
+//=====================================================================================================================
+//
+// PRINTING FUNCTIONS
+//
+//=====================================================================================================================
 
 template<size_t N, typename T>
 std::ostream& operator<<(std::ostream& out, const Real<N, T>& x)
@@ -824,6 +745,11 @@ std::ostream& operator<<(std::ostream& out, const Real<N, T>& x)
     return out;
 }
 
+//=====================================================================================================================
+//
+// COMPARISON OPERATORS
+//
+//=====================================================================================================================
 
 template<size_t N, typename T>
 bool operator==(const Real<N, T>& x, const Real<N, T>& y)
@@ -835,21 +761,61 @@ bool operator==(const Real<N, T>& x, const Real<N, T>& y)
     return res;
 }
 
+//=====================================================================================================================
+//
+// SEED/UNSEED FUNCTIONS
+//
+//=====================================================================================================================
 
+template<size_t N, typename T>
+constexpr auto _seed_real_with_num(Real<N, T>& x, const T& num)
+{
+    if constexpr (N > 0) {
+        x[1] = num;
+        For<2, N>([&](auto i) constexpr {
+            x[i] = Zero<T>;
+        });
+    }
+}
 
-} // namespace autodiff::impl
+template<size_t N, typename T>
+constexpr auto seed(Real<N, T>& x)
+{
+    _seed_real_with_num(x, One<T>);
+}
 
-namespace autodiff {
+template<size_t N, typename T>
+constexpr auto unseed(Real<N, T>& x)
+{
+    _seed_real_with_num(x, Zero<T>);
+}
 
-using real1st = impl::Real<1, double>;
-using real2nd = impl::Real<2, double>;
-using real3rd = impl::Real<3, double>;
-using real4th = impl::Real<4, double>;
-using real5th = impl::Real<5, double>;
-using real6th = impl::Real<6, double>;
-using real7th = impl::Real<7, double>;
-using real8th = impl::Real<8, double>;
-using real9th = impl::Real<9, double>;
+//=====================================================================================================================
+//
+// DERIVATIVE FUNCTIONS
+//
+//=====================================================================================================================
+
+template<typename Fun, typename Along, typename Args>
+auto derivatives(const Fun& f, Along&& along, Args&& args)
+{
+    seed(std::get<0>(along));
+    auto res = std::apply(f, args);
+    unseed(std::get<0>(along));
+    return res;
+}
+
+//=====================================================================================================================
+//
+// CONVENIENT TYPE ALIASES
+//
+//=====================================================================================================================
+
+using real0th = Real<0, double>;
+using real1st = Real<1, double>;
+using real2nd = Real<2, double>;
+using real3rd = Real<3, double>;
+using real4th = Real<4, double>;
 
 using real = real1st;
 
