@@ -30,10 +30,9 @@
 #pragma once
 
 // C++ includes
-#include <array>
+#include <cstddef>
 
-namespace autodiff::forward {
-
+namespace autodiff {
 namespace detail {
 
 /// The array containing pre calculated binomial coefficients up to order 50.
@@ -112,4 +111,4 @@ struct BinomialCoefficient
 template<size_t i, size_t j>
 constexpr double BinomialCoefficient = detail::BinomialCoefficient<i, j>::value;
 
-} // namespace autodiff::forward
+} // namespace autodiff
