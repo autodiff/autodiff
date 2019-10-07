@@ -172,6 +172,15 @@ TEST_CASE("autodiff::var tests", "[var]")
     //--------------------------------------------------------------------------
     // TEST HYPERBOLIC FUNCTIONS
     //--------------------------------------------------------------------------
+    REQUIRE( val(sinh(x)) == approx(std::sinh(val(x))) );
+    REQUIRE( grad(sinh(x), x) == approx(std::cosh(val(x))) );
+
+    REQUIRE( val(cosh(x)) == approx(std::cosh(val(x))) );
+    REQUIRE( grad(cosh(x), x) == approx(std::sinh(val(x))) );
+
+    REQUIRE( val(tanh(x)) == approx(std::tanh(val(x))) );
+    REQUIRE( grad(tanh(x), x) == approx(1.0 / (std::cosh(val(x)) * std::cosh(val(x)))) );
+
     //--------------------------------------------------------------------------
     // TEST EXPONENTIAL AND LOGARITHMIC FUNCTIONS
     //--------------------------------------------------------------------------
