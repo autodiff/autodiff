@@ -29,6 +29,14 @@
 
 #pragma once
 
+// Einge includes
+#include <Eigen/Core>
+
+// autodiff includes
+#include <autodiff/forward/forward.hpp>
+#include <autodiff/utils/eigen.hpp>
+#include <autodiff/utils/meta.hpp>
+
 //------------------------------------------------------------------------------
 // SUPPORT FOR EIGEN MATRICES AND VECTORS OF DUAL
 //------------------------------------------------------------------------------
@@ -94,33 +102,105 @@ EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::dual, dual)
 
 namespace autodiff::forward {
 
-/// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
-template<typename Function, typename Wrt, typename Args, typename Result>
-auto gradient(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::VectorXd
+// Create type trait struct `has_member_size`.
+CREATE_MEMBER_CHECK(size);
+
+template<typename T>
+auto _wrt_item_length(const T& item) -> size_t
 {
-    const std::size_t n = std::get<0>(wrt).size();
+    if constexpr (has_member_size<T>::value)
+        return item.size();
+    else return 1;
+}
+
+template<typename... Args>
+auto _wrt_total_length(const std::tuple<Args...>& args)
+{
+    return Reduce(args, [&](auto&& item) constexpr {
+        return _wrt_item_length(item);
+    });
+}
+
+/// Return the gradient of scalar function *f* with respect to some or all variables *x*.
+template<typename Function, typename Wrt, typename Args, typename U>
+auto gradient(const Function& f, Wrt&& wrt, Args&& args, U& u) -> Eigen::VectorXd
+{
+    const size_t n = _wrt_total_length(wrt);
+    // Reduce(args, [&](auto&& item) constexpr { return length(item); });
+    // const size_t n = Reduce(args, [&](auto&& item) constexpr { return length(item); });
 
     Eigen::VectorXd g(n);
 
-    for(std::size_t j = 0; j < n; ++j)
+    size_t offset = 0;
+
+    ForEach(wrt, [&](auto&& item) constexpr
     {
-        std::get<0>(wrt)[j].grad = 1.0;
-        u = std::apply(f, args);
-        std::get<0>(wrt)[j].grad = 0.0;
-        g[j] = u.grad;
-    }
+        if constexpr (isDual<decltype(item)>)
+        {
+            seed(item);
+            u = std::apply(f, std::forward<Args>(args));
+            unseed(item);
+            g[offset] = derivative<1>(u);
+            ++offset;
+        }
+        else
+        {
+            const auto len = item.size();
+            for(size_t j = 0; j < len; ++j)
+            {
+                seed(item[j]);
+                u = std::apply(f, std::forward<Args>(args));
+                unseed(item[j]);
+                g[offset + j] = derivative<1>(u);
+            }
+            offset += len;
+        }
+    });
 
     return g;
 }
 
-/// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
+/// Return the gradient of scalar function *f* with respect to some or all variables *x*.
 template<typename Function, typename Wrt, typename Args>
-auto gradient(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::VectorXd
+auto gradient(const Function& f, Wrt&& wrt, Args&& args)
 {
-    using Result = decltype(std::apply(f, args));
-    Result u;
+    using U = decltype(std::apply(f, args));
+    U u;
     return gradient(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u);
 }
+
+
+
+
+
+
+// /// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
+// template<typename Function, typename Wrt, typename Args, typename Result>
+// auto gradient(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::VectorXd
+// {
+//     const std::size_t n = std::get<0>(wrt).size();
+
+//     Eigen::VectorXd g(n);
+
+//     for(std::size_t j = 0; j < n; ++j)
+//     {
+//         std::get<0>(wrt)[j].grad = 1.0;
+//         u = std::apply(f, args);
+//         std::get<0>(wrt)[j].grad = 0.0;
+//         g[j] = u.grad;
+//     }
+
+//     return g;
+// }
+
+// /// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
+// template<typename Function, typename Wrt, typename Args>
+// auto gradient(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::VectorXd
+// {
+//     using Result = decltype(std::apply(f, args));
+//     Result u;
+//     return gradient(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u);
+// }
 
 /// Return the Jacobian matrix of a function *f* with respect to some or all variables.
 template<typename Function, typename Wrt, typename Args, typename Result>
