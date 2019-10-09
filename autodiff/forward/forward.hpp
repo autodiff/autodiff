@@ -38,6 +38,7 @@
 
 // autodiff includes
 #include <autodiff/utils/aliases.hpp>
+#include <autodiff/utils/traits.hpp>
 
 namespace autodiff {
 namespace forward {
@@ -601,6 +602,7 @@ auto val(T&& expr)
 //
 //=====================================================================================================================
 
+/// Auxiliary recursive function to seed the dual numbers in the `wrt` list when computing higher-order derivatives.
 template<int num, typename Arg>
 auto _seed_wrt_duals_with_num(Arg& dual) -> void
 {
@@ -608,12 +610,23 @@ auto _seed_wrt_duals_with_num(Arg& dual) -> void
     dual.grad = num;
 }
 
+/// Auxiliary recursive function to seed the dual numbers in the `wrt` list when computing higher-order derivatives.
+/// Consider, as an example, the second order derivative `d2f/dxdy` computed via
+/// `derivative(f, wrt(x, y), at(x, y))`. In this case, both `x` and `y` are assumed to be
+/// `Dual<Dual<double, double>, Dual<double, double>>`. This recursive auxiliary function sets
+/// `x.grad = 1` and `y.val.grad = 1`.
 template<int num, typename Arg, typename... Args>
 auto _seed_wrt_duals_with_num(Arg& dual, Args&... duals) -> void
 {
     static_assert(isDual<Arg>);
     _seed_wrt_duals_with_num<num>(duals.val...);
     dual.grad = num;
+}
+
+template<typename T, typename G>
+auto seed(Dual<T, G>& dual)
+{
+    _seed_wrt_duals_with_num<1>(dual);
 }
 
 template<typename Arg, enableif<isDual<Arg>>...>
@@ -626,6 +639,12 @@ template<typename... Args, enableif<areDual<Args...>>...>
 auto seed(std::tuple<Args&...> duals)
 {
     std::apply(_seed_wrt_duals_with_num<1, Args&...>, duals);
+}
+
+template<typename T, typename G>
+auto unseed(Dual<T, G>& dual)
+{
+    _seed_wrt_duals_with_num<0>(dual);
 }
 
 template<typename Arg, enableif<isDual<Arg>>...>
@@ -673,28 +692,6 @@ auto derivative(const Fun& f, Wrt&& wrt, Args&& args)
     Result u;
     return derivative(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u);
 }
-
-// Code below requires template argument deduction, which is not available in clang v4,
-// only osx supported compiler in conda-forge at the moment
-
-// namespace internal {
-
-// template<typename T, typename G, typename... Args>
-// auto grad(const std::function<Dual<T, G>(Args...)>& f)
-// {
-//     auto g = [=](Dual<T, G>& wrt, Args&... args) -> G {
-//         return derivative(f, wrt, args...);
-//     };
-//     return g;
-// }
-
-// } // namespace internal
-
-// template<typename Fun>
-// auto grad(const Fun& f)
-// {
-//     return internal::grad(std::function{f});
-// }
 
 //=====================================================================================================================
 //
