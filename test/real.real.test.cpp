@@ -283,12 +283,20 @@ TEST_CASE("real tests", "[real]")
     CHECK_APPROX( z[3], abs(y[0])/(y[0]) * y[3] );
     CHECK_APPROX( z[4], abs(y[0])/(y[0]) * y[4] );
 
-    auto f = [](const real4th& x, const real4th& y) {
-        return sin(2*x + 3*y);
-    };
+    //=====================================================================================================================
+    //
+    // TESTING DERIVATIVE CALCULATIONS
+    //
+    //=====================================================================================================================
+    std::function<real4th(const real4th&, const real4th&)> f;
 
     x = 5.0;
     y = 7.0;
+
+    f = [](const real4th& x, const real4th& y) {
+        return sin(2*x + 3*y);
+    };
+
     z = derivatives(f, along(x), at(x, y));
 
     CHECK_APPROX( z[0], sin(2*x[0] + 3*y[0]) );
@@ -296,4 +304,12 @@ TEST_CASE("real tests", "[real]")
     CHECK_APPROX( z[2], -sin(2*x[0] + 3*y[0])*4.0 );
     CHECK_APPROX( z[3], -cos(2*x[0] + 3*y[0])*8.0 );
     CHECK_APPROX( z[4], sin(2*x[0] + 3*y[0])*16.0 );
+
+    z = derivatives(f, along(y), at(x, y));
+
+    CHECK_APPROX( z[0], sin(2*x[0] + 3*y[0]) );
+    CHECK_APPROX( z[1], cos(2*x[0] + 3*y[0])*3.0 );
+    CHECK_APPROX( z[2], -sin(2*x[0] + 3*y[0])*9.0 );
+    CHECK_APPROX( z[3], -cos(2*x[0] + 3*y[0])*27.0 );
+    CHECK_APPROX( z[4], sin(2*x[0] + 3*y[0])*81.0 );
 }
