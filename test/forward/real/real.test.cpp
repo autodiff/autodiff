@@ -20,7 +20,7 @@ const auto pi = 3.14159265359;
 
 TEST_CASE("real tests", "[real]")
 {
-    real4th x, y, z;
+    real4th x, y, z, u, v, w;
 
     x = 1.0;
 
@@ -288,10 +288,38 @@ TEST_CASE("real tests", "[real]")
     // TESTING DERIVATIVE CALCULATIONS
     //
     //=====================================================================================================================
-    std::function<real4th(const real4th&, const real4th&)> f;
+    std::function<real4th(const real4th&, const real4th&)> f, g, h;
 
     x = 5.0;
     y = 7.0;
+
+    //---------------------------------------------------------------------------------------------------------------------
+    // f(x, y) = exp(log(2x + 3y))
+    //---------------------------------------------------------------------------------------------------------------------
+
+    f = [](const real4th& x, const real4th& y) {
+        return exp(log(2*x + 3*y));
+    };
+
+    z = derivatives(f, along(x), at(x, y));
+
+    CHECK_APPROX( z[0], 2*x[0] + 3*y[0] );
+    CHECK_APPROX( z[1], 2.0 );
+    CHECK_APPROX( z[2], 0.0 );
+    CHECK_APPROX( z[3], 0.0 );
+    CHECK_APPROX( z[4], 0.0 );
+
+    z = derivatives(f, along(y), at(x, y));
+
+    CHECK_APPROX( z[0], 2*x[0] + 3*y[0] );
+    CHECK_APPROX( z[1], 3.0 );
+    CHECK_APPROX( z[2], 0.0 );
+    CHECK_APPROX( z[3], 0.0 );
+    CHECK_APPROX( z[4], 0.0 );
+
+    //---------------------------------------------------------------------------------------------------------------------
+    // f(x, y) = sin(2x + 3y)
+    //---------------------------------------------------------------------------------------------------------------------
 
     f = [](const real4th& x, const real4th& y) {
         return sin(2*x + 3*y);
@@ -312,4 +340,48 @@ TEST_CASE("real tests", "[real]")
     CHECK_APPROX( z[2], -sin(2*x[0] + 3*y[0])*9.0 );
     CHECK_APPROX( z[3], -cos(2*x[0] + 3*y[0])*27.0 );
     CHECK_APPROX( z[4], sin(2*x[0] + 3*y[0])*81.0 );
+
+    //---------------------------------------------------------------------------------------------------------------------
+    // f(x, y) = exp(2x + 3y) * log(x/y)
+    //---------------------------------------------------------------------------------------------------------------------
+
+    g = [](const real4th& x, const real4th& y) {
+        return exp(2*x + 3*y);
+    };
+
+    h = [](const real4th& x, const real4th& y) {
+        return log(x/y);
+    };
+
+    f = [&](const real4th& x, const real4th& y) {
+        return g(x, y) * h(x, y);
+    };
+
+    // --- derivatives along x ---
+
+    u = derivatives(g, along(x), at(x, y));
+    v = derivatives(h, along(x), at(x, y));
+    w = u * v;
+
+    z = derivatives(f, along(x), at(x, y));
+
+    CHECK_APPROX( z[0], w[0] );
+    CHECK_APPROX( z[1], w[1] );
+    CHECK_APPROX( z[2], w[2] );
+    CHECK_APPROX( z[3], w[3] );
+    CHECK_APPROX( z[4], w[4] );
+
+    // --- derivatives along y ---
+
+    u = derivatives(g, along(y), at(x, y));
+    v = derivatives(h, along(y), at(x, y));
+    w = u * v;
+
+    z = derivatives(f, along(y), at(x, y));
+
+    CHECK_APPROX( z[0], w[0] );
+    CHECK_APPROX( z[1], w[1] );
+    CHECK_APPROX( z[2], w[2] );
+    CHECK_APPROX( z[3], w[3] );
+    CHECK_APPROX( z[4], w[4] );
 }
