@@ -71,8 +71,8 @@ interest.
 
 ## How do I cite {{autodiff}}?
 
-We appreciate your intention of citing {{autodiff}} it in your publications.
-Please use the following BibTeX reference entry:
+We appreciate your intention of citing {{autodiff}} in your publications. Please
+use the following BibTeX reference entry:
 
 ~~~bibtex
 @misc{autodiff,
@@ -89,6 +89,6 @@ This should produce a formatted citation that looks more or less the following:
 * Allan M. M. Leal et al. *autodiff, a modern, fast and expressive C++ library
 for automatic differentiation*. [`https://autodiff.github.io`](https://autodiff.github.io), 2018.
 
-Please ensure the website address is displayed.
+Please ensure the website URL is displayed.
 
 
