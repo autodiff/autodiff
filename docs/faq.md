@@ -68,3 +68,27 @@ Have in mind this is a very simplistic rule, and you should definitely try both
 algorithms whenever possible, since the forward mode could still be faster than
 reverse mode even when many input variables are considered for a function of
 interest.
+
+## How do I cite {{autodiff}}?
+
+We appreciate your intention of citing {{autodiff}} it in your publications.
+Please use the following BibTeX reference entry:
+
+~~~bibtex
+@misc{autodiff,
+    author = {Leal, Allan M. M. and others},
+    title = {autodiff, a modern, fast and expressive {C++} library for automatic differentiation},
+    url = {https://autodiff.github.io},
+    howpublished = {\texttt{https://autodiff.github.io}},
+    year = {2018}
+}
+~~~
+
+This should produce a formatted citation that looks more or less the following:
+
+* Allan M. M. Leal et al. *autodiff, a modern, fast and expressive C++ library
+for automatic differentiation*. [`https://autodiff.github.io`](https://autodiff.github.io), 2018.
+
+Please ensure the website address is displayed.
+
+
