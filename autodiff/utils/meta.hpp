@@ -121,4 +121,13 @@ constexpr auto Reduce(Tuple&& tuple, Function&& f)
     return res;
 }
 
+template<typename Tuple>
+constexpr auto Tail(Tuple&& tuple)
+{
+    auto g = [&](auto&& arg, auto&&... args) constexpr {
+        return std::forward_as_tuple(args...);
+    };
+    return std::apply(g, std::forward<Tuple>(tuple));
+}
+
 } // namespace autodiff

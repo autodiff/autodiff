@@ -1,11 +1,8 @@
 find_package(Catch2 REQUIRED)
 
-add_executable(tests
-    main.cpp
-    reverse/reverse.test.cpp
-    forward/forward.test.cpp
-    forward/real/real.test.cpp
-    forward/real/eigen.test.cpp)
+file(GLOB_RECURSE TEST_FILES "*.test.cpp")
+
+add_executable(tests main.cpp ${TEST_FILES})
 
 target_include_directories(tests PUBLIC ${CMAKE_SOURCE_DIR} ${EIGEN3_INCLUDE_DIR})
 

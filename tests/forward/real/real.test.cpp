@@ -2,7 +2,7 @@
 #include <catch2/catch.hpp>
 
 // autodiff includes
-#include <autodiff/real/real.hpp>
+#include <autodiff/forward/real.hpp>
 using namespace autodiff;
 
 #define CHECK_APPROX(a, b) CHECK(a == Approx(b))
@@ -18,7 +18,7 @@ using namespace autodiff;
 const auto ln10 = 2.302585092994046;
 const auto pi = 3.14159265359;
 
-TEST_CASE("real tests", "[real]")
+TEST_CASE("testing autodiff::real", "[forward][real]")
 {
     real4th x, y, z, u, v, w;
 

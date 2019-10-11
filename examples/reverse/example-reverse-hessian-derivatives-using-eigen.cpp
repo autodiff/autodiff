@@ -7,8 +7,8 @@ using namespace std;
 using namespace Eigen;
 
 // autodiff include
-#include <autodiff/reverse.hpp>
-#include <autodiff/reverse/eigen.hpp>
+#include <autodiff/reverse/var.hpp>
+#include <autodiff/reverse/var/eigen.hpp>
 using namespace autodiff;
 
 // The scalar function for which the gradient is needed

@@ -16,14 +16,28 @@ include(GNUInstallDirs)
 # Ensure proper configuration if in a conda environment
 include(CondaAware)
 
+# Define build options
+option(AUTODIFF_BUILD_TESTS "Enable the compilation of the test files." TRUE)
+option(AUTODIFF_BUILD_EXAMPLES "Enable the compilation of the example files." TRUE)
+
+# Find eigen library
 find_package(Eigen3 REQUIRED)
 
 # autodiff requires a c++17 enabled compiler
 set(CMAKE_CXX_STANDARD 17)
 
+# Build the library (actually, just provide details about the library target, specify required compile options, etc. because autodiff is header-only)
 add_subdirectory(autodiff)
-add_subdirectory(examples)
-add_subdirectory(test)
+
+# Build the tests
+if(AUTODIFF_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
+
+# Build the examples
+if(AUTODIFF_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
 # Install the cmake config files that permit users to use find_package(Reaktoro)
 include(autodiffInstallCMakeConfigFiles)

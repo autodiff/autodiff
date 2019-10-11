@@ -2,7 +2,7 @@
 #include <catch2/catch.hpp>
 
 // autodiff includes
-#include <autodiff/reverse.hpp>
+#include <autodiff/reverse/var.hpp>
 using namespace autodiff;
 
 /// Convenient function used in the tests to calculate the derivative of a variable y with respect to a variable x.
@@ -28,7 +28,7 @@ public:
 
 bool operator==(const var& l, const Approx& r) { return val(l) == r; }
 
-TEST_CASE("autodiff::var tests", "[var]")
+TEST_CASE("testing autodiff::var", "[reverse][var]")
 {
     var a = 10;
     var b = 20;

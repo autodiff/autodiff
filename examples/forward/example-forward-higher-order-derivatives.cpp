@@ -3,7 +3,7 @@
 using namespace std;
 
 // autodiff include
-#include <autodiff/forward.hpp>
+#include <autodiff/forward/dual.hpp>
 using namespace autodiff;
 
 // Define a 2nd order dual type using HigherOrderDual<N> construct.

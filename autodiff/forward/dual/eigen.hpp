@@ -29,11 +29,11 @@
 
 #pragma once
 
-// Einge includes
+// Eigen includes
 #include <Eigen/Core>
 
 // autodiff includes
-#include <autodiff/forward/forward.hpp>
+#include <autodiff/forward/dual.hpp>
 #include <autodiff/utils/eigen.hpp>
 #include <autodiff/utils/meta.hpp>
 
@@ -45,11 +45,12 @@ namespace Eigen {
 template<typename T>
 struct NumTraits;
 
-template<> struct NumTraits<autodiff::dual> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
+template<typename T, typename G>
+struct NumTraits<autodiff::Dual<T, G>> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
 {
-    typedef autodiff::dual Real;
-    typedef autodiff::dual NonInteger;
-    typedef autodiff::dual Nested;
+    typedef autodiff::Dual<T, G> Real;
+    typedef autodiff::Dual<T, G> NonInteger;
+    typedef autodiff::Dual<T, G> Nested;
     enum
     {
         IsComplex = 0,
@@ -63,44 +64,21 @@ template<> struct NumTraits<autodiff::dual> : NumTraits<double> // permits to ge
 };
 
 template<typename T, typename G, typename BinOp>
-struct ScalarBinaryOpTraits<autodiff::forward::Dual<T, G>, T, BinOp>
+struct ScalarBinaryOpTraits<autodiff::Dual<T, G>, T, BinOp>
 {
-    typedef autodiff::dual ReturnType;
+    typedef autodiff::Dual<T, G> ReturnType;
 };
 
 template<typename T, typename G, typename BinOp>
-struct ScalarBinaryOpTraits<T, autodiff::forward::Dual<T, G>, BinOp>
+struct ScalarBinaryOpTraits<T, autodiff::Dual<T, G>, BinOp>
 {
-    typedef autodiff::dual ReturnType;
+    typedef autodiff::Dual<T, G> ReturnType;
 };
-
-#define EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)   \
-typedef Matrix<Type, Size, Size, 0, Size, Size> Matrix##SizeSuffix##TypeSuffix;  \
-typedef Matrix<Type, Size, 1, 0, Size, 1>       Vector##SizeSuffix##TypeSuffix;  \
-typedef Matrix<Type, 1, Size, 1, 1, Size>       RowVector##SizeSuffix##TypeSuffix;
-
-#define EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, Size)         \
-typedef Matrix<Type, Size, -1, 0, Size, -1> Matrix##Size##X##TypeSuffix;  \
-typedef Matrix<Type, -1, Size, 0, -1, Size> Matrix##X##Size##TypeSuffix;
-
-#define EIGEN_MAKE_TYPEDEFS_ALL_SIZES(Type, TypeSuffix) \
-EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 2, 2) \
-EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 3, 3) \
-EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 4, 4) \
-EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, -1, X) \
-EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 2) \
-EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 3) \
-EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 4)
-
-EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::dual, dual)
-
-#undef EIGEN_MAKE_TYPEDEFS_ALL_SIZES
-#undef EIGEN_MAKE_TYPEDEFS
-#undef EIGEN_MAKE_FIXED_TYPEDEFS
 
 } // namespace Eigen
 
-namespace autodiff::forward {
+namespace autodiff {
+namespace detail {
 
 // Create type trait struct `has_member_size`.
 CREATE_MEMBER_CHECK(size);
@@ -126,8 +104,8 @@ template<typename Function, typename Wrt, typename Args, typename U>
 auto gradient(const Function& f, Wrt&& wrt, Args&& args, U& u) -> Eigen::VectorXd
 {
     const size_t n = _wrt_total_length(wrt);
-    // Reduce(args, [&](auto&& item) constexpr { return length(item); });
-    // const size_t n = Reduce(args, [&](auto&& item) constexpr { return length(item); });
+
+    if(n == 0) return {};
 
     Eigen::VectorXd g(n);
 
@@ -168,39 +146,6 @@ auto gradient(const Function& f, Wrt&& wrt, Args&& args)
     U u;
     return gradient(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u);
 }
-
-
-
-
-
-
-// /// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
-// template<typename Function, typename Wrt, typename Args, typename Result>
-// auto gradient(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::VectorXd
-// {
-//     const std::size_t n = std::get<0>(wrt).size();
-
-//     Eigen::VectorXd g(n);
-
-//     for(std::size_t j = 0; j < n; ++j)
-//     {
-//         std::get<0>(wrt)[j].grad = 1.0;
-//         u = std::apply(f, args);
-//         std::get<0>(wrt)[j].grad = 0.0;
-//         g[j] = u.grad;
-//     }
-
-//     return g;
-// }
-
-// /// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
-// template<typename Function, typename Wrt, typename Args>
-// auto gradient(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::VectorXd
-// {
-//     using Result = decltype(std::apply(f, args));
-//     Result u;
-//     return gradient(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u);
-// }
 
 /// Return the Jacobian matrix of a function *f* with respect to some or all variables.
 template<typename Function, typename Wrt, typename Args, typename Result>
@@ -243,6 +188,13 @@ auto jacobian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
     return jacobian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), F);
 }
 
-} // namespace autodiff::forward
+} // namespace detail
+
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(dual, dual)
+
+using detail::gradient;
+using detail::jacobian;
+
+} // namespace autodiff
 
 

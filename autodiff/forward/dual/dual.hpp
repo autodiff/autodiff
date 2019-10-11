@@ -41,7 +41,7 @@
 #include <autodiff/utils/traits.hpp>
 
 namespace autodiff {
-namespace forward {
+namespace detail {
 
 //=====================================================================================================================
 //
@@ -1468,36 +1468,33 @@ std::ostream& operator<<(std::ostream& out, const Dual<T, G>& x)
     return out;
 }
 
-namespace internal {
-
 template<std::size_t N>
-struct HigherOrderDual;
+struct AuxHigherOrderDual;
 
 template<>
-struct HigherOrderDual<0>
+struct AuxHigherOrderDual<0>
 {
     using type = double;
 };
 
 template<std::size_t N>
-struct HigherOrderDual
+struct AuxHigherOrderDual
 {
-    using type = Dual<typename HigherOrderDual<N-1>::type, typename HigherOrderDual<N-1>::type>;
+    using type = Dual<typename AuxHigherOrderDual<N - 1>::type, typename AuxHigherOrderDual<N-1>::type>;
 };
 
-} // namespace internal
-
 template<std::size_t N>
-using HigherOrderDual = typename internal::HigherOrderDual<N>::type;
+using HigherOrderDual = typename AuxHigherOrderDual<N>::type;
 
-using dual = forward::Dual<double, double>;
+using dual = detail::Dual<double, double>;
 
-} // namespace forward
+} // namespace detail
 
-using forward::dual;
-using forward::val;
-using forward::eval;
-using forward::derivative;
-using forward::HigherOrderDual;
+using detail::dual;
+using detail::val;
+using detail::eval;
+using detail::derivative;
+using detail::Dual;
+using detail::HigherOrderDual;
 
 } // namespace autodiff

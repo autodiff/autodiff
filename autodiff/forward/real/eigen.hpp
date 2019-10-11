@@ -29,11 +29,11 @@
 
 #pragma once
 
-// Einge includes
+// Eigen includes
 #include <Eigen/Core>
 
 // autodiff includes
-#include <autodiff/real/real.hpp>
+#include <autodiff/forward/real.hpp>
 #include <autodiff/utils/eigen.hpp>
 #include <autodiff/utils/meta.hpp>
 
@@ -78,6 +78,7 @@ struct ScalarBinaryOpTraits<T, autodiff::Real<N, T>, BinOp>
 } // namespace Eigen
 
 namespace autodiff {
+namespace detail {
 
 // Create type trait struct `has_member_size`.
 CREATE_MEMBER_CHECK(size);
@@ -103,8 +104,8 @@ template<typename Function, typename Wrt, typename Args, typename U>
 auto gradient(const Function& f, Wrt&& wrt, Args&& args, U& u) -> Eigen::VectorXd
 {
     const size_t n = _wrt_total_length(wrt);
-    // Reduce(args, [&](auto&& item) constexpr { return length(item); });
-    // const size_t n = Reduce(args, [&](auto&& item) constexpr { return length(item); });
+
+    if(n == 0) return {};
 
     Eigen::VectorXd g(n);
 
@@ -146,11 +147,11 @@ auto gradient(const Function& f, Wrt&& wrt, Args&& args)
     return gradient(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u);
 }
 
-// /// Return the Jacobian matrix of a function *f* with respect to some or all variables.
+/// Return the Jacobian matrix of a function *f* with respect to some or all variables.
 // template<typename Function, typename Wrt, typename Args, typename Result>
 // auto jacobian(const Function& f, Wrt&& wrt, Args&& args, Result& F) -> Eigen::MatrixXd
 // {
-//     const auto n = std::get<0>(wrt).size();
+//     const size_t n = _wrt_total_length(wrt);
 
 //     if(n == 0) return {};
 
@@ -178,16 +179,21 @@ auto gradient(const Function& f, Wrt&& wrt, Args&& args)
 //     return J;
 // }
 
-// /// Return the Jacobian matrix of a function *f* with respect to some or all variables.
-// template<typename Function, typename Wrt, typename Args>
-// auto jacobian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
-// {
-//     using Result = decltype(std::apply(f, args));
-//     Result F;
-//     return jacobian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), F);
-// }
+/// Return the Jacobian matrix of a function *f* with respect to some or all variables.
+template<typename Function, typename Wrt, typename Args>
+auto jacobian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
+{
+    using Result = decltype(std::apply(f, args));
+    Result F;
+    return jacobian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), F);
+}
+
+} // namespace detail
 
 AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(real, real)
+
+using detail::gradient;
+// using detail::jacobian;
 
 } // namespace autodiff
 

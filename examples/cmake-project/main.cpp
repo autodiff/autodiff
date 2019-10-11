@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-#include <autodiff/forward.hpp>
+#include <autodiff/forward/dual.hpp>
 using namespace autodiff;
 
 dual f(dual x)

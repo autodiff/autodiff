@@ -2,11 +2,11 @@
 #include <catch2/catch.hpp>
 
 // autodiff includes
-#include <autodiff/real/real.hpp>
-#include <autodiff/real/eigen.hpp>
+#include <autodiff/forward/real.hpp>
+#include <autodiff/forward/real/eigen.hpp>
 using namespace autodiff;
 
-TEST_CASE("real.eigen.tests", "[real]")
+TEST_CASE("testing autodiff::real (with eigen)", "[forward][real][eigen]")
 {
     Eigen::MatrixXd M(3, 3);
     M << 1.0, 2.0, 3.0,
