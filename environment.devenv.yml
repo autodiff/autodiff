@@ -4,6 +4,7 @@ dependencies:
   - cmake>=3.13
   - ninja
   - eigen
+  - catch2
   - gxx_linux-64=7.3.0  # [linux]
   - ccache  # [unix]
   - pip

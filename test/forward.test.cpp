@@ -1,5 +1,5 @@
 // Catch includes
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 // Eigen includes
 #include <Eigen/Core>
