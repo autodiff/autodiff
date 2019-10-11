@@ -1,10 +1,11 @@
 find_package(Catch2 REQUIRED)
 
 add_executable(tests
-    reverse.test.cpp
-    forward.test.cpp
-    real/real.test.cpp
-    real/eigen.test.cpp)
+    main.cpp
+    reverse/reverse.test.cpp
+    forward/forward.test.cpp
+    forward/real/real.test.cpp
+    forward/real/eigen.test.cpp)
 
 target_include_directories(tests PUBLIC ${CMAKE_SOURCE_DIR} ${EIGEN3_INCLUDE_DIR})
 

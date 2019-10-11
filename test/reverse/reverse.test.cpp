@@ -1,5 +1,5 @@
 // Catch includes
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 // autodiff includes
 #include <autodiff/reverse.hpp>
