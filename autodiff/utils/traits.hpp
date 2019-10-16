@@ -52,8 +52,6 @@ constexpr T One = static_cast<T>(1);
 template<typename T>
 constexpr bool isNumber = std::is_arithmetic<plain<T>>::value;
 
-
-
 //==========================================================================================================================================================
 // The code below was taken from: https://stackoverflow.com/questions/87372/check-if-a-class-has-a-member-function-of-a-given-signature/16867422#16867422
 // It implements checkers to determine if a type has a member variable, function, etc.
@@ -106,5 +104,12 @@ struct has_member_##member {                                                \
         >::value                                                            \
     ;                                                                       \
 }
+
+// Create type trait struct `has_member_size`.
+CREATE_MEMBER_CHECK(size);
+
+/// Boolean constant that is true if type T implements `size` method.
+template<typename T>
+constexpr bool hasSize = has_member_size<plain<T>>::value;
 
 } // namespace autodiff

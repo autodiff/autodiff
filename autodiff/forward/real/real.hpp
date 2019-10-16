@@ -177,6 +177,9 @@ public:
         });
         return *this;
     }
+
+    /// Convert this Real number into its value of type T.
+    constexpr operator const T&() const { return m_data[0]; }
 };
 
 //=====================================================================================================================
@@ -741,7 +744,7 @@ constexpr auto abs(const Real<N, T>& x)
 template<size_t N, typename T>
 std::ostream& operator<<(std::ostream& out, const Real<N, T>& x)
 {
-    out << x.data[0];
+    out << x[0];
     return out;
 }
 
@@ -796,11 +799,26 @@ constexpr auto unseed(Real<N, T>& x)
 //
 //=====================================================================================================================
 
-template<typename Fun, typename Along, typename Args>
-auto derivatives(const Fun& f, Along&& along, Args&& args)
+/// Return the value of a Real number.
+template<size_t N, typename T>
+constexpr auto val(const Real<N, T>& x)
+{
+    return x[0];
+}
+
+/// Return the derivative of a Real number with given order.
+template<size_t order, size_t N, typename T>
+constexpr auto derivative(const Real<N, T>& x)
+{
+    return x[order];
+}
+
+/// Return the directional derivatives of a function along a direction at some point.
+template<typename Fun, typename Along, typename At>
+auto derivatives(const Fun& f, const Along& along, const At& at)
 {
     seed(std::get<0>(along));
-    auto res = std::apply(f, args);
+    auto res = std::apply(f, at);
     unseed(std::get<0>(along));
     return res;
 }

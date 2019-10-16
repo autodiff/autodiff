@@ -29,14 +29,16 @@
 
 #pragma once
 
+#define AUTODIFF_DEFINE_EIGEN_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)                        \
+using Array##SizeSuffix##SizeSuffix##TypeSuffix = Eigen::Array<Type, Size, Size>;                 \
+using Array##SizeSuffix##TypeSuffix             = Eigen::Array<Type, Size, 1>;                    \
+using Matrix##SizeSuffix##TypeSuffix            = Eigen::Matrix<Type, Size, Size, 0, Size, Size>; \
+using Vector##SizeSuffix##TypeSuffix            = Eigen::Matrix<Type, Size, 1, 0, Size, 1>;       \
+using RowVector##SizeSuffix##TypeSuffix         = Eigen::Matrix<Type, 1, Size, 1, 1, Size>;
 
-#define AUTODIFF_DEFINE_EIGEN_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)                           \
-using Array##SizeSuffix##TypeSuffix     = Eigen::Array<Type, Size, Size, 0, Size, Size>;  \
-using Matrix##SizeSuffix##TypeSuffix    = Eigen::Matrix<Type, Size, Size, 0, Size, Size>; \
-using Vector##SizeSuffix##TypeSuffix    = Eigen::Matrix<Type, Size, 1, 0, Size, 1>;       \
-using RowVector##SizeSuffix##TypeSuffix = Eigen::Matrix<Type, 1, Size, 1, 1, Size>;
-
-#define AUTODIFF_DEFINE_EIGEN_FIXED_TYPEDEFS(Type, TypeSuffix, Size)                       \
+#define AUTODIFF_DEFINE_EIGEN_FIXED_TYPEDEFS(Type, TypeSuffix, Size)            \
+using Array##Size##X##TypeSuffix  = Eigen::Array<Type, Size, -1>;               \
+using Array##X##Size##TypeSuffix  = Eigen::Array<Type, -1, Size>;               \
 using Matrix##Size##X##TypeSuffix = Eigen::Matrix<Type, Size, -1, 0, Size, -1>; \
 using Matrix##X##Size##TypeSuffix = Eigen::Matrix<Type, -1, Size, 0, -1, Size>;
 
@@ -48,13 +50,3 @@ AUTODIFF_DEFINE_EIGEN_TYPEDEFS(Type, TypeSuffix, -1, X)            \
 AUTODIFF_DEFINE_EIGEN_FIXED_TYPEDEFS(Type, TypeSuffix, 2)          \
 AUTODIFF_DEFINE_EIGEN_FIXED_TYPEDEFS(Type, TypeSuffix, 3)          \
 AUTODIFF_DEFINE_EIGEN_FIXED_TYPEDEFS(Type, TypeSuffix, 4)
-
-namespace autodiff {
-
-template<typename T>
-using VectorX = Eigen::Matrix<T, -1, 1, 0, -1, 1>;
-
-template<typename T>
-using MatrixX = Eigen::Matrix<T, -1, -1, 0, -1, -1>;
-
-}

@@ -34,6 +34,7 @@
 
 // autodiff includes
 #include <autodiff/reverse/var/var.hpp>
+#include <autodiff/utils/eigenmacros.hpp>
 
 //------------------------------------------------------------------------------
 // SUPPORT FOR EIGEN MATRICES AND VECTORS OF VAR
@@ -43,7 +44,8 @@ namespace Eigen {
 template<typename T>
 struct NumTraits;
 
-template<> struct NumTraits<autodiff::var> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
+template<>
+struct NumTraits<autodiff::var> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
 {
     typedef autodiff::var Real;
     typedef autodiff::var NonInteger;
@@ -60,40 +62,30 @@ template<> struct NumTraits<autodiff::var> : NumTraits<double> // permits to get
     };
 };
 
-#define EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)   \
-typedef Matrix<Type, Size, Size, 0, Size, Size> Matrix##SizeSuffix##TypeSuffix;  \
-typedef Matrix<Type, Size, 1, 0, Size, 1>       Vector##SizeSuffix##TypeSuffix;  \
-typedef Matrix<Type, 1, Size, 1, 1, Size>       RowVector##SizeSuffix##TypeSuffix;
+template<typename BinOp>
+struct ScalarBinaryOpTraits<autodiff::var, double, BinOp>
+{
+    typedef autodiff::var ReturnType;
+};
 
-#define EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, Size)         \
-typedef Matrix<Type, Size, -1, 0, Size, -1> Matrix##Size##X##TypeSuffix;  \
-typedef Matrix<Type, -1, Size, 0, -1, Size> Matrix##X##Size##TypeSuffix;
-
-#define EIGEN_MAKE_TYPEDEFS_ALL_SIZES(Type, TypeSuffix) \
-EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 2, 2) \
-EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 3, 3) \
-EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 4, 4) \
-EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, -1, X) \
-EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 2) \
-EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 3) \
-EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 4)
-
-EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::var, var)
-
-#undef EIGEN_MAKE_TYPEDEFS_ALL_SIZES
-#undef EIGEN_MAKE_TYPEDEFS
-#undef EIGEN_MAKE_FIXED_TYPEDEFS
+template<typename BinOp>
+struct ScalarBinaryOpTraits<double, autodiff::var, BinOp>
+{
+    typedef autodiff::var ReturnType;
+};
 
 } // namespace Eigen
 
 namespace autodiff {
 
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(var, var);
+
 /// Return the gradient vector of variable y with respect to variables x.
 template<typename vars>
-Eigen::RowVectorXd gradient(const var& y, const vars& x)
+auto gradient(const var& y, const vars& x) -> Eigen::VectorXd
 {
     const auto n = x.size();
-    Eigen::RowVectorXd dydx(n);
+    Eigen::VectorXd dydx(n);
     Derivatives dyd = derivatives(y);
     for(auto i = 0; i < n; ++i)
         dydx[i] = dyd(x[i]);
@@ -102,7 +94,7 @@ Eigen::RowVectorXd gradient(const var& y, const vars& x)
 
 /// Return the Hessian matrix of variable y with respect to variables x.
 template<typename vars>
-Eigen::MatrixXd hessian(const var& y, const vars& x)
+auto hessian(const var& y, const vars& x) -> Eigen::MatrixXd
 {
     const auto n = x.size();
     Eigen::MatrixXd mat(n, n);

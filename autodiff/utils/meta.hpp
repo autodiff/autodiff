@@ -130,4 +130,10 @@ constexpr auto Tail(Tuple&& tuple)
     return std::apply(g, std::forward<Tuple>(tuple));
 }
 
+template<typename Tuple>
+constexpr auto Head(Tuple&& tuple)
+{
+    return std::get<0>(std::forward<Tuple>(tuple));
+}
+
 } // namespace autodiff

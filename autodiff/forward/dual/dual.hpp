@@ -665,7 +665,7 @@ auto unseed(std::tuple<Args&...> duals)
 //
 //=====================================================================================================================
 
-template<std::size_t order, typename T, typename G>
+template<size_t order, typename T, typename G>
 auto derivative(const Dual<T, G>& dual)
 {
     if constexpr (order == 0)
@@ -676,21 +676,21 @@ auto derivative(const Dual<T, G>& dual)
         return derivative<order - 1>(dual.grad);
 }
 
-template<typename Fun, typename Wrt, typename Args, typename Result>
-auto derivative(const Fun& f, Wrt&& wrt, Args&& args, Result& u)
+template<typename Fun, typename Wrt, typename At, typename Result>
+auto derivative(const Fun& f, const Wrt& wrt, const At& at, Result& u)
 {
     seed(wrt);
-    u = std::apply(f, args);
+    u = std::apply(f, at);
     unseed(wrt);
-    return derivative<std::tuple_size<Wrt>::value>(u);
+    return derivative<std::tuple_size_v<Wrt>>(u);
 }
 
-template<typename Fun, typename Wrt, typename Args>
-auto derivative(const Fun& f, Wrt&& wrt, Args&& args)
+template<typename Fun, typename Wrt, typename At>
+auto derivative(const Fun& f, const Wrt& wrt, const At& at)
 {
-    using Result = decltype(std::apply(f, args));
+    using Result = decltype(std::apply(f, at));
     Result u;
-    return derivative(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u);
+    return derivative(f, wrt, at, u);
 }
 
 //=====================================================================================================================
@@ -1468,7 +1468,7 @@ std::ostream& operator<<(std::ostream& out, const Dual<T, G>& x)
     return out;
 }
 
-template<std::size_t N>
+template<size_t N>
 struct AuxHigherOrderDual;
 
 template<>
@@ -1477,13 +1477,13 @@ struct AuxHigherOrderDual<0>
     using type = double;
 };
 
-template<std::size_t N>
+template<size_t N>
 struct AuxHigherOrderDual
 {
     using type = Dual<typename AuxHigherOrderDual<N - 1>::type, typename AuxHigherOrderDual<N-1>::type>;
 };
 
-template<std::size_t N>
+template<size_t N>
 using HigherOrderDual = typename AuxHigherOrderDual<N>::type;
 
 using dual = detail::Dual<double, double>;
