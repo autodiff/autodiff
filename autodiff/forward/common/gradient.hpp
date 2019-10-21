@@ -58,10 +58,10 @@ auto _wrt_total_length(const std::tuple<Items...>& items)
 template<typename Function, typename Wrt, typename At, typename U>
 auto gradient(const Function& f, const Wrt& wrt, const At& at, U& u) -> Eigen::VectorXd
 {
-    static_assert(std::tuple_size_v<Wrt>);
-    static_assert(std::tuple_size_v<At>);
+    static_assert(Wrt::numArgs);
+    static_assert(At::numArgs);
 
-    const size_t n = _wrt_total_length(wrt);
+    const size_t n = _wrt_total_length(wrt.args);
 
     if(n == 0) return {};
 
@@ -69,25 +69,25 @@ auto gradient(const Function& f, const Wrt& wrt, const At& at, U& u) -> Eigen::V
 
     size_t offset = 0;
 
-    ForEach(wrt, [&](auto& item) constexpr
+    ForEach(wrt.args, [&](auto& item) constexpr
     {
         if constexpr (hasSize<decltype(item)>)
         {
             const size_t len = item.size();
             for(size_t j = 0; j < len; ++j)
             {
-                seed(item[j]);
-                u = std::apply(f, at);
-                unseed(item[j]);
+                seednum<1>(item[j], 1.0);
+                u = std::apply(f, at.args);
+                seednum<1>(item[j], 0.0);
                 g[offset + j] = derivative<1>(u);
             }
             offset += len;
         }
         else
         {
-            seed(item);
-            u = std::apply(f, at);
-            unseed(item);
+            seednum<1>(item, 1.0);
+            u = std::apply(f, at.args);
+            seednum<1>(item, 0.0);
             g[offset] = derivative<1>(u);
             ++offset;
         }
@@ -100,7 +100,7 @@ auto gradient(const Function& f, const Wrt& wrt, const At& at, U& u) -> Eigen::V
 template<typename Function, typename Wrt, typename At>
 auto gradient(const Function& f, const Wrt& wrt, const At& at) -> Eigen::VectorXd
 {
-    using U = decltype(std::apply(f, at));
+    using U = decltype(std::apply(f, at.args));
     U u;
     return gradient(f, wrt, at, u);
 }
@@ -109,25 +109,25 @@ auto gradient(const Function& f, const Wrt& wrt, const At& at) -> Eigen::VectorX
 template<typename Function, typename Wrt, typename At, typename Result>
 auto jacobian(const Function& f, const Wrt& wrt, const At& at, Result& F) -> Eigen::MatrixXd
 {
-    static_assert(std::tuple_size_v<Wrt>);
-    static_assert(std::tuple_size_v<At>);
+    static_assert(Wrt::numArgs);
+    static_assert(At::numArgs);
 
     Eigen::MatrixXd J;
 
-    const size_t n = _wrt_total_length(wrt);
+    const size_t n = _wrt_total_length(wrt.args);
     size_t offset = 0;
     size_t m = 0;
 
-    ForEach(wrt, [&](auto& item) constexpr
+    ForEach(wrt.args, [&](auto& item) constexpr
     {
         if constexpr (hasSize<decltype(item)>)
         {
             const size_t len = item.size();
             for(size_t j = 0; j < len; ++j)
             {
-                seed(item[j]);
-                F = std::apply(f, at);
-                unseed(item[j]);
+                seednum<1>(item[j], 1.0);
+                F = std::apply(f, at.args);
+                seednum<1>(item[j], 0.0);
                 if(m == 0) { m = F.rows(); J.resize(m, n); };
                 for(size_t i = 0; i < m; ++i)
                     J(i, offset + j) = derivative<1>(F[i]);
@@ -136,9 +136,9 @@ auto jacobian(const Function& f, const Wrt& wrt, const At& at, Result& F) -> Eig
         }
         else
         {
-            seed(item);
-            F = std::apply(f, at);
-            unseed(item);
+            seednum<1>(item, 1.0);
+            F = std::apply(f, at.args);
+            seednum<1>(item, 0.0);
             if(m == 0) { m = F.rows(); J.resize(m, n); };
             for(size_t i = 0; i < m; ++i)
                 J(i, offset) = derivative<1>(F[i]);
@@ -153,7 +153,7 @@ auto jacobian(const Function& f, const Wrt& wrt, const At& at, Result& F) -> Eig
 template<typename Function, typename Wrt, typename At>
 auto jacobian(const Function& f, const Wrt& wrt, const At& at) -> Eigen::MatrixXd
 {
-    using Result = decltype(std::apply(f, at));
+    using Result = decltype(std::apply(f, at.args));
     Result F;
     return jacobian(f, wrt, at, F);
 }
