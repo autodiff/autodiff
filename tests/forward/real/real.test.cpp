@@ -301,7 +301,7 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         return exp(log(2*x + 3*y));
     };
 
-    z = derivatives(f, along(x), at(x, y));
+    z = derivatives(f, wrt(x), at(x, y));
 
     CHECK_APPROX( z[0], 2*x[0] + 3*y[0] );
     CHECK_APPROX( z[1], 2.0 );
@@ -309,7 +309,7 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_APPROX( z[3], 0.0 );
     CHECK_APPROX( z[4], 0.0 );
 
-    z = derivatives(f, along(y), at(x, y));
+    z = derivatives(f, wrt(y), at(x, y));
 
     CHECK_APPROX( z[0], 2*x[0] + 3*y[0] );
     CHECK_APPROX( z[1], 3.0 );
@@ -325,7 +325,7 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         return sin(2*x + 3*y);
     };
 
-    z = derivatives(f, along(x), at(x, y));
+    z = derivatives(f, wrt(x), at(x, y));
 
     CHECK_APPROX( z[0], sin(2*x[0] + 3*y[0]) );
     CHECK_APPROX( z[1], cos(2*x[0] + 3*y[0])*2.0 );
@@ -333,7 +333,7 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_APPROX( z[3], -cos(2*x[0] + 3*y[0])*8.0 );
     CHECK_APPROX( z[4], sin(2*x[0] + 3*y[0])*16.0 );
 
-    z = derivatives(f, along(y), at(x, y));
+    z = derivatives(f, wrt(y), at(x, y));
 
     CHECK_APPROX( z[0], sin(2*x[0] + 3*y[0]) );
     CHECK_APPROX( z[1], cos(2*x[0] + 3*y[0])*3.0 );
@@ -359,11 +359,11 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
 
     // --- derivatives along x ---
 
-    u = derivatives(g, along(x), at(x, y));
-    v = derivatives(h, along(x), at(x, y));
+    u = derivatives(g, wrt(x), at(x, y));
+    v = derivatives(h, wrt(x), at(x, y));
     w = u * v;
 
-    z = derivatives(f, along(x), at(x, y));
+    z = derivatives(f, wrt(x), at(x, y));
 
     CHECK_APPROX( z[0], w[0] );
     CHECK_APPROX( z[1], w[1] );
@@ -373,11 +373,11 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
 
     // --- derivatives along y ---
 
-    u = derivatives(g, along(y), at(x, y));
-    v = derivatives(h, along(y), at(x, y));
+    u = derivatives(g, wrt(y), at(x, y));
+    v = derivatives(h, wrt(y), at(x, y));
     w = u * v;
 
-    z = derivatives(f, along(y), at(x, y));
+    z = derivatives(f, wrt(y), at(x, y));
 
     CHECK_APPROX( z[0], w[0] );
     CHECK_APPROX( z[1], w[1] );

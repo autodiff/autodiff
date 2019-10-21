@@ -41,6 +41,7 @@
 #include <autodiff/utils/traits.hpp>
 
 namespace autodiff {
+namespace detail {
 
 /// The type used to represent a real number that supports up to *N*-th order derivative calculation.
 template<size_t N, typename T>
@@ -53,7 +54,7 @@ private:
 public:
     /// Construct a default Real number of order *N* and type *T*.
     constexpr Real()
-    : m_data()
+    : Real(Zero<T>)
     {}
 
     /// Construct a Real number with given data.
@@ -69,7 +70,7 @@ public:
     {}
 
     /// Construct a Real number with given data.
-    template<size_t M, typename U, enableif<isNumber<U>>...>
+    template<size_t M, typename U, EnableIf<isNumber<U>>...>
     constexpr Real(const Real<M, U>& other)
     {
         static_assert(N <= M);
@@ -98,7 +99,7 @@ public:
         return begin()[i];
     }
 
-    template<typename U, enableif<isNumber<U>>...>
+    template<typename U, EnableIf<isNumber<U>>...>
     constexpr auto operator=(const U& value) -> Real&
     {
         m_data[0] = value;
@@ -111,28 +112,28 @@ public:
         m_data = data;
     }
 
-    template<typename U, enableif<isNumber<U>>...>
+    template<typename U, EnableIf<isNumber<U>>...>
     constexpr auto operator+=(const U& value) -> Real&
     {
         m_data[0] += static_cast<T>(value);
         return *this;
     }
 
-    template<typename U, enableif<isNumber<U>>...>
+    template<typename U, EnableIf<isNumber<U>>...>
     constexpr auto operator-=(const U& value) -> Real&
     {
         m_data[0] -= static_cast<T>(value);
         return *this;
     }
 
-    template<typename U, enableif<isNumber<U>>...>
+    template<typename U, EnableIf<isNumber<U>>...>
     constexpr auto operator*=(const U& value) -> Real&
     {
         For<0, N + 1>([&](auto i) constexpr { m_data[i] *= static_cast<T>(value); });
         return *this;
     }
 
-    template<typename U, enableif<isNumber<U>>...>
+    template<typename U, EnableIf<isNumber<U>>...>
     constexpr auto operator/=(const U& value) -> Real&
     {
         For<0, N + 1>([&](auto i) constexpr { m_data[i] /= static_cast<T>(value); });
@@ -180,6 +181,11 @@ public:
 
     /// Convert this Real number into its value of type T.
     constexpr operator const T&() const { return m_data[0]; }
+
+
+    constexpr static bool hasGeneralDerivativeSupport = false;
+
+    constexpr static bool hasDirectionalDerivativeSupport = true;
 };
 
 //=====================================================================================================================
@@ -220,7 +226,10 @@ template<size_t N, typename T>
 struct _isReal<Real<N, T>> { constexpr static bool value = true; };
 
 template<typename T>
-constexpr bool isReal = _isReal<plain<T>>::value;
+constexpr bool isReal = _isReal<PlainType<T>>::value;
+
+template<typename... Args>
+constexpr bool areReal = (... && isReal<Args>);
 
 //=====================================================================================================================
 //
@@ -254,13 +263,13 @@ auto operator+(Real<N, T> x, const Real<N, T>& y)
     return x += y;
 }
 
-template<size_t N, typename T, typename U, enableif<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
 auto operator+(Real<N, T> x, const U& y)
 {
     return x += y;
 }
 
-template<size_t N, typename T, typename U, enableif<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
 auto operator+(const U& x, Real<N, T> y)
 {
     return y += x;
@@ -277,13 +286,13 @@ auto operator-(Real<N, T> x, const Real<N, T>& y)
     return x -= y;
 }
 
-template<size_t N, typename T, typename U, enableif<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
 auto operator-(Real<N, T> x, const U& y)
 {
     return x -= y;
 }
 
-template<size_t N, typename T, typename U, enableif<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
 auto operator-(const U& x, Real<N, T> y)
 {
     For<0, N + 1>([&](auto i) constexpr { y[i] = static_cast<T>(x) - y[i]; });
@@ -302,13 +311,13 @@ auto operator*(Real<N, T> x, const Real<N, T>& y)
     return x *= y;
 }
 
-template<size_t N, typename T, typename U, enableif<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
 auto operator*(Real<N, T> x, const U& y)
 {
     return x *= y;
 }
 
-template<size_t N, typename T, typename U, enableif<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
 auto operator*(const U& x, Real<N, T> y)
 {
     return y *= x;
@@ -326,13 +335,13 @@ auto operator/(Real<N, T> x, const Real<N, T>& y)
     return x /= y;
 }
 
-template<size_t N, typename T, typename U, enableif<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
 auto operator/(Real<N, T> x, const U& y)
 {
     return x /= y;
 }
 
-template<size_t N, typename T, typename U, enableif<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
 auto operator/(const U& x, Real<N, T> y)
 {
     Real<N, T> z = x;
@@ -435,7 +444,7 @@ constexpr auto pow(const Real<N, T>& x, const Real<N, T>& y)
     return res;
 }
 
-template<size_t N, typename T, typename U, enableif<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
 constexpr auto pow(const Real<N, T>& x, const U& c)
 {
     Real<N, T> res;
@@ -454,7 +463,7 @@ constexpr auto pow(const Real<N, T>& x, const U& c)
     return res;
 }
 
-template<size_t N, typename T, typename U, enableif<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
 constexpr auto pow(const U& c, const Real<N, T>& y)
 {
     Real<N, T> res;
@@ -766,31 +775,15 @@ bool operator==(const Real<N, T>& x, const Real<N, T>& y)
 
 //=====================================================================================================================
 //
-// SEED/UNSEED FUNCTIONS
+// SEED FUNCTION
 //
 //=====================================================================================================================
 
-template<size_t N, typename T>
-constexpr auto _seed_real_with_num(Real<N, T>& x, const T& num)
+template<size_t order, size_t N, typename T>
+auto seednum(Real<N, T>& real, const T& seedval)
 {
-    if constexpr (N > 0) {
-        x[1] = num;
-        For<2, N>([&](auto i) constexpr {
-            x[i] = Zero<T>;
-        });
-    }
-}
-
-template<size_t N, typename T>
-constexpr auto seed(Real<N, T>& x)
-{
-    _seed_real_with_num(x, One<T>);
-}
-
-template<size_t N, typename T>
-constexpr auto unseed(Real<N, T>& x)
-{
-    _seed_real_with_num(x, Zero<T>);
+    static_assert(order > 0);
+    real[order] = seedval;
 }
 
 //=====================================================================================================================
@@ -813,21 +806,25 @@ constexpr auto derivative(const Real<N, T>& x)
     return x[order];
 }
 
-/// Return the directional derivatives of a function along a direction at some point.
-template<typename Fun, typename Along, typename At>
-auto derivatives(const Fun& f, const Along& along, const At& at)
-{
-    seed(std::get<0>(along));
-    auto res = std::apply(f, at);
-    unseed(std::get<0>(along));
-    return res;
-}
+//=====================================================================================================================
+//
+// NUMBER TRAITS DEFINITION
+//
+//=====================================================================================================================
+
+template<size_t N, typename T>
+struct NumericTypeInfo<Real<N, T>> { using type = T; };
+
+} // namespace detail
 
 //=====================================================================================================================
 //
 // CONVENIENT TYPE ALIASES
 //
 //=====================================================================================================================
+
+using detail::Real;
+using detail::derivative;
 
 using real0th = Real<0, double>;
 using real1st = Real<1, double>;

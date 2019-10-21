@@ -98,17 +98,16 @@ constexpr size_t binomialcoeffs_nmax = 50;
 
 /// Return the binomial coefficient C(i,j) at compile time.
 template<size_t i, size_t j>
-struct BinomialCoefficient
+struct AuxBinomialCoefficient
 {
     static_assert(i <= binomialcoeffs_nmax, "Violation of maximum order for binomial coefficient retrieval.");
     static_assert(j <= i, "Violation of j <= i condition for retrieving binomial coefficient C(i,j).");
     constexpr static double value = binomialcoeffs_data[binomialcoeffs_offsets[i] + j];
 };
 
-} // namespace detail
-
 /// The binomial coefficient C(i,j) at compile time.
 template<size_t i, size_t j>
-constexpr double BinomialCoefficient = detail::BinomialCoefficient<i, j>::value;
+constexpr double BinomialCoefficient = AuxBinomialCoefficient<i, j>::value;
 
+} // namespace detail
 } // namespace autodiff

@@ -33,7 +33,7 @@
 #include <Eigen/Core>
 
 // autodiff includes
-#include <autodiff/forward/dual.hpp>
+#include <autodiff/forward/real.hpp>
 #include <autodiff/forward/common/gradient.hpp>
 #include <autodiff/utils/eigenmacros.hpp>
 

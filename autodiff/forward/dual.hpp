@@ -31,3 +31,4 @@
 
 // autodiff includes
 #include <autodiff/forward/dual/dual.hpp>
+#include <autodiff/forward/common/derivative.hpp>

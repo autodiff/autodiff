@@ -36,12 +36,34 @@
 #include <autodiff/utils/meta.hpp>
 
 namespace autodiff {
+namespace detail {
+
+template<typename... Args>
+struct At
+{
+    std::tuple<Args&...> args;
+    constexpr static auto numArgs = sizeof...(Args);
+};
+
+template<typename... Args>
+struct Wrt
+{
+    std::tuple<Args&...> args;
+    constexpr static auto numArgs = sizeof...(Args);
+};
+
+template<typename... Args>
+struct Along
+{
+    std::tuple<Args&...> args;
+    constexpr static auto numArgs = sizeof...(Args);
+};
 
 /// The keyword used to denote the variables *with respect to* the derivative is calculated.
 template<typename... Args>
 auto wrt(Args&&... args)
 {
-    return std::forward_as_tuple(std::forward<Args>(args)...);
+    return Wrt<Args...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
 }
 
 /// The keyword used to denote the derivative order *N* and the variable *with respect to* the derivative is calculated.
@@ -57,23 +79,29 @@ auto wrt(Arg&& arg)
 
 /// The keyword used to denote the variables *at* which the derivatives are calculated.
 template<typename... Args>
-auto at(Args&&... args)
+auto at(Args&... args)
 {
-    return std::forward_as_tuple(std::forward<Args>(args)...);
+    return At<Args...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
 }
 
 /// The keyword used to denote the direction vector *along* which the derivatives are calculated.
 template<typename Arg>
-auto along(Arg&& arg)
+auto along(Arg& arg)
 {
-    return std::forward_as_tuple(std::forward<Arg>(arg));
+    return Along<Arg> { std::forward_as_tuple(std::forward<Arg>(arg)) };
 }
 
 /// The keyword used to denote the direction vector *along* which the derivatives are calculated.
 template<typename... Args>
-auto along(Args&&... args)
+auto along(Args&... args)
 {
-    return std::forward_as_tuple(std::forward<Args>(args)...);
+    return Along<Args...> { std::forward_as_tuple(std::forward<Args>(args)...) };
 }
+
+} // namespace detail
+
+using detail::along;
+using detail::at;
+using detail::wrt;
 
 } // namespace autodiff

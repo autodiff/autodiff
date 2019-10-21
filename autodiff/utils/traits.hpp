@@ -33,24 +33,51 @@
 #include <type_traits>
 
 namespace autodiff {
+namespace detail {
 
+//-------------------------------------------------------------------------------------------------
+// Basic Traits (traits/basic.hpp)
+//-------------------------------------------------------------------------------------------------
 template<bool value>
-using enableif = typename std::enable_if<value>::type;
+using EnableIf = typename std::enable_if<value>::type;
 
 template<typename T>
-using plain = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+using PlainType = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
 
 template<typename A, typename B>
-using common = typename std::common_type<A, B>::type;
+using CommonType = typename std::common_type<A, B>::type;
+
+
+//-------------------------------------------------------------------------------------------------
+// Number Traits (traits/number.hpp)
+//-------------------------------------------------------------------------------------------------
 
 template<typename T>
-constexpr T Zero = static_cast<T>(0);
+constexpr bool isNumber = std::is_arithmetic<PlainType<T>>::value;
 
 template<typename T>
-constexpr T One = static_cast<T>(1);
+struct NumericTypeInfoNotDefinedFor { using type = T; };
 
 template<typename T>
-constexpr bool isNumber = std::is_arithmetic<plain<T>>::value;
+struct NumericTypeInfo { using type = std::conditional_t<isNumber<T>, T, NumericTypeInfoNotDefinedFor<T>>; };
+
+template<typename T>
+using NumericType = typename NumericTypeInfo<PlainType<T>>::type;
+
+template<typename T>
+constexpr auto Zero = static_cast<NumericType<T>>(0);
+
+template<typename T>
+constexpr auto One = static_cast<NumericType<T>>(1);
+
+
+//-------------------------------------------------------------------------------------------------
+// Derivative Type Support Traits (traits/derivativesupport.hpp)
+//-------------------------------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------------------------------
+// Class Member Traits (traits/classmembers.hpp)
+//-------------------------------------------------------------------------------------------------
 
 //==========================================================================================================================================================
 // The code below was taken from: https://stackoverflow.com/questions/87372/check-if-a-class-has-a-member-function-of-a-given-signature/16867422#16867422
@@ -110,6 +137,11 @@ CREATE_MEMBER_CHECK(size);
 
 /// Boolean constant that is true if type T implements `size` method.
 template<typename T>
-constexpr bool hasSize = has_member_size<plain<T>>::value;
+constexpr bool hasSize = has_member_size<PlainType<T>>::value;
+
+
+} // namespace detail
+
+using detail::NumericType;
 
 } // namespace autodiff
