@@ -1380,7 +1380,7 @@ constexpr void apply(Dual<T, G>& self, LogOp)
 template<typename T, typename G>
 constexpr void apply(Dual<T, G>& self, Log10Op)
 {
-    constexpr T ln10 = 2.3025850929940456840179914546843;
+    constexpr auto ln10 = 2.3025850929940456840179914546843;
     const T aux = One<T> / (ln10 * self.val);
     self.val = log10(self.val);
     self.grad *= aux;
