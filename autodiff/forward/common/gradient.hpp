@@ -46,22 +46,23 @@ auto _wrt_item_length(const Item& item) -> size_t
     else return 1;
 }
 
-template<typename... Items>
-auto _wrt_total_length(const std::tuple<Items...>& items)
+
+template<typename... Vars>
+auto _wrt_total_length(const Wrt<Vars...>& wrt)
 {
-    return Reduce(items, [&](auto&& item) constexpr {
+    return Reduce(wrt.args, [&](auto&& item) constexpr {
         return _wrt_item_length(item);
     });
 }
 
 /// Return the gradient of scalar function *f* with respect to some or all variables *x*.
-template<typename Function, typename Wrt, typename At, typename U>
-auto gradient(const Function& f, const Wrt& wrt, const At& at, U& u) -> Eigen::VectorXd
+template<typename Function, typename... Vars, typename... Args, typename U>
+auto gradient(const Function& f, const Wrt<Vars...>& wrt, const At<Args...>& at, U& u) -> Eigen::VectorXd
 {
-    static_assert(Wrt::numArgs);
-    static_assert(At::numArgs);
+    static_assert(sizeof...(Vars) >= 1);
+    static_assert(sizeof...(Args) >= 1);
 
-    const size_t n = _wrt_total_length(wrt.args);
+    const size_t n = _wrt_total_length(wrt);
 
     if(n == 0) return {};
 
@@ -76,18 +77,18 @@ auto gradient(const Function& f, const Wrt& wrt, const At& at, U& u) -> Eigen::V
             const size_t len = item.size();
             for(size_t j = 0; j < len; ++j)
             {
-                seednum<1>(item[j], 1.0);
+                seed<1>(item[j], 1.0);
                 u = std::apply(f, at.args);
-                seednum<1>(item[j], 0.0);
+                seed<1>(item[j], 0.0);
                 g[offset + j] = derivative<1>(u);
             }
             offset += len;
         }
         else
         {
-            seednum<1>(item, 1.0);
+            seed<1>(item, 1.0);
             u = std::apply(f, at.args);
-            seednum<1>(item, 0.0);
+            seed<1>(item, 0.0);
             g[offset] = derivative<1>(u);
             ++offset;
         }
@@ -97,8 +98,8 @@ auto gradient(const Function& f, const Wrt& wrt, const At& at, U& u) -> Eigen::V
 }
 
 /// Return the gradient of scalar function *f* with respect to some or all variables *x*.
-template<typename Function, typename Wrt, typename At>
-auto gradient(const Function& f, const Wrt& wrt, const At& at) -> Eigen::VectorXd
+template<typename Function, typename... Vars, typename... Args>
+auto gradient(const Function& f, const Wrt<Vars...>& wrt, const At<Args...>& at) -> Eigen::VectorXd
 {
     using U = decltype(std::apply(f, at.args));
     U u;
@@ -106,15 +107,16 @@ auto gradient(const Function& f, const Wrt& wrt, const At& at) -> Eigen::VectorX
 }
 
 /// Return the Jacobian matrix of a function *f* with respect to some or all variables.
-template<typename Function, typename Wrt, typename At, typename Result>
-auto jacobian(const Function& f, const Wrt& wrt, const At& at, Result& F) -> Eigen::MatrixXd
+template<typename Function, typename... Vars, typename... Args, typename Result>
+auto jacobian(const Function& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Result& F) -> Eigen::MatrixXd
 {
-    static_assert(Wrt::numArgs);
-    static_assert(At::numArgs);
+    static_assert(sizeof...(Vars) >= 1);
+    static_assert(sizeof...(Args) >= 1);
+
+    size_t n = _wrt_total_length(wrt); /// using const size_t produces an error in GCC 7.3 because of the capture in the constexpr lambda in the ForEach block
 
     Eigen::MatrixXd J;
 
-    const size_t n = _wrt_total_length(wrt.args);
     size_t offset = 0;
     size_t m = 0;
 
@@ -125,9 +127,9 @@ auto jacobian(const Function& f, const Wrt& wrt, const At& at, Result& F) -> Eig
             const size_t len = item.size();
             for(size_t j = 0; j < len; ++j)
             {
-                seednum<1>(item[j], 1.0);
+                seed<1>(item[j], 1.0);
                 F = std::apply(f, at.args);
-                seednum<1>(item[j], 0.0);
+                seed<1>(item[j], 0.0);
                 if(m == 0) { m = F.rows(); J.resize(m, n); };
                 for(size_t i = 0; i < m; ++i)
                     J(i, offset + j) = derivative<1>(F[i]);
@@ -136,9 +138,9 @@ auto jacobian(const Function& f, const Wrt& wrt, const At& at, Result& F) -> Eig
         }
         else
         {
-            seednum<1>(item, 1.0);
+            seed<1>(item, 1.0);
             F = std::apply(f, at.args);
-            seednum<1>(item, 0.0);
+            seed<1>(item, 0.0);
             if(m == 0) { m = F.rows(); J.resize(m, n); };
             for(size_t i = 0; i < m; ++i)
                 J(i, offset) = derivative<1>(F[i]);
@@ -150,8 +152,8 @@ auto jacobian(const Function& f, const Wrt& wrt, const At& at, Result& F) -> Eig
 }
 
 /// Return the Jacobian matrix of a function *f* with respect to some or all variables.
-template<typename Function, typename Wrt, typename At>
-auto jacobian(const Function& f, const Wrt& wrt, const At& at) -> Eigen::MatrixXd
+template<typename Function, typename... Vars, typename... Args>
+auto jacobian(const Function& f, const Wrt<Vars...>& wrt, const At<Args...>& at) -> Eigen::MatrixXd
 {
     using Result = decltype(std::apply(f, at.args));
     Result F;
