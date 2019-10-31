@@ -31,6 +31,7 @@
 #include <cstddef>
 
 // autodiff includes
+#include <autodiff/utils/aliases.hpp>
 #include <autodiff/utils/meta.hpp>
 
 #pragma once
@@ -38,114 +39,108 @@
 namespace autodiff {
 namespace detail {
 
-// template<typename Fun, typename Wrt, typename At, typename Result>
-// auto derivative(const Fun& f, const Wrt& wrt, const At& at, Result& u)
-// {
-//     seed(wrt);
-//     u = std::apply(f, at.args);
-//     unseed(wrt);
-//     return derivative<std::tuple_size_v<Wrt>>(u);
-// }
-
-// template<typename Fun, typename Wrt, typename At>
-// auto derivative(const Fun& f, const Wrt& wrt, const At& at)
-// {
-//     using Result = decltype(std::apply(f, at.args));
-//     Result u;
-//     return derivative(f, wrt, at, u);
-// }
-// /// Return the directional derivatives of a function along a direction at some point.
-// template<typename Fun, typename Along, typename At>
-// auto derivatives(const Fun& f, const Along& along, const At& at)
-// {
-//     seed(std::get<0>(along));
-//     auto res = std::apply(f, at.args);
-//     unseed(std::get<0>(along));
-//     return res;
-// }
-
-// template<size_t order=1, typename X, typename T>
-// auto seed(X& x, const T& seedval)
-// {
-//     derivative<order>(x) = static_cast<NumericType<X>>(seedval);
-// }
-
-
-// template<typename Tuple, typename T>
-// auto seed(Tuple& nums, const T& seedval)
-// {
-//     constexpr auto size = std::tuple_size_v<Tuple>;
-//     For<size>([&](auto i) constexpr {
-//         seednum<i.index + 1>(std::get<i>(nums), seedval);
-//     });
-// }
-
-
-// template<typename Tuple>
-// auto seed(Tuple& nums)
-// {
-//     seed(nums, 1.0);
-// }
-
-// template<typename Tuple>
-// auto unseed(Tuple& nums)
-// {
-//     seed(nums, 0.0);
-// }
-
-template<typename T, typename... Args>
-auto seed(const Wrt<Args&...>& wrt, const T& seedval)
+template<typename... Vars, typename T>
+auto seed(const Wrt<Vars&...>& wrt, T&& seedval)
 {
-    // static_assert( ( ... && Args::hasGeneralDerivativeSupport ) );
-    constexpr auto size = sizeof...(Args);
+    constexpr auto size = sizeof...(Vars);
     For<size>([&](auto i) constexpr {
-        seednum<i.index + 1>(std::get<i>(wrt.args), seedval);
+        seed<i.index + 1>(std::get<i>(wrt.args), seedval);
     });
 }
 
-// template<typename At, typename... Args>
-// auto seed(const Along<Args&...>& along, const At& at)
-// {
-//     static_assert( ( ... && Args::hasGeneralDerivativeSupport ) );
-//     constexpr auto size = sizeof...(Args);
-//     For<size>([&](auto i) constexpr {
-//         seednum<i.index + 1>(std::get<i>(wrt.args), seedval);
-//     });
-// }
-
-template<typename... Args>
-auto seed(const Wrt<Args&...>& wrt)
+template<typename... Vars>
+auto seed(const Wrt<Vars&...>& wrt)
 {
     seed(wrt, 1.0);
 }
 
-template<typename... Args>
-auto unseed(const Wrt<Args&...>& wrt)
+template<typename... Vars>
+auto unseed(const Wrt<Vars&...>& wrt)
 {
     seed(wrt, 0.0);
 }
 
-template<typename Fun, typename Wrt, typename At>
-auto derivatives(const Fun& f, const Wrt& wrt, const At& at)
+template<typename... Args, typename... Vecs>
+auto seed(const At<Args...>& at, const Along<Vecs...>& along)
 {
+    static_assert(sizeof...(Args) == sizeof...(Vecs));
+
+    ForEach(at.args, along.args, [&](auto& arg, auto&& dir) constexpr {
+        if constexpr (hasSize<decltype(arg)>) {
+            static_assert(hasSize<decltype(dir)>);
+            assert(arg.size() == dir.size());
+            const size_t len = dir.size();
+            for(size_t i = 0; i < len; ++i)
+                seed<1>(arg[i], dir[i]);
+        }
+        else seed<1>(arg, dir);
+    });
+}
+
+template<typename... Args>
+auto unseed(const At<Args...>& at)
+{
+    ForEach(at.args, [&](auto& arg) constexpr {
+        if constexpr (hasSize<decltype(arg)>) {
+            const size_t len = arg.size();
+            for(size_t i = 0; i < len; ++i)
+                seed<1>(arg[i], 0.0);
+        }
+        else seed<1>(arg, 0.0);
+    });
+}
+
+template<typename Fun, typename... Vars, typename... Args>
+auto derivatives(const Fun& f, const Wrt<Vars&...>& wrt, const At<Args&...>& at)
+{
+    // Seed, evaluate, unseed
     seed(wrt);
     auto u = std::apply(f, at.args);
     unseed(wrt);
-    return u;
+
+    // Store the derivatives in an array
+    using T = NumericType<decltype(u)>;
+    constexpr auto N = 1 + sizeof...(Vars);
+    std::array<T, N> values;
+    For<N>([&](auto i) constexpr {
+        values[i] = derivative<i>(u);
+    });
+
+    return values;
 }
 
-template<size_t order=1, typename Fun, typename Wrt, typename At, typename Result>
-auto derivative(const Fun& f, const Wrt& wrt, const At& at, Result& u)
+template<size_t order=1, typename Fun, typename... Vars, typename... Args, typename Result>
+auto derivative(const Fun& f, const Wrt<Vars&...>& wrt, const At<Args&...>& at, Result& u)
 {
     u = derivatives(f, wrt, at);
     return derivative<order>(u);
 }
 
-template<size_t order=1, typename Fun, typename Wrt, typename At>
-auto derivative(const Fun& f, const Wrt& wrt, const At& at)
+template<size_t order=1, typename Fun, typename... Vars, typename... Args>
+auto derivative(const Fun& f, const Wrt<Vars&...>& wrt, const At<Args&...>& at)
 {
     auto u = derivatives(f, wrt, at);
     return derivative<order>(u);
+}
+
+template<typename Fun, typename... Vecs, typename... Args>
+auto derivatives(const Fun& f, const Along<Vecs&...>& along, const At<Args&...>& at)
+{
+    // Seed, evaluate, unseed
+    seed(at, along);
+    auto u = std::apply(f, at.args);
+    unseed(at);
+
+    return u;
+    // Store the derivatives in an array
+    // using T = NumericType<decltype(u)>;
+    // constexpr auto N = 1 + Order<decltype(u)>;
+    // std::array<T, N> values;
+    // For<N>([&](auto i) constexpr {
+    //     values[i] = derivative<i>(u);
+    // });
+
+    // return values;
 }
 
 } // namespace detail
