@@ -208,21 +208,6 @@ using NumberDualDualMulExpr = TernaryExpr<NumberDualDualMulOp, L, C, R>;
 //
 //=====================================================================================================================
 
-//-----------------------------------------------------------------------------
-// ENABLE-IF FOR SFINAE USE
-//-----------------------------------------------------------------------------
-template<bool value>
-using enableif = typename std::enable_if<value>::type;
-
-//-----------------------------------------------------------------------------
-// CONVENIENT TYPE TRAIT UTILITIES
-//-----------------------------------------------------------------------------
-template<typename T>
-using plain = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
-
-template<typename A, typename B>
-using common = typename std::common_type<A, B>::type;
-
 namespace traits {
 
 //-----------------------------------------------------------------------------
@@ -389,11 +374,59 @@ constexpr bool areDual = (... && isDual<Args>);
 template<typename L, typename R>
 constexpr bool isOperable = (isExpr<L> && isExpr<R>) || (isNumber<L> && isExpr<R>) || (isExpr<L> && isNumber<R>);
 
+
+template<typename T>
+struct DualTypeImpl;
+
+template<typename T>
+using DualType = typename DualTypeImpl<PlainType<T>>::type;
+
+struct DualTypeInvalid {};
+
+template<typename T>
+struct DualTypeImpl
+{
+    using type = DualTypeInvalid;
+};
+
+template<typename T, typename G>
+struct DualTypeImpl<Dual<T, G>>
+{
+    using type = Dual<T, G>;
+};
+
+template<typename Op, typename R>
+struct DualTypeImpl<UnaryExpr<Op, R>>
+{
+    using type = DualType<R>;
+};
+
+template<typename Op, typename L, typename R>
+struct DualTypeImpl<BinaryExpr<Op, L, R>>
+{
+    using DualTypeL = DualType<L>;
+    using DualTypeR = DualType<R>;
+    using type = std::conditional_t<isDual<DualTypeL>, DualTypeL, DualTypeR>;
+};
+
+template<typename Op, typename L, typename C, typename R>
+struct DualTypeImpl<TernaryExpr<Op, L, C, R>>
+{
+    using DualTypeL = DualType<L>;
+    using DualTypeC = DualType<C>;
+    using DualTypeR = DualType<R>;
+    using type = std::conditional_t<isDual<DualTypeL>, DualTypeL, std::conditional_t<isDual<DualTypeC>, DualTypeC, DualTypeR>>;
+};
+
 namespace traits {
 
 //-----------------------------------------------------------------------------
 // WHAT IS THE VALUE TYPE OF AN EXPRESSION NODE?
 //-----------------------------------------------------------------------------
+
+
+
+
 
 struct ValueTypeInvalid {};
 
@@ -581,16 +614,18 @@ auto right(const BinaryExpr<Op, L, R>& expr) -> const R
 template<typename T>
 auto eval(T&& expr)
 {
+    static_assert(isDual<T> || isExpr<T> || isNumber<T>);
     if constexpr (isDual<T>)
         return std::forward<T>(expr);
     else if constexpr (isExpr<T>)
-        return Dual<ValueType<T>, GradType<T>>(std::forward<T>(expr));
+        return DualType<T>(std::forward<T>(expr));
     else return std::forward<T>(expr);
 }
 
 template<typename T>
 auto val(T&& expr)
 {
+    static_assert(isDual<T> || isExpr<T> || isNumber<T>);
     if constexpr (isDual<T>)
         return val(expr.val);
     else if constexpr (isExpr<T>)
@@ -605,22 +640,12 @@ auto val(T&& expr)
 //=====================================================================================================================
 
 template<size_t order, typename T, typename G>
-const auto& derivative(const Dual<T, G>& dual)
+auto derivative(const Dual<T, G>& dual)
 {
     if constexpr (order == 0)
-        return dual.val;
-    if constexpr (order == 1)
-        return dual.grad;
-    else return derivative<order - 1>(dual.grad);
-}
-
-template<size_t order, typename T, typename G>
-auto& derivative(Dual<T, G>& dual)
-{
-    if constexpr (order == 0)
-        return dual.val;
-    if constexpr (order == 1)
-        return dual.grad;
+        return val(dual.val);
+    else if constexpr (order == 1)
+        return val(dual.grad);
     else return derivative<order - 1>(dual.grad);
 }
 
@@ -630,13 +655,13 @@ auto& derivative(Dual<T, G>& dual)
 //
 //=====================================================================================================================
 
-template<size_t order, typename T, typename G>
-auto seednum(Dual<T, G>& dual, const NumericType<T>& seedval)
+template<size_t order, typename T, typename G, typename U>
+auto seed(Dual<T, G>& dual, U&& seedval)
 {
     static_assert(order > 0);
     if constexpr (order == 1)
-        dual.grad = seedval;
-    else seednum<order - 1>(dual.val, seedval);
+        dual.grad = static_cast<NumericType<T>>(seedval);
+    else seed<order - 1>(dual.val, seedval);
 }
 
 //=====================================================================================================================
