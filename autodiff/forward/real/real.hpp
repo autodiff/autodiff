@@ -54,7 +54,7 @@ private:
 public:
     /// Construct a default Real number of order *N* and type *T*.
     constexpr Real()
-    : Real(Zero<T>)
+    : Real(T{})
     {}
 
     /// Construct a Real number with given data.
@@ -103,7 +103,7 @@ public:
     constexpr auto operator=(const U& value) -> Real&
     {
         m_data[0] = value;
-        For<1, N + 1>([&](auto i) constexpr { m_data[i] = Zero<T>; });
+        For<1, N + 1>([&](auto i) constexpr { m_data[i] = T{}; });
         return *this;
     }
 
@@ -181,11 +181,6 @@ public:
 
     /// Convert this Real number into its value of type T.
     constexpr operator const T&() const { return m_data[0]; }
-
-
-    constexpr static bool hasGeneralDerivativeSupport = false;
-
-    constexpr static bool hasDirectionalDerivativeSupport = true;
 };
 
 //=====================================================================================================================
@@ -817,7 +812,14 @@ constexpr auto derivative(const Real<N, T>& x)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-struct NumericTypeInfo<Real<N, T>> { using type = T; };
+struct NumberTraits<Real<N, T>>
+{
+    /// The underlying floating point type of Real<N, T>.
+    using NumericType = T;
+
+    /// The order of Real<N, T>.
+    static constexpr auto Order = N;
+};
 
 } // namespace detail
 

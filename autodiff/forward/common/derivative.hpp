@@ -124,23 +124,22 @@ auto derivative(const Fun& f, const Wrt<Vars&...>& wrt, const At<Args&...>& at)
 }
 
 template<typename Fun, typename... Vecs, typename... Args>
-auto derivatives(const Fun& f, const Along<Vecs&...>& along, const At<Args&...>& at)
+auto derivatives(const Fun& f, const Along<Vecs...>& along, const At<Args&...>& at)
 {
     // Seed, evaluate, unseed
     seed(at, along);
     auto u = std::apply(f, at.args);
     unseed(at);
 
-    return u;
     // Store the derivatives in an array
-    // using T = NumericType<decltype(u)>;
-    // constexpr auto N = 1 + Order<decltype(u)>;
-    // std::array<T, N> values;
-    // For<N>([&](auto i) constexpr {
-    //     values[i] = derivative<i>(u);
-    // });
+    using T = NumericType<decltype(u)>;
+    constexpr auto N = 1 + Order<decltype(u)>;
+    std::array<T, N> values;
+    For<N>([&](auto i) constexpr {
+        values[i] = derivative<i>(u);
+    });
 
-    // return values;
+    return values;
 }
 
 } // namespace detail

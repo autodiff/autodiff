@@ -95,7 +95,7 @@ auto along(Arg& arg)
 template<typename... Args>
 auto along(Args&&... args)
 {
-    return Along<Args&&...>{ std::forward_as_tuple(args...) };
+    return Along<Args...>{ std::forward_as_tuple(args...) };
 }
 
 } // namespace detail

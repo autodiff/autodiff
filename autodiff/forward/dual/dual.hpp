@@ -374,126 +374,87 @@ constexpr bool areDual = (... && isDual<Args>);
 template<typename L, typename R>
 constexpr bool isOperable = (isExpr<L> && isExpr<R>) || (isNumber<L> && isExpr<R>) || (isExpr<L> && isNumber<R>);
 
+//-----------------------------------------------------------------------------
+// VALUE, GRAD, AND OP TYPES IN DUAL EXPRESSIONS
+//-----------------------------------------------------------------------------
+
+template<typename T> struct AuxDualType;
+template<typename T> struct AuxDualValueType;
+template<typename T> struct AuxDualGradType;
+template<typename T> struct AuxDualOpType;
+
+
+template<typename T> struct DualTypeNotDefinedFor {};
+template<typename T> struct DualValueTypeNotDefinedFor {};
+template<typename T> struct DualGradTypeNotDefinedFor {};
+template<typename T> struct DualOpTypeNotDefinedFor {};
+
+
+template<typename T> using DualType = typename AuxDualType<PlainType<T>>::type;
+template<typename T> using DualValueType = typename AuxDualValueType<PlainType<T>>::type;
+template<typename T> using DualGradType = typename AuxDualGradType<PlainType<T>>::type;
+template<typename T> using DualOpType = typename AuxDualOpType<PlainType<T>>::type;
+
 
 template<typename T>
-struct DualTypeImpl;
-
-template<typename T>
-using DualType = typename DualTypeImpl<PlainType<T>>::type;
-
-struct DualTypeInvalid {};
-
-template<typename T>
-struct DualTypeImpl
-{
-    using type = DualTypeInvalid;
-};
+struct AuxDualType { using type = DualTypeNotDefinedFor<T>; };
 
 template<typename T, typename G>
-struct DualTypeImpl<Dual<T, G>>
-{
-    using type = Dual<T, G>;
-};
+struct AuxDualType<Dual<T, G>> { using type = Dual<T, G>; };
 
 template<typename Op, typename R>
-struct DualTypeImpl<UnaryExpr<Op, R>>
-{
-    using type = DualType<R>;
-};
+struct AuxDualType<UnaryExpr<Op, R>> { using type = DualType<R>; };
 
 template<typename Op, typename L, typename R>
-struct DualTypeImpl<BinaryExpr<Op, L, R>>
-{
-    using DualTypeL = DualType<L>;
-    using DualTypeR = DualType<R>;
-    using type = std::conditional_t<isDual<DualTypeL>, DualTypeL, DualTypeR>;
-};
+struct AuxDualType<BinaryExpr<Op, L, R>> { using type = std::conditional_t<isDual<DualType<L>>, DualType<L>, DualType<R>>; };
 
 template<typename Op, typename L, typename C, typename R>
-struct DualTypeImpl<TernaryExpr<Op, L, C, R>>
-{
-    using DualTypeL = DualType<L>;
-    using DualTypeC = DualType<C>;
-    using DualTypeR = DualType<R>;
-    using type = std::conditional_t<isDual<DualTypeL>, DualTypeL, std::conditional_t<isDual<DualTypeC>, DualTypeC, DualTypeR>>;
-};
+struct AuxDualType<TernaryExpr<Op, L, C, R>> { using type = std::conditional_t<isDual<DualType<L>>, DualType<L>, std::conditional_t<isDual<DualType<C>>, DualType<C>, DualType<R>>>; };
 
-namespace traits {
-
-//-----------------------------------------------------------------------------
-// WHAT IS THE VALUE TYPE OF AN EXPRESSION NODE?
-//-----------------------------------------------------------------------------
-
-
-
-
-
-struct ValueTypeInvalid {};
 
 template<typename T>
-struct ValueType { using type = std::conditional_t<isNumber<T>, T, ValueTypeInvalid>; };
+struct AuxDualValueType { using type = std::conditional_t<isNumber<T>, T, DualValueTypeNotDefinedFor<T>>; };
 
 template<typename T, typename G>
-struct ValueType<Dual<T, G>> { using type = typename ValueType<PlainType<T>>::type; };
+struct AuxDualValueType<Dual<T, G>> { using type = DualValueType<T>; };
 
 template<typename Op, typename R>
-struct ValueType<UnaryExpr<Op, R>> { using type = typename ValueType<PlainType<R>>::type; };
+struct AuxDualValueType<UnaryExpr<Op, R>> { using type = DualValueType<R>; };
 
 template<typename Op, typename L, typename R>
-struct ValueType<BinaryExpr<Op, L, R>> { using type = CommonType<typename ValueType<PlainType<L>>::type, typename ValueType<PlainType<R>>::type>; };
+struct AuxDualValueType<BinaryExpr<Op, L, R>> { using type = CommonType<DualValueType<L>, DualValueType<R>>; };
 
 template<typename Op, typename L, typename C, typename R>
-struct ValueType<TernaryExpr<Op, L, C, R>> { using type = CommonType<typename ValueType<PlainType<L>>::type, CommonType<typename ValueType<PlainType<C>>::type, typename ValueType<PlainType<R>>::type>>; };
+struct AuxDualValueType<TernaryExpr<Op, L, C, R>> { using type = CommonType<DualValueType<L>, CommonType<DualValueType<C>, DualValueType<R>>>; };
 
-//-----------------------------------------------------------------------------
-// WHAT IS THE GRADIENT TYPE OF AN EXPRESSION NODE?
-//-----------------------------------------------------------------------------
-
-struct GradTypeInvalid {};
 
 template<typename T>
-struct GradType { using type = std::conditional_t<isNumber<T>, T, GradTypeInvalid>; };
+struct AuxDualGradType { using type = std::conditional_t<isNumber<T>, T, DualGradTypeNotDefinedFor<T>>; };
 
 template<typename T, typename G>
-struct GradType<Dual<T, G>> { using type = typename GradType<PlainType<G>>::type; };
+struct AuxDualGradType<Dual<T, G>> { using type = DualGradType<G>; };
 
 template<typename Op, typename R>
-struct GradType<UnaryExpr<Op, R>> { using type = typename GradType<PlainType<R>>::type; };
+struct AuxDualGradType<UnaryExpr<Op, R>> { using type = DualGradType<R>; };
 
 template<typename Op, typename L, typename R>
-struct GradType<BinaryExpr<Op, L, R>> { using type = CommonType<typename GradType<PlainType<L>>::type, typename GradType<PlainType<R>>::type>; };
+struct AuxDualGradType<BinaryExpr<Op, L, R>> { using type = CommonType<DualGradType<L>, DualGradType<R>>; };
 
 template<typename Op, typename L, typename C, typename R>
-struct GradType<TernaryExpr<Op, L, C, R>> { using type = CommonType<typename GradType<PlainType<L>>::type, CommonType<typename GradType<PlainType<C>>::type, typename GradType<PlainType<R>>::type>>; };
+struct AuxDualGradType<TernaryExpr<Op, L, C, R>> { using type = CommonType<DualGradType<L>, CommonType<DualGradType<C>, DualGradType<R>>>; };
 
-//-----------------------------------------------------------------------------
-// WHAT IS THE OPERATOR TYPE OF AN EXPRESSION NODE?
-//-----------------------------------------------------------------------------
-
-struct OperatorTypeInvalid {};
 
 template<typename T>
-struct OperatorType { using type = OperatorTypeInvalid; };
+struct AuxDualOpType { using type = DualOpTypeNotDefinedFor<T>; };
 
 template<typename Op, typename R>
-struct OperatorType<UnaryExpr<Op, R>> { using type = Op; };
+struct AuxDualOpType<UnaryExpr<Op, R>> { using type = Op; };
 
 template<typename Op, typename L, typename R>
-struct OperatorType<BinaryExpr<Op, L, R>> { using type = Op; };
+struct AuxDualOpType<BinaryExpr<Op, L, R>> { using type = Op; };
 
 template<typename Op, typename L, typename C, typename R>
-struct OperatorType<TernaryExpr<Op, L, C, R>> { using type = Op; };
-
-} // namespace traits
-
-template<typename T>
-using ValueType = typename traits::ValueType<PlainType<T>>::type;
-
-template<typename T>
-using GradType = typename traits::GradType<PlainType<T>>::type;
-
-template<typename T>
-using OperatorType = typename traits::OperatorType<PlainType<T>>::type;
+struct AuxDualOpType<TernaryExpr<Op, L, C, R>> { using type = Op; };
 
 //=====================================================================================================================
 //
@@ -512,7 +473,7 @@ struct Dual
 
     explicit operator T() const { return this->val; }
 
-    Dual(const ValueType<T>& val)
+    Dual(const DualValueType<T>& val)
     : val(val), grad(0)
     {
     }
@@ -567,11 +528,6 @@ struct Dual
         assignDiv(*this, tmp);
         return *this;
     }
-
-
-    constexpr static bool hasGeneralDerivativeSupport = true;
-
-    constexpr static bool hasDirectionalDerivativeSupport = true;
 };
 
 template<typename Op, typename R>
@@ -697,11 +653,11 @@ constexpr auto inverse(U&& expr)
 //-----------------------------------------------------------------------------
 // AUXILIARY CONSTEXPR CONSTANTS
 //-----------------------------------------------------------------------------
-// template<typename U>
-// constexpr auto Zero = static_cast<ValueType<U>>(0);
+template<typename U>
+constexpr auto Zero = static_cast<DualValueType<U>>(0);
 
-// template<typename U>
-// constexpr auto One = static_cast<ValueType<U>>(1);
+template<typename U>
+constexpr auto One = static_cast<DualValueType<U>>(1);
 
 //=====================================================================================================================
 //
@@ -942,7 +898,7 @@ constexpr void assign(Dual<T, G>& self, U&& other)
     }
     // ASSIGN A UNARY EXPRESSION: self = unaryexpr
     else if constexpr (isUnaryExpr<U>) {
-        using Op = OperatorType<U>;
+        using Op = DualOpType<U>;
         assign(self, other.r);
         apply<Op>(self);
     }
@@ -970,7 +926,7 @@ constexpr void assign(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 
     // ASSIGN AN UNARY EXPRESSION: self = func(expr)
     if constexpr (isUnaryExpr<U>) {
-        using Op = OperatorType<U>;
+        using Op = DualOpType<U>;
         assign(self, other.r, tmp);
         apply<Op>(self);
     }
@@ -1446,16 +1402,14 @@ std::ostream& operator<<(std::ostream& out, const Dual<T, G>& x)
 //=====================================================================================================================
 
 template<typename T, typename G>
-struct NumericTypeInfo<Dual<T, G>> { using type = ValueType<T>; };
+struct NumberTraits<Dual<T, G>>
+{
+    /// The underlying floating point type of Dual<T, G>.
+    using NumericType = DualValueType<T>;
 
-template<typename Op, typename R>
-struct NumericTypeInfo<UnaryExpr<Op, R>> { using type = ValueType<R>; };
-
-template<typename Op, typename L, typename R>
-struct NumericTypeInfo<BinaryExpr<Op, L, R>> { using type = CommonType<ValueType<L>, ValueType<R>>; };
-
-template<typename Op, typename L, typename C, typename R>
-struct NumericTypeInfo<TernaryExpr<Op, L, C, R>> { using type = CommonType<ValueType<L>, CommonType<ValueType<C>, ValueType<R>>>; };
+    /// The order of Dual<T, G>.
+    static constexpr auto Order = 1 + NumberTraits<PlainType<T>>::Order;
+};
 
 //=====================================================================================================================
 //

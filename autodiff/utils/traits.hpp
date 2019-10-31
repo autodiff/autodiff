@@ -59,17 +59,20 @@ template<typename T>
 struct NumericTypeInfoNotDefinedFor { using type = T; };
 
 template<typename T>
-struct NumericTypeInfo { using type = std::conditional_t<isNumber<T>, T, NumericTypeInfoNotDefinedFor<T>>; };
+struct NumberTraits
+{
+    /// The underlying floating point type of the autodiff number type.
+    using NumericType = std::conditional_t<isNumber<T>, T, NumericTypeInfoNotDefinedFor<T>>;
+
+    /// The order of the autodiff number type.
+    static constexpr auto Order = 0;
+};
 
 template<typename T>
-using NumericType = typename NumericTypeInfo<PlainType<T>>::type;
+using NumericType = typename NumberTraits<PlainType<T>>::NumericType;
 
 template<typename T>
-constexpr auto Zero = static_cast<NumericType<T>>(0);
-
-template<typename T>
-constexpr auto One = static_cast<NumericType<T>>(1);
-
+constexpr auto Order = NumberTraits<PlainType<T>>::Order;
 
 //-------------------------------------------------------------------------------------------------
 // Derivative Type Support Traits (traits/derivativesupport.hpp)
