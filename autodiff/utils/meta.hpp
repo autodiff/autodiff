@@ -34,6 +34,25 @@
 #include <type_traits>
 
 namespace autodiff {
+namespace detail {
+
+template<typename Tuple>
+constexpr auto TupleSize = std::tuple_size_v<std::decay_t<Tuple>>;
+
+template<typename Tuple>
+constexpr auto TupleHead(Tuple&& tuple)
+{
+    return std::get<0>(std::forward<Tuple>(tuple));
+}
+
+template<typename Tuple>
+constexpr auto TupleTail(Tuple&& tuple)
+{
+    auto g = [&](auto&& arg, auto&&... args) constexpr {
+        return std::forward_as_tuple(args...);
+    };
+    return std::apply(g, std::forward<Tuple>(tuple));
+}
 
 template<size_t i>
 struct Index
@@ -43,33 +62,19 @@ struct Index
     constexpr operator size_t() { return index; }
 };
 
-namespace aux {
-
 template<size_t i, size_t ibegin, size_t iend, typename Function>
-constexpr auto For(Function&& f)
+constexpr auto AuxFor(Function&& f)
 {
     if constexpr (i < iend) {
         f(Index<i>{});
-        For<i + 1, ibegin, iend>(std::forward<Function>(f));
+        AuxFor<i + 1, ibegin, iend>(std::forward<Function>(f));
     }
 }
-
-template<size_t i, size_t ibegin, size_t iend, typename Function>
-constexpr auto ReverseFor(Function&& f)
-{
-    if constexpr (i < iend)
-    {
-        ReverseFor<i + 1, ibegin, iend>(std::forward<Function>(f));
-        f(Index<i>{});
-    }
-}
-
-} // namespace aux
 
 template<size_t ibegin, size_t iend, typename Function>
 constexpr auto For(Function&& f)
 {
-    aux::For<ibegin, ibegin, iend>(std::forward<Function>(f));
+    AuxFor<ibegin, ibegin, iend>(std::forward<Function>(f));
 }
 
 template<size_t iend, typename Function>
@@ -78,16 +83,53 @@ constexpr auto For(Function&& f)
     For<0, iend>(std::forward<Function>(f));
 }
 
+template<size_t i, size_t ibegin, size_t iend, typename Function>
+constexpr auto AuxReverseFor(Function&& f)
+{
+    if constexpr (i < iend)
+    {
+        AuxReverseFor<i + 1, ibegin, iend>(std::forward<Function>(f));
+        f(Index<i>{});
+    }
+}
+
 template<size_t ibegin, size_t iend, typename Function>
 constexpr auto ReverseFor(Function&& f)
 {
-    aux::ReverseFor<ibegin, ibegin, iend>(std::forward<Function>(f));
+    AuxReverseFor<ibegin, ibegin, iend>(std::forward<Function>(f));
 }
 
 template<size_t iend, typename Function>
 constexpr auto ReverseFor(Function&& f)
 {
     ReverseFor<0, iend>(std::forward<Function>(f));
+}
+
+template<typename Tuple, typename Function>
+constexpr auto ForEach(Tuple&& tuple, Function&& f)
+{
+    constexpr auto N = TupleSize<Tuple>;
+    For<N>([&](auto i) constexpr {
+        f(std::get<i>(tuple));
+    });
+    //------------------------------------------------------------
+    // ALTERNATIVE IMPLEMENTATION POSSIBLY USEFUL TO KEEP IT HERE
+    // auto g = [&](auto&&... args) constexpr {
+    //     ( f(std::forward<decltype(args)>(args)), ...);
+    // };
+    // std::apply(g, std::forward<Tuple>(tuple));
+    //------------------------------------------------------------
+}
+
+template<typename Tuple1, typename Tuple2, typename Function>
+constexpr auto ForEach(Tuple1&& tuple1, Tuple2&& tuple2, Function&& f)
+{
+    constexpr auto N1 = TupleSize<Tuple1>;
+    constexpr auto N2 = TupleSize<Tuple2>;
+    static_assert(N1 == N2);
+    For<N1>([&](auto i) constexpr {
+        f(std::get<i>(tuple1), std::get<i>(tuple2));
+    });
 }
 
 template<size_t ibegin, size_t iend, typename Function>
@@ -102,15 +144,6 @@ constexpr auto Sum(Function&& f)
 }
 
 template<typename Tuple, typename Function>
-constexpr auto ForEach(Tuple&& tuple, Function&& f)
-{
-    auto g = [&](auto&&... args) constexpr {
-        ( f(std::forward<decltype(args)>(args)), ...);
-    };
-    std::apply(g, std::forward<Tuple>(tuple));
-}
-
-template<typename Tuple, typename Function>
 constexpr auto Reduce(Tuple&& tuple, Function&& f)
 {
     using ResultType = std::invoke_result_t<Function, decltype(std::get<0>(tuple))>;
@@ -121,19 +154,5 @@ constexpr auto Reduce(Tuple&& tuple, Function&& f)
     return res;
 }
 
-template<typename Tuple>
-constexpr auto Tail(Tuple&& tuple)
-{
-    auto g = [&](auto&& arg, auto&&... args) constexpr {
-        return std::forward_as_tuple(args...);
-    };
-    return std::apply(g, std::forward<Tuple>(tuple));
-}
-
-template<typename Tuple>
-constexpr auto Head(Tuple&& tuple)
-{
-    return std::get<0>(std::forward<Tuple>(tuple));
-}
-
+} // namespace detail
 } // namespace autodiff
