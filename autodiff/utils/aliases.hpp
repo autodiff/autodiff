@@ -48,7 +48,7 @@ struct At
 template<typename... Args>
 struct Wrt
 {
-    std::tuple<Args&...> args;
+    std::tuple<Args...> args;
     constexpr static auto numArgs = sizeof...(Args);
 };
 
@@ -63,12 +63,12 @@ struct Along
 template<typename... Args>
 auto wrt(Args&&... args)
 {
-    return Wrt<Args...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
+    return Wrt<Args&&...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
 }
 
 /// The keyword used to denote the derivative order *N* and the variable *with respect to* the derivative is calculated.
 template<std::size_t N, typename Arg>
-auto wrt(Arg&& arg)
+auto wrt(Arg&& arg) // TODO: This permits rvalues in wrt (temporaries), which will not have an effect in any variable in the `at` list. && should be replaced by & only
 {
     static_assert(N > 0);
     auto head = std::forward_as_tuple(std::forward<Arg>(arg));
@@ -81,21 +81,21 @@ auto wrt(Arg&& arg)
 template<typename... Args>
 auto at(Args&... args)
 {
-    return At<Args...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
+    return At<Args&...>{ std::forward_as_tuple(args...) };
 }
 
 /// The keyword used to denote the direction vector *along* which the derivatives are calculated.
 template<typename Arg>
 auto along(Arg& arg)
 {
-    return Along<Arg> { std::forward_as_tuple(std::forward<Arg>(arg)) };
+    return Along<Arg&>{ std::forward_as_tuple(arg) };
 }
 
 /// The keyword used to denote the direction vector *along* which the derivatives are calculated.
 template<typename... Args>
-auto along(Args&... args)
+auto along(Args&&... args)
 {
-    return Along<Args...> { std::forward_as_tuple(std::forward<Args>(args)...) };
+    return Along<Args&&...>{ std::forward_as_tuple(args...) };
 }
 
 } // namespace detail
