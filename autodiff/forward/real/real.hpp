@@ -61,7 +61,7 @@ public:
     constexpr Real(const T& value)
     {
         m_data[0] = value;
-        For<1, N + 1>([&](auto i) constexpr { m_data[i] = Zero<T>; });
+        For<1, N + 1>([&](auto i) constexpr { m_data[i] = 0; });
     }
 
     /// Construct a Real number with given data.
@@ -779,11 +779,15 @@ bool operator==(const Real<N, T>& x, const Real<N, T>& y)
 //
 //=====================================================================================================================
 
-template<size_t order, size_t N, typename T>
-auto seednum(Real<N, T>& real, const T& seedval)
+template<size_t order, size_t N, typename T, typename U>
+auto seed(Real<N, T>& real, U&& seedval)
 {
-    static_assert(order > 0);
-    real[order] = seedval;
+    static_assert(order == 1,
+        "Real<N, T> is optimized for higher-order **directional** derivatives. "
+        "You're possibly trying to use it for computing higher-order **cross** derivatives "
+        "(e.g., `derivative(f, wrt(x, x, y), at(x, y))`) which is not supported by Real<N, T>. "
+        "Use Dual<T, G> instead (e.g., `using dual4th = HigherOrderDual<4>;`)");
+    real[order] = static_cast<T>(seedval);
 }
 
 //=====================================================================================================================
