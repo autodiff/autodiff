@@ -39,71 +39,79 @@ auto approx(T&& expr) -> Approx
 #define CHECK_DERIVATIVES_FXY_3RD_ORDER(expr, u, ux, uy, uxx, uxy, uyy, uxxx, uxxy, uxyy, uyyy) \
 {                                                                                               \
     using dual3rd = HigherOrderDual<3>;                                                         \
-    dual3rd x = 5;                                                                              \
-    dual3rd y = 7;                                                                              \
+    dual3rd x = 1;                                                                              \
+    dual3rd y = 2;                                                                              \
     auto f = [](dual3rd x, dual3rd y) -> dual3rd { return expr; };                              \
-    auto dfdx = derivatives(f, wrt(x), at(x, y));                                                     \
-    CHECK( dfdx[0] == approx(u) );                                                   \
-    CHECK( dfdx[1] == approx(ux) );                                                  \
-    auto dfdy = derivatives(f, wrt(y), at(x, y));                                                     \
-    CHECK( dfdy[0] == approx(u) );                                                   \
-    CHECK( dfdy[1] == approx(uy) );                                                  \
-    auto dfdxx = derivatives(f, wrt(x, x), at(x, y));                                                  \
-    CHECK( dfdxx[0] == approx(u) );                                                   \
-    CHECK( dfdxx[1] == approx(ux) );                                                  \
-    CHECK( dfdxx[2] == approx(uxx) );                                                 \
-    auto dfdxy = derivatives(f, wrt(x, y), at(x, y));                                                  \
-    CHECK( dfdxy[0] == approx(u) );                                                   \
-    CHECK( dfdxy[1] == approx(ux) );                                                  \
-    CHECK( dfdxy[2] == approx(uxy) );                                                 \
-    auto dfdyx = derivatives(f, wrt(y, x), at(x, y));                                                  \
-    CHECK( dfdyx[0] == approx(u) );                                                   \
-    CHECK( dfdyx[1] == approx(uy) );                                                  \
-    CHECK( dfdyx[2] == approx(uxy) );                                                 \
-    auto dfdyy = derivatives(f, wrt(y, y), at(x, y));                                                  \
-    CHECK( dfdyy[0] == approx(u) );                                                   \
-    CHECK( dfdyy[1] == approx(uy) );                                                  \
-    CHECK( dfdyy[2] == approx(uyy) );                                                 \
-    auto dfdxxx = derivatives(f, wrt(x, x, x), at(x, y));                                               \
-    CHECK( dfdxxx[0] == approx(u) );                                                   \
-    CHECK( dfdxxx[1] == approx(ux) );                                                  \
-    CHECK( dfdxxx[2] == approx(uxx) );                                                 \
-    CHECK( dfdxxx[3] == approx(uxxx) );                                                \
-    auto dfdxyx = derivatives(f, wrt(x, y, x), at(x, y));                                               \
-    CHECK( dfdxyx[0] == approx(u) );                                                   \
-    CHECK( dfdxyx[1] == approx(ux) );                                                  \
-    CHECK( dfdxyx[2] == approx(uxy) );                                                 \
-    CHECK( dfdxyx[3] == approx(uxxy) );                                                \
-    auto dfdxxy = derivatives(f, wrt(x, x, y), at(x, y));                                               \
-    CHECK( dfdxxy[0] == approx(u) );                                                   \
-    CHECK( dfdxxy[1] == approx(ux) );                                                  \
-    CHECK( dfdxxy[2] == approx(uxx) );                                                 \
-    CHECK( dfdxxy[3] == approx(uxxy) );                                                \
-    auto dfdxyy = derivatives(f, wrt(x, y, y), at(x, y));                                               \
-    CHECK( dfdxyy[0] == approx(u) );                                                   \
-    CHECK( dfdxyy[1] == approx(ux) );                                                  \
-    CHECK( dfdxyy[2] == approx(uxy) );                                                 \
-    CHECK( dfdxyy[3] == approx(uxyy) );                                                \
-    auto dfdyxx = derivatives(f, wrt(y, x, x), at(x, y));                                               \
-    CHECK( dfdyxx[0] == approx(u) );                                                   \
-    CHECK( dfdyxx[1] == approx(uy) );                                                  \
-    CHECK( dfdyxx[2] == approx(uxy) );                                                 \
-    CHECK( dfdyxx[3] == approx(uxxy) );                                                \
-    auto dfdyyx = derivatives(f, wrt(y, y, x), at(x, y));                                               \
-    CHECK( dfdyyx[0] == approx(u) );                                                   \
-    CHECK( dfdyyx[1] == approx(uy) );                                                  \
-    CHECK( dfdyyx[2] == approx(uyy) );                                                 \
-    CHECK( dfdyyx[3] == approx(uxyy) );                                                \
-    auto dfdyxy = derivatives(f, wrt(y, x, y), at(x, y));                                               \
-    CHECK( dfdyxy[0] == approx(u) );                                                   \
-    CHECK( dfdyxy[1] == approx(uy) );                                                  \
-    CHECK( dfdyxy[2] == approx(uxy) );                                                 \
-    CHECK( dfdyxy[3] == approx(uxyy) );                                                \
-    auto dfdyyy = derivatives(f, wrt(y, y, y), at(x, y));                                               \
-    CHECK( dfdyyy[0] == approx(u) );                                                   \
-    CHECK( dfdyyy[1] == approx(uy) );                                                  \
-    CHECK( dfdyyy[2] == approx(uyy) );                                                 \
-    CHECK( dfdyyy[3] == approx(uyyy) );                                                \
+    auto dfdx = derivatives(f, wrt(x), at(x, y));                                               \
+    CHECK( dfdx[0] == approx(u) );                                                              \
+    CHECK( dfdx[1] == approx(ux) );                                                             \
+    CHECK( dfdx[2] == approx(uxx) );                                                            \
+    CHECK( dfdx[3] == approx(uxxx) );                                                           \
+    auto dfdy = derivatives(f, wrt(y), at(x, y));                                               \
+    CHECK( dfdy[0] == approx(u) );                                                              \
+    CHECK( dfdy[1] == approx(uy) );                                                             \
+    CHECK( dfdy[2] == approx(uyy) );                                                            \
+    CHECK( dfdy[3] == approx(uyyy) );                                                           \
+    auto dfdxx = derivatives(f, wrt(x, x), at(x, y));                                           \
+    CHECK( dfdxx[0] == approx(u) );                                                             \
+    CHECK( dfdxx[1] == approx(ux) );                                                            \
+    CHECK( dfdxx[2] == approx(uxx) );                                                           \
+    CHECK( dfdxx[3] == approx(uxxx) );                                                          \
+    auto dfdxy = derivatives(f, wrt(x, y), at(x, y));                                           \
+    CHECK( dfdxy[0] == approx(u) );                                                             \
+    CHECK( dfdxy[1] == approx(ux) );                                                            \
+    CHECK( dfdxy[2] == approx(uxy) );                                                           \
+    CHECK( dfdxy[3] == approx(uxyy) );                                                          \
+    auto dfdyx = derivatives(f, wrt(y, x), at(x, y));                                           \
+    CHECK( dfdyx[0] == approx(u) );                                                             \
+    CHECK( dfdyx[1] == approx(uy) );                                                            \
+    CHECK( dfdyx[2] == approx(uxy) );                                                           \
+    CHECK( dfdyx[3] == approx(uxyy) );                                                          \
+    auto dfdyy = derivatives(f, wrt(y, y), at(x, y));                                           \
+    CHECK( dfdyy[0] == approx(u) );                                                             \
+    CHECK( dfdyy[1] == approx(uy) );                                                            \
+    CHECK( dfdyy[2] == approx(uyy) );                                                           \
+    CHECK( dfdyy[3] == approx(uyyy) );                                                          \
+    auto dfdxxx = derivatives(f, wrt(x, x, x), at(x, y));                                       \
+    CHECK( dfdxxx[0] == approx(u) );                                                            \
+    CHECK( dfdxxx[1] == approx(ux) );                                                           \
+    CHECK( dfdxxx[2] == approx(uxx) );                                                          \
+    CHECK( dfdxxx[3] == approx(uxxx) );                                                         \
+    auto dfdxyx = derivatives(f, wrt(x, y, x), at(x, y));                                       \
+    CHECK( dfdxyx[0] == approx(u) );                                                            \
+    CHECK( dfdxyx[1] == approx(ux) );                                                           \
+    CHECK( dfdxyx[2] == approx(uxy) );                                                          \
+    CHECK( dfdxyx[3] == approx(uxxy) );                                                         \
+    auto dfdxxy = derivatives(f, wrt(x, x, y), at(x, y));                                       \
+    CHECK( dfdxxy[0] == approx(u) );                                                            \
+    CHECK( dfdxxy[1] == approx(ux) );                                                           \
+    CHECK( dfdxxy[2] == approx(uxx) );                                                          \
+    CHECK( dfdxxy[3] == approx(uxxy) );                                                         \
+    auto dfdxyy = derivatives(f, wrt(x, y, y), at(x, y));                                       \
+    CHECK( dfdxyy[0] == approx(u) );                                                            \
+    CHECK( dfdxyy[1] == approx(ux) );                                                           \
+    CHECK( dfdxyy[2] == approx(uxy) );                                                          \
+    CHECK( dfdxyy[3] == approx(uxyy) );                                                         \
+    auto dfdyxx = derivatives(f, wrt(y, x, x), at(x, y));                                       \
+    CHECK( dfdyxx[0] == approx(u) );                                                            \
+    CHECK( dfdyxx[1] == approx(uy) );                                                           \
+    CHECK( dfdyxx[2] == approx(uxy) );                                                          \
+    CHECK( dfdyxx[3] == approx(uxxy) );                                                         \
+    auto dfdyyx = derivatives(f, wrt(y, y, x), at(x, y));                                       \
+    CHECK( dfdyyx[0] == approx(u) );                                                            \
+    CHECK( dfdyyx[1] == approx(uy) );                                                           \
+    CHECK( dfdyyx[2] == approx(uyy) );                                                          \
+    CHECK( dfdyyx[3] == approx(uxyy) );                                                         \
+    auto dfdyxy = derivatives(f, wrt(y, x, y), at(x, y));                                       \
+    CHECK( dfdyxy[0] == approx(u) );                                                            \
+    CHECK( dfdyxy[1] == approx(uy) );                                                           \
+    CHECK( dfdyxy[2] == approx(uxy) );                                                          \
+    CHECK( dfdyxy[3] == approx(uxyy) );                                                         \
+    auto dfdyyy = derivatives(f, wrt(y, y, y), at(x, y));                                       \
+    CHECK( dfdyyy[0] == approx(u) );                                                            \
+    CHECK( dfdyyy[1] == approx(uy) );                                                           \
+    CHECK( dfdyyy[2] == approx(uyy) );                                                          \
+    CHECK( dfdyyy[3] == approx(uyyy) );                                                         \
 }
 
 TEST_CASE("testing autodiff::dual", "[forward][dual]")
@@ -480,7 +488,7 @@ TEST_CASE("testing autodiff::dual", "[forward][dual]")
             6.0                                                        // uyyy
         );
 
-        CHECK_DERIVATIVES_FXY_3RD_ORDER(exp(log(x * y)),
+        CHECK_DERIVATIVES_FXY_3RD_ORDER(exp(log(x * y)), // expression identical to x*y
             val(x) * val(y), // u
             y,               // ux
             x,               // uy
@@ -493,8 +501,21 @@ TEST_CASE("testing autodiff::dual", "[forward][dual]")
             0.0              // uyyy
         );
 
-        CHECK_DERIVATIVES_FXY_3RD_ORDER(sin(x * y) * sin(x * y) + cos(x * y) * cos(x * y),
+        CHECK_DERIVATIVES_FXY_3RD_ORDER(sin(x * y) * sin(x * y) + cos(x * y) * cos(x * y), // expression identical to 1
             1.0, // u
+            0.0, // ux
+            0.0, // uy
+            0.0, // uxx
+            0.0, // uxy
+            0.0, // uyy
+            0.0, // uxxx
+            0.0, // uxxy
+            0.0, // uxyy
+            0.0  // uyyy
+        );
+
+        CHECK_DERIVATIVES_FXY_3RD_ORDER(tan(log(x) * exp(y)) - sin(exp(y) * log(x)) / cos(log(x) * exp(y)), // expression identical to 0
+            0.0, // u
             0.0, // ux
             0.0, // uy
             0.0, // uxx
