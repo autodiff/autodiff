@@ -16,37 +16,21 @@ using namespace autodiff::detail;
     CHECK_APPROX( a[3], b[3] );            \
     CHECK_APPROX( a[4], b[4] );            \
 
-// #define CHECK_DERIVATIVES_REAL4TH_WRT(expr, u, ux, uxx, uxxx, uxxxx, uy, uyy, uyyy, uyyyy) \
-// {                                                                                          \
-//     auto f = [](const real4th& x, const real4th& y) -> real4th { return expr; };           \
-//     auto dfdx = derivatives(f, wrt(x), at(x, y));                                          \
-//     CHECK_APPROX( dfdx[0], u );                                                            \
-//     CHECK_APPROX( dfdx[1], ux );                                                           \
-//     CHECK_APPROX( dfdx[2], uxx );                                                          \
-//     CHECK_APPROX( dfdx[3], uxxx );                                                         \
-//     CHECK_APPROX( dfdx[4], uxxxx );                                                        \
-//     auto dfdy = derivatives(f, wrt(y), at(x, y));                                          \
-//     CHECK_APPROX( dfdy[0], u );                                                            \
-//     CHECK_APPROX( dfdy[1], uy );                                                           \
-//     CHECK_APPROX( dfdy[2], uyy );                                                          \
-//     CHECK_APPROX( dfdy[3], uyyy );                                                         \
-//     CHECK_APPROX( dfdy[4], uyyyy );                                                        \
-// }
-
 #define CHECK_DERIVATIVES_REAL4TH_WRT(expr)                                       \
 {                                                                                 \
-    real4th x, y, z;                                                              \
-    x = 5;                                                                        \
-    y = 7;                                                                        \
+    real4th x = 5, y = 7;                                                         \
     auto f = [](const real4th& x, const real4th& y) -> real4th { return expr; };  \
+    /* Check directional derivatives of f(x,y) wrt x */                           \
     auto dfdx = derivatives(f, wrt(x), at(x, y));                                 \
     x[1] = 1.0; u = expr; x[1] = 0.0;                                             \
     CHECK_APPROX( dfdx[0], u[0] );                                                \
     CHECK_APPROX( dfdx[1], u[1] );                                                \
+    /* Check directional derivatives of f(x,y) wrt y */                           \
     auto dfdy = derivatives(f, wrt(y), at(x, y));                                 \
     y[1] = 1.0; u = expr; y[1] = 0.0;                                             \
     CHECK_APPROX( dfdy[0], u[0] );                                                \
     CHECK_APPROX( dfdy[1], u[1] );                                                \
+    /* Check directional derivatives of f(x,y) along direction (3, 5) */          \
     auto dfdv = derivatives(f, along(3, 5), at(x, y));                            \
     x[1] = 3.0; y[1] = 5.0; u = expr; x[1] = 0.0; y[1] = 0.0;                     \
     CHECK_APPROX( dfdv[0], u[0] );                                                \
@@ -368,114 +352,42 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_APPROX( z[3], abs(y[0])/(y[0]) * y[3] );
     CHECK_APPROX( z[4], abs(y[0])/(y[0]) * y[4] );
 
-
-
-    // seed(at(x, y), along(2.0, 3.0));
-
-    auto aux1 = at(x, y);
-    auto aux2 = along(2.0, 3.0);
-
-    CHECK(aux1.numArgs == aux2.numArgs);
-
-
-
     //=====================================================================================================================
     //
     // TESTING DERIVATIVE CALCULATIONS
     //
     //=====================================================================================================================
-    std::function<real4th(const real4th&, const real4th&)> f, g, h;
 
-    x = 5.0;
-    y = 7.0;
-
-    //---------------------------------------------------------------------------------------------------------------------
-    // f(x, y) = exp(log(2x + 3y))
-    //---------------------------------------------------------------------------------------------------------------------
     CHECK_DERIVATIVES_REAL4TH_WRT( exp(log(2*x + 3*y)) );
+    CHECK_DERIVATIVES_REAL4TH_WRT( sin(2*x + 3*y) );
+    CHECK_DERIVATIVES_REAL4TH_WRT( exp(2*x + 3*y) * log(x/y) );
 
-    // z = derivatives(f, wrt(x), at(x, y));
-    //
-    // CHECK_APPROX( z[0], 2*x[0] + 3*y[0] );
-    // CHECK_APPROX( z[1], 2.0 );
-    // CHECK_APPROX( z[2], 0.0 );
-    // CHECK_APPROX( z[3], 0.0 );
-    // CHECK_APPROX( z[4], 0.0 );
+    SECTION("testing array-unpacking of derivatives for real number")
+    {
+        real4th x = {{2.0, 3.0, 4.0, 5.0, 6.0}};
 
-    // z = derivatives(f, wrt(y), at(x, y));
+        auto [x0, x1, x2, x3, x4] = derivatives(x);
 
-    // CHECK_APPROX( z[0], 2*x[0] + 3*y[0] );
-    // CHECK_APPROX( z[1], 3.0 );
-    // CHECK_APPROX( z[2], 0.0 );
-    // CHECK_APPROX( z[3], 0.0 );
-    // CHECK_APPROX( z[4], 0.0 );
+        CHECK_APPROX( x0, x[0] );
+        CHECK_APPROX( x1, x[1] );
+        CHECK_APPROX( x2, x[2] );
+        CHECK_APPROX( x3, x[3] );
+        CHECK_APPROX( x4, x[4] );
+    }
 
-    // //---------------------------------------------------------------------------------------------------------------------
-    // // f(x, y) = sin(2x + 3y)
-    // //---------------------------------------------------------------------------------------------------------------------
+    SECTION("testing array-unpacking of derivatives for vector of real numbers")
+    {
+        real4th x = {{2.0, 3.0, 4.0, 5.0, 6.0}};
+        real4th y = {{3.0, 4.0, 5.0, 6.0, 7.0}};
+        real4th z = {{4.0, 5.0, 6.0, 7.0, 8.0}};
 
-    // f = [](const real4th& x, const real4th& y) {
-    //     return sin(2*x + 3*y);
-    // };
+        std::vector<real4th> u = { x, y, z };
 
-    // z = derivatives(f, wrt(x), at(x, y));
+        auto [u0, u1, u2, u3, u4] = derivatives(u);
 
-    // CHECK_APPROX( z[0], sin(2*x[0] + 3*y[0]) );
-    // CHECK_APPROX( z[1], cos(2*x[0] + 3*y[0])*2.0 );
-    // CHECK_APPROX( z[2], -sin(2*x[0] + 3*y[0])*4.0 );
-    // CHECK_APPROX( z[3], -cos(2*x[0] + 3*y[0])*8.0 );
-    // CHECK_APPROX( z[4], sin(2*x[0] + 3*y[0])*16.0 );
-
-    // z = derivatives(f, wrt(y), at(x, y));
-
-    // CHECK_APPROX( z[0], sin(2*x[0] + 3*y[0]) );
-    // CHECK_APPROX( z[1], cos(2*x[0] + 3*y[0])*3.0 );
-    // CHECK_APPROX( z[2], -sin(2*x[0] + 3*y[0])*9.0 );
-    // CHECK_APPROX( z[3], -cos(2*x[0] + 3*y[0])*27.0 );
-    // CHECK_APPROX( z[4], sin(2*x[0] + 3*y[0])*81.0 );
-
-    // //---------------------------------------------------------------------------------------------------------------------
-    // // f(x, y) = exp(2x + 3y) * log(x/y)
-    // //---------------------------------------------------------------------------------------------------------------------
-
-    // g = [](const real4th& x, const real4th& y) {
-    //     return exp(2*x + 3*y);
-    // };
-
-    // h = [](const real4th& x, const real4th& y) {
-    //     return log(x/y);
-    // };
-
-    // f = [&](const real4th& x, const real4th& y) {
-    //     return g(x, y) * h(x, y);
-    // };
-
-    // // --- derivatives along x ---
-
-    // u = derivatives(g, wrt(x), at(x, y));
-    // v = derivatives(h, wrt(x), at(x, y));
-    // w = u * v;
-
-    // z = derivatives(f, wrt(x), at(x, y));
-
-    // CHECK_APPROX( z[0], w[0] );
-    // CHECK_APPROX( z[1], w[1] );
-    // CHECK_APPROX( z[2], w[2] );
-    // CHECK_APPROX( z[3], w[3] );
-    // CHECK_APPROX( z[4], w[4] );
-
-    // // --- derivatives along y ---
-
-    // u = derivatives(g, wrt(y), at(x, y));
-    // v = derivatives(h, wrt(y), at(x, y));
-    // w = u * v;
-
-    // z = derivatives(f, wrt(y), at(x, y));
-
-    // CHECK_APPROX( z[0], w[0] );
-    // CHECK_APPROX( z[1], w[1] );
-    // CHECK_APPROX( z[2], w[2] );
-    // CHECK_APPROX( z[3], w[3] );
-    // CHECK_APPROX( z[4], w[4] );
+        CHECK_APPROX( u0[0], x[0] ); CHECK_APPROX( u1[0], x[1] ); CHECK_APPROX( u2[0], x[2] ); CHECK_APPROX( u3[0], x[3] ); CHECK_APPROX( u4[0], x[4] );
+        CHECK_APPROX( u0[1], y[0] ); CHECK_APPROX( u1[1], y[1] ); CHECK_APPROX( u2[1], y[2] ); CHECK_APPROX( u3[1], y[3] ); CHECK_APPROX( u4[1], y[4] );
+        CHECK_APPROX( u0[2], z[0] ); CHECK_APPROX( u1[2], z[1] ); CHECK_APPROX( u2[2], z[2] ); CHECK_APPROX( u3[2], z[3] ); CHECK_APPROX( u4[2], z[4] );
+    }
 }
 //*/
