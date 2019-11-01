@@ -7,7 +7,15 @@
 using namespace autodiff;
 using namespace autodiff::detail;
 
-#define CHECK_APPROX(a, b) CHECK(a == Approx(b).epsilon(1e-14).margin(1e-12))
+template<typename T>
+auto approx(T&& val) -> Approx
+{
+    const double epsilon = std::numeric_limits<double>::epsilon() * 100;
+    const double margin = 1e-12;
+    return Approx(std::forward<T>(val)).epsilon(epsilon).margin(margin);
+}
+
+#define CHECK_APPROX(a, b) CHECK(a == approx(b))
 
 #define CHECK_4TH_ORDER_REAL_NUMBERS(a, b) \
     CHECK_APPROX( a[0], b[0] );            \
@@ -20,16 +28,6 @@ using namespace autodiff::detail;
 {                                                                                 \
     real4th x = 5, y = 7;                                                         \
     auto f = [](const real4th& x, const real4th& y) -> real4th { return expr; };  \
-    /* Check directional derivatives of f(x,y) wrt x */                           \
-    auto dfdx = derivatives(f, wrt(x), at(x, y));                                 \
-    x[1] = 1.0; u = expr; x[1] = 0.0;                                             \
-    CHECK_APPROX( dfdx[0], u[0] );                                                \
-    CHECK_APPROX( dfdx[1], u[1] );                                                \
-    /* Check directional derivatives of f(x,y) wrt y */                           \
-    auto dfdy = derivatives(f, wrt(y), at(x, y));                                 \
-    y[1] = 1.0; u = expr; y[1] = 0.0;                                             \
-    CHECK_APPROX( dfdy[0], u[0] );                                                \
-    CHECK_APPROX( dfdy[1], u[1] );                                                \
     /* Check directional derivatives of f(x,y) along direction (3, 5) */          \
     auto dfdv = derivatives(f, along(3, 5), at(x, y));                            \
     x[1] = 3.0; y[1] = 5.0; u = expr; x[1] = 0.0; y[1] = 0.0;                     \
@@ -39,6 +37,30 @@ using namespace autodiff::detail;
     CHECK_APPROX( dfdv[3], u[3] );                                                \
     CHECK_APPROX( dfdv[4], u[4] );                                                \
 }
+
+// #define CHECK_DERIVATIVES_REAL4TH_WRT(expr)                                       \
+// {                                                                                 \
+//     real4th x = 5, y = 7;                                                         \
+//     auto f = [](const real4th& x, const real4th& y) -> real4th { return expr; };  \
+//     /* Check directional derivatives of f(x,y) wrt x */                           \
+//     auto dfdx = derivatives(f, wrt(x), at(x, y));                                 \
+//     x[1] = 1.0; u = expr; x[1] = 0.0;                                             \
+//     CHECK_APPROX( dfdx[0], u[0] );                                                \
+//     CHECK_APPROX( dfdx[1], u[1] );                                                \
+//     /* Check directional derivatives of f(x,y) wrt y */                           \
+//     auto dfdy = derivatives(f, wrt(y), at(x, y));                                 \
+//     y[1] = 1.0; u = expr; y[1] = 0.0;                                             \
+//     CHECK_APPROX( dfdy[0], u[0] );                                                \
+//     CHECK_APPROX( dfdy[1], u[1] );                                                \
+//     /* Check directional derivatives of f(x,y) along direction (3, 5) */          \
+//     auto dfdv = derivatives(f, along(3, 5), at(x, y));                            \
+//     x[1] = 3.0; y[1] = 5.0; u = expr; x[1] = 0.0; y[1] = 0.0;                     \
+//     CHECK_APPROX( dfdv[0], u[0] );                                                \
+//     CHECK_APPROX( dfdv[1], u[1] );                                                \
+//     CHECK_APPROX( dfdv[2], u[2] );                                                \
+//     CHECK_APPROX( dfdv[3], u[3] );                                                \
+//     CHECK_APPROX( dfdv[4], u[4] );                                                \
+// }
 
 // Auxiliary constants
 const auto ln10 = 2.302585092994046;
