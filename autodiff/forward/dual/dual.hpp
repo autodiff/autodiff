@@ -611,13 +611,21 @@ auto derivative(const Dual<T, G>& dual)
 //
 //=====================================================================================================================
 
+/// Traverse down along the `val` branch until depth `order` is reached, then return the `grad` node.
+template<size_t order, typename T, typename G>
+auto& gradnode(Dual<T, G>& dual)
+{
+    constexpr auto N = Order<Dual<T, G>>;
+    static_assert(0 < order && order <= N);
+    if constexpr (order == 1) return dual.grad;
+    else return gradnode<order - 1>(dual.val);
+}
+
+/// Set the `grad` node of a dual number along the `val` branch at a depth `order`.
 template<size_t order, typename T, typename G, typename U>
 auto seed(Dual<T, G>& dual, U&& seedval)
 {
-    static_assert(order > 0);
-    if constexpr (order == 1)
-        dual.grad = static_cast<NumericType<T>>(seedval);
-    else seed<order - 1>(dual.val, seedval);
+    gradnode<order>(dual) = static_cast<NumericType<T>>(seedval);
 }
 
 //=====================================================================================================================
