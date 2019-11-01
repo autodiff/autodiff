@@ -31,6 +31,7 @@
 
 // C++ includes
 #include <type_traits>
+#include <vector>
 
 namespace autodiff {
 namespace detail {
@@ -73,6 +74,34 @@ using NumericType = typename NumberTraits<PlainType<T>>::NumericType;
 
 template<typename T>
 constexpr auto Order = NumberTraits<PlainType<T>>::Order;
+
+
+
+template<typename V>
+struct VectorTraitsNotDefinedFor {};
+
+template<typename V>
+struct VectorTraits
+{
+    using ValueType = VectorTraitsNotDefinedFor<V>;
+    using ReplaceValueType = VectorTraitsNotDefinedFor<V>;
+};
+
+template<typename T, template<class> typename Allocator>
+struct VectorTraits<std::vector<T, Allocator<T>>>
+{
+    using ValueType = T;
+
+    template<typename NewValueType>
+    using ReplaceValueType = std::vector<NewValueType, Allocator<NewValueType>>;
+};
+
+template<typename V>
+using VectorValueType = typename VectorTraits<PlainType<V>>::ValueType;
+
+template<typename V, typename NewValueType>
+using VectorReplaceValueType = typename VectorTraits<V>::template ReplaceValueType<NewValueType>;
+
 
 //-------------------------------------------------------------------------------------------------
 // Derivative Type Support Traits (traits/derivativesupport.hpp)
