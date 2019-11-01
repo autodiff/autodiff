@@ -39,12 +39,26 @@
 namespace autodiff {
 namespace detail {
 
-template<typename... Vars, typename T>
-auto seed(const Wrt<Vars&...>& wrt, T&& seedval)
+/// Seed each dual number in the **wrt** list using its position as the derivative order to be seeded.
+/// Using `seed(wrt(x, y, z), 1)` will set the 1st order derivative of `x`, the
+/// 2nd order derivative of `y`, and the 3rd order derivative of `z` to 1. If
+/// these dual numbers have order greater than 3, then the last dual number will
+/// be used for the remaining higher-order derivatives. For example, if these
+/// numbers are 5th order, than the 4th and 5th order derivatives of `z` will be
+/// set to 1 as well. In this example, `wrt(x, y, z)` is equivalent to `wrt(x,
+/// y, z, z, z)`. This automatic seeding permits derivatives `fx`, `fxy`,
+/// `fxyz`, `fxyzz`, and `fxyzzz` to be computed in a more convenient way.
+template<typename Var, typename... Vars, typename T>
+auto seed(const Wrt<Var&, Vars&...>& wrt, T&& seedval)
 {
-    constexpr auto size = sizeof...(Vars);
-    For<size>([&](auto i) constexpr {
-        seed<i.index + 1>(std::get<i>(wrt.args), seedval);
+    constexpr auto N = Order<Var>;
+    constexpr auto size = 1 + sizeof...(Vars);
+    static_assert(size <= N, "It is not possible to compute higher-order derivatives with order greater than that of the autodiff number (e.g., using wrt(x, x, y, z) will fail if the autodiff numbers in use have order below 4).");
+    For<N>([&](auto i) constexpr {
+        if constexpr (i < size)
+            seed<i.index + 1>(std::get<i>(wrt.args), seedval);
+        else
+            seed<i.index + 1>(std::get<size - 1>(wrt.args), seedval); // use the last variable in the wrt list as the variable for which the remaining higher-order derivatives are calculated (e.g., derivatives(f, wrt(x), at(x)) will produce [f0, fx, fxx, fxxx, fxxxx] when x is a 4th order dual number).
     });
 }
 
@@ -131,7 +145,7 @@ auto derivatives(const Fun& f, const Wrt<Vars&...>& wrt, const At<Args&...>& at)
 
     // Store the derivatives in an array
     using T = NumericType<decltype(u)>;
-    constexpr auto N = 1 + sizeof...(Vars);
+    constexpr auto N = 1 + Order<decltype(u)>;
     std::array<T, N> values;
     For<N>([&](auto i) constexpr {
         values[i] = derivative<i>(u);
