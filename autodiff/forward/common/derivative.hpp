@@ -104,6 +104,24 @@ auto unseed(const At<Args...>& at)
     });
 }
 
+template<typename Fun, typename... Args, typename... Vars>
+auto eval(const Fun& f, const At<Args&...>& at, const Wrt<Vars&...>& wrt)
+{
+    seed(wrt);
+    auto u = std::apply(f, at.args);
+    unseed(wrt);
+    return u;
+}
+
+template<typename Fun, typename... Args, typename... Vecs>
+auto eval(const Fun& f, const At<Args&...>& at, const Along<Vecs...>& along)
+{
+    seed(at, along);
+    auto u = std::apply(f, at.args);
+    unseed(at);
+    return u;
+}
+
 /// Unpack the derivatives from the result of an @ref eval call into an array.
 template<typename Result>
 auto derivatives(const Result& result)
@@ -138,20 +156,7 @@ auto derivatives(const Result& result)
 template<typename Fun, typename... Vars, typename... Args>
 auto derivatives(const Fun& f, const Wrt<Vars&...>& wrt, const At<Args&...>& at)
 {
-    // Seed, evaluate, unseed
-    seed(wrt);
-    auto u = std::apply(f, at.args);
-    unseed(wrt);
-
-    // Store the derivatives in an array
-    using T = NumericType<decltype(u)>;
-    constexpr auto N = 1 + Order<decltype(u)>;
-    std::array<T, N> values;
-    For<N>([&](auto i) constexpr {
-        values[i] = derivative<i>(u);
-    });
-
-    return values;
+    return derivatives(eval(f, at, wrt));
 }
 
 template<size_t order=1, typename Fun, typename... Vars, typename... Args, typename Result>
@@ -171,20 +176,7 @@ auto derivative(const Fun& f, const Wrt<Vars&...>& wrt, const At<Args&...>& at)
 template<typename Fun, typename... Vecs, typename... Args>
 auto derivatives(const Fun& f, const Along<Vecs...>& along, const At<Args&...>& at)
 {
-    // Seed, evaluate, unseed
-    seed(at, along);
-    auto u = std::apply(f, at.args);
-    unseed(at);
-
-    // Store the derivatives in an array
-    using T = NumericType<decltype(u)>;
-    constexpr auto N = 1 + Order<decltype(u)>;
-    std::array<T, N> values;
-    For<N>([&](auto i) constexpr {
-        values[i] = derivative<i>(u);
-    });
-
-    return values;
+    return derivatives(eval(f, at, along));
 }
 
 } // namespace detail
