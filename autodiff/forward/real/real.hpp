@@ -110,6 +110,7 @@ public:
     constexpr auto operator=(const std::array<T, N + 1>& data)
     {
         m_data = data;
+        return *this;
     }
 
     template<typename U, EnableIf<isNumber<U>>...>
