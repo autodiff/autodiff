@@ -128,7 +128,7 @@ auto derivatives(const Result& result)
 {
     if constexpr (hasSize<Result>) // check if the argument is a vector container of dual/real numbers
     {
-        const size_t len = result.size(); // the length of the vector containing dual/real numbers
+        size_t len = result.size(); // the length of the vector containing dual/real numbers
         using NumType = decltype(result[0]); // get the type of the dual/real number
         using T = NumericType<NumType>; // get the numeric/floating point type of the dual/real number
         using Vec = VectorReplaceValueType<Result, T>; // get the type of the vector containing numeric values instead of dual/real numbers (e.g., vector<real> becomes vector<double>, VectorXdual becomes VectorXd, etc.)
