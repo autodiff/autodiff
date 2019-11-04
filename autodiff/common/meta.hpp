@@ -45,6 +45,9 @@ using PlainType = typename std::remove_cv<typename std::remove_reference<T>::typ
 template<typename A, typename B>
 using CommonType = typename std::common_type<A, B>::type;
 
+template<typename Fun, typename... Args>
+using ReturnType = std::invoke_result_t<Fun, Args...>;
+
 template<typename T>
 constexpr bool isNumber = std::is_arithmetic<PlainType<T>>::value;
 
