@@ -57,17 +57,20 @@ auto _wrt_total_length(const Wrt<Vars...>& wrt)
 }
 
 /// Return the gradient of scalar function *f* with respect to some or all variables *x*.
-template<typename Function, typename... Vars, typename... Args, typename U>
-auto gradient(const Function& f, const Wrt<Vars...>& wrt, const At<Args...>& at, U& u) -> Eigen::VectorXd
+template<typename Fun, typename... Vars, typename... Args>
+auto gradient(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, ReturnType<Fun, Args...>& u)
 {
     static_assert(sizeof...(Vars) >= 1);
     static_assert(sizeof...(Args) >= 1);
 
+    using T = NumericType<decltype(u)>; // the underlying numeric floating point type in the autodiff number u
+    using Vec = VectorX<T>; // the gradient vector type with floating point values (not autodiff numbers!)
+
     const size_t n = _wrt_total_length(wrt);
 
-    if(n == 0) return {};
+    if(n == 0) return Vec{};
 
-    Eigen::VectorXd g(n);
+    Vec g(n);
 
     size_t offset = 0;
 
@@ -99,24 +102,27 @@ auto gradient(const Function& f, const Wrt<Vars...>& wrt, const At<Args...>& at,
 }
 
 /// Return the gradient of scalar function *f* with respect to some or all variables *x*.
-template<typename Function, typename... Vars, typename... Args>
-auto gradient(const Function& f, const Wrt<Vars...>& wrt, const At<Args...>& at) -> Eigen::VectorXd
+template<typename Fun, typename... Vars, typename... Args>
+auto gradient(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
 {
-    using U = decltype(std::apply(f, at.args));
-    U u;
+    ReturnType<Fun, Args...> u;
     return gradient(f, wrt, at, u);
 }
 
 /// Return the Jacobian matrix of a function *f* with respect to some or all variables.
-template<typename Function, typename... Vars, typename... Args, typename Result>
-auto jacobian(const Function& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Result& F) -> Eigen::MatrixXd
+template<typename Fun, typename... Vars, typename... Args>
+auto jacobian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, ReturnType<Fun, Args...>& F)
 {
     static_assert(sizeof...(Vars) >= 1);
     static_assert(sizeof...(Args) >= 1);
 
+    using U = VectorValueType<decltype(F)>; // the type of the autodiff numbers in vector F
+    using T = NumericType<U>; // the underlying numeric floating point type in the autodiff number U
+    using Mat = MatrixX<T>; // the jacobian matrix type with floating point values (not autodiff numbers!)
+
     size_t n = _wrt_total_length(wrt); /// using const size_t produces an error in GCC 7.3 because of the capture in the constexpr lambda in the ForEach block
 
-    Eigen::MatrixXd J;
+    Mat J;
 
     size_t offset = 0;
     size_t m = 0;
@@ -153,11 +159,10 @@ auto jacobian(const Function& f, const Wrt<Vars...>& wrt, const At<Args...>& at,
 }
 
 /// Return the Jacobian matrix of a function *f* with respect to some or all variables.
-template<typename Function, typename... Vars, typename... Args>
-auto jacobian(const Function& f, const Wrt<Vars...>& wrt, const At<Args...>& at) -> Eigen::MatrixXd
+template<typename Fun, typename... Vars, typename... Args>
+auto jacobian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
 {
-    using Result = decltype(std::apply(f, at.args));
-    Result F;
+    ReturnType<Fun, Args...> F;
     return jacobian(f, wrt, at, F);
 }
 
