@@ -34,7 +34,7 @@
 
 // autodiff includes
 #include <autodiff/reverse/var/var.hpp>
-#include <autodiff/utils/eigenmacros.hpp>
+#include <autodiff/common/eigen.hpp>
 
 //------------------------------------------------------------------------------
 // SUPPORT FOR EIGEN MATRICES AND VECTORS OF VAR

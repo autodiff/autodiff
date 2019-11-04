@@ -29,87 +29,11 @@
 
 #pragma once
 
-// C++ includes
-#include <type_traits>
-#include <vector>
+// autodiff includes
+#include <autodiff/common/meta.hpp>
 
 namespace autodiff {
 namespace detail {
-
-//-------------------------------------------------------------------------------------------------
-// Basic Traits (traits/basic.hpp)
-//-------------------------------------------------------------------------------------------------
-template<bool value>
-using EnableIf = typename std::enable_if<value>::type;
-
-template<typename T>
-using PlainType = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
-
-template<typename A, typename B>
-using CommonType = typename std::common_type<A, B>::type;
-
-
-//-------------------------------------------------------------------------------------------------
-// Number Traits (traits/number.hpp)
-//-------------------------------------------------------------------------------------------------
-
-template<typename T>
-constexpr bool isNumber = std::is_arithmetic<PlainType<T>>::value;
-
-template<typename T>
-struct NumericTypeInfoNotDefinedFor { using type = T; };
-
-template<typename T>
-struct NumberTraits
-{
-    /// The underlying floating point type of the autodiff number type.
-    using NumericType = std::conditional_t<isNumber<T>, T, NumericTypeInfoNotDefinedFor<T>>;
-
-    /// The order of the autodiff number type.
-    static constexpr auto Order = 0;
-};
-
-template<typename T>
-using NumericType = typename NumberTraits<PlainType<T>>::NumericType;
-
-template<typename T>
-constexpr auto Order = NumberTraits<PlainType<T>>::Order;
-
-
-
-template<typename V>
-struct VectorTraitsNotDefinedFor {};
-
-template<typename V>
-struct VectorTraits
-{
-    using ValueType = VectorTraitsNotDefinedFor<V>;
-    using ReplaceValueType = VectorTraitsNotDefinedFor<V>;
-};
-
-template<typename T, template<class> typename Allocator>
-struct VectorTraits<std::vector<T, Allocator<T>>>
-{
-    using ValueType = T;
-
-    template<typename NewValueType>
-    using ReplaceValueType = std::vector<NewValueType, Allocator<NewValueType>>;
-};
-
-template<typename V>
-using VectorValueType = typename VectorTraits<PlainType<V>>::ValueType;
-
-template<typename V, typename NewValueType>
-using VectorReplaceValueType = typename VectorTraits<V>::template ReplaceValueType<NewValueType>;
-
-
-//-------------------------------------------------------------------------------------------------
-// Derivative Type Support Traits (traits/derivativesupport.hpp)
-//-------------------------------------------------------------------------------------------------
-
-//-------------------------------------------------------------------------------------------------
-// Class Member Traits (traits/classmembers.hpp)
-//-------------------------------------------------------------------------------------------------
 
 //==========================================================================================================================================================
 // The code below was taken from: https://stackoverflow.com/questions/87372/check-if-a-class-has-a-member-function-of-a-given-signature/16867422#16867422
@@ -171,9 +95,5 @@ CREATE_MEMBER_CHECK(size);
 template<typename T>
 constexpr bool hasSize = has_member_size<PlainType<T>>::value;
 
-
 } // namespace detail
-
-using detail::NumericType;
-
 } // namespace autodiff

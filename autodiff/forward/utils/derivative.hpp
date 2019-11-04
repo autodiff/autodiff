@@ -31,13 +31,73 @@
 #include <cstddef>
 
 // autodiff includes
-#include <autodiff/utils/aliases.hpp>
-#include <autodiff/utils/meta.hpp>
+#include <autodiff/common/meta.hpp>
+#include <autodiff/common/vectortraits.hpp>
 
 #pragma once
 
 namespace autodiff {
 namespace detail {
+
+template<typename... Args>
+struct At
+{
+    std::tuple<Args&...> args;
+    constexpr static auto numArgs = sizeof...(Args);
+};
+
+template<typename... Args>
+struct Wrt
+{
+    std::tuple<Args...> args;
+    constexpr static auto numArgs = sizeof...(Args);
+};
+
+template<typename... Args>
+struct Along
+{
+    std::tuple<Args&...> args;
+    constexpr static auto numArgs = sizeof...(Args);
+};
+
+/// The keyword used to denote the variables *with respect to* the derivative is calculated.
+template<typename... Args>
+auto wrt(Args&&... args)
+{
+    return Wrt<Args&&...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
+}
+
+/// The keyword used to denote the derivative order *N* and the variable *with respect to* the derivative is calculated.
+template<std::size_t N, typename Arg>
+auto wrt(Arg&& arg) // Universal references are needed here in case rvalue references are used (e.g., Eigen tail or indexed views used inside wrt function)
+{
+    static_assert(N > 0);
+    auto head = std::forward_as_tuple(std::forward<Arg>(arg));
+    if constexpr (N == 1)
+        return head;
+    else return std::tuple_cat(head, wrt<N - 1>(arg));
+}
+
+/// The keyword used to denote the variables *at* which the derivatives are calculated.
+template<typename... Args>
+auto at(Args&... args)
+{
+    return At<Args&...>{ std::forward_as_tuple(args...) };
+}
+
+/// The keyword used to denote the direction vector *along* which the derivatives are calculated.
+template<typename Arg>
+auto along(Arg& arg)
+{
+    return Along<Arg&>{ std::forward_as_tuple(arg) };
+}
+
+/// The keyword used to denote the direction vector *along* which the derivatives are calculated.
+template<typename... Args>
+auto along(Args&&... args)
+{
+    return Along<Args...>{ std::forward_as_tuple(args...) };
+}
 
 /// Seed each dual number in the **wrt** list using its position as the derivative order to be seeded.
 /// Using `seed(wrt(x, y, z), 1)` will set the 1st order derivative of `x`, the
@@ -80,8 +140,8 @@ auto seed(const At<Args...>& at, const Along<Vecs...>& along)
     static_assert(sizeof...(Args) == sizeof...(Vecs));
 
     ForEach(at.args, along.args, [&](auto& arg, auto&& dir) constexpr {
-        if constexpr (hasSize<decltype(arg)>) {
-            static_assert(hasSize<decltype(dir)>);
+        if constexpr (isVector<decltype(arg)>) {
+            static_assert(isVector<decltype(dir)>);
             assert(arg.size() == dir.size());
             const size_t len = dir.size();
             for(size_t i = 0; i < len; ++i)
@@ -95,7 +155,7 @@ template<typename... Args>
 auto unseed(const At<Args...>& at)
 {
     ForEach(at.args, [&](auto& arg) constexpr {
-        if constexpr (hasSize<decltype(arg)>) {
+        if constexpr (isVector<decltype(arg)>) {
             const size_t len = arg.size();
             for(size_t i = 0; i < len; ++i)
                 seed<1>(arg[i], 0.0);
@@ -126,7 +186,7 @@ auto eval(const Fun& f, const At<Args&...>& at, const Along<Vecs...>& along)
 template<typename Result>
 auto derivatives(const Result& result)
 {
-    if constexpr (hasSize<Result>) // check if the argument is a vector container of dual/real numbers
+    if constexpr (isVector<Result>) // check if the argument is a vector container of dual/real numbers
     {
         size_t len = result.size(); // the length of the vector containing dual/real numbers
         using NumType = decltype(result[0]); // get the type of the dual/real number
@@ -181,7 +241,10 @@ auto derivatives(const Fun& f, const Along<Vecs...>& along, const At<Args&...>& 
 
 } // namespace detail
 
-using detail::derivative;
 using detail::derivatives;
+using detail::derivative;
+using detail::along;
+using detail::wrt;
+using detail::at;
 
 } // namespace autodiff

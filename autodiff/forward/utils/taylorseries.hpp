@@ -33,9 +33,8 @@
 #include <array>
 
 // autodiff includes
-#include <autodiff/forward/common/derivative.hpp>
-#include <autodiff/utils/aliases.hpp>
-#include <autodiff/utils/meta.hpp>
+#include <autodiff/forward/utils/derivative.hpp>
+#include <autodiff/common/meta.hpp>
 
 namespace autodiff {
 namespace detail {

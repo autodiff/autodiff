@@ -36,6 +36,18 @@
 namespace autodiff {
 namespace detail {
 
+template<bool value>
+using EnableIf = typename std::enable_if<value>::type;
+
+template<typename T>
+using PlainType = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+
+template<typename A, typename B>
+using CommonType = typename std::common_type<A, B>::type;
+
+template<typename T>
+constexpr bool isNumber = std::is_arithmetic<PlainType<T>>::value;
+
 template<typename Tuple>
 constexpr auto TupleSize = std::tuple_size_v<std::decay_t<Tuple>>;
 

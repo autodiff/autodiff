@@ -3,9 +3,7 @@
 
 // autodiff includes
 #include <autodiff/forward/real.hpp>
-#include <autodiff/utils/traits.hpp>
 using namespace autodiff;
-using namespace autodiff::detail;
 
 template<typename T>
 auto approx(T&& val) -> Approx

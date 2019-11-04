@@ -29,6 +29,18 @@
 
 #pragma once
 
+// Eigen includes
+#include <Eigen/Core>
+
+// autodiff includes
+#include <autodiff/common/vectortraits.hpp>
+
+//=====================================================================================================================
+//
+// EIGEN MACROS FOR CREATING NEW TYPE ALIASES
+//
+//=====================================================================================================================
+
 #define AUTODIFF_DEFINE_EIGEN_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)                        \
 using Array##SizeSuffix##SizeSuffix##TypeSuffix = Eigen::Array<Type, Size, Size>;                 \
 using Array##SizeSuffix##TypeSuffix             = Eigen::Array<Type, Size, 1>;                    \
@@ -50,3 +62,54 @@ AUTODIFF_DEFINE_EIGEN_TYPEDEFS(Type, TypeSuffix, -1, X)            \
 AUTODIFF_DEFINE_EIGEN_FIXED_TYPEDEFS(Type, TypeSuffix, 2)          \
 AUTODIFF_DEFINE_EIGEN_FIXED_TYPEDEFS(Type, TypeSuffix, 3)          \
 AUTODIFF_DEFINE_EIGEN_FIXED_TYPEDEFS(Type, TypeSuffix, 4)
+
+namespace autodiff {
+namespace detail {
+
+//=====================================================================================================================
+//
+// DEFINE VECTOR TRAITS FOR EIGEN TYPES
+//
+//=====================================================================================================================
+
+template<typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+struct VectorTraits<Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols>>
+{
+    using ValueType = Scalar;
+
+    template<typename NewValueType>
+    using ReplaceValueType = Eigen::Matrix<NewValueType, Rows, Cols, Options, MaxRows, MaxCols>;
+};
+
+template<typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+struct VectorTraits<Eigen::Array<Scalar, Rows, Cols, Options, MaxRows, MaxCols>>
+{
+    using ValueType = Scalar;
+
+    template<typename NewValueType>
+    using ReplaceValueType = Eigen::Array<NewValueType, Rows, Cols, Options, MaxRows, MaxCols>;
+};
+
+template<typename VectorType, int Size>
+struct VectorTraits<Eigen::VectorBlock<VectorType, Size>>
+{
+    using ValueType = typename PlainType<VectorType>::Scalar;
+
+    template<typename NewValueType>
+    using ReplaceValueType = VectorReplaceValueTypeNotSupportedFor<Eigen::VectorBlock<VectorType, Size>>;
+};
+
+//=====================================================================================================================
+//
+// AUXILIARY TEMPLATE TYPE ALIASES
+//
+//=====================================================================================================================
+
+template<typename Scalar>
+using VectorX = Eigen::Matrix<Scalar, Eigen::Dynamic, 1, 0, Eigen::Dynamic, 1>;
+
+template<typename Scalar>
+using MatrixX = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>;
+
+} // namespace detail
+} // namespace autodiff

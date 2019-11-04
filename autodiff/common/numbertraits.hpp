@@ -29,56 +29,34 @@
 
 #pragma once
 
-// Eigen includes
-#include <Eigen/Core>
-
-// autodiff includes
-#include <autodiff/forward/dual.hpp>
-#include <autodiff/forward/utils/gradient.hpp>
-#include <autodiff/common/eigen.hpp>
-
-//------------------------------------------------------------------------------
-// SUPPORT FOR EIGEN MATRICES AND VECTORS OF DUAL
-//------------------------------------------------------------------------------
-namespace Eigen {
-
-template<typename T>
-struct NumTraits;
-
-template<typename T, typename G>
-struct NumTraits<autodiff::Dual<T, G>> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
-{
-    typedef autodiff::Dual<T, G> Real;
-    typedef autodiff::Dual<T, G> NonInteger;
-    typedef autodiff::Dual<T, G> Nested;
-    enum
-    {
-        IsComplex = 0,
-        IsInteger = 0,
-        IsSigned = 1,
-        RequireInitialization = 1,
-        ReadCost = 1,
-        AddCost = 3,
-        MulCost = 3
-    };
-};
-
-template<typename T, typename G, typename BinOp>
-struct ScalarBinaryOpTraits<autodiff::Dual<T, G>, T, BinOp>
-{
-    typedef autodiff::Dual<T, G> ReturnType;
-};
-
-template<typename T, typename G, typename BinOp>
-struct ScalarBinaryOpTraits<T, autodiff::Dual<T, G>, BinOp>
-{
-    typedef autodiff::Dual<T, G> ReturnType;
-};
-
-} // namespace Eigen
+// C++ includes
+#include <autodiff/common/meta.hpp>
 
 namespace autodiff {
+namespace detail {
 
-AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(dual, dual)
+/// An auxiliary template type to indicate NumberTraits has not been defined for a type.
+template<typename T>
+struct NumericTypeInfoNotDefinedFor { using type = T; };
 
+/// A number traits to be defined for each autodiff number.
+template<typename T>
+struct NumberTraits
+{
+    /// The underlying floating point type of the autodiff number type.
+    using NumericType = std::conditional_t<isNumber<T>, T, NumericTypeInfoNotDefinedFor<T>>;
+
+    /// The order of the autodiff number type.
+    static constexpr auto Order = 0;
+};
+
+/// A template alias to get the underlying floating point type of an autodiff number.
+template<typename T>
+using NumericType = typename NumberTraits<PlainType<T>>::NumericType;
+
+/// A compile-time constant with the order of an autodiff number.
+template<typename T>
+constexpr auto Order = NumberTraits<PlainType<T>>::Order;
+
+} // namespace detail
 } // namespace autodiff

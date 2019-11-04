@@ -33,7 +33,8 @@
 #include <Eigen/Core>
 
 // autodiff includes
-#include <autodiff/utils/meta.hpp>
+#include <autodiff/common/eigen.hpp>
+#include <autodiff/common/meta.hpp>
 
 namespace autodiff {
 namespace detail {
@@ -41,7 +42,7 @@ namespace detail {
 template<typename Item>
 auto _wrt_item_length(const Item& item) -> size_t
 {
-    if constexpr (hasSize<Item>)
+    if constexpr (isVector<Item>)
         return item.size();
     else return 1;
 }
@@ -72,7 +73,7 @@ auto gradient(const Function& f, const Wrt<Vars...>& wrt, const At<Args...>& at,
 
     ForEach(wrt.args, [&](auto& item) constexpr
     {
-        if constexpr (hasSize<decltype(item)>)
+        if constexpr (isVector<decltype(item)>)
         {
             const size_t len = item.size();
             for(size_t j = 0; j < len; ++j)
@@ -122,7 +123,7 @@ auto jacobian(const Function& f, const Wrt<Vars...>& wrt, const At<Args...>& at,
 
     ForEach(wrt.args, [&](auto& item) constexpr
     {
-        if constexpr (hasSize<decltype(item)>)
+        if constexpr (isVector<decltype(item)>)
         {
             const size_t len = item.size();
             for(size_t j = 0; j < len; ++j)
