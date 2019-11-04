@@ -527,4 +527,74 @@ TEST_CASE("testing autodiff::dual", "[forward][dual]")
             0.0  // uyyy
         );
     }
+
+    SECTION("testing array-unpacking of derivatives for dual number")
+    {
+        using dual4th = HigherOrderDual<4>;
+
+        dual4th x;
+        detail::seed<0>(x, 2.0);
+        detail::seed<1>(x, 3.0);
+        detail::seed<2>(x, 4.0);
+        detail::seed<3>(x, 5.0);
+        detail::seed<4>(x, 6.0);
+
+        auto [x0, x1, x2, x3, x4] = derivatives(x);
+
+        CHECK( x0 == approx(derivative<0>(x)) );
+        CHECK( x1 == approx(derivative<1>(x)) );
+        CHECK( x2 == approx(derivative<2>(x)) );
+        CHECK( x3 == approx(derivative<3>(x)) );
+        CHECK( x4 == approx(derivative<4>(x)) );
+    }
+
+    SECTION("testing array-unpacking of derivatives for vector of dual numbers")
+    {
+        using dual4th = HigherOrderDual<4>;
+
+        dual4th x;
+        detail::seed<0>(x, 2.0);
+        detail::seed<1>(x, 3.0);
+        detail::seed<2>(x, 4.0);
+        detail::seed<3>(x, 5.0);
+        detail::seed<4>(x, 6.0);
+
+        dual4th y;
+        detail::seed<0>(y, 3.0);
+        detail::seed<1>(y, 4.0);
+        detail::seed<2>(y, 5.0);
+        detail::seed<3>(y, 6.0);
+        detail::seed<4>(y, 7.0);
+
+        dual4th z;
+        detail::seed<0>(z, 4.0);
+        detail::seed<1>(z, 5.0);
+        detail::seed<2>(z, 6.0);
+        detail::seed<3>(z, 7.0);
+        detail::seed<4>(z, 8.0);
+
+        std::vector<dual4th> u = { x, y, z };
+
+        auto [u0, u1, u2, u3, u4] = derivatives(u);
+
+        CHECK( u0[0] == approx(derivative<0>(x)) );
+        CHECK( u0[1] == approx(derivative<0>(y)) );
+        CHECK( u0[2] == approx(derivative<0>(z)) );
+
+        CHECK( u1[0] == approx(derivative<1>(x)) );
+        CHECK( u1[1] == approx(derivative<1>(y)) );
+        CHECK( u1[2] == approx(derivative<1>(z)) );
+
+        CHECK( u2[0] == approx(derivative<2>(x)) );
+        CHECK( u2[1] == approx(derivative<2>(y)) );
+        CHECK( u2[2] == approx(derivative<2>(z)) );
+
+        CHECK( u3[0] == approx(derivative<3>(x)) );
+        CHECK( u3[1] == approx(derivative<3>(y)) );
+        CHECK( u3[2] == approx(derivative<3>(z)) );
+
+        CHECK( u4[0] == approx(derivative<4>(x)) );
+        CHECK( u4[1] == approx(derivative<4>(y)) );
+        CHECK( u4[2] == approx(derivative<4>(z)) );
+    }
 }
