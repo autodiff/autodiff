@@ -81,4 +81,16 @@ namespace autodiff {
 
 AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(dual, dual)
 
+namespace detail {
+
+template<typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+struct VectorTraits<Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols>>
+{
+    using ValueType = Scalar;
+
+    template<typename NewValueType>
+    using ReplaceValueType = Eigen::Matrix<NewValueType, Rows, Cols, Options, MaxRows, MaxCols>;
+};
+
+}
 } // namespace autodiff
