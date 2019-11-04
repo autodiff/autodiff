@@ -616,8 +616,9 @@ template<size_t order, typename T, typename G>
 auto& gradnode(Dual<T, G>& dual)
 {
     constexpr auto N = Order<Dual<T, G>>;
-    static_assert(0 < order && order <= N);
-    if constexpr (order == 1) return dual.grad;
+    static_assert(order <= N);
+    if constexpr (order == 0) return dual.val;
+    else if constexpr (order == 1) return dual.grad;
     else return gradnode<order - 1>(dual.val);
 }
 
