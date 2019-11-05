@@ -230,7 +230,7 @@ auto derivative(const Fun& f, const Wrt<Vars&...>& wrt, const At<Args&...>& at, 
 template<size_t order=1, typename Fun, typename... Vars, typename... Args>
 auto derivative(const Fun& f, const Wrt<Vars&...>& wrt, const At<Args&...>& at)
 {
-    auto u = derivatives(f, wrt, at);
+    auto u = eval(f, at, wrt);
     return derivative<order>(u);
 }
 
