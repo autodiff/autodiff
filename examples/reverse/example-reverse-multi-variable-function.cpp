@@ -1,6 +1,5 @@
 // C++ includes
 #include <iostream>
-using namespace std;
 
 // autodiff include
 #include <autodiff/reverse/var.hpp>
@@ -25,8 +24,8 @@ int main()
     var dudy = dud(y);                   // extract the derivative du/dy
     var dudz = dud(z);                   // extract the derivative du/dz
 
-    cout << "u = " << u << endl;         // print the evaluated output u
-    cout << "du/dx = " << dudx << endl;  // print the evaluated derivative du/dx
-    cout << "du/dy = " << dudy << endl;  // print the evaluated derivative du/dy
-    cout << "du/dz = " << dudz << endl;  // print the evaluated derivative du/dz
+    std::cout << "u = " << u << std::endl;         // print the evaluated output u
+    std::cout << "du/dx = " << dudx << std::endl;  // print the evaluated derivative du/dx
+    std::cout << "du/dy = " << dudy << std::endl;  // print the evaluated derivative du/dy
+    std::cout << "du/dz = " << dudz << std::endl;  // print the evaluated derivative du/dz
 }

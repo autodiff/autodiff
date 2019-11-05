@@ -1,6 +1,5 @@
 // C++ includes
 #include <iostream>
-using namespace std;
 
 // autodiff include
 #include <autodiff/reverse/var.hpp>
@@ -36,21 +35,21 @@ int main()
     var d2udzdy = d2udzd(y);                     // extract the second order derivative d2u/dzdy of type var, not double!
     var d2udzdz = d2udzd(z);                     // extract the second order derivative d2u/dzdz of type var, not double!
 
-    cout << "u = " << u << endl;                 // print the evaluated output variable u
+    std::cout << "u = " << u << std::endl;                 // print the evaluated output variable u
 
-    cout << "du/dx = " << dudx << endl;          // print the evaluated first order derivative du/dx
-    cout << "du/dy = " << dudy << endl;          // print the evaluated first order derivative du/dy
-    cout << "du/dz = " << dudz << endl;          // print the evaluated first order derivative du/dz
+    std::cout << "du/dx = " << dudx << std::endl;          // print the evaluated first order derivative du/dx
+    std::cout << "du/dy = " << dudy << std::endl;          // print the evaluated first order derivative du/dy
+    std::cout << "du/dz = " << dudz << std::endl;          // print the evaluated first order derivative du/dz
 
-    cout << "d2udxdx = " << d2udxdx << endl;     // print the evaluated second order derivative d2u/dxdx
-    cout << "d2udxdy = " << d2udxdy << endl;     // print the evaluated second order derivative d2u/dxdy
-    cout << "d2udxdz = " << d2udxdz << endl;     // print the evaluated second order derivative d2u/dxdz
+    std::cout << "d2udxdx = " << d2udxdx << std::endl;     // print the evaluated second order derivative d2u/dxdx
+    std::cout << "d2udxdy = " << d2udxdy << std::endl;     // print the evaluated second order derivative d2u/dxdy
+    std::cout << "d2udxdz = " << d2udxdz << std::endl;     // print the evaluated second order derivative d2u/dxdz
 
-    cout << "d2udydx = " << d2udydx << endl;     // print the evaluated second order derivative d2u/dydx
-    cout << "d2udydy = " << d2udydy << endl;     // print the evaluated second order derivative d2u/dydy
-    cout << "d2udydz = " << d2udydz << endl;     // print the evaluated second order derivative d2u/dydz
+    std::cout << "d2udydx = " << d2udydx << std::endl;     // print the evaluated second order derivative d2u/dydx
+    std::cout << "d2udydy = " << d2udydy << std::endl;     // print the evaluated second order derivative d2u/dydy
+    std::cout << "d2udydz = " << d2udydz << std::endl;     // print the evaluated second order derivative d2u/dydz
 
-    cout << "d2udzdx = " << d2udzdx << endl;     // print the evaluated second order derivative d2u/dzdx
-    cout << "d2udzdy = " << d2udzdy << endl;     // print the evaluated second order derivative d2u/dzdy
-    cout << "d2udzdz = " << d2udzdz << endl;     // print the evaluated second order derivative d2u/dzdz
+    std::cout << "d2udzdx = " << d2udzdx << std::endl;     // print the evaluated second order derivative d2u/dzdx
+    std::cout << "d2udzdy = " << d2udzdy << std::endl;     // print the evaluated second order derivative d2u/dzdy
+    std::cout << "d2udzdz = " << d2udzdz << std::endl;     // print the evaluated second order derivative d2u/dzdz
 }

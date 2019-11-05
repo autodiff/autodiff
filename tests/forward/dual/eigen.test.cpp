@@ -96,7 +96,7 @@ TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")
         VectorXd y = x.cast<double>();
 
         for(auto i = 0; i < 3; ++i)
-            CHECK( x(i) == approx(y(i)) );
+            CHECK( x[i] == approx(y(i)) );
     }
 
     SECTION("testing casting to MatriXd")

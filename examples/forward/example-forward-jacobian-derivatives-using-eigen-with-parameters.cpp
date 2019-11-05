@@ -1,10 +1,5 @@
 // C++ includes
 #include <iostream>
-using namespace std;
-
-// Eigen includes
-#include <Eigen/Core>
-using namespace Eigen;
 
 // autodiff include
 #include <autodiff/forward/dual.hpp>
@@ -19,6 +14,8 @@ VectorXdual f(const VectorXdual& x, const VectorXdual& p)
 
 int main()
 {
+    using Eigen::MatrixXd;
+
     VectorXdual x(5);    // the input vector x with 5 variables
     x << 1, 2, 3, 4, 5;  // x = [1, 2, 3, 4, 5]
 
@@ -30,7 +27,7 @@ int main()
     MatrixXd Jx = jacobian(f, wrt(x), at(x, p), F);  // evaluate the function and the Jacobian matrix dF/dx
     MatrixXd Jp = jacobian(f, wrt(p), at(x, p), F);  // evaluate the function and the Jacobian matrix dF/dp
 
-    cout << "F = \n" << F << endl;    // print the evaluated output vector F
-    cout << "Jx = \n" << Jx << endl;  // print the evaluated Jacobian matrix dF/dx
-    cout << "Jp = \n" << Jp << endl;  // print the evaluated Jacobian matrix dF/dp
+    std::cout << "F = \n" << F << std::endl;    // print the evaluated output vector F
+    std::cout << "Jx = \n" << Jx << std::endl;  // print the evaluated Jacobian matrix dF/dx
+    std::cout << "Jp = \n" << Jp << std::endl;  // print the evaluated Jacobian matrix dF/dp
 }
