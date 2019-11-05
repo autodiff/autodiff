@@ -27,58 +27,88 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Catch includes
-#include <catch2/catch.hpp>
-
 // autodiff includes
 #include <autodiff/forward/real.hpp>
 #include <autodiff/forward/real/eigen.hpp>
+#include <tests/utils/catch.hpp>
 using namespace autodiff;
-
-template<typename T>
-auto approx(T&& val) -> Approx
-{
-    const double epsilon = std::numeric_limits<double>::epsilon() * 100;
-    const double margin = 1e-12;
-    return Approx(std::forward<T>(val)).epsilon(epsilon).margin(margin);
-}
 
 
 TEST_CASE("testing autodiff::real (with eigen)", "[forward][real][eigen]")
 {
-    using Eigen::ArrayXd;
     using Eigen::MatrixXd;
     using Eigen::VectorXd;
 
-    MatrixXd M(3, 3);
-    M << 1.0, 2.0, 3.0,
-         4.0, 1.0, 6.0,
-         7.0, 3.0, 9.0;
-
-    ArrayXreal x(3), y(3), z(3);
-    x << 1.0, 2.0, 3.0;
-
-    SECTION("testing gradient computation")
+    SECTION("testing array-unpacking of derivatives for eigen vector of real numbers")
     {
-        CHECK_GRADIENT( x.sum() );
-        CHECK_GRADIENT( x.exp().sum() );
-        CHECK_GRADIENT( x.log().sum() );
-        CHECK_GRADIENT( x.tan().sum() );
-        CHECK_GRADIENT( (x * x).sum() );
-        CHECK_GRADIENT( (x.sin() * x.exp()).sum() );
-        CHECK_GRADIENT( (x * x.log()).sum() );
-        CHECK_GRADIENT( (x.sin() * x.cos()).sum() );
+        real4th x = {{ 2.0, 3.0, 4.0, 5.0, 6.0 }};
+        real4th y = {{ 3.0, 4.0, 5.0, 6.0, 7.0 }};
+        real4th z = {{ 4.0, 5.0, 6.0, 7.0, 8.0 }};
+
+        VectorXreal4th u(3);
+        u << x, y, z;
+
+        auto [u0, u1, u2, u3, u4] = derivatives(u);
+
+        CHECK( u0[0] == approx(derivative<0>(x)) );
+        CHECK( u0[1] == approx(derivative<0>(y)) );
+        CHECK( u0[2] == approx(derivative<0>(z)) );
+
+        CHECK( u1[0] == approx(derivative<1>(x)) );
+        CHECK( u1[1] == approx(derivative<1>(y)) );
+        CHECK( u1[2] == approx(derivative<1>(z)) );
+
+        CHECK( u2[0] == approx(derivative<2>(x)) );
+        CHECK( u2[1] == approx(derivative<2>(y)) );
+        CHECK( u2[2] == approx(derivative<2>(z)) );
+
+        CHECK( u3[0] == approx(derivative<3>(x)) );
+        CHECK( u3[1] == approx(derivative<3>(y)) );
+        CHECK( u3[2] == approx(derivative<3>(z)) );
+
+        CHECK( u4[0] == approx(derivative<4>(x)) );
+        CHECK( u4[1] == approx(derivative<4>(y)) );
+        CHECK( u4[2] == approx(derivative<4>(z)) );
     }
 
-    SECTION("testing jacobian computation")
+    SECTION("testing casting to VectorXd")
     {
-        CHECK_JACOBIAN( x );
-        CHECK_JACOBIAN( x.exp() );
-        CHECK_JACOBIAN( x.log() );
-        CHECK_JACOBIAN( x.tan() );
-        CHECK_JACOBIAN( (x * x) );
-        CHECK_JACOBIAN( (x.sin() * x.exp()) );
-        CHECK_JACOBIAN( (x * x.log()) );
-        CHECK_JACOBIAN( (x.sin() * x.cos()) );
+        VectorXreal x(3);
+        x << 0.5, 0.2, 0.3;
+
+        VectorXd y = x.cast<double>();
+
+        for(auto i = 0; i < 3; ++i)
+            CHECK( x(i) == approx(y(i)) );
+    }
+
+    SECTION("testing casting to MatriXd")
+    {
+        MatrixXreal x(2, 2);
+        x << 0.5, 0.2, 0.3, 0.7;
+
+        MatrixXd y = x.cast<double>();
+
+        for(auto i = 0; i < 2; ++i)
+            for(auto j = 0; j < 2; ++j)
+                CHECK(x(i, j) == approx(y(i, j)));
+    }
+
+    SECTION("testing multiplication of VectorXreal by MatrixXd")
+    {
+        MatrixXd A(2, 2);
+        A << 1.0, 3.0, 5.0, 7.0;
+
+        VectorXreal x(2);
+        x[0] = { 1.0, 3.0 };
+        x[1] = { 2.0, 5.0 };
+
+        VectorXreal b = A * x;
+
+        CHECK( derivative<0>(b[0]) == approx(7.0) );
+        CHECK( derivative<0>(b[1]) == approx(19.0) );
+
+        CHECK( derivative<1>(b[0]) == approx(18.0) );
+        CHECK( derivative<1>(b[1]) == approx(50.0) );
     }
 }

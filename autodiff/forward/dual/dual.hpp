@@ -1426,32 +1426,37 @@ struct NumberTraits<Dual<T, G>>
 //
 //=====================================================================================================================
 
-template<size_t N>
+template<size_t N, typename T>
 struct AuxHigherOrderDual;
 
-template<>
-struct AuxHigherOrderDual<0>
+template<typename T>
+struct AuxHigherOrderDual<0, T>
 {
-    using type = double;
+    using type = T;
 };
 
-template<size_t N>
+template<size_t N, typename T>
 struct AuxHigherOrderDual
 {
-    using type = Dual<typename AuxHigherOrderDual<N - 1>::type, typename AuxHigherOrderDual<N-1>::type>;
+    using type = Dual<typename AuxHigherOrderDual<N - 1, T>::type, typename AuxHigherOrderDual<N - 1, T>::type>;
 };
 
-template<size_t N>
-using HigherOrderDual = typename AuxHigherOrderDual<N>::type;
-
-using dual = detail::Dual<double, double>;
+template<size_t N, typename T>
+using HigherOrderDual = typename AuxHigherOrderDual<N, T>::type;
 
 } // namespace detail
 
-using detail::dual;
 using detail::val;
 using detail::eval;
 using detail::Dual;
 using detail::HigherOrderDual;
+
+using dual0th = HigherOrderDual<0, double>;
+using dual1st = HigherOrderDual<1, double>;
+using dual2nd = HigherOrderDual<2, double>;
+using dual3rd = HigherOrderDual<3, double>;
+using dual4th = HigherOrderDual<4, double>;
+
+using dual = dual1st;
 
 } // namespace autodiff

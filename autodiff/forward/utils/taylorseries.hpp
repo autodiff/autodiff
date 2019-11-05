@@ -35,67 +35,59 @@
 // autodiff includes
 #include <autodiff/forward/utils/derivative.hpp>
 #include <autodiff/common/meta.hpp>
+#include <autodiff/common/vectortraits.hpp>
 
 namespace autodiff {
 namespace detail {
 
-template<size_t N, typename U>
+/// Represents a Taylor series along a direction for either a scalar or vector function.
+/// @see taylorseries
+template<size_t N, typename V>
 class TaylorSeries
 {
 public:
+    /// The numeric floating point type of the derivatives, which can be a vector of values or just one.
+    using T = std::conditional_t<isVector<V>, VectorValueType<V>, V>;
+
+    /// Construct a default TaylorSeries object.
     TaylorSeries() = default;
 
-    explicit TaylorSeries(const std::array<N + 1, U>& data)
-    : _data(data)
+    /// Construct a TaylorSeries object with given directional derivatives.
+    explicit TaylorSeries(const std::array<V, N + 1>& derivatives)
+    : _derivatives(derivatives)
     {}
 
-    template<typename... Args>
-    auto operator()(const Args...& args)
+    /// Evaluate the Taylor series object with given directional derivatives.
+    auto operator()(const T& t)
     {
-        using T = NumericType<U>;
-        auto res = _data[0];
-        auto factor = One<T>;
-        For<1, N + 1>([](auto&& i) constexpr {
-            res += factor * _data[i];
-            factor /= static_cast<T>(i + 1);
+        auto res = _derivatives[0];
+        auto factor = t;
+        For<1, N + 1>([&](auto&& i) constexpr {
+            res += factor * _derivatives[i];
+            factor *= t / static_cast<T>(i + 1);
         });
         return res;
     }
 
-    auto derivative(size_t order)
+    /// Return the directional derivatives of this TaylorSeries.
+    auto derivatives()
     {
-        return _data[order];
+        return _derivatives;
     }
 
 private:
-    std::array<N + 1, U> _data;
+    /// The directional derivatives of the function up to Nth order.
+    std::array<V, N + 1> _derivatives;
 };
 
-/// Return the gradient of scalar function *f* with respect to some or all variables *x*.
+/// Return a TaylorSeries of a scalar or vector function *f* along a direction *v* at *x*.
 template<typename Fun, typename...Vecs, typename... Args>
 auto taylorseries(const Fun& f, const Along<Vecs...>& along, const At<Args&...>& at)
 {
-    static_assert(Wrt::numArgs);
-    static_assert(At::numArgs);
-
-    const size_t n = _wrt_total_length(wrt.args);
-
-    if(n == 0) return {};
-
-    using Result = decltype(std::apply(f, at.args));
-
-    seed(at.args, along.args);
-
-    auto u = std::apply(f, at.args);
-
-    unseed(at.args);
-
-    Eigen::VectorXd g(n);
-
-    size_t offset = 0;
-
-
-    return g;
+    auto data = derivatives(f, along, at);
+    constexpr auto N = data.size() - 1;
+    using V = typename decltype(data)::value_type;
+    return TaylorSeries<N, V>(data);
 }
 
 } // namespace detail
@@ -103,4 +95,3 @@ auto taylorseries(const Fun& f, const Along<Vecs...>& along, const At<Args&...>&
 using detail::taylorseries;
 
 } // namespace autodiff
-

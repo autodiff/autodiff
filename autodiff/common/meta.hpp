@@ -31,6 +31,7 @@
 
 // C++ includes
 #include <cstddef>
+#include <tuple>
 #include <type_traits>
 
 namespace autodiff {

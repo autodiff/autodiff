@@ -29,9 +29,6 @@
 
 #pragma once
 
-// Eigen includes
-#include <Eigen/Core>
-
 // autodiff includes
 #include <autodiff/common/eigen.hpp>
 #include <autodiff/common/meta.hpp>

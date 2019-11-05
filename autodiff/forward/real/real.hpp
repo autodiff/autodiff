@@ -30,6 +30,7 @@
 #pragma once
 
 // C++ includes
+#include <cassert>
 #include <cmath>
 #include <tuple>
 #include <utility>
@@ -70,7 +71,7 @@ public:
 
     /// Construct a Real number with given data.
     template<size_t M, typename U, EnableIf<isNumber<U>>...>
-    constexpr Real(const Real<M, U>& other)
+    constexpr explicit Real(const Real<M, U>& other)
     {
         static_assert(N <= M);
         For<0, N + 1>([&](auto i) constexpr {

@@ -27,22 +27,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Catch includes
-#include <catch2/catch.hpp>
-
 // autodiff includes
 #include <autodiff/forward/real.hpp>
+#include <tests/utils/catch.hpp>
 using namespace autodiff;
 
-template<typename T>
-auto approx(T&& val) -> Approx
-{
-    const double epsilon = std::numeric_limits<double>::epsilon() * 100;
-    const double margin = 1e-12;
-    return Approx(std::forward<T>(val)).epsilon(epsilon).margin(margin);
-}
-
-#define CHECK_APPROX(a, b) CHECK(a == approx(b))
 
 #define CHECK_4TH_ORDER_REAL_NUMBERS(a, b) \
     CHECK_APPROX( a[0], b[0] );            \
@@ -439,4 +428,3 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         CHECK_APPROX( u0[2], z[0] ); CHECK_APPROX( u1[2], z[1] ); CHECK_APPROX( u2[2], z[2] ); CHECK_APPROX( u3[2], z[3] ); CHECK_APPROX( u4[2], z[4] );
     }
 }
-//*/

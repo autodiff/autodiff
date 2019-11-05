@@ -79,6 +79,12 @@ struct ScalarBinaryOpTraits<T, autodiff::Real<N, T>, BinOp>
 
 namespace autodiff {
 
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(real0th, real0th);
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(real1st, real1st);
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(real2nd, real2nd);
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(real3rd, real3rd);
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(real4th, real4th);
+
 AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(real, real)
 
 } // namespace autodiff

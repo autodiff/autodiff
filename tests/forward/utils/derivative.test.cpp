@@ -27,9 +27,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-
 // autodiff includes
-#include <autodiff/forward/dual/dual.hpp>
-#include <autodiff/forward/utils/derivative.hpp>
-#include <autodiff/forward/utils/taylorseries.hpp>
+#include <autodiff/forward/dual.hpp>
+#include <autodiff/forward/dual/eigen.hpp>
+#include <autodiff/forward/real.hpp>
+#include <autodiff/forward/real/eigen.hpp>
+#include <tests/utils/catch.hpp>
+using namespace autodiff;
+
+
+TEST_CASE("testing forward derivative module", "[forward][utils][derivative]")
+{
+    using Eigen::MatrixXd;
+    using Eigen::VectorXd;
+
+}

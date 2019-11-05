@@ -27,127 +27,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Catch includes
-#include <catch2/catch.hpp>
-
 // autodiff includes
 #include <autodiff/forward/dual.hpp>
 #include <autodiff/forward/dual/eigen.hpp>
+#include <tests/utils/catch.hpp>
 using namespace autodiff;
 
-template<typename T>
-auto approx(T&& expr) -> Approx
-{
-    const double zero = std::numeric_limits<double>::epsilon();
-    return Approx(val(std::forward<T>(expr))).margin(zero);
-}
 
 TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")
 {
-    using Eigen::VectorXd;
     using Eigen::MatrixXd;
-
-    SECTION("testing gradient derivatives")
-    {
-        // Testing complex function involving sin and cos
-        auto f = [](const VectorXdual& x) -> dual
-        {
-            return 0.5 * ( x.array() * x.array() ).sum();
-        };
-
-        VectorXdual x(3);
-        x << 1.0, 2.0, 3.0;
-
-        VectorXd g = gradient(f, wrt(x), at(x));
-
-        REQUIRE( g[0] == approx(x[0]) );
-        REQUIRE( g[1] == approx(x[1]) );
-        REQUIRE( g[2] == approx(x[2]) );
-    }
-
-    SECTION("testing gradient derivatives of only the last two variables")
-    {
-        // Testing complex function involving sin and cos
-        auto f = [](const VectorXdual& x) -> dual
-        {
-            return 0.5 * ( x.array() * x.array() ).sum();
-        };
-
-        VectorXdual x(3);
-        x << 1.0, 2.0, 3.0;
-
-        VectorXd g = gradient(f, wrt(x.tail(2)), at(x));
-
-        REQUIRE( g[0] == approx(x[1]) );
-        REQUIRE( g[1] == approx(x[2]) );
-    }
-
-    SECTION("testing jacobian derivatives")
-    {
-        // Testing complex function involving sin and cos
-        auto f = [](const VectorXdual& x) -> VectorXdual
-        {
-            return x / x.array().sum();
-        };
-
-        VectorXdual x(3);
-        x << 0.5, 0.2, 0.3;
-
-        VectorXdual F;
-
-        const MatrixXd J = jacobian(f, wrt(x), at(x), F);
-
-        for(auto i = 0; i < 3; ++i)
-            for(auto j = 0; j < 3; ++j)
-                REQUIRE( J(i, j) == approx(-F[i] + ((i == j) ? 1.0 : 0.0)) );
-    }
-
-    SECTION("testing jacobian derivatives of only the last two variables")
-    {
-        // Testing complex function involving sin and cos
-        auto f = [](const VectorXdual& x) -> VectorXdual
-        {
-            return x / x.array().sum();
-        };
-
-        VectorXdual x(3);
-        x << 0.5, 0.2, 0.3;
-
-        VectorXdual F;
-
-        const MatrixXd J = jacobian(f, wrt(x.tail(2)), at(x), F);
-
-        for(auto i = 0; i < 3; ++i)
-            for(auto j = 0; j < 2; ++j)
-                REQUIRE( J(i, j) == approx(-F[i] + ((i == j + 1) ? 1.0 : 0.0)) );
-    }
-
-    SECTION("testing casting to VectorXd")
-    {
-	VectorXdual x(3);
-        x << 0.5, 0.2, 0.3;
-	VectorXd y = x.cast<double>();
-
-	for(auto i = 0; i < 3; ++i)
-	    REQUIRE( x(i) == approx(y(i)) );
-    }
-
-    SECTION("testing casting to VectorXf")
-    {
-        MatrixXdual x(2, 2);
-        x << 0.5, 0.2, 0.3, 0.7;
-        MatrixXd y = x.cast<double>();
-        for(auto i = 0; i < 2; ++i)
-            for(auto j = 0; j < 2; ++j)
-                REQUIRE(x(i, j) == approx(y(i, j)));
-    }
+    using Eigen::VectorXd;
 
     SECTION("testing array-unpacking of derivatives for eigen vector of dual numbers")
     {
-        using dual4th = HigherOrderDual<4>;
-
-        AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(dual4th, dual4th);
-
         dual4th x;
         detail::seed<0>(x, 2.0);
         detail::seed<1>(x, 3.0);
@@ -193,5 +86,50 @@ TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")
         CHECK( u4[0] == approx(derivative<4>(x)) );
         CHECK( u4[1] == approx(derivative<4>(y)) );
         CHECK( u4[2] == approx(derivative<4>(z)) );
+    }
+
+    SECTION("testing casting to VectorXd")
+    {
+        VectorXdual x(3);
+        x << 0.5, 0.2, 0.3;
+
+        VectorXd y = x.cast<double>();
+
+        for(auto i = 0; i < 3; ++i)
+            CHECK( x(i) == approx(y(i)) );
+    }
+
+    SECTION("testing casting to MatriXd")
+    {
+        MatrixXdual x(2, 2);
+        x << 0.5, 0.2, 0.3, 0.7;
+
+        MatrixXd y = x.cast<double>();
+
+        for(auto i = 0; i < 2; ++i)
+            for(auto j = 0; j < 2; ++j)
+                CHECK(x(i, j) == approx(y(i, j)));
+    }
+
+    SECTION("testing multiplication of VectorXdual by MatrixXd")
+    {
+        MatrixXd A(2, 2);
+        A << 1.0, 3.0, 5.0, 7.0;
+
+        VectorXdual x(2);
+
+        detail::seed<0>(x[0], 1.0);
+        detail::seed<0>(x[1], 2.0);
+
+        detail::seed<1>(x[0], 3.0);
+        detail::seed<1>(x[1], 5.0);
+
+        VectorXdual b = A * x;
+
+        CHECK( derivative<0>(b[0]) == approx(7.0) );
+        CHECK( derivative<0>(b[1]) == approx(19.0) );
+
+        CHECK( derivative<1>(b[0]) == approx(18.0) );
+        CHECK( derivative<1>(b[1]) == approx(50.0) );
     }
 }

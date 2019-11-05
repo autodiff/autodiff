@@ -28,6 +28,7 @@
 // SOFTWARE.
 
 // C++ includes
+#include <cassert>
 #include <cstddef>
 
 // autodiff includes
@@ -192,9 +193,9 @@ auto derivatives(const Result& result)
         using NumType = decltype(result[0]); // get the type of the dual/real number
         using T = NumericType<NumType>; // get the numeric/floating point type of the dual/real number
         using Vec = VectorReplaceValueType<Result, T>; // get the type of the vector containing numeric values instead of dual/real numbers (e.g., vector<real> becomes vector<double>, VectorXdual becomes VectorXd, etc.)
-        constexpr auto N = 1 + Order<NumType>; // 1 + the order of the dual/real number
-        std::array<Vec, N> values; // create an array to store the derivatives stored inside the dual/real number
-        For<N>([&](auto i) constexpr {
+        constexpr auto N = Order<NumType>; // the order of the dual/real number
+        std::array<Vec, N + 1> values; // create an array to store the derivatives stored inside the dual/real number
+        For<N + 1>([&](auto i) constexpr {
             values[i].resize(len);
             for(size_t j = 0; j < len; ++j)
                 values[i][j] = derivative<i>(result[j]); // get the ith derivative of the jth dual/real number
@@ -204,9 +205,9 @@ auto derivatives(const Result& result)
     else // result is then just a dual/real number
     {
         using T = NumericType<Result>; // get the numeric/floating point type of the dual/real result number
-        constexpr auto N = 1 + Order<Result>; // 1 + the order of the dual/real result number
-        std::array<T, N> values; // create an array to store the derivatives stored inside the dual/real number
-        For<N>([&](auto i) constexpr {
+        constexpr auto N = Order<Result>; // the order of the dual/real result number
+        std::array<T, N + 1> values; // create an array to store the derivatives stored inside the dual/real number
+        For<N + 1>([&](auto i) constexpr {
             values[i] = derivative<i>(result);
         });
         return values;

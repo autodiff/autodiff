@@ -29,7 +29,16 @@
 
 #pragma once
 
-// autodiff includes
-#include <autodiff/forward/dual/dual.hpp>
-#include <autodiff/forward/utils/derivative.hpp>
-#include <autodiff/forward/utils/taylorseries.hpp>
+// Catch includes
+#include <catch2/catch.hpp>
+
+template<typename T>
+auto approx(T&& number) -> Approx
+{
+    const double val = static_cast<double>(number);
+    const double epsilon = std::numeric_limits<double>::epsilon() * 100;
+    const double margin = 1e-12;
+    return Approx(val).epsilon(epsilon).margin(margin);
+}
+
+#define CHECK_APPROX(a, b) CHECK(a == approx(b))

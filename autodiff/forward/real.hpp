@@ -32,3 +32,4 @@
 // autodiff includes
 #include <autodiff/forward/real/real.hpp>
 #include <autodiff/forward/utils/derivative.hpp>
+#include <autodiff/forward/utils/taylorseries.hpp>
