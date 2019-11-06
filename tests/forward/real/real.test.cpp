@@ -54,77 +54,10 @@ using namespace autodiff;
     CHECK_APPROX( dfdv[4], u[4] );                                                \
 }
 
-// #define CHECK_DERIVATIVES_REAL4TH_WRT(expr)                                       \
-// {                                                                                 \
-//     real4th x = 5, y = 7;                                                         \
-//     auto f = [](const real4th& x, const real4th& y) -> real4th { return expr; };  \
-//     /* Check directional derivatives of f(x,y) wrt x */                           \
-//     auto dfdx = derivatives(f, wrt(x), at(x, y));                                 \
-//     x[1] = 1.0; u = expr; x[1] = 0.0;                                             \
-//     CHECK_APPROX( dfdx[0], u[0] );                                                \
-//     CHECK_APPROX( dfdx[1], u[1] );                                                \
-//     /* Check directional derivatives of f(x,y) wrt y */                           \
-//     auto dfdy = derivatives(f, wrt(y), at(x, y));                                 \
-//     y[1] = 1.0; u = expr; y[1] = 0.0;                                             \
-//     CHECK_APPROX( dfdy[0], u[0] );                                                \
-//     CHECK_APPROX( dfdy[1], u[1] );                                                \
-//     /* Check directional derivatives of f(x,y) along direction (3, 5) */          \
-//     auto dfdv = derivatives(f, along(3, 5), at(x, y));                            \
-//     x[1] = 3.0; y[1] = 5.0; u = expr; x[1] = 0.0; y[1] = 0.0;                     \
-//     CHECK_APPROX( dfdv[0], u[0] );                                                \
-//     CHECK_APPROX( dfdv[1], u[1] );                                                \
-//     CHECK_APPROX( dfdv[2], u[2] );                                                \
-//     CHECK_APPROX( dfdv[3], u[3] );                                                \
-//     CHECK_APPROX( dfdv[4], u[4] );                                                \
-// }
-
 // Auxiliary constants
 const auto ln10 = 2.302585092994046;
 const auto pi = 3.14159265359;
 
-
-TEST_CASE("", "")
-{
-    {
-        real x, y;
-        seed(at(x, y), along(2, 3));
-
-        CHECK(x[1] == 2.0);
-        CHECK(y[1] == 3.0);
-    }
-
-    {
-        std::vector<real> x(4);
-        real y;
-
-        std::vector<double> v = {2.0, 3.0, 4.0, 5.0};
-
-        seed(at(x, y), along(v, 7.0));
-
-        CHECK(x[0][1] == 2.0);
-        CHECK(x[1][1] == 3.0);
-        CHECK(x[2][1] == 4.0);
-        CHECK(x[3][1] == 5.0);
-        CHECK(y[1] == 7.0);
-
-        unseed(at(x, y));
-
-        CHECK(x[0][1] == 0.0);
-        CHECK(x[1][1] == 0.0);
-        CHECK(x[2][1] == 0.0);
-        CHECK(x[3][1] == 0.0);
-        CHECK(y[1] == 0.0);
-    }
-
-    // auto aux1 = at(x, y);
-    // auto aux2 = along(2.0, 3.0);
-
-    // CHECK(aux1.numArgs == aux2.numArgs);
-
-}
-
-
-/**/
 TEST_CASE("testing autodiff::real", "[forward][real]")
 {
     real4th x, y, z, u, v, w;
