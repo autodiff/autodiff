@@ -30,9 +30,13 @@
 
 {{ inputcpp('examples/forward/example-forward-jacobian-derivatives-using-eigen-with-parameters.cpp') }}
 
-### Higher-order derivatives of a multi-variable function
+### Higher-order cross derivatives of a multi-variable function
 
-{{ inputcpp('examples/forward/example-forward-higher-order-derivatives.cpp') }}
+{{ inputcpp('examples/forward/example-forward-higher-order-cross-derivatives.cpp') }}
+
+### Higher-order directional derivatives of a multi-variable function
+
+{{ inputcpp('examples/forward/example-forward-higher-order-directional-derivatives.cpp') }}
 
 ## Reverse mode
 

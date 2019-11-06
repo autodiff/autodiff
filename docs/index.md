@@ -11,10 +11,12 @@ and easy way.
 !!! attention
 
     {{autodiff}} is planned to be a long-term maintained automatic differentiation
-    project, with many more algorithms being implemented in the future. Please have
-    in mind, however, that {{autodiff}} is still in its earlier stages of
-    development. We welcome you to use {{autodiff}} and recommend us any
-    improvements you think it is necessary.
+    project, with more and more algorithms being gradually implemented. Please have
+    in mind, however, that {{autodiff}} is still in an earlier stage of development
+    and breaking changes in API may be introduced to simplify its use and make it
+    more intuitive and consistent with newer algorithms and number types. We
+    welcome you to use {{autodiff}} and recommend us any improvements you think it
+    is necessary.
 
 ## Demonstration
 
@@ -27,7 +29,7 @@ double f(double x, double y, double z)
 }
 ```
 
-which we use use to evaluate variable *u = f(x, y, z)*:
+which we use use to evaluate the variable *u = f(x, y, z)*:
 
 ```c++
 double x = 1.0;
@@ -54,7 +56,7 @@ variables* *(x, y, z)*.
 
 Enabling forward automatic differentiation for the calculation of derivatives
 using {{autodiff}} is relatively simple. For our previous function *f*, we only
-need to replace the floating-point type `double` to `autodiff::dual` for both
+need to replace the floating-point type `double` with `autodiff::dual` for both
 input and output variables:
 
 ```c++
@@ -101,13 +103,13 @@ output variable with respect to input variables.
 Thus, a single pass in a reverse mode calculation **computes all derivatives**,
 in contrast with forward mode, which requires one pass for each input variable.
 Note, however, that it is possible to change the behavior of a forward pass so
-that many (even all) derivatives of an output variable are computed
+that many (perhaps even all) derivatives of an output variable are computed
 simultaneously (e.g., in a single forward pass, *∂u/∂x*,  *∂u/∂y*, and *∂u/∂z*
 are evaluated together with *u*, in contrast with three forward passes, each
 one computing the individual derivatives).
 
 Similar as before, we can use {{autodiff}} to enable reverse automatic
-differentiation for our function *f* by simply replacing type `double` by
+differentiation for our function *f* by simply replacing type `double` with
 `autodiff::var` as follows:
 
 ```c++
