@@ -18,7 +18,7 @@ conda update -q conda
 conda info -a
 conda devenv
 echo "Activating conda environment autodiff"
-conda activate autodiff
+source activate autodiff
 echo "Printing some environment variables"
 echo "..CONDA_PREFIX =" ${CONDA_PREFIX}
 echo "..CXX =" ${CXX}
