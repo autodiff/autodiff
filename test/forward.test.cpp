@@ -2,7 +2,7 @@
 #include "catch.hpp"
 
 // Eigen includes
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 using namespace Eigen;
 
 // autodiff includes
@@ -535,6 +535,21 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( f(x) == std::tan(val(x)) );
         REQUIRE( derivative(f, wrt(x), at(x)) == approx(1 / (cos(x) * cos(x))) );
 
+        // Testing sinh function
+        f = [](dual x) -> dual { return sinh(x); };
+        REQUIRE( f(x) == std::sinh(val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(cosh(x)) );
+
+        // Testing cosh function
+        f = [](dual x) -> dual { return cosh(x); };
+        REQUIRE( f(x) == std::cosh(val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(sinh(x)) );
+
+        // Testing tanh function
+        f = [](dual x) -> dual { return tanh(x); };
+        REQUIRE( f(x) == std::tanh(val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(1 / (cosh(x) * cosh(x))) );
+
         // Testing asin function
         f = [](dual x) -> dual { return asin(x); };
         REQUIRE( f(x) == std::asin(val(x)) );
@@ -620,20 +635,39 @@ TEST_CASE("autodiff::dual tests", "[dual]")
     {
         using dual2nd = HigherOrderDual<2>;
 
+        std::function<dual2nd(dual2nd, dual2nd)> f;
+
         dual2nd x = 5;
         dual2nd y = 7;
 
-        // Testing complex function involving sin and cos
-        auto f = [](dual2nd x, dual2nd y) -> dual2nd
+        // Testing simpler functions
+        f = [](dual2nd x, dual2nd y) -> dual2nd
         {
             return x*x + x*y + y*y;
         };
 
         REQUIRE( val(derivative(f, wrt(x), at(x, y))) == Approx(17.0) );
-        REQUIRE( derivative(f, wrt(x, x), at(x, y)) == Approx(2.0) );
+        REQUIRE( derivative(f, wrt<2>(x), at(x, y)) == Approx(2.0) );
         REQUIRE( derivative(f, wrt(x, y), at(x, y)) == Approx(1.0) );
         REQUIRE( derivative(f, wrt(y, x), at(x, y)) == Approx(1.0) );
-        REQUIRE( derivative(f, wrt(y, y), at(x, y)) == Approx(2.0) );
+        REQUIRE( derivative(f, wrt<2>(y), at(x, y)) == Approx(2.0) );
+
+        // Testing complex function involving log
+        x = 2.0;
+        y = 1.0;
+
+        f = [](dual2nd x, dual2nd y) -> dual2nd
+        {
+            return 1 + x + y + x * y + y / x + log(x / y);
+        };
+
+        REQUIRE( val(f(x, y)) == Approx( 1 + val(x) + val(y) + val(x) * val(y) + val(y) / val(x) + log(val(x) / val(y)) ) );
+        REQUIRE( val(derivative(f, wrt(x), at(x, y))) == Approx( 1 + val(y) - val(y) / (val(x) * val(x)) + 1.0/val(x) - log(val(y)) ) );
+        REQUIRE( val(derivative(f, wrt(y), at(x, y))) == Approx( 1 + val(x) + 1.0 / val(x) - 1.0/val(y) ) );
+        REQUIRE( val(derivative(f, wrt<2>(x), at(x, y))) == Approx( 2 * val(y) / (val(x) * val(x) * val(x)) + -1.0/(val(x) * val(x)) ) );
+        REQUIRE( val(derivative(f, wrt(y, y), at(x, y))) == Approx( 1.0/(val(y)*val(y)) ) );
+        REQUIRE( val(derivative(f, wrt(y, x), at(x, y))) == Approx( 1 - 1.0 / (val(x) * val(x)) ) );
+        REQUIRE( val(derivative(f, wrt(x, y), at(x, y))) == Approx( 1 - 1.0 / (val(x) * val(x)) ) );
     }
 
     SECTION("testing higher order derivatives")
@@ -649,13 +683,41 @@ TEST_CASE("autodiff::dual tests", "[dual]")
             return (x + y)*(x + y)*(x + y);
         };
 
-        REQUIRE( derivative(f, wrt(x, x, x), at(x, y)) == Approx(6.0) );
+        REQUIRE( derivative(f, wrt<3>(x), at(x, y)) == Approx(6.0) );
         REQUIRE( derivative(f, wrt(x, x, x), at(x, y)) == Approx(6.0) );
         REQUIRE( derivative(f, wrt(x, x, y), at(x, y)) == Approx(6.0) );
         REQUIRE( derivative(f, wrt(x, y, y), at(x, y)) == Approx(6.0) );
-        REQUIRE( derivative(f, wrt(y, y, y), at(x, y)) == Approx(6.0) );
+        REQUIRE( derivative(f, wrt<3>(y), at(x, y)) == Approx(6.0) );
     }
 
+    SECTION("testing reference to unary and binary expression nodes are not present")
+    {
+        x = -0.3;
+        y =  0.5;
+
+        auto pow2 = [](const auto& x)
+        {
+            return x*x;
+        };
+
+        auto rosenbrock = [&](const auto& x, const auto& y)
+        {
+            return 100.0 * pow2(x*x - y) + pow2(1.0 - x);
+        };
+
+        auto f = [&](const auto& x, const auto& y) -> dual
+        {
+            return rosenbrock(x, y);
+        };
+
+        REQUIRE( val(f(x, y)) == approx(100 * (x*x - y)*(x*x - y) + (1 - x)*(1 - x)) );
+        REQUIRE( derivative(f, wrt(x), at(x, y)) == approx(400*(x*x - y)*x - 2*(1 - x)) );
+        REQUIRE( derivative(f, wrt(y), at(x, y)) == approx(-200*(x*x - y)) );
+    }
+}
+
+TEST_CASE("Eigen::VectorXdual tests", "[dual]")
+{
     SECTION("testing gradient derivatives")
     {
         // Testing complex function involving sin and cos
@@ -733,21 +795,22 @@ TEST_CASE("autodiff::dual tests", "[dual]")
 
     SECTION("testing casting to VectorXd")
     {
-	VectorXdual x(3);
+        VectorXdual x(3);
         x << 0.5, 0.2, 0.3;
-	VectorXd y = x.cast<double>();
 
-	for(auto i = 0; i < 3; ++i)
-	    REQUIRE( x(i) == approx(y(i)) );
+        VectorXd y = x.cast<double>();
+
+        for(auto i = 0; i < 3; ++i)
+            REQUIRE( x(i) == approx(y(i)) );
     }
 
     SECTION("testing casting to VectorXf")
     {
-	MatrixXdual x(2,2);
+    	MatrixXdual x(2, 2);
         x << 0.5, 0.2, 0.3, 0.7;
-	MatrixXd y = x.cast<double>();
-	for(auto i = 0; i < 2; ++i)
-	    for(auto j = 0; j < 2; ++j)
-		REQUIRE( x(i,j) == approx(y(i,j)) );
+        MatrixXd y = x.cast<double>();
+        for(auto i = 0; i < 2; ++i)
+            for(auto j = 0; j < 2; ++j)
+                REQUIRE( x(i, j) == approx(y(i, j)) );
     }
 }

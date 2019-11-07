@@ -55,6 +55,9 @@ struct DivExpr;
 struct SinExpr;
 struct CosExpr;
 struct TanExpr;
+struct SinhExpr;
+struct CoshExpr;
+struct TanhExpr;
 struct ArcSinExpr;
 struct ArcCosExpr;
 struct ArcTanExpr;
@@ -109,6 +112,9 @@ ExprPtr atan(const ExprPtr& x);
 //------------------------------------------------------------------------------
 // HYPERBOLIC FUNCTIONS (DECLARATION ONLY)
 //------------------------------------------------------------------------------
+ExprPtr sinh(const ExprPtr& x);
+ExprPtr cosh(const ExprPtr& x);
+ExprPtr tanh(const ExprPtr& x);
 
 //------------------------------------------------------------------------------
 // EXPONENTIAL AND LOGARITHMIC FUNCTIONS (DECLARATION ONLY)
@@ -378,6 +384,53 @@ struct TanExpr : UnaryExpr
     }
 };
 
+struct SinhExpr : UnaryExpr
+{
+    SinhExpr(double val, const ExprPtr& x) : UnaryExpr(val, x) {}
+
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
+    {
+        x->propagate(derivatives, wprime * std::cosh(x->val));
+    }
+
+    virtual void propagate(DerivativesMapX& derivatives, const ExprPtr& wprime) const
+    {
+        x->propagate(derivatives, wprime * cosh(x));
+    }
+};
+
+struct CoshExpr : UnaryExpr
+{
+    CoshExpr(double val, const ExprPtr& x) : UnaryExpr(val, x) {}
+
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
+    {
+        x->propagate(derivatives, wprime * std::sinh(x->val));
+    }
+
+    virtual void propagate(DerivativesMapX& derivatives, const ExprPtr& wprime) const
+    {
+        x->propagate(derivatives, wprime * sinh(x));
+    }
+};
+
+struct TanhExpr : UnaryExpr
+{
+    TanhExpr(double val, const ExprPtr& x) : UnaryExpr(val, x) {}
+
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
+    {
+        const auto aux = 1.0 / std::cosh(x->val);
+        x->propagate(derivatives, wprime * aux * aux);
+    }
+
+    virtual void propagate(DerivativesMapX& derivatives, const ExprPtr& wprime) const
+    {
+        const auto aux = 1.0 / cosh(x);
+        x->propagate(derivatives, wprime * aux * aux);
+    }
+};
+
 struct ArcSinExpr : UnaryExpr
 {
     ArcSinExpr(double val, const ExprPtr& x) : UnaryExpr(val, x) {}
@@ -592,6 +645,9 @@ inline ExprPtr atan(const ExprPtr& x) { return std::make_shared<ArcTanExpr>(std:
 //------------------------------------------------------------------------------
 // HYPERBOLIC FUNCTIONS
 //------------------------------------------------------------------------------
+inline ExprPtr sinh(const ExprPtr& x) { return std::make_shared<SinhExpr>(std::sinh(x->val), x); }
+inline ExprPtr cosh(const ExprPtr& x) { return std::make_shared<CoshExpr>(std::cosh(x->val), x); }
+inline ExprPtr tanh(const ExprPtr& x) { return std::make_shared<TanhExpr>(std::tanh(x->val), x); }
 
 //------------------------------------------------------------------------------
 // EXPONENTIAL AND LOGARITHMIC FUNCTIONS
@@ -662,6 +718,9 @@ struct var
 
     /// Implicitly convert this var object variable into an expression pointer
     operator ExprPtr() const { return expr; }
+
+    /// Explicitly convert this var object variable into a double value
+    explicit operator double() const { return expr->val; }
 
 	// Arithmetic-assignment operators
     var& operator+=(const ExprPtr& other) { expr = expr + other; return *this; }
@@ -742,6 +801,9 @@ inline ExprPtr atan(const var& x) { return atan(x.expr); }
 //------------------------------------------------------------------------------
 // HYPERBOLIC FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE var)
 //------------------------------------------------------------------------------
+inline ExprPtr sinh(const var& x) { return sinh(x.expr); }
+inline ExprPtr cosh(const var& x) { return cosh(x.expr); }
+inline ExprPtr tanh(const var& x) { return tanh(x.expr); }
 
 //------------------------------------------------------------------------------
 // EXPONENTIAL AND LOGARITHMIC FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE var)
