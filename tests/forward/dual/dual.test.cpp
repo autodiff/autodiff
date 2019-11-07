@@ -568,4 +568,29 @@ TEST_CASE("testing autodiff::dual", "[forward][dual]")
         CHECK( u4[1] == approx(derivative<4>(y)) );
         CHECK( u4[2] == approx(derivative<4>(z)) );
     }
+
+    SECTION("testing reference to unary and binary expression nodes are not present")
+    {
+        x = -0.3;
+        y =  0.5;
+
+        auto pow2 = [](const auto& x)
+        {
+            return x*x;
+        };
+
+        auto rosenbrock = [&](const auto& x, const auto& y)
+        {
+            return 100.0 * pow2(x*x - y) + pow2(1.0 - x);
+        };
+
+        auto f = [&](const auto& x, const auto& y) -> dual
+        {
+            return rosenbrock(x, y);
+        };
+
+        CHECK( val(f(x, y)) == approx(val(100 * (x*x - y)*(x*x - y) + (1 - x)*(1 - x))) );
+        CHECK( derivative(f, wrt(x), at(x, y)) == approx(val(400*(x*x - y)*x - 2*(1 - x))) );
+        CHECK( derivative(f, wrt(y), at(x, y)) == approx(val(-200*(x*x - y))) );
+    }
 }

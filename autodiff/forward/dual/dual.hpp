@@ -635,6 +635,14 @@ auto seed(Dual<T, G>& dual, U&& seedval)
 //
 //=====================================================================================================================
 
+/// Alias template used to prevent expression nodes to be stored as references.
+/// For example, the following should not exist `BinaryExpr<AddOp, const dual&, const UnaryExpr<NegOp, const dual&>&>>`.
+/// It should be instead `BinaryExpr<AddOp, const dual&, UnaryExpr<NegOp, const dual&>>`.
+/// This alias template allows only dual numbers to have their original type.
+/// All other types become plain, without reference and const attributes.
+template<typename T>
+using PreventExprRef = std::conditional_t<isDual<T>, T, PlainType<T>>;
+
 //-----------------------------------------------------------------------------
 // NEGATIVE EXPRESSION GENERATOR FUNCTION
 //-----------------------------------------------------------------------------
@@ -644,7 +652,7 @@ constexpr auto negative(U&& expr)
     static_assert(isExpr<U> || isNumber<U>);
     if constexpr (isNegExpr<U>)
         return inner(expr);
-    else return NegExpr<U>{ std::forward<U>(expr) };
+    else return NegExpr<PreventExprRef<U>>{ expr };
 }
 
 //-----------------------------------------------------------------------------
@@ -656,7 +664,7 @@ constexpr auto inverse(U&& expr)
     static_assert(isExpr<U>);
     if constexpr (isInvExpr<U>)
         return inner(expr);
-    else return InvExpr<U>{ std::forward<U>(expr) };
+    else return InvExpr<PreventExprRef<U>>{ expr };
 }
 
 //-----------------------------------------------------------------------------
@@ -699,7 +707,7 @@ constexpr auto operator-(R&& expr)
     else if constexpr (isNumberDualMulExpr<R>)
         return (-left(expr)) * right(expr);
     // default expression
-    else return NegExpr<R>{ std::forward<R>(expr) };
+    else return NegExpr<PreventExprRef<R>>{ expr };
 }
 
 //=====================================================================================================================
@@ -718,7 +726,7 @@ constexpr auto operator+(L&& l, R&& r)
     else if constexpr (isExpr<L> && isNumber<R>)
         return std::forward<R>(r) + std::forward<L>(l);
     // DEFAULT ADDITION EXPRESSION
-    else return AddExpr<L, R>{ std::forward<L>(l), std::forward<R>(r) };
+    else return AddExpr<PreventExprRef<L>, PreventExprRef<R>>{ l, r };
 }
 
 //=====================================================================================================================
@@ -747,9 +755,9 @@ constexpr auto operator*(L&& l, R&& r)
         return (l * left(r)) * right(r);
     // MULTIPLICATION EXPRESSION CASE: number * dual => NumberDualMulExpr
     else if constexpr (isNumber<L> && isDual<R>)
-        return NumberDualMulExpr<L, R>{ std::forward<L>(l), std::forward<R>(r) };
+        return NumberDualMulExpr<PreventExprRef<L>, PreventExprRef<R>>{ l, r };
     // DEFAULT MULTIPLICATION EXPRESSION: expr * expr => MulExpr
-    else return MulExpr<L, R>{ std::forward<L>(l), std::forward<R>(r) };
+    else return MulExpr<PreventExprRef<L>, PreventExprRef<R>>{ l, r };
 }
 
 //=====================================================================================================================
@@ -790,12 +798,12 @@ constexpr auto operator/(L&& l, R&& r)
 //
 //=====================================================================================================================
 
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto sin(R&& r) -> SinExpr<R> { return { std::forward<R>(r) }; }
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto cos(R&& r) -> CosExpr<R> { return { std::forward<R>(r) }; }
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto tan(R&& r) -> TanExpr<R> { return { std::forward<R>(r) }; }
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto asin(R&& r) -> ArcSinExpr<R> { return { std::forward<R>(r) }; }
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto acos(R&& r) -> ArcCosExpr<R> { return { std::forward<R>(r) }; }
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto atan(R&& r) -> ArcTanExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto sin(R&& r) -> SinExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto cos(R&& r) -> CosExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto tan(R&& r) -> TanExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto asin(R&& r) -> ArcSinExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto acos(R&& r) -> ArcCosExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto atan(R&& r) -> ArcTanExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -803,9 +811,9 @@ template<typename R, EnableIf<isExpr<R>>...> constexpr auto atan(R&& r) -> ArcTa
 //
 //=====================================================================================================================
 
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto sinh(R&& r) -> SinhExpr<R> { return { std::forward<R>(r) }; }
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto cosh(R&& r) -> CoshExpr<R> { return { std::forward<R>(r) }; }
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto tanh(R&& r) -> TanhExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto sinh(R&& r) -> SinhExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto cosh(R&& r) -> CoshExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto tanh(R&& r) -> TanhExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -813,9 +821,9 @@ template<typename R, EnableIf<isExpr<R>>...> constexpr auto tanh(R&& r) -> TanhE
 //
 //=====================================================================================================================
 
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto exp(R&& r) -> ExpExpr<R> { return { std::forward<R>(r) }; }
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto log(R&& r) -> LogExpr<R> { return { std::forward<R>(r) }; }
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto log10(R&& r) -> Log10Expr<R> { return { std::forward<R>(r) }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto exp(R&& r) -> ExpExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto log(R&& r) -> LogExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto log10(R&& r) -> Log10Expr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -823,8 +831,8 @@ template<typename R, EnableIf<isExpr<R>>...> constexpr auto log10(R&& r) -> Log1
 //
 //=====================================================================================================================
 
-template<typename L, typename R, EnableIf<isOperable<L, R>>...> constexpr auto pow(L&& l, R&& r) -> PowExpr<L, R> { return { std::forward<L>(l), std::forward<R>(r) }; }
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto sqrt(R&& r) -> SqrtExpr<R> { return { std::forward<R>(r) }; }
+template<typename L, typename R, EnableIf<isOperable<L, R>>...> constexpr auto pow(L&& l, R&& r) -> PowExpr<L, R> { return { l, r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto sqrt(R&& r) -> SqrtExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -832,7 +840,7 @@ template<typename R, EnableIf<isExpr<R>>...> constexpr auto sqrt(R&& r) -> SqrtE
 //
 //=====================================================================================================================
 
-template<typename R, EnableIf<isExpr<R>>...> constexpr auto abs(R&& r) -> AbsExpr<R> { return { std::forward<R>(r) }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto abs(R&& r) -> AbsExpr<R> { return { r }; }
 template<typename R, EnableIf<isExpr<R>>...> constexpr auto abs2(R&& r) { return std::forward<R>(r) * std::forward<R>(r); }
 template<typename R, EnableIf<isExpr<R>>...> constexpr auto conj(R&& r) { return std::forward<R>(r); }
 template<typename R, EnableIf<isExpr<R>>...> constexpr auto real(R&& r) { return std::forward<R>(r); }
