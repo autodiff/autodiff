@@ -41,3 +41,15 @@ int main()
     std::cout << "du/db = " << dudb << std::endl;  // print the evaluated derivative du/db
     std::cout << "du/dc = " << dudc << std::endl;  // print the evaluated derivative du/dc
 }
+
+/*-------------------------------------------------------------------------------------------------
+=== Note ===
+---------------------------------------------------------------------------------------------------
+This example would also work if real was used instead of dual. Should you
+need higher-order cross derivatives, however, e.g.,:
+
+    double d2udxda = derivative(f, wrt(x, params.a), at(x, params));
+
+then higher-order dual types are the right choicesince real types are
+optimally designed for higher-order directional derivatives.
+-------------------------------------------------------------------------------------------------*/

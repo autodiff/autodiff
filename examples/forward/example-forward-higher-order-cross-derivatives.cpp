@@ -26,12 +26,12 @@ int main()
     std::cout << "uxyxz = " << uxyxz << std::endl; // print the evaluated derivative d⁴u/dx²dydz
 }
 
-//-------------------------------------------------------------------------------------------------
-// Note
-//-------------------------------------------------------------------------------------------------
-// In most cases, dual can be replaced by real, as commented in other examples.
-// However, computing higher-order cross derivatives has definitely to be done
-// using higher-order dual types (e.g., dual3rd, dual4th)! This is because real
-// types (e.g., real2nd, real3rd, real4th) are optimally designed for computing
-// higher-order directional derivatives.
-//-------------------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------------------
+=== Note ===
+---------------------------------------------------------------------------------------------------
+In most cases, dual can be replaced by real, as commented in other examples.
+However, computing higher-order cross derivatives has definitely to be done
+using higher-order dual types (e.g., dual3rd, dual4th)! This is because real
+types (e.g., real2nd, real3rd, real4th) are optimally designed for computing
+higher-order directional derivatives.
+-------------------------------------------------------------------------------------------------*/

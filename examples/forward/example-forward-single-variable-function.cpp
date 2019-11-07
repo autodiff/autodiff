@@ -13,11 +13,11 @@ dual f(dual x)
 
 int main()
 {
-    dual x = 2.0;   // the input variable x
-    dual u = f(x);  // the output variable u
+    dual x = 2.0;                                 // the input variable x
+    dual u = f(x);                                // the output variable u
 
-    double dudx = derivative(f, wrt(x), at(x));  // evaluate the derivative du/dx
+    double dudx = derivative(f, wrt(x), at(x));   // evaluate the derivative du/dx
 
-    std::cout << "u = " << u << std::endl;         // print the evaluated output u
-    std::cout << "du/dx = " << dudx << std::endl;  // print the evaluated derivative du/dx
+    std::cout << "u = " << u << std::endl;        // print the evaluated output u
+    std::cout << "du/dx = " << dudx << std::endl; // print the evaluated derivative du/dx
 }

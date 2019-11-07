@@ -17,7 +17,7 @@ int main()
     real4th y = 2.0;
     real4th z = 3.0;
 
-    auto dfdv = derivatives(f, along(1.0, 1.0, 2.0), at(x, y, z)); // the directional derivatives of f(x, y ,z) along direction v = (1, 1, 2) at x = (1, 2, 3)
+    auto dfdv = derivatives(f, along(1.0, 1.0, 2.0), at(x, y, z)); // the directional derivatives of f along direction v = (1, 1, 2) at (x, y, z) = (1, 2, 3)
 
     std::cout << "dfdv[0] = " << dfdv[0] << std::endl; // print the evaluated 0th order directional derivative of f along v (equivalent to f(x, y, z))
     std::cout << "dfdv[1] = " << dfdv[1] << std::endl; // print the evaluated 1st order directional derivative of f along v
@@ -26,10 +26,10 @@ int main()
     std::cout << "dfdv[4] = " << dfdv[4] << std::endl; // print the evaluated 4th order directional derivative of f along v
 }
 
-//-------------------------------------------------------------------------------------------------
-// Note
-//-------------------------------------------------------------------------------------------------
-// This example would also work if dual was used instead. However, real types
-// are your best option for directional derivatives, as they were optimally
-// designed for these derivatives.
-//-------------------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------------------
+=== Note ===
+---------------------------------------------------------------------------------------------------
+This example would also work if dual was used instead of real. However, real
+types are your best option for directional derivatives, as they were optimally
+designed for this kind of derivatives.
+-------------------------------------------------------------------------------------------------*/
