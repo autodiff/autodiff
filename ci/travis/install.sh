@@ -17,8 +17,15 @@ conda install conda-devenv
 conda update -q conda
 conda info -a
 conda devenv
-source activate autodiff
+echo "Activating conda environment autodiff"
+conda activate autodiff
+echo "Printing some environment variables"
+echo "..CONDA_PREFIX =" ${CONDA_PREFIX}
+echo "..CXX =" ${CXX}
+echo "..CC =" ${CC}
 mkdir build
 cd build
+echo "Configuring using cmake"
 cmake .. -GNinja
+echo "Building examples and tests"
 ninja
