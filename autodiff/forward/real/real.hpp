@@ -32,6 +32,7 @@
 // C++ includes
 #include <cassert>
 #include <cmath>
+#include <iostream>
 #include <tuple>
 #include <utility>
 

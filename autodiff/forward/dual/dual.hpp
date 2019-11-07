@@ -32,6 +32,7 @@
 // C++ includes
 #include <cmath>
 #include <functional>
+#include <iostream>
 #include <tuple>
 #include <type_traits>
 #include <utility>
