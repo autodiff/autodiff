@@ -112,5 +112,3 @@ Eigen::MatrixXd hessian(const var& y, const vars& x)
 }
 
 } // namespace autodiff
-
-

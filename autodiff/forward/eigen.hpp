@@ -164,5 +164,3 @@ auto jacobian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
 }
 
 } // namespace autodiff::forward
-
-
