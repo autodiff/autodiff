@@ -5,18 +5,13 @@
 # {{autodiff}}
 
 {{autodiff}} is a C++17 library that uses modern and advanced programming
-techniques to enable automatic computation of derivatives in an efficient
-and easy way.
+techniques to enable automatic computation of derivatives in an efficient, easy,
+and intuitive way.
 
-!!! attention
-
-    {{autodiff}} is planned to be a long-term maintained automatic differentiation
-    project, with more and more algorithms being gradually implemented. Please have
-    in mind, however, that {{autodiff}} is still in an earlier stage of development
-    and breaking changes in API may be introduced to simplify its use and make it
-    more intuitive and consistent with newer algorithms and number types. We
-    welcome you to use {{autodiff}} and recommend us any improvements you think it
-    is necessary.
+We welcome you to use {{autodiff}} and recommend us any improvements you think
+it is necessary. You may want to do so by chatting with us on our [Gitter
+Community Channel][gitter] and/or by making proposals by creating a [GitHub
+issue][issues].
 
 ## Demonstration
 
@@ -142,3 +137,16 @@ derivative of `u` with respect to input variable `x` (i.e., *∂u/∂x*) can the
 be extracted from `dud` using `dud(x)`. The operations `dud(x)`, `dud(y)`,
 `dud(z)` involve no computations! Just extraction of derivatives previously
 computed with a call to function `autodiff::derivatives`.
+
+## Development status
+
+{{autodiff}} is planned to be a long-term maintained automatic differentiation
+C++ project. This means that more algorithms and number types will still be
+implemented and that the currently existing ones will be further enhanced.
+Please have in mind, however, that {{autodiff}} is still in a relatively early
+stage of development, which implies that minor breaking changes in API may be
+introduced to simplify its use and make it more intuitive and consistent with
+new library additions.
+
+[gitter]: https://gitter.im/autodiff/community
+[issues]: https://github.com/autodiff/autodiff/issues/new
