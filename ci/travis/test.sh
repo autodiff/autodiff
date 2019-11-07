@@ -1,1 +1,1 @@
-./build/test/tests
+./build/tests/tests
