@@ -1,7 +1,6 @@
 name: autodiff
 
 dependencies:
-  - black
   - cmake>=3.13
   - ninja
   - eigen
