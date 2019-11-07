@@ -6,4 +6,4 @@ add_executable(tests main.cpp ${TEST_FILES})
 
 target_include_directories(tests PUBLIC ${CMAKE_SOURCE_DIR} ${EIGEN3_INCLUDE_DIR})
 
-target_link_libraries(tests Catch2::Catch2)
+target_link_libraries(tests autodiff Catch2::Catch2)
