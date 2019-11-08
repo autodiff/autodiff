@@ -45,4 +45,5 @@ jobs:
         cmake -S . -B build
         cmake --build build --config ${{ matrix.configuration }} --target install
     - name: Tests
+      shell: cmd
       run: call build\test\${{ matrix.configuration }}\tests.exe
