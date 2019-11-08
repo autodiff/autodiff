@@ -29,6 +29,7 @@ jobs:
     - name: Setup environment variables
       run: |
         set CONDA_DIR: "C:\Miniconda36-x64"
+        set PATH=%CONDA_DIR%;%CONDA_DIR%\Scripts;%CONDA_DIR%\Library\bin;%PATH%
     - name: Setup conda and install
       run: |
         conda config --set always_yes yes --set changeps1 no
