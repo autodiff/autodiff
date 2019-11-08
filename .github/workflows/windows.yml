@@ -32,16 +32,16 @@ jobs:
         echo ${env:CONDA}
         echo ${env:PATH}
         Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
-        set PATH: "${env:CONDA}";"${env:CONDA}\Scripts";"${env:CONDA}\Library\bin";"${env:PATH}"
+        set PATH=%PATH%;"${env:CONDA}";"${env:CONDA}\Scripts";"${env:CONDA}\Library\bin"
         echo ${env:PATH}
     - name: Setup conda and install
       run: |
-        "${env:CONDA}\Scripts\conda.exe" config --set always_yes yes --set changeps1 no
-        "${env:CONDA}\Scripts\conda.exe" config --add channels conda-forge
-        "${env:CONDA}\Scripts\conda.exe" install conda-devenv
-        "${env:CONDA}\Scripts\conda.exe" update -q conda
-        "${env:CONDA}\Scripts\conda.exe" info -a
-        "${env:CONDA}\Scripts\conda.exe" devenv
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels conda-forge
+        conda install conda-devenv
+        conda update -q conda
+        conda info -a
+        conda devenv
         call activate autodiff
     - name: Build
       run: | 
