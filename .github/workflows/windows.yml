@@ -13,12 +13,12 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
+    env:
+      configuration: Release
     strategy:
       fail-fast: true
       max-parallel: 4
-      matrix:
-        configuration: ['Release', 'Debug']
 #         os: [windows-latest]
 #         include:
 #           - os: windows-latest
@@ -43,7 +43,7 @@ jobs:
         set PATH=%CONDA%;%CONDA%\Scripts;%CONDA%\Library\bin;%PATH%
         call activate autodiff
         cmake -S . -B build
-        cmake --build build --config ${{ matrix.configuration }} --target install
+        cmake --build build --config ${{ env.configuration }} --target install
     - name: Tests
       shell: cmd
-      run: call build\test\${{ matrix.configuration }}\tests.exe
+      run: call build\test\${{ env.configuration }}\tests.exe
