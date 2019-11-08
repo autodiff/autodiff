@@ -21,8 +21,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, macOS-latest]
         include:
-          - configuration: Release
-          - configuration: Debug
+          - os: ubuntu-latest
+            configuration: Release
+          - os: macOS-latest
+            configuration: Debug
 
     steps:
     - uses: actions/checkout@v1
