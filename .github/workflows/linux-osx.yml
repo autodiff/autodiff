@@ -9,7 +9,7 @@ name: linux-osx
 #     branches:
 #       - master
 
-on: [push]
+on: push
 
 jobs:
   build:
@@ -20,11 +20,6 @@ jobs:
       max-parallel: 4
       matrix:
         os: [ubuntu-latest, macOS-latest]
-        include:
-          - os: ubuntu-latest
-            configuration: Release
-          - os: macOS-latest
-            configuration: Debug
 
     steps:
     - uses: actions/checkout@v1
