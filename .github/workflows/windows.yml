@@ -36,12 +36,12 @@ jobs:
         echo ${env:PATH}
     - name: Setup conda and install
       run: |
-        conda config --set always_yes yes --set changeps1 no
-        conda config --add channels conda-forge
-        conda install conda-devenv
-        conda update -q conda
-        conda info -a
-        conda devenv
+        "${env:CONDA}\Scripts\conda.exe" config --set always_yes yes --set changeps1 no
+        "${env:CONDA}\Scripts\conda.exe" config --add channels conda-forge
+        "${env:CONDA}\Scripts\conda.exe" install conda-devenv
+        "${env:CONDA}\Scripts\conda.exe" update -q conda
+        "${env:CONDA}\Scripts\conda.exe" info -a
+        "${env:CONDA}\Scripts\conda.exe" devenv
         call activate autodiff
     - name: Build
       run: | 
