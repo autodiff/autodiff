@@ -112,8 +112,8 @@ auto along(Args&&... args)
 template<typename Var, typename... Vars, typename T>
 auto seed(const Wrt<Var&, Vars&...>& wrt, T&& seedval)
 {
-    constexpr auto N = Order<Var>;
-    constexpr auto size = 1 + sizeof...(Vars);
+    constexpr static auto N = Order<Var>;
+    constexpr static auto size = 1 + sizeof...(Vars);
     static_assert(size <= N, "It is not possible to compute higher-order derivatives with order greater than that of the autodiff number (e.g., using wrt(x, x, y, z) will fail if the autodiff numbers in use have order below 4).");
     For<N>([&](auto i) constexpr {
         if constexpr (i < size)

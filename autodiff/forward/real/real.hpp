@@ -80,24 +80,14 @@ public:
         });
     }
 
-    constexpr auto begin() -> T*
-    {
-        return m_data.begin();
-    }
-
-    constexpr auto begin() const -> const T*
-    {
-        return m_data.begin();
-    }
-
     constexpr auto operator[](size_t i) -> T&
     {
-        return begin()[i];
+        return m_data[i];
     }
 
     constexpr auto operator[](size_t i) const -> const T&
     {
-        return begin()[i];
+        return m_data[i];
     }
 
     template<typename U, EnableIf<isNumber<U>>...>
