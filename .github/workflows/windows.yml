@@ -30,6 +30,7 @@ jobs:
       run: |
         set CONDA_DIR: "C:\Miniconda36-x64"
         echo ${env:CONDA}
+        ls "${env:CONDA}\Scripts"
         echo ${env:PATH}
         Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
         set PATH=%PATH%;"${env:CONDA}";"${env:CONDA}\Scripts";"${env:CONDA}\Library\bin"
