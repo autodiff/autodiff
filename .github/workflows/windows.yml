@@ -35,6 +35,9 @@ jobs:
         Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
         set PATH=%PATH%;"${env:CONDA}";"${env:CONDA}\Scripts";"${env:CONDA}\Library\bin"
         echo ${env:PATH}
+    - name: init
+      run: set PATH=%CONDA_DIR%;%CONDA_DIR%\Scripts;%CONDA_DIR%\Library\bin;%PATH%
+      shell: cmd
     - name: Setup conda and install
       run: |
         "${env:CONDA}\Scripts\conda.exe" config --set always_yes yes --set changeps1 no
