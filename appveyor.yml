@@ -1,5 +1,5 @@
 image:
-  - Visual Studio 2017
+  - Visual Studio 2015
 
 build:
   parallel: true
@@ -12,6 +12,7 @@ configuration:
 
 environment:
   CONDA_DIR: C:\Miniconda36-x64
+  GENERATOR: 
 
 matrix:
   fast_finish: true
