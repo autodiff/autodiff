@@ -1,0 +1,32 @@
+name: linux-osx
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Download and install conda
+      run: |
+        if [ ${{ matrix.os }} = "ubuntu-latest" ]; then OS=Linux-x86_64; else OS=MacOSX-x86_64; fi
+        wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-$OS.sh
+        rm -rf $HOME/miniconda
+        bash miniconda.sh -b -p $HOME/miniconda
+    - name: Install
+      run: bash ci/actions/install.sh
+    - name: Tests
+      run: bash ci/actions/test.sh
