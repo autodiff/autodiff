@@ -38,6 +38,7 @@ jobs:
         conda info -a
         conda devenv
     - name: Build
+      shell: cmd
       run: | 
         call activate autodiff
         cmake -S . -B build
