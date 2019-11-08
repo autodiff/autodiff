@@ -29,6 +29,7 @@ jobs:
     - name: Setup environment variables
       run: |
         set CONDA_DIR: "C:\Miniconda36-x64"
+        ECHO $CONDA
     - name: Setup conda and install
       run: |
         $CONDA config --set always_yes yes --set changeps1 no
