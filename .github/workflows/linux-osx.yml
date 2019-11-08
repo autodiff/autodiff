@@ -14,12 +14,10 @@ on: push
 jobs:
   build:
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       max-parallel: 4
-      matrix:
-        os: [ubuntu-latest, macOS-latest]
 
     steps:
     - uses: actions/checkout@v1
