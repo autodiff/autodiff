@@ -1,12 +1,14 @@
 name: windows
 
-on:
-  push:
-    branches:
-      - master
+on: push
 
-  pull_request:
-    types: [opened, edited]
+# on:
+#   push:
+#     branches:
+#       - master
+
+#   pull_request:
+#     types: [opened, edited]
 
 jobs:
   build:
@@ -16,10 +18,11 @@ jobs:
       fail-fast: true
       max-parallel: 4
       matrix:
-        os: [windows-latest]
-        include:
-          - os: windows-latest
-            configuration: Release
+        configuration: ['Release', 'Debug']
+#         os: [windows-latest]
+#         include:
+#           - os: windows-latest
+#             configuration: Release
 
     steps:
     - uses: actions/checkout@v1
