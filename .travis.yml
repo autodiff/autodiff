@@ -8,6 +8,10 @@ cache:
   directories:
     - $HOME/miniconda
 
+before_install: # Use instead CC and CXX from miniconda (https://docs.travis-ci.com/user/languages/cpp/#mpi-projects)
+  - test -n $CC  && unset CC
+  - test -n $CXX && unset CXX
+
 install:
   - bash ci/travis/install.sh
 
