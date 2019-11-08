@@ -26,15 +26,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Setup environment variables
-      run: |
-        set CONDA_DIR: "C:\Miniconda36-x64"
-        echo ${env:CONDA}
-        ls "${env:CONDA}\Scripts"
-        echo ${env:PATH}
-        Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
-        set PATH=%PATH%;"${env:CONDA}";"${env:CONDA}\Scripts";"${env:CONDA}\Library\bin"
-        echo ${env:PATH}
     - name: Setup conda and install
       shell: cmd
       run: |
@@ -46,9 +37,9 @@ jobs:
         conda update -q conda
         conda info -a
         conda devenv
-        call activate autodiff
     - name: Build
       run: | 
+        call activate autodiff
         cmake -S . -B build
         cmake --build build --config ${{ matrix.configuration }} --target install
     - name: Tests
