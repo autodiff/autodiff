@@ -29,7 +29,7 @@ jobs:
     - name: Setup environment variables
       run: |
         set CONDA_DIR: "C:\Miniconda36-x64"
-        echo %CONDA%
+        echo $CONDA
         echo ${env:PATH}
     - name: Setup conda and install
       run: |
