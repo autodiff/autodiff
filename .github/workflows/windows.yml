@@ -39,7 +39,8 @@ jobs:
         conda devenv
     - name: Build
       shell: cmd
-      run: | 
+      run: |
+        set PATH=%CONDA%;%CONDA%\Scripts;%CONDA%\Library\bin;%PATH%
         call activate autodiff
         cmake -S . -B build
         cmake --build build --config ${{ matrix.configuration }} --target install
