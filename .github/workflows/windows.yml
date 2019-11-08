@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Setup conda and install
+    - name: Setup conda
       shell: cmd
       run: |
         set PATH=%CONDA%;%CONDA%\Scripts;%CONDA%\Library\bin;%PATH%
