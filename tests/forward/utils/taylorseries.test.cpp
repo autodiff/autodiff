@@ -42,7 +42,7 @@ auto taylor_projection_at(const Array& dfdv, double t)
     auto size = dfdv.size();
     auto res = dfdv[0];
     double factor = t;
-    for(auto i = 1; i < size; ++i) {
+    for(size_t i = 1; i < size; ++i) {
         res += factor * dfdv[i];
         factor *= t/static_cast<double>(i + 1);
     }
