@@ -1,13 +1,15 @@
 name: linux-osx
 
-on:
-  push:
-    branches:
-      - master
+# on:
+#   push:
+#     branches:
+#       - master
 
-  pull_request:
-    branches:
-      - master
+#   pull_request:
+#     branches:
+#       - master
+
+on: [push]
 
 jobs:
   build:
@@ -24,21 +26,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Setup environment variables
+    - name: Download and install conda
       run: |
-        set CONDA_DIR: "C:\Miniconda36-x64"
-    - name: Setup conda and install
-      run: |
-        conda config --set always_yes yes --set changeps1 no
-        conda config --add channels conda-forge
-        conda install conda-devenv
-        conda update -q conda
-        conda info -a
-        conda devenv
-        call activate autodiff
-    - name: Build
-      run: | 
-        cmake -S . -B build
-        cmake --build build --config ${{ matrix.configuration }} --target install
+        if [ ${{ matrix.os }} = "ubuntu-latest" ]; then OS=Linux-x86_64; else OS=MacOSX-x86_64; fi
+        wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-$OS.sh
+        rm -rf $HOME/miniconda
+        bash miniconda.sh -b -p $HOME/miniconda
+    - name: Install
+      run: bash ci/actions/install.sh
     - name: Tests
-      run: call build\test\%CONFIGURATION%\tests.exe
+      run: bash ci/actions/test.sh
