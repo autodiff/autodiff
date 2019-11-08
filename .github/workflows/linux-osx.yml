@@ -1,0 +1,44 @@
+name: linux-osx
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        include:
+          - configuration: Release
+          - configuration: Debug
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup environment variables
+      run: |
+        set CONDA_DIR: "C:\Miniconda36-x64"
+    - name: Setup conda and install
+      run: |
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels conda-forge
+        conda install conda-devenv
+        conda update -q conda
+        conda info -a
+        conda devenv
+        call activate autodiff
+    - name: Build
+      run: | 
+        cmake -S . -B build
+        cmake --build build --config ${{ matrix.configuration }} --target install
+    - name: Tests
+      run: call build\test\%CONFIGURATION%\tests.exe
