@@ -40,4 +40,4 @@ jobs:
         cmake --build build --config ${{ env.configuration }} --target install
     - name: Tests
       shell: cmd
-      run: call build\test\${{ env.configuration }}\tests.exe
+      run: call build\tests\${{ env.configuration }}\tests.exe
