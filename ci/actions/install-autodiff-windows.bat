@@ -6,7 +6,7 @@ cmake -S . -B build -GNinja || goto :error
 echo === Configuring autodiff...finished!
 
 echo === Building and installing autodiff...
-ninja install || goto :error
+ninja -C build install || goto :error
 echo === Building and installing autodiff...finished!
 
 exit /B 0
