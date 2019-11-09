@@ -1,0 +1,33 @@
+name: unix
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Conda
+      run: |
+        export MATRIX_OS=${{ matrix.os }}
+        bash ci/actions/configure-conda-unix.sh
+
+    - name: Install
+      run: bash ci/actions/install-autodiff-unix.sh
+
+    - name: Test
+      run: bash ci/actions/test-autodiff-unix.sh

@@ -1,1 +1,0 @@
-call build\tests\%CONFIGURATION%\tests.exe
