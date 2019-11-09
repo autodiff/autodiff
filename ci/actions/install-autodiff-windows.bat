@@ -6,7 +6,7 @@ cmake -S . -B build || goto :error
 echo === Configuring autodiff...finished!
 
 echo === Building and installing autodiff...
-cmake --build build --config ${{ env.configuration }} --target install || goto :error
+cmake --build build --config %CONFIGURATION% --target install || goto :error
 echo === Building and installing autodiff...finished!
 
 exit /B 0
