@@ -1,9 +1,9 @@
 echo --- current directory: %cd% ---
 
-echo === Running tests...
-echo call build\tests\tests.exe
-call build\tests\tests.exe || goto :error
-echo === Running tests...finished!
+echo === Running tests... || goto :error
+echo call build\tests\%CONFIGURATION%\tests.exe || goto :error
+call build\tests\%CONFIGURATION%\tests.exe || goto :error
+echo === Running tests...finished! || goto :error
 
 exit /B 0
 
