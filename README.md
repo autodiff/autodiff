@@ -4,8 +4,8 @@
 
 [![Travis Build Status](https://travis-ci.com/autodiff/autodiff.svg?branch=master)](https://travis-ci.com/autodiff/autodiff)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/autodiff/autodiff?branch=master&svg=true)](https://ci.appveyor.com/project/allanleal/autodiff)
-![](https://github.com/autodiff/autodiff/workflows/linux-osx/badge.svg)
-![](https://github.com/autodiff/autodiff/workflows/windows/badge.svg)
+![](https://github.com/autodiff/autodiff/workflows/linux-osx/badge.svg?branch=master)
+![](https://github.com/autodiff/autodiff/workflows/windows/badge.svg?branch=master)
 
 # Overview
 
