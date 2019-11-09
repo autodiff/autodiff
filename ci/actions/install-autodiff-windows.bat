@@ -1,5 +1,10 @@
 echo --- current directory: %cd% ---
 
+REM Ensure ninja actually uses MSVC in Windows instead of GCC
+set CC=cl.exe
+set CXX=cl.exe
+
+REM Activate the conda environment
 set PATH=%CONDA%;%CONDA%\Scripts;%CONDA%\Library\bin;%PATH% || goto :error
 call activate autodiff || goto :error
 
