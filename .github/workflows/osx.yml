@@ -21,7 +21,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Download and install conda
       run: |
-        wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-{{ env.os }}.sh
+        wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-${{ env.os }}.sh
         rm -rf $HOME/miniconda
         bash miniconda.sh -b -p $HOME/miniconda
     - name: Install
