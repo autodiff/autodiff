@@ -32,6 +32,7 @@
 // autodiff includes
 #include <autodiff/common/eigen.hpp>
 #include <autodiff/common/meta.hpp>
+#include <autodiff/forward/utils/derivative.hpp>
 
 namespace autodiff {
 namespace detail {
