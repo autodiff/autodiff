@@ -6,7 +6,6 @@ on:
       - master
 
   pull_request:
-    types: [opened, edited]
 
 jobs:
   build:
@@ -24,7 +23,6 @@ jobs:
       shell: cmd
       run: |
         set PATH=%CONDA%;%CONDA%\Scripts;%CONDA%\Library\bin;%PATH%
-        echo %PATH%
         conda config --set always_yes yes --set changeps1 no
         conda config --add channels conda-forge
         conda install conda-devenv
