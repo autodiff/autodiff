@@ -47,18 +47,18 @@ struct NumTraits;
 template<>
 struct NumTraits<autodiff::var> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
 {
-    typedef autodiff::var Real;
-    typedef autodiff::var NonInteger;
-    typedef autodiff::var Nested;
-    enum
+  typedef autodiff::var Real;
+  typedef autodiff::var NonInteger;
+  typedef autodiff::var Nested;
+  enum
     {
-        IsComplex = 0,
-        IsInteger = 0,
-        IsSigned = 1,
-        RequireInitialization = 1,
-        ReadCost = 1,
-        AddCost = 3,
-        MulCost = 3
+      IsComplex = 0,
+      IsInteger = 0,
+      IsSigned = 1,
+      RequireInitialization = 1,
+      ReadCost = 1,
+      AddCost = 3,
+      MulCost = 3
     };
 };
 
@@ -110,5 +110,3 @@ auto hessian(const var& y, const vars& x) -> Eigen::MatrixXd
 }
 
 } // namespace autodiff
-
-
