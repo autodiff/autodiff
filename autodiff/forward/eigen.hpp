@@ -83,24 +83,23 @@ struct ScalarBinaryOpTraits<T, autodiff::forward::Dual<T, G>, BinOp>
     typedef autodiff::dual ReturnType;
 };
 
-template<typename T, typename G, typename BinOp>
-struct ScalarBinaryOpTraits<autodiff::forward::Dual<autodiff::forward::Dual<T, G>, autodiff::forward::Dual<T, G>>, T, BinOp>
-{
-    typedef autodiff::HigherOrderDual<2> ReturnType;
-};
+} // namespace Eigen
 
-template<typename T, typename G, typename BinOp>
-struct ScalarBinaryOpTraits<T, autodiff::forward::Dual<autodiff::forward::Dual<T, G>, autodiff::forward::Dual<T, G>>, BinOp>
-{
-    typedef autodiff::HigherOrderDual<2> ReturnType;
-};
+
+//------------------------------------------------------------------------------
+// TYPEDEFS FOR EIGEN MATRICES, ARRAYS AND VECTORS OF DUAL
+//------------------------------------------------------------------------------
+
+namespace autodiff {
 
 #define EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)   \
 typedef Matrix<Type, Size, Size, 0, Size, Size> Matrix##SizeSuffix##TypeSuffix;  \
 typedef Matrix<Type, Size, 1, 0, Size, 1>       Vector##SizeSuffix##TypeSuffix;  \
+typedef Array<Type, Size, 1, 0, Size, 1>        Array##SizeSuffix##TypeSuffix;  \
 typedef Matrix<Type, 1, Size, 1, 1, Size>       RowVector##SizeSuffix##TypeSuffix;
 
 #define EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, Size)         \
+typedef Array<Type, Size, -1, 0, Size, -1> Array##Size##X##TypeSuffix;  \
 typedef Matrix<Type, Size, -1, 0, Size, -1> Matrix##Size##X##TypeSuffix;  \
 typedef Matrix<Type, -1, Size, 0, -1, Size> Matrix##X##Size##TypeSuffix;
 
@@ -120,7 +119,7 @@ EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::HigherOrderDual<2>, dual2nd)
 #undef EIGEN_MAKE_TYPEDEFS
 #undef EIGEN_MAKE_FIXED_TYPEDEFS
 
-} // namespace Eigen
+} /* namespace autodiff */
 
 namespace autodiff::forward {
 
