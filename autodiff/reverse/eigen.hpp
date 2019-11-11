@@ -123,4 +123,9 @@ Eigen::MatrixXd hessian(const var& y, const vars& x)
     return mat;
 }
 
+  Eigen::VectorXd val(const Eigen::VectorXvar& x)
+  {
+    return x.cast<double>();
+  }
+
 } // namespace autodiff
