@@ -37,20 +37,41 @@
 namespace autodiff {
 namespace detail {
 
+/// Return the length of an item in a `wrt(...)` list.
 template<typename Item>
-auto _wrt_item_length(const Item& item) -> size_t
+auto wrt_item_length(const Item& item) -> size_t
 {
     if constexpr (isVector<Item>)
-        return item.size();
-    else return 1;
+        return item.size(); // if item is a vector, return its size
+    else return 1; // if not a vector, say, a number, return 1 for its length
 }
 
 
+/// Return the sum of lengths of all itens in a `wrt(...)` list.
 template<typename... Vars>
-auto _wrt_total_length(const Wrt<Vars...>& wrt)
+auto wrt_total_length(const Wrt<Vars...>& wrt) -> size_t
 {
     return Reduce(wrt.args, [&](auto&& item) constexpr {
-        return _wrt_item_length(item);
+        return wrt_item_length(item);
+    });
+}
+
+// Loop through each variable in a wrt list and apply a function f(i, x) that
+// accepts an index i and the variable x[i], where i is the global index of the
+// variable in the list.
+template<typename Function, typename... Vars, typename... Args>
+constexpr auto ForEachWrtVar(const Wrt<Vars...>& wrt, Function&& f)
+{
+    const auto n = wrt_total_length(wrt); // the sum of lengths of all items in the wrt list
+    size_t i = 0; // the current index of the variable in the wrt list
+    ForEach(wrt.args, [&](auto& item) constexpr
+    {
+        if constexpr (isVector<decltype(item)>) {
+            const size_t len = item.size();
+            for(size_t j = 0; j < len; ++j)
+                f(i++, item[j]); // call given f with current index and variable from item (a vector)
+        }
+        else f(i++, item); // call given f with current index and variable from item (a number, not a vector)
     });
 }
 
@@ -64,36 +85,16 @@ auto gradient(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Retu
     using T = NumericType<decltype(u)>; // the underlying numeric floating point type in the autodiff number u
     using Vec = VectorX<T>; // the gradient vector type with floating point values (not autodiff numbers!)
 
-    const size_t n = _wrt_total_length(wrt);
+    const size_t n = wrt_total_length(wrt);
 
     if(n == 0) return Vec{};
 
     Vec g(n);
 
-    size_t offset = 0;
-
-    ForEach(wrt.args, [&](auto& item) constexpr
+    ForEachWrtVar(wrt, [&](auto&& i, auto&& xi) constexpr
     {
-        if constexpr (isVector<decltype(item)>)
-        {
-            const size_t len = item.size();
-            for(size_t j = 0; j < len; ++j)
-            {
-                seed<1>(item[j], 1.0);
-                u = std::apply(f, at.args);
-                seed<1>(item[j], 0.0);
-                g[offset + j] = derivative<1>(u);
-            }
-            offset += len;
-        }
-        else
-        {
-            seed<1>(item, 1.0);
-            u = std::apply(f, at.args);
-            seed<1>(item, 0.0);
-            g[offset] = derivative<1>(u);
-            ++offset;
-        }
+        u = eval(f, at, detail::wrt(xi)); // evaluate u with xi seeded so that du/dxi is also computed
+        g[i] = derivative<1>(u);
     });
 
     return g;
@@ -118,39 +119,17 @@ auto jacobian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Retu
     using T = NumericType<U>; // the underlying numeric floating point type in the autodiff number U
     using Mat = MatrixX<T>; // the jacobian matrix type with floating point values (not autodiff numbers!)
 
-    size_t n = _wrt_total_length(wrt); /// using const size_t produces an error in GCC 7.3 because of the capture in the constexpr lambda in the ForEach block
+    size_t n = wrt_total_length(wrt); /// using const size_t produces an error in GCC 7.3 because of the capture in the constexpr lambda in the ForEach block
 
     Mat J;
 
-    size_t offset = 0;
     size_t m = 0;
 
-    ForEach(wrt.args, [&](auto& item) constexpr
-    {
-        if constexpr (isVector<decltype(item)>)
-        {
-            const size_t len = item.size();
-            for(size_t j = 0; j < len; ++j)
-            {
-                seed<1>(item[j], 1.0);
-                F = std::apply(f, at.args);
-                seed<1>(item[j], 0.0);
-                if(m == 0) { m = F.rows(); J.resize(m, n); };
-                for(size_t i = 0; i < m; ++i)
-                    J(i, offset + j) = derivative<1>(F[i]);
-            }
-            offset += len;
-        }
-        else
-        {
-            seed<1>(item, 1.0);
-            F = std::apply(f, at.args);
-            seed<1>(item, 0.0);
-            if(m == 0) { m = F.rows(); J.resize(m, n); };
-            for(size_t i = 0; i < m; ++i)
-                J(i, offset) = derivative<1>(F[i]);
-            ++offset;
-        }
+    ForEachWrtVar(wrt, [&](auto&& i, auto&& xi) constexpr {
+        F = eval(f, at, detail::wrt(xi)); // evaluate F with xi seeded so that dF/dxi is also computed
+        if(m == 0) { m = F.rows(); J.resize(m, n); };
+        for(size_t row = 0; row < m; ++row)
+            J(row, i) = derivative<1>(F[row]);
     });
 
     return J;
@@ -164,59 +143,53 @@ auto jacobian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
     return jacobian(f, wrt, at, F);
 }
 
-// /// Return the hessian matrix of scalar function *f* with respect to some or all variables *x*.
-// template<typename Function, typename Wrt, typename Args, typename Result, typename Gradient>
-// auto hessian(const Function& f, Wrt&& wrt, Args&& args, Result& u, Gradient& g) -> Eigen::MatrixXd
-// {
-//     std::size_t n = detail::count(wrt);
+/// Return the hessian matrix of scalar function *f* with respect to some or all variables *x*.
+template<typename Fun, typename... Vars, typename... Args, typename U, typename G>
+auto hessian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, U& u, G& g)
+{
+    static_assert(sizeof...(Vars) >= 1);
+    static_assert(sizeof...(Args) >= 1);
 
-//     Eigen::MatrixXd H(n, n);
-//     g.resize(n);
+    using T = NumericType<decltype(u)>; // the underlying numeric floating point type in the autodiff number u
+    using Mat = MatrixX<T>; // the Hessian matrix type with floating point values (not autodiff numbers!)
 
-//     // TODO: take symmetry into account (for tuple forEach)
-//     Eigen::Index current_index_pos_outer = 0;
-//     detail::forEach(wrt, [&](auto&& outer) {
-//         Eigen::Index current_index_pos_inner = 0;
-//         detail::forEach(wrt, [&](auto&& inner) {
-//             for (auto i = 0; i < outer.size(); i++)
-//             {
-//                 outer[i].grad = 1.0;
-//                 for (auto j = i; j < inner.size(); ++j)
-//                 {
-//                     const auto ii = i + current_index_pos_outer;
-//                     const auto jj = j + current_index_pos_inner;
+    size_t n = wrt_total_length(wrt);
 
-//                     inner[j].val.grad = 1.0;
-//                     u = std::apply(f, args);
-//                     inner[j].val.grad = 0.0;
+    Mat H(n, n);
 
-//                     H(jj, ii) = H(ii, jj) = u.grad.grad;
-//                     g(ii) = static_cast<double>(u.grad);
-//                 }
-//                 outer[i].grad = 0.0;
-//             }
-//             current_index_pos_inner += inner.size();
-//         });
-//         current_index_pos_outer += outer.size();
-//     });
+    g.resize(n);
 
-//     return H;
-// }
+    ForEachWrtVar(wrt, [&](auto&& i, auto&& xi) constexpr {
+        ForEachWrtVar(wrt, [&](auto&& j, auto&& xj) constexpr
+        {
+            if(j >= i) { // this take advantage of the fact the Hessian matrix is symmetric
+                u = eval(f, at, detail::wrt(xi, xj)); // evaluate u with xi and xj seeded to produce u0, du/dxi, d2u/dxidxj
+                g[i] = derivative<1>(u);              // get du/dxi from u
+                H(i, j) = H(j, i) = derivative<2>(u); // get d2u/dxidxj from u
+            }
+        });
+    });
 
-// /// Return the hessian matrix of scalar function *f* with respect to some or all variables *x*.
-// template<typename Function, typename Wrt, typename Args>
-// auto hessian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
-// {
-//     using Result = decltype(std::apply(f, args));
-//     Result u;
-//     VectorXd g;
-//     return hessian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u, g);
-// }
+    return H;
+}
+
+/// Return the hessian matrix of scalar function *f* with respect to some or all variables *x*.
+template<typename Fun, typename... Vars, typename... Args>
+auto hessian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
+{
+    using U = ReturnType<Fun, Args...>;
+    using T = NumericType<U>;
+    using Vec = VectorX<T>;
+    U u;
+    Vec g;
+    return hessian(f, wrt, at, u, g);
+}
 
 } // namespace detail
 
 using detail::gradient;
 using detail::jacobian;
+using detail::hessian;
 
 } // namespace autodiff
 

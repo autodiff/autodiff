@@ -1,39 +1,36 @@
 // C++ includes
 #include <iostream>
-using namespace std;
-
-// Eigen includes
-#include <Eigen/Core>
-using namespace Eigen;
 
 // autodiff include
-#include <autodiff/forward.hpp>
-#include <autodiff/forward/eigen.hpp>
+#include <autodiff/forward/dual.hpp>
+#include <autodiff/forward/dual/eigen.hpp>
 using namespace autodiff;
 
-// Define a 2nd order dual type using HigherOrderDual<N> construct.
-using dual2nd = HigherOrderDual<2>;
-
 // The scalar function for which the Hessian is needed
-dual2nd f(const VectorXdual2nd& x, const VectorXdual2nd& y)
+dual2nd f(const ArrayXdual2nd& x, const ArrayXdual2nd& p, const dual2nd& q)
 {
-    return sqrt(x.cwiseProduct(x).sum() + y.cwiseProduct(y).sum());
+    return (x * x).sum() + (p * p).sum() * q; // sum(x*x) + sum(p*p) + q
 }
 
 int main()
 {
-    VectorXdual2nd x(3); // the input vector x with 3 variables
-    x << 1, 2, 3; // x = [1, 2, 3]
+    using Eigen::VectorXd;
+    using Eigen::MatrixXd;
 
-    VectorXdual2nd y(2); // the input vector y with 2 variables
-    y << 4, 5; // x = [1, 2, 3]
+    VectorXdual2nd x(3); // the input vector x with 3 variables
+    x << 1, 2, 3;
+
+    VectorXdual2nd p(2); // the input parameter vector p with 2 variables
+    p << 4, 5;
+
+    dual2nd q = -2;      // the input parameter q as a single variable
 
     dual2nd u; // the output scalar u = f(x) evaluated together with Hessian below
     VectorXdual g; // gradient of f(x) evaluated together with Hessian below
 
-    MatrixXd H = hessian(f, wrtpack(x, y), at(x, y), u, g); // evaluate the function value u and its Hessian matrix H
+    MatrixXd H = hessian(f, wrt(x, p, q), at(x, p, q), u, g); // evaluate the function value u, its gradient vector g, and its Hessian matrix H with respect to (x, p, q)
 
-    cout << "u = " << u << endl; // print the evaluated output u
-    cout << "Hessian = \n" << H << endl; // print the evaluated Hessian matrix H
-    cout << "g =\n" << g << endl; // print the evaluated gradient vector g = [du/dx, du/dy]
+    std::cout << "u = " << u << std::endl; // print the evaluated output u
+    std::cout << "g =\n" << g << std::endl; // print the evaluated gradient vector g = [du/dx, du/dp, du/dq]
+    std::cout << "H = \n" << H << std::endl; // print the evaluated Hessian matrix H = d²u/d[x, p, q]²
 }

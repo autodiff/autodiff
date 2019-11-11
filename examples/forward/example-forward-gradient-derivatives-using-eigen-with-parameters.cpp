@@ -7,9 +7,9 @@
 using namespace autodiff;
 
 // The scalar function for which the gradient is needed
-real f(const ArrayXreal& x, const ArrayXreal& p)
+real f(const ArrayXreal& x, const ArrayXreal& p, const real& q)
 {
-    return (x * x).sum() * exp(p.sum()); // sum([xi * xi for i = 1:5]) * exp(sum(p))
+    return (x * x).sum() * p.sum() * exp(q); // sum([xi * xi for i = 1:5]) * sum(p) * exp(q)
 }
 
 int main()
@@ -22,16 +22,20 @@ int main()
     VectorXreal p(3);   // the input parameter vector p with 3 variables
     p << 1, 2, 3;       // p = [1, 2, 3]
 
-    real u;             // the output scalar u = f(x, p) evaluated together with gradient below
+    real q = -2;        // the input parameter q as a single variable
 
-    VectorXd gx  = gradient(f, wrt(x), at(x, p), u);    // evaluate the function value u and its gradient vector gx = du/dx
-    VectorXd gp  = gradient(f, wrt(p), at(x, p), u);    // evaluate the function value u and its gradient vector gp = du/dp
-    VectorXd gpx = gradient(f, wrt(p, x), at(x, p), u); // evaluate the function value u and its gradient vector gpx = [du/dp, du/dx]
+    real u;             // the output scalar u = f(x, p, q) evaluated together with gradient below
+
+    VectorXd gx   = gradient(f, wrt(x), at(x, p, q), u);       // evaluate the function value u and its gradient vector gx = du/dx
+    VectorXd gp   = gradient(f, wrt(p), at(x, p, q), u);       // evaluate the function value u and its gradient vector gp = du/dp
+    VectorXd gq   = gradient(f, wrt(q), at(x, p, q), u);       // evaluate the function value u and its gradient vector gq = du/dq
+    VectorXd gqpx = gradient(f, wrt(q, p, x), at(x, p, q), u); // evaluate the function value u and its gradient vector gqpx = [du/dq, du/dp, du/dx]
 
     std::cout << "u = " << u << std::endl;       // print the evaluated output u
     std::cout << "gx = \n" << gx << std::endl;   // print the evaluated gradient vector gx = du/dx
     std::cout << "gp = \n" << gp << std::endl;   // print the evaluated gradient vector gp = du/dp
-    std::cout << "gpx = \n" << gpx << std::endl; // print the evaluated gradient vector gpx = [du/dp, du/dx]
+    std::cout << "gq = \n" << gq << std::endl;   // print the evaluated gradient vector gq = du/dq
+    std::cout << "gqpx = \n" << gqpx << std::endl; // print the evaluated gradient vector gqpx = [du/dq, du/dp, du/dx]
 }
 
 /*-------------------------------------------------------------------------------------------------

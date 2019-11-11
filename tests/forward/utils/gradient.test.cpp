@@ -86,6 +86,60 @@ using namespace autodiff;
     CHECK( dgdw[9] == approx(dgdx[4]) ); \
 }
 
+#define CHECK_HESSIAN(type, expr) \
+{ \
+    /* Define vector x */ \
+    ArrayX##type x(5); \
+    x << 2.0, 3.0, 5.0, 7.0, 9.0; \
+    /* Define functions f(x) = expr/expr - 1 == 0 and g(x) = expr */ \
+    std::function<type(const ArrayX##type&)> f, g; \
+    f = [](const ArrayX##type& x) -> type { return expr/expr - 1.0; }; \
+    g = [](const ArrayX##type& x) -> type { return expr; }; \
+    /* Auxiliary matrices fxx, gxx, gww where w is a vector with a combination of x entries */ \
+    Eigen::MatrixXd fxx, gxx, gww; \
+    /* The indices of the x variables in the w vector */ \
+    std::vector<size_t> iw; \
+    /* Compute fxx which is identical to zero by construction */ \
+    fxx = hessian(f, wrt(x), at(x)); \
+    CHECK( fxx.rows() == 5 ); \
+    CHECK( fxx.cols() == 5 ); \
+    CHECK( fxx.squaredNorm() == approx(0.0) ); \
+    /* Compute gxx to be used as reference when checking againts gww below for different orderings of x entries in w */ \
+    gxx = hessian(g, wrt(x), at(x)); \
+    /* Compute gww where w = (x1, x2, x3, x4, x0) */ \
+    gww = hessian(g, wrt(x.tail(4), x[0]), at(x)); \
+    iw = {1, 2, 3, 4, 0}; \
+    CHECK( gww.rows() == iw.size() ); \
+    CHECK( gww.rows() == gww.cols() ); \
+    for(size_t i = 0; i < iw.size(); ++i) \
+        for(size_t j = 0; j < iw.size(); ++j) \
+            CHECK( gxx(iw[i], iw[j]) == approx(gww(i, j)) ); \
+    /* Compute gww where w = (x3, x0, x4) */ \
+    gww = hessian(g, wrt(x[3], x[0], x[4]), at(x)); \
+    iw = {3, 0, 4}; \
+    CHECK( gww.rows() == iw.size() ); \
+    CHECK( gww.rows() == gww.cols() ); \
+    for(size_t i = 0; i < iw.size(); ++i) \
+        for(size_t j = 0; j < iw.size(); ++j) \
+            CHECK( gxx(iw[i], iw[j]) == approx(gww(i, j)) ); \
+    /* Compute gww where w = (x3) */ \
+    gww = hessian(g, wrt(x[3]), at(x)); \
+    iw = {3}; \
+    CHECK( gww.rows() == iw.size() ); \
+    CHECK( gww.rows() == gww.cols() ); \
+    for(size_t i = 0; i < iw.size(); ++i) \
+        for(size_t j = 0; j < iw.size(); ++j) \
+            CHECK( gxx(iw[i], iw[j]) == approx(gww(i, j)) ); \
+    /* Compute gww where w = (x0, x1, x2, x3, x4, x0, x1, x2, x3, x4) */ \
+    gww = hessian(g, wrt(x, x), at(x)); \
+    iw = {0, 1, 2, 3, 4, 0, 1, 2, 3, 4}; \
+    CHECK( gww.rows() == iw.size() ); \
+    CHECK( gww.rows() == gww.cols() ); \
+    for(size_t i = 0; i < iw.size(); ++i) \
+        for(size_t j = 0; j < iw.size(); ++j) \
+            CHECK( gxx(iw[i], iw[j]) == approx(gww(i, j)) ); \
+}
+
 #define CHECK_JACOBIAN(type, expr) \
 { \
     /* Define vector x */ \
@@ -146,7 +200,7 @@ TEST_CASE("testing forward gradient module", "[forward][utils][gradient]")
     using Eigen::MatrixXd;
     using Eigen::VectorXd;
 
-    SECTION("testing gradient computation")
+    SECTION("testing gradient computations")
     {
         CHECK_GRADIENT( real, x.sum() );
         CHECK_GRADIENT( real, x.exp().sum() );
@@ -167,7 +221,19 @@ TEST_CASE("testing forward gradient module", "[forward][utils][gradient]")
         CHECK_GRADIENT( dual, (x.sin() * x.cos()).sum() );
     }
 
-    SECTION("testing jacobian computation")
+    SECTION("testing hessian computations")
+    {
+        CHECK_HESSIAN( dual2nd, x.sum() );
+        // CHECK_HESSIAN( dual2nd, x.exp().sum() );
+        // CHECK_HESSIAN( dual2nd, x.log().sum() );
+        // CHECK_HESSIAN( dual2nd, x.tan().sum() );
+        // CHECK_HESSIAN( dual2nd, (x * x).sum() );
+        // CHECK_HESSIAN( dual2nd, (x.sin() * x.exp()).sum() );
+        // CHECK_HESSIAN( dual2nd, (x * x.log()).sum() );
+        // CHECK_HESSIAN( dual2nd, (x.sin() * x.cos()).sum() );
+    }
+
+    SECTION("testing jacobian computations")
     {
         CHECK_JACOBIAN( real, x );
         CHECK_JACOBIAN( real, x.exp() );
