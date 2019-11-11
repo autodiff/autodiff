@@ -59,7 +59,7 @@ auto wrt_total_length(const Wrt<Vars...>& wrt) -> size_t
 // Loop through each variable in a wrt list and apply a function f(i, x) that
 // accepts an index i and the variable x[i], where i is the global index of the
 // variable in the list.
-template<typename Function, typename... Vars, typename... Args>
+template<typename Function, typename... Vars>
 constexpr auto ForEachWrtVar(const Wrt<Vars...>& wrt, Function&& f)
 {
     const auto n = wrt_total_length(wrt); // the sum of lengths of all items in the wrt list
