@@ -43,22 +43,19 @@ namespace detail {
 template<typename... Args>
 struct At
 {
-    std::tuple<Args&...> args;
-    constexpr static auto numArgs = sizeof...(Args);
+    std::tuple<Args...> args;
 };
 
 template<typename... Args>
 struct Wrt
 {
     std::tuple<Args...> args;
-    constexpr static auto numArgs = sizeof...(Args);
 };
 
 template<typename... Args>
 struct Along
 {
-    std::tuple<Args&...> args;
-    constexpr static auto numArgs = sizeof...(Args);
+    std::tuple<Args...> args;
 };
 
 /// The keyword used to denote the variables *with respect to* the derivative is calculated.
@@ -68,36 +65,18 @@ auto wrt(Args&&... args)
     return Wrt<Args&&...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
 }
 
-/// The keyword used to denote the derivative order *N* and the variable *with respect to* the derivative is calculated.
-template<std::size_t N, typename Arg>
-auto wrt(Arg&& arg) // Universal references are needed here in case rvalue references are used (e.g., Eigen tail or indexed views used inside wrt function)
-{
-    static_assert(N > 0);
-    auto head = std::forward_as_tuple(std::forward<Arg>(arg));
-    if constexpr (N == 1)
-        return head;
-    else return std::tuple_cat(head, wrt<N - 1>(arg));
-}
-
 /// The keyword used to denote the variables *at* which the derivatives are calculated.
 template<typename... Args>
-auto at(Args&... args)
+auto at(Args&&... args)
 {
-    return At<Args&...>{ std::forward_as_tuple(args...) };
-}
-
-/// The keyword used to denote the direction vector *along* which the derivatives are calculated.
-template<typename Arg>
-auto along(Arg& arg)
-{
-    return Along<Arg&>{ std::forward_as_tuple(arg) };
+    return At<Args&&...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
 }
 
 /// The keyword used to denote the direction vector *along* which the derivatives are calculated.
 template<typename... Args>
 auto along(Args&&... args)
 {
-    return Along<Args...>{ std::forward_as_tuple(args...) };
+    return Along<Args&&...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
 }
 
 /// Seed each dual number in the **wrt** list using its position as the derivative order to be seeded.
@@ -124,13 +103,13 @@ auto seed(const Wrt<Var&, Vars&...>& wrt, T&& seedval)
 }
 
 template<typename... Vars>
-auto seed(const Wrt<Vars&...>& wrt)
+auto seed(const Wrt<Vars...>& wrt)
 {
     seed(wrt, 1.0);
 }
 
 template<typename... Vars>
-auto unseed(const Wrt<Vars&...>& wrt)
+auto unseed(const Wrt<Vars...>& wrt)
 {
     seed(wrt, 0.0);
 }
@@ -166,7 +145,7 @@ auto unseed(const At<Args...>& at)
 }
 
 template<typename Fun, typename... Args, typename... Vars>
-auto eval(const Fun& f, const At<Args&...>& at, const Wrt<Vars&...>& wrt)
+auto eval(const Fun& f, const At<Args...>& at, const Wrt<Vars...>& wrt)
 {
     seed(wrt);
     auto u = std::apply(f, at.args);
@@ -175,7 +154,7 @@ auto eval(const Fun& f, const At<Args&...>& at, const Wrt<Vars&...>& wrt)
 }
 
 template<typename Fun, typename... Args, typename... Vecs>
-auto eval(const Fun& f, const At<Args&...>& at, const Along<Vecs...>& along)
+auto eval(const Fun& f, const At<Args...>& at, const Along<Vecs...>& along)
 {
     seed(at, along);
     auto u = std::apply(f, at.args);
@@ -215,27 +194,27 @@ auto derivatives(const Result& result)
 }
 
 template<typename Fun, typename... Vars, typename... Args>
-auto derivatives(const Fun& f, const Wrt<Vars&...>& wrt, const At<Args&...>& at)
+auto derivatives(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
 {
     return derivatives(eval(f, at, wrt));
 }
 
 template<size_t order=1, typename Fun, typename... Vars, typename... Args, typename Result>
-auto derivative(const Fun& f, const Wrt<Vars&...>& wrt, const At<Args&...>& at, Result& u)
+auto derivative(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Result& u)
 {
     u = derivatives(f, wrt, at);
     return derivative<order>(u);
 }
 
 template<size_t order=1, typename Fun, typename... Vars, typename... Args>
-auto derivative(const Fun& f, const Wrt<Vars&...>& wrt, const At<Args&...>& at)
+auto derivative(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
 {
     auto u = eval(f, at, wrt);
     return derivative<order>(u);
 }
 
 template<typename Fun, typename... Vecs, typename... Args>
-auto derivatives(const Fun& f, const Along<Vecs...>& along, const At<Args&...>& at)
+auto derivatives(const Fun& f, const Along<Vecs...>& along, const At<Args...>& at)
 {
     return derivatives(eval(f, at, along));
 }

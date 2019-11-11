@@ -82,7 +82,7 @@ private:
 
 /// Return a TaylorSeries of a scalar or vector function *f* along a direction *v* at *x*.
 template<typename Fun, typename...Vecs, typename... Args>
-auto taylorseries(const Fun& f, const Along<Vecs...>& along, const At<Args&...>& at)
+auto taylorseries(const Fun& f, const Along<Vecs...>& along, const At<Args...>& at)
 {
     auto data = derivatives(f, along, at);
     constexpr auto N = data.size() - 1;
