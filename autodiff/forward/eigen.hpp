@@ -54,6 +54,23 @@ template<> struct NumTraits<autodiff::dual> : NumTraits<double> // permits to ge
     };
 };
 
+template<> struct NumTraits<autodiff::HigherOrderDual<2>> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
+{
+    typedef autodiff::HigherOrderDual<2> Real;
+    typedef autodiff::HigherOrderDual<2> NonInteger;
+    typedef autodiff::HigherOrderDual<2> Nested;
+    enum
+    {
+        IsComplex = 0,
+        IsInteger = 0,
+        IsSigned = 1,
+        RequireInitialization = 1,
+        ReadCost = 1,
+        AddCost = 3,
+        MulCost = 3
+    };
+};
+
 template<typename T, typename G, typename BinOp>
 struct ScalarBinaryOpTraits<autodiff::forward::Dual<T, G>, T, BinOp>
 {
@@ -66,12 +83,23 @@ struct ScalarBinaryOpTraits<T, autodiff::forward::Dual<T, G>, BinOp>
     typedef autodiff::dual ReturnType;
 };
 
+} // namespace Eigen
+
+
+//------------------------------------------------------------------------------
+// TYPEDEFS FOR EIGEN MATRICES, ARRAYS AND VECTORS OF DUAL
+//------------------------------------------------------------------------------
+
+namespace autodiff {
+
 #define EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)   \
 typedef Matrix<Type, Size, Size, 0, Size, Size> Matrix##SizeSuffix##TypeSuffix;  \
 typedef Matrix<Type, Size, 1, 0, Size, 1>       Vector##SizeSuffix##TypeSuffix;  \
+typedef Array<Type, Size, 1, 0, Size, 1>        Array##SizeSuffix##TypeSuffix;  \
 typedef Matrix<Type, 1, Size, 1, 1, Size>       RowVector##SizeSuffix##TypeSuffix;
 
 #define EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, Size)         \
+typedef Array<Type, Size, -1, 0, Size, -1> Array##Size##X##TypeSuffix;  \
 typedef Matrix<Type, Size, -1, 0, Size, -1> Matrix##Size##X##TypeSuffix;  \
 typedef Matrix<Type, -1, Size, 0, -1, Size> Matrix##X##Size##TypeSuffix;
 
@@ -85,30 +113,126 @@ EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 3) \
 EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 4)
 
 EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::dual, dual)
+EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::HigherOrderDual<2>, dual2nd)
 
 #undef EIGEN_MAKE_TYPEDEFS_ALL_SIZES
 #undef EIGEN_MAKE_TYPEDEFS
 #undef EIGEN_MAKE_FIXED_TYPEDEFS
 
-} // namespace Eigen
+} /* namespace autodiff */
 
 namespace autodiff::forward {
+
+namespace detail {
+/// Compile time foreach for tuples
+template <typename Tuple, typename Callable>
+void forEach(Tuple&& tuple, Callable&& callable)
+{
+    std::apply(
+        [&callable](auto&&... args) { (callable(std::forward<decltype(args)>(args)), ...); },
+        std::forward<Tuple>(tuple)
+    );
+}
+
+/// Create index sequence at interval [Start, End)
+template <std::size_t Start, std::size_t End, std::size_t... Is>
+auto makeIndexSequenceImpl() {
+    if constexpr (End == Start) return std::index_sequence<Is...>();
+    else return makeIndexSequenceImpl<Start, End - 1, End - 1, Is...>();
+}
+
+/// Create tuple view using index sequence
+template <class Tuple, size_t... Is>
+constexpr auto viewImpl(Tuple&& t,
+    std::index_sequence<Is...>) {
+    return std::forward_as_tuple(std::get<Is>(t)...);
+}
+
+/// Create index sequence on [Start, End)
+template <std::size_t Start, std::size_t End>
+using makeIndexSequence = std::decay_t<decltype(makeIndexSequenceImpl<Start, End>())>;
+
+/// Create view on tuple tail size N
+template <size_t N, class Tuple>
+constexpr auto tailView(Tuple&& t) {
+    constexpr auto size = std::tuple_size<std::remove_reference_t<Tuple>>::value;
+    static_assert(N <= size, "N must be smaller or equal than size of tuple");
+    return viewImpl(t, makeIndexSequence<size - N, size>{});
+}
+
+/// Return count of 'joined' tuple elements
+template<typename Tuple>
+auto count(Tuple&& t) -> std::size_t
+{
+    std::size_t n = 0;
+    forEach(t, [&n](auto&& element) {
+        n += element.size();
+    });
+    return n;
+}
+
+/// Wrap T to compatible array interface
+template<typename T>
+struct EigenVectorAdaptor {
+    /// implicit construct from value
+    constexpr EigenVectorAdaptor(T val) : val(val) { }
+    /// operator [] to add array like access
+    T operator[](Eigen::Index) const {
+        return val;
+    }
+    /// size for compatibility
+    Eigen::Index size() const {
+        return 1;
+    }
+private:
+    T val;
+};
+
+/// Meta function to endow floating point array compatible
+template<typename T>
+using makeTypeCompatible = std::conditional<isDual<std::decay_t<T>>, EigenVectorAdaptor<T>, T>;
+
+/// Transform pack of types
+template <typename Pack, template <typename> class Operation>
+struct transformImpl;
+
+/// Partial specialization
+template <template <typename...> class Pack, typename... Types, template <typename> class Operation>
+struct transformImpl<Pack<Types...>, Operation> { using type = Pack<typename Operation<Types>::type...>; };
+
+/// Transformed Pack alias
+template <typename Pack, template <typename> class Operation>
+using transform = typename transformImpl<Pack, Operation>::type;
+}
+
+/// Create tuple with eigen compatible types from args
+template<typename... Args>
+constexpr auto wrtpack(Args&&... args)
+{
+    using comatible_tuple = detail::transform<std::tuple<Args...>, detail::makeTypeCompatible>;
+    return (comatible_tuple(std::forward<typename detail::makeTypeCompatible<Args>::type>(args)...));
+}
 
 /// Return the gradient vector of scalar function *f* with respect to some or all variables *x*.
 template<typename Function, typename Wrt, typename Args, typename Result>
 auto gradient(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::VectorXd
 {
-    const std::size_t n = std::get<0>(wrt).size();
+    std::size_t n = detail::count(wrt);
 
     Eigen::VectorXd g(n);
 
-    for(std::size_t j = 0; j < n; ++j)
-    {
-        std::get<0>(wrt)[j].grad = 1.0;
-        u = std::apply(f, args);
-        std::get<0>(wrt)[j].grad = 0.0;
-        g[j] = u.grad;
-    }
+    Eigen::Index current_index_pos = 0;
+    detail::forEach(wrt, [&](auto&& w) {
+        for(auto j = 0; j < w.size(); ++j)
+        {
+            w[j].grad = 1.0;
+            u = std::apply(f, args);
+            w[j].grad = 0.0;
+            g[j + current_index_pos] = u.grad;
+        }
+
+        current_index_pos += w.size();
+    });
 
     return g;
 }
@@ -126,7 +250,7 @@ auto gradient(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::VectorXd
 template<typename Function, typename Wrt, typename Args, typename Result>
 auto jacobian(const Function& f, Wrt&& wrt, Args&& args, Result& F) -> Eigen::MatrixXd
 {
-    const auto n = std::get<0>(wrt).size();
+    std::size_t n = detail::count(wrt);
 
     if(n == 0) return {};
 
@@ -141,15 +265,33 @@ auto jacobian(const Function& f, Wrt&& wrt, Args&& args, Result& F) -> Eigen::Ma
     for(auto i = 0; i < m; ++i)
         J(i, 0) = F[i].grad;
 
-    for(auto j = 1; j < n; ++j)
-    {
-        std::get<0>(wrt)[j].grad = 1.0;
+    Eigen::Index current_index_pos = std::get<0>(wrt).size();
+    constexpr auto wrt_count = std::tuple_size_v<std::remove_reference_t<Wrt>>;
+    detail::forEach(detail::tailView<wrt_count - 1>(wrt), [&] (auto&& w) {
+        w[0].grad = 1.0;
         F = std::apply(f, args);
-        std::get<0>(wrt)[j].grad = 0.0;
+        w[0].grad = 0.0;
 
         for(auto i = 0; i < m; ++i)
-            J(i, j) = F[i].grad;
-    }
+            J(i, current_index_pos) = F[i].grad;
+
+        current_index_pos += w.size();
+    });
+
+    current_index_pos = 0;
+    detail::forEach(wrt, [&] (auto&& w) {
+        for(auto j = 1; j < w.size(); ++j)
+        {
+            w[j].grad = 1.0;
+            F = std::apply(f, args);
+            w[j].grad = 0.0;
+
+            for(auto i = 0; i < m; ++i)
+                J(i, j + current_index_pos) = F[i].grad;
+        }
+
+        current_index_pos += w.size();
+    });
 
     return J;
 }
@@ -163,6 +305,57 @@ auto jacobian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
     return jacobian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), F);
 }
 
+/// Return the hessian matrix of scalar function *f* with respect to some or all variables *x*.
+template<typename Function, typename Wrt, typename Args, typename Result, typename Gradient>
+auto hessian(const Function& f, Wrt&& wrt, Args&& args, Result& u, Gradient& g) -> Eigen::MatrixXd
+{
+    std::size_t n = detail::count(wrt);
+
+    Eigen::MatrixXd H(n, n);
+    g.resize(n);
+
+    // TODO: take symmetry into account (for tuple forEach)
+    Eigen::Index current_index_pos_outer = 0;
+    detail::forEach(wrt, [&](auto&& outer) {
+        Eigen::Index current_index_pos_inner = 0;
+        detail::forEach(wrt, [&](auto&& inner) {
+            for (auto i = 0; i < outer.size(); i++)
+            {
+                outer[i].grad = 1.0;
+                for (auto j = i; j < inner.size(); ++j)
+                {
+                    const auto ii = i + current_index_pos_outer;
+                    const auto jj = j + current_index_pos_inner;
+
+                    inner[j].val.grad = 1.0;
+                    u = std::apply(f, args);
+                    inner[j].val.grad = 0.0;
+
+                    H(jj, ii) = H(ii, jj) = u.grad.grad;
+                    g(ii) = static_cast<double>(u.grad);
+                }
+                outer[i].grad = 0.0;
+            }
+            current_index_pos_inner += inner.size();
+        });
+        current_index_pos_outer += outer.size();
+    });
+
+    return H;
+}
+
+/// Return the hessian matrix of scalar function *f* with respect to some or all variables *x*.
+template<typename Function, typename Wrt, typename Args>
+auto hessian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
+{
+    using Result = decltype(std::apply(f, args));
+    Result u;
+    VectorXd g;
+    return hessian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u, g);
+}
 } // namespace autodiff::forward
 
+namespace autodiff {
+using forward::wrtpack;
+}
 
