@@ -1,0 +1,43 @@
+name: windows
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    env:
+      configuration: Release
+    strategy:
+      fail-fast: true
+      max-parallel: 4
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup conda
+      shell: cmd
+      run: |
+        set PATH=%CONDA%;%CONDA%\Scripts;%CONDA%\Library\bin;%PATH%
+        echo %PATH%
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels conda-forge
+        conda install conda-devenv
+        conda update -q conda
+        conda info -a
+        conda devenv
+    - name: Build
+      shell: cmd
+      run: |
+        set PATH=%CONDA%;%CONDA%\Scripts;%CONDA%\Library\bin;%PATH%
+        call activate autodiff
+        cmake -S . -B build
+        cmake --build build --config ${{ env.configuration }} --target install
+    - name: Tests
+      shell: cmd
+      run: call build\test\${{ env.configuration }}\tests.exe
