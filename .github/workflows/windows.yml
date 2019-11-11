@@ -6,8 +6,9 @@ on:
       - master
 
   pull_request:
-    branches:
-      - master
+
+  schedule:
+    - cron: "0 5 * * 1"  # runs at 05:00 UTC on Mondays
 
 jobs:
   build:

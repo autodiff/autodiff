@@ -2,8 +2,9 @@
     <img src='docs/img/header.svg' width='100%'>
 </a>
 
-![](https://github.com/autodiff/autodiff/workflows/unix/badge.svg)
-![](https://github.com/autodiff/autodiff/workflows/windows/badge.svg)
+![](https://github.com/autodiff/autodiff/workflows/linux/badge.svg?branch=master)
+![](https://github.com/autodiff/autodiff/workflows/osx/badge.svg?branch=master)
+![](https://github.com/autodiff/autodiff/workflows/windows/badge.svg?branch=master)
 
 # Overview
 

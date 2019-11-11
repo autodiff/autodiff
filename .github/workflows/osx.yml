@@ -1,0 +1,34 @@
+name: osx
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+
+  schedule:
+    - cron: "0 5 * * 1"  # runs at 05:00 UTC on Mondays
+
+jobs:
+  build:
+
+    runs-on: [macOS-latest]
+    env:
+      os: MacOSX-x86_64
+    strategy:
+      fail-fast: true
+      max-parallel: 4
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Conda
+      run: |
+        export ENV_OS=${{ env.os }}
+        bash ci/actions/configure-conda-unix.sh
+
+    - name: Install
+      run: bash ci/actions/install-autodiff-unix.sh
+
+    - name: Test
+      run: bash ci/actions/test-autodiff-unix.sh
