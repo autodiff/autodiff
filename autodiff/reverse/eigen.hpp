@@ -39,19 +39,31 @@ struct NumTraits;
 
 template<> struct NumTraits<autodiff::var> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
 {
-    typedef autodiff::var Real;
-    typedef autodiff::var NonInteger;
-    typedef autodiff::var Nested;
-    enum
+  typedef autodiff::var Real;
+  typedef autodiff::var NonInteger;
+  typedef autodiff::var Nested;
+  enum
     {
-        IsComplex = 0,
-        IsInteger = 0,
-        IsSigned = 1,
-        RequireInitialization = 1,
-        ReadCost = 1,
-        AddCost = 3,
-        MulCost = 3
+      IsComplex = 0,
+      IsInteger = 0,
+      IsSigned = 1,
+      RequireInitialization = 1,
+      ReadCost = 1,
+      AddCost = 3,
+      MulCost = 3
     };
+};
+
+template<typename BinOp>
+struct ScalarBinaryOpTraits<autodiff::var, double, BinOp>
+{
+  typedef autodiff::var ReturnType;
+};
+
+template<typename BinOp>
+struct ScalarBinaryOpTraits<double, autodiff::var, BinOp>
+{
+    typedef autodiff::var ReturnType;
 };
 
 #define EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)   \

@@ -6,7 +6,9 @@ on:
       - master
 
   pull_request:
-    types: [opened, edited]
+
+  schedule:
+    - cron: "0 5 * * 1"  # runs at 05:00 UTC on Mondays
 
 jobs:
   build:
@@ -24,7 +26,6 @@ jobs:
       shell: cmd
       run: |
         set PATH=%CONDA%;%CONDA%\Scripts;%CONDA%\Library\bin;%PATH%
-        echo %PATH%
         conda config --set always_yes yes --set changeps1 no
         conda config --add channels conda-forge
         conda install conda-devenv
