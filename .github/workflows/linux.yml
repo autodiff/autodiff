@@ -1,0 +1,33 @@
+name: linux
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+
+  schedule:
+    - cron: "0 5 * * 1"  # runs at 05:00 UTC on Mondays
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+      os: Linux-x86_64
+    strategy:
+      fail-fast: true
+      max-parallel: 4
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Download and install conda
+      run: |
+        wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-${{ env.os }}.sh
+        rm -rf $HOME/miniconda
+        bash miniconda.sh -b -p $HOME/miniconda
+    - name: Install
+      run: bash ci/actions/install.sh
+    - name: Tests
+      run: bash ci/actions/test.sh
