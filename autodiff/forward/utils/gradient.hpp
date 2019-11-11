@@ -164,6 +164,55 @@ auto jacobian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
     return jacobian(f, wrt, at, F);
 }
 
+// /// Return the hessian matrix of scalar function *f* with respect to some or all variables *x*.
+// template<typename Function, typename Wrt, typename Args, typename Result, typename Gradient>
+// auto hessian(const Function& f, Wrt&& wrt, Args&& args, Result& u, Gradient& g) -> Eigen::MatrixXd
+// {
+//     std::size_t n = detail::count(wrt);
+
+//     Eigen::MatrixXd H(n, n);
+//     g.resize(n);
+
+//     // TODO: take symmetry into account (for tuple forEach)
+//     Eigen::Index current_index_pos_outer = 0;
+//     detail::forEach(wrt, [&](auto&& outer) {
+//         Eigen::Index current_index_pos_inner = 0;
+//         detail::forEach(wrt, [&](auto&& inner) {
+//             for (auto i = 0; i < outer.size(); i++)
+//             {
+//                 outer[i].grad = 1.0;
+//                 for (auto j = i; j < inner.size(); ++j)
+//                 {
+//                     const auto ii = i + current_index_pos_outer;
+//                     const auto jj = j + current_index_pos_inner;
+
+//                     inner[j].val.grad = 1.0;
+//                     u = std::apply(f, args);
+//                     inner[j].val.grad = 0.0;
+
+//                     H(jj, ii) = H(ii, jj) = u.grad.grad;
+//                     g(ii) = static_cast<double>(u.grad);
+//                 }
+//                 outer[i].grad = 0.0;
+//             }
+//             current_index_pos_inner += inner.size();
+//         });
+//         current_index_pos_outer += outer.size();
+//     });
+
+//     return H;
+// }
+
+// /// Return the hessian matrix of scalar function *f* with respect to some or all variables *x*.
+// template<typename Function, typename Wrt, typename Args>
+// auto hessian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
+// {
+//     using Result = decltype(std::apply(f, args));
+//     Result u;
+//     VectorXd g;
+//     return hessian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u, g);
+// }
+
 } // namespace detail
 
 using detail::gradient;

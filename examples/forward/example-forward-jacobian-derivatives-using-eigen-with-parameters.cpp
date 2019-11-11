@@ -24,10 +24,12 @@ int main()
 
     VectorXreal F;  // the output vector F = f(x, p) evaluated together with Jacobian below
 
-    MatrixXd Jx = jacobian(f, wrt(x), at(x, p), F);  // evaluate the function and the Jacobian matrix dF/dx
-    MatrixXd Jp = jacobian(f, wrt(p), at(x, p), F);  // evaluate the function and the Jacobian matrix dF/dp
+    MatrixXd Jx = jacobian(f, wrt(x), at(x, p), F);     // evaluate the function and the Jacobian matrix Jx = dF/dx
+    MatrixXd Jp = jacobian(f, wrt(p), at(x, p), F);     // evaluate the function and the Jacobian matrix Jp = dF/dp
+    MatrixXd Jpx = jacobian(f, wrt(p, x), at(x, p), F); // evaluate the function and the Jacobian matrix Jpx = [dF/dp, dF/dx]
 
-    std::cout << "F = \n" << F << std::endl;    // print the evaluated output vector F
-    std::cout << "Jx = \n" << Jx << std::endl;  // print the evaluated Jacobian matrix dF/dx
-    std::cout << "Jp = \n" << Jp << std::endl;  // print the evaluated Jacobian matrix dF/dp
+    std::cout << "F = \n" << F << std::endl;     // print the evaluated output vector F
+    std::cout << "Jx = \n" << Jx << std::endl;   // print the evaluated Jacobian matrix dF/dx
+    std::cout << "Jp = \n" << Jp << std::endl;   // print the evaluated Jacobian matrix dF/dp
+    std::cout << "Jpx = \n" << Jpx << std::endl; // print the evaluated Jacobian matrix [dF/dp, dF/dx]
 }
