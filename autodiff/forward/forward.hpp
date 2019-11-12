@@ -60,6 +60,7 @@ using std::tan;
 using std::cosh;
 using std::sinh;
 using std::tanh;
+using std::erf;
 
 //=====================================================================================================================
 //
@@ -83,9 +84,9 @@ struct InvOp    {};  // INVERSE OPERATOR
 struct SinOp    {};  // SINE OPERATOR
 struct CosOp    {};  // COSINE OPERATOR
 struct TanOp    {};  // TANGENT OPERATOR
-struct SinhOp    {};  // HYPERBOLIC SINE OPERATOR
-struct CoshOp    {};  // HYPERBOLIC COSINE OPERATOR
-struct TanhOp    {};  // HYPERBOLIC TANGENT OPERATOR
+struct SinhOp   {};  // HYPERBOLIC SINE OPERATOR
+struct CoshOp   {};  // HYPERBOLIC COSINE OPERATOR
+struct TanhOp   {};  // HYPERBOLIC TANGENT OPERATOR
 struct ArcSinOp {};  // ARC SINE OPERATOR
 struct ArcCosOp {};  // ARC COSINE OPERATOR
 struct ArcTanOp {};  // ARC TANGENT OPERATOR
@@ -95,6 +96,7 @@ struct Log10Op  {};  // BASE-10 LOGARITHM OPERATOR
 struct SqrtOp   {};  // SQUARE ROOT OPERATOR
 struct PowOp    {};  // POWER OPERATOR
 struct AbsOp    {};  // ABSOLUTE OPERATOR
+struct ErfOp    {};  // ERROR FUNCTION OPERATOR
 
 //-----------------------------------------------------------------------------
 // OTHER OPERATORS
@@ -179,6 +181,9 @@ using PowExpr = BinaryExpr<PowOp, L, R>;
 
 template<typename R>
 using AbsExpr = UnaryExpr<AbsOp, R>;
+
+template<typename R>
+using ErfExpr = UnaryExpr<ErfOp, R>;
 
 //-----------------------------------------------------------------------------
 // DERIVED ARITHMETIC EXPRESSIONS
@@ -933,6 +938,7 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto abs2(R&& r) { return
 template<typename R, enableif<isExpr<R>>...> constexpr auto conj(R&& r) { return std::forward<R>(r); }
 template<typename R, enableif<isExpr<R>>...> constexpr auto real(R&& r) { return std::forward<R>(r); }
 template<typename R, enableif<isExpr<R>>...> constexpr auto imag(R&& r) { return 0.0; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto erf(R&& r) -> ErfExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -1485,6 +1491,15 @@ constexpr void apply(Dual<T, G>& self, AbsOp)
     const T aux = self.val;
     self.val = abs(self.val);
     self.grad *= aux / self.val;
+}
+
+template<typename T, typename G>
+constexpr void apply(Dual<T, G>& self, ErfOp)
+{
+    constexpr double pi = 3.1415926535897932384626433832795029;
+    const T aux = self.val;
+    self.val = erf(aux);
+    self.grad *= 2.0 * exp(-aux*aux)/sqrt(pi);
 }
 
 template<typename Op, typename T, typename G>
