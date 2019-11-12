@@ -224,6 +224,12 @@ TEST_CASE("autodiff::var tests", "[var]")
     REQUIRE( val(abs(x)) == Approx(std::abs(val(x))) );
     REQUIRE( val(grad(x, x)) == Approx(1.0) );
 
+    x = 0.5;
+    constexpr double pi = 3.141592653589793238462643383279502884197169399375105820974;
+    REQUIRE( val(erf(x)) == approx(std::erf(val(x))) );
+    REQUIRE( grad(erf(x), x) == approx(2/sqrt(pi) * std::exp(-val(x)*val(x))) );
+
+
     //--------------------------------------------------------------------------
     // TEST HIGHER ORDER DERIVATIVES (2nd order)
     //--------------------------------------------------------------------------
