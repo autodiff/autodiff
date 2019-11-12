@@ -6,7 +6,7 @@
 using namespace Eigen;
 
 // For Special functions like Erf
-#include <unsupported/Eigen/SpecialFunctions>
+#include <eigen3/unsupported/Eigen/SpecialFunctions>
 
 // autodiff includes
 #include <autodiff/forward.hpp>
