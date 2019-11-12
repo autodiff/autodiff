@@ -67,8 +67,7 @@ constexpr auto ForEachWrtVar(const Wrt<Vars...>& wrt, Function&& f)
     ForEach(wrt.args, [&](auto& item) constexpr
     {
         if constexpr (isVector<decltype(item)>) {
-            const size_t len = item.size();
-            for(size_t j = 0; j < len; ++j)
+            for(size_t j = 0; j < item.size(); ++j)
                 f(i++, item[j]); // call given f with current index and variable from item (a vector)
         }
         else f(i++, item); // call given f with current index and variable from item (a number, not a vector)

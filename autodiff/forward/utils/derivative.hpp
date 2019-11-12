@@ -123,8 +123,7 @@ auto seed(const At<Args...>& at, const Along<Vecs...>& along)
         if constexpr (isVector<decltype(arg)>) {
             static_assert(isVector<decltype(dir)>);
             assert(arg.size() == dir.size());
-            const size_t len = dir.size();
-            for(size_t i = 0; i < len; ++i)
+            for(size_t i = 0; i < dir.size(); ++i)
                 seed<1>(arg[i], dir[i]);
         }
         else seed<1>(arg, dir);
@@ -136,8 +135,7 @@ auto unseed(const At<Args...>& at)
 {
     ForEach(at.args, [&](auto& arg) constexpr {
         if constexpr (isVector<decltype(arg)>) {
-            const size_t len = arg.size();
-            for(size_t i = 0; i < len; ++i)
+            for(size_t i = 0; i < arg.size(); ++i)
                 seed<1>(arg[i], 0.0);
         }
         else seed<1>(arg, 0.0);
