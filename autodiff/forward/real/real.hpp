@@ -207,13 +207,13 @@ using std::tanh;
 //=====================================================================================================================
 
 template<typename T>
-struct _isReal { constexpr static bool value = false; };
+struct isRealAux { constexpr static bool value = false; };
 
 template<size_t N, typename T>
-struct _isReal<Real<N, T>> { constexpr static bool value = true; };
+struct isRealAux<Real<N, T>> { constexpr static bool value = true; };
 
 template<typename T>
-constexpr bool isReal = _isReal<PlainType<T>>::value;
+constexpr bool isReal = isRealAux<PlainType<T>>::value;
 
 template<typename... Args>
 constexpr bool areReal = (... && isReal<Args>);
