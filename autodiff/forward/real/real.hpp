@@ -49,20 +49,21 @@ template<size_t N, typename T>
 class Real
 {
 private:
+    // Ensure type T is a numeric type
+    static_assert(isNumber<T>);
+
     /// The value and derivatives of the number up to order *N*.
-    std::array<T, N + 1> m_data;
+    std::array<T, N + 1> m_data = {};
 
 public:
     /// Construct a default Real number of order *N* and type *T*.
     constexpr Real()
-    : Real(T{})
     {}
 
     /// Construct a Real number with given data.
     constexpr Real(const T& value)
     {
         m_data[0] = value;
-        For<1, N + 1>([&](auto i) constexpr { m_data[i] = 0; });
     }
 
     /// Construct a Real number with given data.
