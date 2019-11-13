@@ -1,0 +1,20 @@
+repos:
+  -   repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v2.3.0
+      hooks:
+        - id: trailing-whitespace
+        - id: end-of-file-fixer
+        - id: check-merge-conflict
+
+  -   repo: https://github.com/jumanjihouse/pre-commit-hooks
+      rev: 1.11.0
+      hooks:
+        - id: shellcheck
+
+# Remove the below part if you want to activate clang-format.
+# Please uncomment clang-format deps in environment.devenv.yml in order to install it in your env.
+#  -   repo: https://github.com/pocc/pre-commit-hooks
+#      rev: v0.2.0
+#      hooks:
+#        -   id: clang-format
+#            args: [-i -style=file]

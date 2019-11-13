@@ -878,4 +878,3 @@ inline std::ostream& operator<<(std::ostream& out, const var& x)
 }
 
 } // namespace autodiff
-

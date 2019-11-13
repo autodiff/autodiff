@@ -11,3 +11,5 @@ dependencies:
     - mkdocs
     - mkdocs-material
     - mkdocs-macros-plugin
+  - pre-commit
+  - shellcheck
