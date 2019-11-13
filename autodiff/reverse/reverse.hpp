@@ -610,19 +610,19 @@ struct AbsExpr : UnaryExpr
 
 struct ErfExpr : UnaryExpr
 {
-    constexpr static double pi = 3.1415926535897932384626433832795029;
+    constexpr static auto sqrt_pi = 1.7724538509055160272981674833411451872554456638435;
 
     ErfExpr(double val, const ExprPtr& x) : UnaryExpr(val, x) {}
 
     virtual void propagate(DerivativesMap& derivatives, double wprime) const
     {
-        const auto aux = 2.0/std::sqrt(pi) * std::exp(-(x->val)*(x->val));
+        const auto aux = 2.0/sqrt_pi * std::exp(-(x->val)*(x->val));
         x->propagate(derivatives, wprime * aux);
     }
 
     virtual void propagate(DerivativesMapX& derivatives, const ExprPtr& wprime) const
     {
-        const auto aux = 2.0/std::sqrt(pi) * exp(-x*x);
+        const auto aux = 2.0/sqrt_pi * exp(-x*x);
         x->propagate(derivatives, wprime * aux);
     }
 };
