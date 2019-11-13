@@ -5,6 +5,9 @@
 #include <Eigen/Core>
 using namespace Eigen;
 
+// For Special functions like Erf
+#include <eigen3/unsupported/Eigen/SpecialFunctions>
+
 // autodiff includes
 #include <autodiff/forward.hpp>
 #include <autodiff/forward/eigen.hpp>
@@ -610,6 +613,15 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         x = -1.0;
         REQUIRE( f(x) == std::abs(val(x)) );
         REQUIRE( derivative(f, wrt(x), at(x)) == approx(-1.0) );
+
+        // Testing erf function
+        f = [](dual x) -> dual { return erf(x); };
+        x = 1.0;
+        REQUIRE( f(x) == std::erf(val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(0.415107) );
+        x = -1.4;
+        REQUIRE( f(x) == std::erf(val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(0.158942) );
     }
 
     SECTION("testing complex expressions")
@@ -826,14 +838,14 @@ TEST_CASE("Eigen::VectorXdual tests", "[dual]")
 
         VectorXdual x(3);
         x << 1.0, 2.0, 3.0;
-        
+
         dual y = 2;
-   
+
         VectorXdual z(4);
         z << 1.0, 2.0, 3.0, 4.0;
 
         VectorXd g = gradient(f, wrtpack(x.tail(2), y, z), at(x, y, z));
-        
+
         REQUIRE( g.size() == 7 );
     }
 
@@ -846,14 +858,14 @@ TEST_CASE("Eigen::VectorXdual tests", "[dual]")
 
         VectorXdual x(2);
         x << 1.0, 2.0;
-        
+
         dual y = 3.0;
-   
+
         VectorXdual z(1);
         z << 4.0;
 
         VectorXd g = gradient(f, wrtpack(x, y, z), at(x, y, z));
-        
+
         REQUIRE(g[0] == approx(x[0]));
         REQUIRE(g[1] == approx(x[1]));
         REQUIRE(g[2] == approx(y));
@@ -867,7 +879,7 @@ TEST_CASE("Eigen::VectorXdual tests", "[dual]")
             VectorXdual ret(x.size() + z.size());
             ret.head(x.size()) = x * y / x.array().sum();
             ret.tail(z.size()) = y * z;
-            
+
             return ret;
         };
 
