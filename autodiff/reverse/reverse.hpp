@@ -67,6 +67,7 @@ struct Log10Expr;
 struct PowExpr;
 struct SqrtExpr;
 struct AbsExpr;
+struct ErfExpr;
 
 using ExprPtr = std::shared_ptr<const Expr>;
 
@@ -139,6 +140,7 @@ ExprPtr abs2(const ExprPtr& x);
 ExprPtr conj(const ExprPtr& x);
 ExprPtr real(const ExprPtr& x);
 ExprPtr imag(const ExprPtr& x);
+ExprPtr erf(const ExprPtr& x);
 
 //------------------------------------------------------------------------------
 // COMPARISON OPERATORS (DECLARATION ONLY)
@@ -606,6 +608,25 @@ struct AbsExpr : UnaryExpr
     }
 };
 
+struct ErfExpr : UnaryExpr
+{
+    constexpr static double pi = 3.1415926535897932384626433832795029;
+
+    ErfExpr(double val, const ExprPtr& x) : UnaryExpr(val, x) {}
+
+    virtual void propagate(DerivativesMap& derivatives, double wprime) const
+    {
+        const auto aux = 2.0/std::sqrt(pi) * std::exp(-(x->val)*(x->val));
+        x->propagate(derivatives, wprime * aux);
+    }
+
+    virtual void propagate(DerivativesMapX& derivatives, const ExprPtr& wprime) const
+    {
+        const auto aux = 2.0/std::sqrt(pi) * exp(-x*x);
+        x->propagate(derivatives, wprime * aux);
+    }
+};
+
 //------------------------------------------------------------------------------
 // CONVENIENT FUNCTIONS
 //------------------------------------------------------------------------------
@@ -672,6 +693,7 @@ inline ExprPtr abs2(const ExprPtr& x) { return x * x; }
 inline ExprPtr conj(const ExprPtr& x) { return x; }
 inline ExprPtr real(const ExprPtr& x) { return x; }
 inline ExprPtr imag(const ExprPtr& x) { return constant(0.0); }
+inline ExprPtr erf(const ExprPtr& x) { return std::make_shared<ErfExpr>(std::erf(x->val), x); }
 
 //------------------------------------------------------------------------------
 // COMPARISON OPERATORS
@@ -828,6 +850,7 @@ inline ExprPtr abs2(const var& x) { return abs2(x.expr); }
 inline ExprPtr conj(const var& x) { return conj(x.expr); }
 inline ExprPtr real(const var& x) { return real(x.expr); }
 inline ExprPtr imag(const var& x) { return imag(x.expr); }
+inline ExprPtr erf(const var& x) { return erf(x.expr); }
 
 /// Return the value of a variable x.
 inline double val(const var& x)
