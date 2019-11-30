@@ -30,3 +30,4 @@
 #pragma once
 
 #include <autodiff/mixed/operators/binary.hpp>
+#include <autodiff/mixed/operators/stream.hpp>
