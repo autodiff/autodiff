@@ -227,6 +227,13 @@ using common = typename std::common_type<A, B>::type;
 namespace traits {
 
 //-----------------------------------------------------------------------------
+// IS TYPE T A NUMBER?
+//-----------------------------------------------------------------------------
+template<typename T>
+struct isArithmetic : std::conditional_t<std::is_arithmetic_v<T>, std::true_type,
+std::false_type> { };
+
+//-----------------------------------------------------------------------------
 // IS TYPE T AN EXPRESSION NODE?
 //-----------------------------------------------------------------------------
 template<typename T>
@@ -349,7 +356,7 @@ template<typename T, typename U>
 constexpr bool isConvertible = std::is_convertible<plain<T>, U>::value;
 
 template<typename T>
-constexpr bool isNumber = std::is_arithmetic<plain<T>>::value;
+constexpr bool isArithmetic = traits::isArithmetic<plain<T>>::value;
 
 template<typename T>
 constexpr bool isExpr = traits::isExpr<plain<T>>::value;
@@ -391,7 +398,7 @@ constexpr bool isNumberDualDualMulExpr = traits::isNumberDualDualMulExpr<plain<T
 // ARE TYPES L AND R EXPRESSION NODES OR NUMBERS, BUT NOT BOTH NUMBERS?
 //-----------------------------------------------------------------------------
 template<typename L, typename R>
-constexpr bool isOperable = (isExpr<L> && isExpr<R>) || (isNumber<L> && isExpr<R>) || (isExpr<L> && isNumber<R>);
+constexpr bool isOperable = (isExpr<L> && isExpr<R>) || (isArithmetic<L> && isExpr<R>) || (isExpr<L> && isArithmetic<R>);
 
 namespace traits {
 
@@ -402,7 +409,7 @@ namespace traits {
 struct ValueTypeInvalid {};
 
 template<typename T>
-struct ValueType { using type = std::conditional_t<isNumber<T>, T, ValueTypeInvalid>; };
+struct ValueType { using type = std::conditional_t<forward::isArithmetic<T>, T, ValueTypeInvalid>; };
 
 template<typename T, typename G>
 struct ValueType<Dual<T, G>> { using type = typename ValueType<plain<T>>::type; };
@@ -423,7 +430,7 @@ struct ValueType<TernaryExpr<Op, L, C, R>> { using type = common<typename ValueT
 struct GradTypeInvalid {};
 
 template<typename T>
-struct GradType { using type = std::conditional_t<isNumber<T>, T, GradTypeInvalid>; };
+struct GradType { using type = std::conditional_t<forward::isArithmetic<T>, T, GradTypeInvalid>; };
 
 template<typename T, typename G>
 struct GradType<Dual<T, G>> { using type = typename GradType<plain<G>>::type; };
@@ -504,7 +511,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, enableif<isNumber<U> || isExpr<U>>...>
+    template<typename U, enableif<isArithmetic<U> || isExpr<U>>...>
     Dual& operator+=(U&& other)
     {
         Dual tmp;
@@ -513,7 +520,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, enableif<isNumber<U> || isExpr<U>>...>
+    template<typename U, enableif<isArithmetic<U> || isExpr<U>>...>
     Dual& operator-=(U&& other)
     {
         Dual tmp;
@@ -522,7 +529,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, enableif<isNumber<U> || isExpr<U>>...>
+    template<typename U, enableif<isArithmetic<U> || isExpr<U>>...>
     Dual& operator*=(U&& other)
     {
         Dual tmp;
@@ -531,7 +538,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, enableif<isNumber<U> || isExpr<U>>...>
+    template<typename U, enableif<isArithmetic<U> || isExpr<U>>...>
     Dual& operator/=(U&& other)
     {
         Dual tmp;
@@ -746,7 +753,7 @@ using PreventExprRef = std::conditional_t<isDual<T>, T, plain<T>>;
 template<typename U>
 constexpr auto negative(U&& expr)
 {
-    static_assert(isExpr<U> || isNumber<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
     if constexpr (isNegExpr<U>)
         return inner(expr);
     else return NegExpr<PreventExprRef<U>>{ expr };
@@ -820,7 +827,7 @@ constexpr auto operator+(L&& l, R&& r)
     if constexpr (isNegExpr<L> && isNegExpr<R>)
         return -( inner(l) + inner(r) );
     // ADDITION EXPRESSION CASE: expr + number => number + expr (number always on the left)
-    else if constexpr (isExpr<L> && isNumber<R>)
+    else if constexpr (isExpr<L> && isArithmetic<R>)
         return std::forward<R>(r) + std::forward<L>(l);
     // DEFAULT ADDITION EXPRESSION
     else return AddExpr<PreventExprRef<L>, PreventExprRef<R>>{ l, r };
@@ -842,16 +849,16 @@ constexpr auto operator*(L&& l, R&& r)
     else if constexpr (isInvExpr<L> && isInvExpr<R>)
         return inverse(inner(l) * inner(r));
     // // MULTIPLICATION EXPRESSION CASE: expr * number => number * expr
-    else if constexpr (isExpr<L> && isNumber<R>)
+    else if constexpr (isExpr<L> && isArithmetic<R>)
         return std::forward<R>(r) * std::forward<L>(l);
     // // MULTIPLICATION EXPRESSION CASE: number * (-expr) => (-number) * expr
-    else if constexpr (isNumber<L> && isNegExpr<R>)
+    else if constexpr (isArithmetic<L> && isNegExpr<R>)
         return (-l) * inner(r);
     // // MULTIPLICATION EXPRESSION CASE: number * (number * expr) => (number * number) * expr
-    else if constexpr (isNumber<L> && isNumberDualMulExpr<R>)
+    else if constexpr (isArithmetic<L> && isNumberDualMulExpr<R>)
         return (l * left(r)) * right(r);
     // MULTIPLICATION EXPRESSION CASE: number * dual => NumberDualMulExpr
-    else if constexpr (isNumber<L> && isDual<R>)
+    else if constexpr (isArithmetic<L> && isDual<R>)
         return NumberDualMulExpr<PreventExprRef<L>, PreventExprRef<R>>{ l, r };
     // DEFAULT MULTIPLICATION EXPRESSION: expr * expr => MulExpr
     else return MulExpr<PreventExprRef<L>, PreventExprRef<R>>{ l, r };
@@ -884,7 +891,7 @@ constexpr auto operator-(L&& l, R&& r)
 template<typename L, typename R, enableif<isOperable<L, R>>...>
 constexpr auto operator/(L&& l, R&& r)
 {
-    if constexpr (isNumber<R>)
+    if constexpr (isArithmetic<R>)
         return std::forward<L>(l) * (One<L> / std::forward<R>(r));
     else return std::forward<L>(l) * inverse(std::forward<R>(r));
 }
@@ -994,10 +1001,10 @@ constexpr void apply(Dual<T, G>& self);
 template<typename T, typename G, typename U>
 constexpr void assign(Dual<T, G>& self, U&& other)
 {
-    static_assert(isExpr<U> || isNumber<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
 
     // ASSIGN A NUMBER: self = number
-    if constexpr (isNumber<U>) {
+    if constexpr (isArithmetic<U>) {
         self.val = other;
         self.grad = Zero<T>;
     }
@@ -1037,7 +1044,7 @@ constexpr void assign(Dual<T, G>& self, U&& other)
 template<typename T, typename G, typename U>
 constexpr void assign(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
-    static_assert(isExpr<U> || isNumber<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
 
     // ASSIGN AN UNARY EXPRESSION: self = func(expr)
     if constexpr (isUnaryExpr<U>) {
@@ -1076,10 +1083,10 @@ constexpr void assign(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 template<typename T, typename G, typename U>
 constexpr void assignAdd(Dual<T, G>& self, U&& other)
 {
-    static_assert(isExpr<U> || isNumber<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
 
     // ASSIGN-ADD A NUMBER: self += number
-    if constexpr (isNumber<U>) {
+    if constexpr (isArithmetic<U>) {
         self.val += other;
     }
     // ASSIGN-ADD A DUAL NUMBER: self += dual
@@ -1111,7 +1118,7 @@ constexpr void assignAdd(Dual<T, G>& self, U&& other)
 template<typename T, typename G, typename U>
 constexpr void assignAdd(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
-    static_assert(isExpr<U> || isNumber<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
 
     // ASSIGN-ADD A NEGATIVE EXPRESSION: self += -expr => self -= expr
     if constexpr (isNegExpr<U>) {
@@ -1138,10 +1145,10 @@ constexpr void assignAdd(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 template<typename T, typename G, typename U>
 constexpr void assignSub(Dual<T, G>& self, U&& other)
 {
-    static_assert(isExpr<U> || isNumber<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
 
     // ASSIGN-SUBTRACT A NUMBER: self -= number
-    if constexpr (isNumber<U>) {
+    if constexpr (isArithmetic<U>) {
         self.val -= other;
     }
     // ASSIGN-SUBTRACT A DUAL NUMBER: self -= dual
@@ -1173,7 +1180,7 @@ constexpr void assignSub(Dual<T, G>& self, U&& other)
 template<typename T, typename G, typename U>
 constexpr void assignSub(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
-    static_assert(isExpr<U> || isNumber<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
 
     // ASSIGN-SUBTRACT A NEGATIVE EXPRESSION: self -= -expr => self += expr
     if constexpr (isNegExpr<U>) {
@@ -1200,10 +1207,10 @@ constexpr void assignSub(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 template<typename T, typename G, typename U>
 constexpr void assignMul(Dual<T, G>& self, U&& other)
 {
-    static_assert(isExpr<U> || isNumber<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
 
     // ASSIGN-MULTIPLY A NUMBER: self *= number
-    if constexpr (isNumber<U>) {
+    if constexpr (isArithmetic<U>) {
         self.val *= other;
         self.grad *= other;
     }
@@ -1239,7 +1246,7 @@ constexpr void assignMul(Dual<T, G>& self, U&& other)
 template<typename T, typename G, typename U>
 constexpr void assignMul(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
-    static_assert(isExpr<U> || isNumber<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
 
     // ASSIGN-MULTIPLY A NEGATIVE EXPRESSION: self *= (-expr)
     if constexpr (isNegExpr<U>) {
@@ -1267,10 +1274,10 @@ constexpr void assignMul(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 template<typename T, typename G, typename U>
 constexpr void assignDiv(Dual<T, G>& self, U&& other)
 {
-    static_assert(isExpr<U> || isNumber<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
 
     // ASSIGN-DIVIDE A NUMBER: self /= number
-    if constexpr (isNumber<U>) {
+    if constexpr (isArithmetic<U>) {
         self.val /= other;
         self.grad /= other;
     }
@@ -1310,7 +1317,7 @@ constexpr void assignDiv(Dual<T, G>& self, U&& other)
 template<typename T, typename G, typename U>
 constexpr void assignDiv(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
-    static_assert(isExpr<U> || isNumber<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
 
     // ASSIGN-DIVIDE A NEGATIVE EXPRESSION: self /= (-expr)
     if constexpr (isNegExpr<U>) {
@@ -1343,7 +1350,7 @@ template<typename T, typename G, typename U>
 constexpr void assignPow(Dual<T, G>& self, U&& other)
 {
     // ASSIGN-POW A NUMBER: self = pow(self, number)
-    if constexpr (isNumber<U>) {
+    if constexpr (isArithmetic<U>) {
         const T aux = pow(self.val, other - 1);
         self.grad *= other * aux;
         self.val = aux * self.val;
