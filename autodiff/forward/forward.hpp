@@ -345,6 +345,9 @@ struct isNumberDualDualMulExpr<NumberDualDualMulExpr<L, C, R>> { constexpr stati
 
 } // namespace traits
 
+template<typename T, typename U>
+constexpr bool isConvertible = std::is_convertible<plain<T>, U>::value;
+
 template<typename T>
 constexpr bool isNumber = std::is_arithmetic<plain<T>>::value;
 
@@ -480,8 +483,9 @@ struct Dual
 
     explicit operator T() const { return this->val; }
 
-    Dual(const ValueType<T>& val)
-    : val(val), grad(0)
+    template<typename U, enableif<isConvertible<U, T> && !isExpr<U>>...>
+    Dual(U&& val)
+    : val(std::forward<U>(val)), grad(0)
     {
     }
 
