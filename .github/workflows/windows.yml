@@ -25,7 +25,8 @@ jobs:
     - uses: goanpeca/setup-miniconda@v1.0.2
       with:
         auto-update-conda: true
-        activate-environment: autodiff
+        auto-activate-base: true
+#         activate-environment: autodiff
     - name: Install conda-devenv
       shell: powershell
       run: |
