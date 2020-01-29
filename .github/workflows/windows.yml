@@ -33,6 +33,7 @@ jobs:
         conda install -c conda-forge conda-devenv
         conda info -a
         conda devenv
+        conda create -n foo
     - name: Build
       shell: powershell
       run: |
