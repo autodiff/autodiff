@@ -28,6 +28,7 @@ jobs:
     - name: Install
       shell: cmd /C CALL {0}
       run: |
+        conda config --add channels conda-forge
         conda install conda-devenv
         conda info -a
         conda devenv
