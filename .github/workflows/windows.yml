@@ -26,11 +26,11 @@ jobs:
       with:
         auto-update-conda: true
     - name: Build
-      shell: powershell
-      run: |
+      shell: cmd /C CALL {0}
+      run: >-
         call activate autodiff
         cmake -S . -B build
         cmake --build build --config ${{ env.configuration }} --target install
     - name: Tests
-      shell: powershell
+      shell: cmd /C CALL {0}
       run: call build\test\${{ env.configuration }}\tests.exe
