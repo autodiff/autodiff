@@ -6,7 +6,7 @@ conda install conda-devenv
 conda update -q conda
 conda info -a
 conda devenv
-source activate autodiff
+conda activate autodiff
 mkdir build
 cd build || exit
 cmake .. -GNinja
