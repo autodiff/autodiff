@@ -34,7 +34,7 @@ jobs:
     - name: Build
       shell: powershell
       run: |
-        call activate autodiff
+        conda activate autodiff
         cmake -S . -B build
         cmake --build build --config ${{ env.configuration }} --target install
     - name: Tests
