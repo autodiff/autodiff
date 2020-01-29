@@ -27,7 +27,7 @@ jobs:
         auto-update-conda: true
     - name: Build
       shell: cmd /C CALL {0}
-      run: >-
+      run: |
         call activate autodiff
         cmake -S . -B build
         cmake --build build --config ${{ env.configuration }} --target install
