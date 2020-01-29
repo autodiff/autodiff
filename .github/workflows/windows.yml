@@ -23,8 +23,8 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: goanpeca/setup-miniconda@v1.0.2
-        with:
-        auto-update-conda: true
+      with:
+      auto-update-conda: true
     - name: Build
       shell: powershell
       run: |
