@@ -26,17 +26,17 @@ jobs:
       with:
         auto-update-conda: true
     - name: Install
-      shell: cmd /C CALL {0}
+      shell: powershell
       run: |
         conda install -c conda-forge conda-devenv
         conda info -a
         conda devenv
     - name: Build
-      shell: cmd /C CALL {0}
+      shell: powershell
       run: |
         call activate autodiff
         cmake -S . -B build
         cmake --build build --config ${{ env.configuration }} --target install
     - name: Tests
-      shell: cmd /C CALL {0}
+      shell: powershell
       run: call build\test\${{ env.configuration }}\tests.exe
