@@ -26,6 +26,8 @@ jobs:
       with:
         auto-update-conda: true
     - name: Install
+      shell: bash -l {0}
       run: bash ci/actions/install.sh
     - name: Tests
+      shell: bash -l {0}
       run: bash ci/actions/test.sh
