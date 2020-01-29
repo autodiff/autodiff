@@ -25,10 +25,15 @@ jobs:
     - uses: goanpeca/setup-miniconda@v1.0.2
       with:
         auto-update-conda: true
+    - name: Install
+      shell: cmd /C CALL {0}
+      run: |
+        conda install conda-devenv
+        conda info -a
+        conda devenv
     - name: Build
       shell: cmd /C CALL {0}
       run: |
-        conda info --envs
         call activate autodiff
         cmake -S . -B build
         cmake --build build --config ${{ env.configuration }} --target install
