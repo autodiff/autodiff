@@ -30,7 +30,7 @@ int main()
     dual2nd u;  // the output scalar u = f(x, p) evaluated together with gradient below
     VectorXd g; // gradient of f(x, p) evaluated together with Hessian below
 
-    VectorXd H = hessian(f, wrtpack(p, x), at(x, p), u, g);  // evaluate the function value u and its gradient vector gp = [du/dp, du/dx]  
+    VectorXd H = hessian(f, wrtpack(p, x), at(x, p), u, g);  // evaluate the function value u and its gradient vector gp = [du/dp, du/dx]
 
     cout << "u = " << u << endl;    // print the evaluated output u
     cout << "Hessian = \n" << H << endl;  // print the evaluated gradient vector gp = [du/dp, du/dx]

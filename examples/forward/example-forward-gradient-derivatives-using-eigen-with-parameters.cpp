@@ -29,7 +29,7 @@ int main()
 
     VectorXd gx = gradient(f, wrt(x), at(x, p), u);  // evaluate the function value u and its gradient vector gx = du/dx
     VectorXd gp = gradient(f, wrt(p), at(x, p), u);  // evaluate the function value u and its gradient vector gp = du/dp
-    VectorXd gpx = gradient(f, wrtpack(p, x), at(x, p), u);  // evaluate the function value u and its gradient vector gp = [du/dp, du/dx]  
+    VectorXd gpx = gradient(f, wrtpack(p, x), at(x, p), u);  // evaluate the function value u and its gradient vector gp = [du/dp, du/dx]
 
     cout << "u = " << u << endl;    // print the evaluated output u
     cout << "gx = \n" << gx << endl;  // print the evaluated gradient vector gx = du/dx

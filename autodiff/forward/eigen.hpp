@@ -358,4 +358,3 @@ auto hessian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
 namespace autodiff {
 using forward::wrtpack;
 }
-

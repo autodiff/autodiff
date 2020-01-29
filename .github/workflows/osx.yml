@@ -31,4 +31,3 @@ jobs:
       run: bash ci/actions/install.sh
     - name: Tests
       run: bash ci/actions/test.sh
-

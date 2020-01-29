@@ -26,7 +26,7 @@ int main()
 
     dual u;  // the output scalar u = f(x, p) evaluated together with gradient below
 
-    VectorXd gpx = gradient(f, wrtpack(p, x), at(x, p), u);  // evaluate the function value u and its gradient vector gp = [du/dp, du/dx]  
+    VectorXd gpx = gradient(f, wrtpack(p, x), at(x, p), u);  // evaluate the function value u and its gradient vector gp = [du/dp, du/dx]
 
     cout << "u = " << u << endl;    // print the evaluated output u
     cout << "gpx = \n" << gpx << endl;  // print the evaluated gradient vector gp = [du/dp, du/dx]
