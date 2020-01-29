@@ -27,17 +27,15 @@ jobs:
         auto-update-conda: true
         auto-activate-base: true
         activate-environment: ''
-#         activate-environment: autodiff
     - name: Install conda-devenv
       shell: powershell
       run: |
         conda install -c conda-forge conda-devenv
         conda info -a
+        conda devenv
     - name: Build
       shell: powershell
       run: |
-        conda devenv
-        conda info --envs
         conda activate autodiff
         cmake -S . -B build
         cmake --build build --config ${{ env.configuration }} --target install
