@@ -34,6 +34,7 @@ jobs:
         conda info -a
         conda devenv
         conda create -n foo
+        conda info --envs
     - name: Build
       shell: powershell
       run: |
