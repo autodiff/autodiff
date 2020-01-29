@@ -43,4 +43,4 @@ jobs:
         cmake --build build --config ${{ env.configuration }} --target install
     - name: Tests
       shell: powershell
-      run: call build\test\${{ env.configuration }}\tests.exe
+      run: .\build\test\${{ env.configuration }}\tests.exe
