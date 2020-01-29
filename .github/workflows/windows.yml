@@ -34,6 +34,7 @@ jobs:
       shell: powershell
       run: |
         conda devenv
+        conda info --envs
         conda activate autodiff
         cmake -S . -B build
         cmake --build build --config ${{ env.configuration }} --target install
