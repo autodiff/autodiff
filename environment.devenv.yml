@@ -1,5 +1,6 @@
 name: autodiff
-
+channels:
+  - conda-forge
 dependencies:
   - cmake>=3.13
   - ninja

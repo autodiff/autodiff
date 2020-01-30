@@ -22,13 +22,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Download and install conda
-      run: |
-        wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-${{ env.os }}.sh
-        rm -rf $HOME/miniconda
-        bash miniconda.sh -b -p $HOME/miniconda
+    - uses: goanpeca/setup-miniconda@v1.0.2
+      with:
+        auto-update-conda: true
     - name: Install
+      shell: bash -l {0}
       run: bash ci/actions/install.sh
     - name: Tests
+      shell: bash -l {0}
       run: bash ci/actions/test.sh
-
