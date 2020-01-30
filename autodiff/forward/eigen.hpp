@@ -37,28 +37,12 @@ namespace Eigen {
 template<typename T>
 struct NumTraits;
 
-template<> struct NumTraits<autodiff::dual> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
+template<typename T, typename G>
+struct NumTraits<autodiff::forward::Dual<T, G>> : NumTraits<autodiff::forward::ValueType<T>> // permits to get the epsilon, dummy_precision, lowest, highest functions
 {
-    typedef autodiff::dual Real;
-    typedef autodiff::dual NonInteger;
-    typedef autodiff::dual Nested;
-    enum
-    {
-        IsComplex = 0,
-        IsInteger = 0,
-        IsSigned = 1,
-        RequireInitialization = 1,
-        ReadCost = 1,
-        AddCost = 3,
-        MulCost = 3
-    };
-};
-
-template<> struct NumTraits<autodiff::HigherOrderDual<2>> : NumTraits<double> // permits to get the epsilon, dummy_precision, lowest, highest functions
-{
-    typedef autodiff::HigherOrderDual<2> Real;
-    typedef autodiff::HigherOrderDual<2> NonInteger;
-    typedef autodiff::HigherOrderDual<2> Nested;
+    typedef autodiff::forward::Dual<T, G> Real;
+    typedef autodiff::forward::Dual<T, G> NonInteger;
+    typedef autodiff::forward::Dual<T, G> Nested;
     enum
     {
         IsComplex = 0,
@@ -72,15 +56,15 @@ template<> struct NumTraits<autodiff::HigherOrderDual<2>> : NumTraits<double> //
 };
 
 template<typename T, typename G, typename BinOp>
-struct ScalarBinaryOpTraits<autodiff::forward::Dual<T, G>, T, BinOp>
+struct ScalarBinaryOpTraits<autodiff::forward::Dual<T, G>, autodiff::forward::ValueType<T>, BinOp>
 {
-    typedef autodiff::dual ReturnType;
+    typedef autodiff::forward::Dual<T, G> ReturnType;
 };
 
 template<typename T, typename G, typename BinOp>
-struct ScalarBinaryOpTraits<T, autodiff::forward::Dual<T, G>, BinOp>
+struct ScalarBinaryOpTraits<autodiff::forward::ValueType<T>, autodiff::forward::Dual<T, G>, BinOp>
 {
-    typedef autodiff::dual ReturnType;
+    typedef autodiff::forward::Dual<T, G> ReturnType;
 };
 
 } // namespace Eigen
