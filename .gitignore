@@ -7,6 +7,10 @@ environment.yml
 # mkdocs
 site/
 
+# CLion files
+.idea/
+cmake-build*
+
 # Prerequisites
 *.d
 

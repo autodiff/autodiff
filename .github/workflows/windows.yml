@@ -22,23 +22,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Setup conda
+
+    - name: Conda
+      shell: cmd
+      run: call ci\actions\configure-conda-windows.bat
+
+    - name: Install
       shell: cmd
       run: |
-        set PATH=%CONDA%;%CONDA%\Scripts;%CONDA%\Library\bin;%PATH%
-        conda config --set always_yes yes --set changeps1 no
-        conda config --add channels conda-forge
-        conda install conda-devenv
-        conda update -q conda
-        conda info -a
-        conda devenv
-    - name: Build
+        set CONFIGURATION=${{ env.configuration }}
+        call ci\actions\install-autodiff-windows.bat
+
+    - name: Test
       shell: cmd
       run: |
-        set PATH=%CONDA%;%CONDA%\Scripts;%CONDA%\Library\bin;%PATH%
-        call activate autodiff
-        cmake -S . -B build
-        cmake --build build --config ${{ env.configuration }} --target install
-    - name: Tests
-      shell: cmd
-      run: call build\test\${{ env.configuration }}\tests.exe
+        set CONFIGURATION=${{ env.configuration }}
+        call ci\actions\test-autodiff-windows.bat

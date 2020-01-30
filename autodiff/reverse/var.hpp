@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2019 Allan Leal
+// Copyright (c) 2018-2020 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,4 +30,4 @@
 #pragma once
 
 // autodiff includes
-#include <autodiff/forward/forward.hpp>
+#include <autodiff/reverse/var/var.hpp>

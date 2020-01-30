@@ -1,9 +1,8 @@
 // C++ includes
 #include <iostream>
-using namespace std;
 
 // autodiff include
-#include <autodiff/reverse.hpp>
+#include <autodiff/reverse/var.hpp>
 using namespace autodiff;
 
 // A type defining parameters for a function of interest
@@ -37,9 +36,9 @@ int main()
     var dudb = dud(params.b);            // extract the derivative du/db
     var dudc = dud(params.c);            // extract the derivative du/dc
 
-    cout << "u = " << u << endl;         // print the evaluated output u
-    cout << "du/dx = " << dudx << endl;  // print the evaluated derivative du/dx
-    cout << "du/da = " << duda << endl;  // print the evaluated derivative du/da
-    cout << "du/db = " << dudb << endl;  // print the evaluated derivative du/db
-    cout << "du/dc = " << dudc << endl;  // print the evaluated derivative du/dc
+    std::cout << "u = " << u << std::endl;         // print the evaluated output u
+    std::cout << "du/dx = " << dudx << std::endl;  // print the evaluated derivative du/dx
+    std::cout << "du/da = " << duda << std::endl;  // print the evaluated derivative du/da
+    std::cout << "du/db = " << dudb << std::endl;  // print the evaluated derivative du/db
+    std::cout << "du/dc = " << dudc << std::endl;  // print the evaluated derivative du/dc
 }

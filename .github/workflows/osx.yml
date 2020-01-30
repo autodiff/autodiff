@@ -22,13 +22,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Download and install conda
+    - name: Conda
       run: |
-        wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-${{ env.os }}.sh
-        rm -rf $HOME/miniconda
-        bash miniconda.sh -b -p $HOME/miniconda
-    - name: Install
-      run: bash ci/actions/install.sh
-    - name: Tests
-      run: bash ci/actions/test.sh
+        export ENV_OS=${{ env.os }}
+        bash ci/actions/configure-conda-unix.sh
 
+    - name: Install
+      run: bash ci/actions/install-autodiff-unix.sh
+
+    - name: Test
+      run: bash ci/actions/test-autodiff-unix.sh

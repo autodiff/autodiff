@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2019 Allan Leal
+// Copyright (c) 2018-2020 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,12 +32,17 @@
 // C++ includes
 #include <cmath>
 #include <functional>
+#include <iostream>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 
+// autodiff includes
+#include <autodiff/common/numbertraits.hpp>
+#include <autodiff/common/meta.hpp>
+
 namespace autodiff {
-namespace forward {
+namespace detail {
 
 //=====================================================================================================================
 //
@@ -209,21 +214,6 @@ using NumberDualDualMulExpr = TernaryExpr<NumberDualDualMulOp, L, C, R>;
 //
 //=====================================================================================================================
 
-//-----------------------------------------------------------------------------
-// ENABLE-IF FOR SFINAE USE
-//-----------------------------------------------------------------------------
-template<bool value>
-using enableif = typename std::enable_if<value>::type;
-
-//-----------------------------------------------------------------------------
-// CONVENIENT TYPE TRAIT UTILITIES
-//-----------------------------------------------------------------------------
-template<typename T>
-using plain = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
-
-template<typename A, typename B>
-using common = typename std::common_type<A, B>::type;
-
 namespace traits {
 
 //-----------------------------------------------------------------------------
@@ -353,46 +343,49 @@ struct isNumberDualDualMulExpr<NumberDualDualMulExpr<L, C, R>> { constexpr stati
 } // namespace traits
 
 template<typename T, typename U>
-constexpr bool isConvertible = std::is_convertible<plain<T>, U>::value;
+constexpr bool isConvertible = std::is_convertible<PlainType<T>, U>::value;
 
 template<typename T>
-constexpr bool isArithmetic = traits::isArithmetic<plain<T>>::value;
+constexpr bool isArithmetic = traits::isArithmetic<PlainType<T>>::value;
 
 template<typename T>
-constexpr bool isExpr = traits::isExpr<plain<T>>::value;
+constexpr bool isExpr = traits::isExpr<PlainType<T>>::value;
 
 template<typename T>
-constexpr bool isDual = traits::isDual<plain<T>>::value;
+constexpr bool isDual = traits::isDual<PlainType<T>>::value;
 
 template<typename T>
-constexpr bool isUnaryExpr = traits::isUnaryExpr<plain<T>>::value;
+constexpr bool isUnaryExpr = traits::isUnaryExpr<PlainType<T>>::value;
 
 template<typename T>
-constexpr bool isBinaryExpr = traits::isBinaryExpr<plain<T>>::value;
+constexpr bool isBinaryExpr = traits::isBinaryExpr<PlainType<T>>::value;
 
 template<typename T>
-constexpr bool isTernaryExpr = traits::isTernaryExpr<plain<T>>::value;
+constexpr bool isTernaryExpr = traits::isTernaryExpr<PlainType<T>>::value;
 
 template<typename T>
-constexpr bool isNegExpr = traits::isNegExpr<plain<T>>::value;
+constexpr bool isNegExpr = traits::isNegExpr<PlainType<T>>::value;
 
 template<typename T>
-constexpr bool isInvExpr = traits::isInvExpr<plain<T>>::value;
+constexpr bool isInvExpr = traits::isInvExpr<PlainType<T>>::value;
 
 template<typename T>
-constexpr bool isAddExpr = traits::isAddExpr<plain<T>>::value;
+constexpr bool isAddExpr = traits::isAddExpr<PlainType<T>>::value;
 
 template<typename T>
-constexpr bool isMulExpr = traits::isMulExpr<plain<T>>::value;
+constexpr bool isMulExpr = traits::isMulExpr<PlainType<T>>::value;
 
 template<typename T>
-constexpr bool isPowExpr = traits::isPowExpr<plain<T>>::value;
+constexpr bool isPowExpr = traits::isPowExpr<PlainType<T>>::value;
 
 template<typename T>
-constexpr bool isNumberDualMulExpr = traits::isNumberDualMulExpr<plain<T>>::value;
+constexpr bool isNumberDualMulExpr = traits::isNumberDualMulExpr<PlainType<T>>::value;
 
 template<typename T>
-constexpr bool isNumberDualDualMulExpr = traits::isNumberDualDualMulExpr<plain<T>>::value;
+constexpr bool isNumberDualDualMulExpr = traits::isNumberDualDualMulExpr<PlainType<T>>::value;
+
+template<typename... Args>
+constexpr bool areDual = (... && isDual<Args>);
 
 //-----------------------------------------------------------------------------
 // ARE TYPES L AND R EXPRESSION NODES OR NUMBERS, BUT NOT BOTH NUMBERS?
@@ -400,78 +393,88 @@ constexpr bool isNumberDualDualMulExpr = traits::isNumberDualDualMulExpr<plain<T
 template<typename L, typename R>
 constexpr bool isOperable = (isExpr<L> && isExpr<R>) || (isArithmetic<L> && isExpr<R>) || (isExpr<L> && isArithmetic<R>);
 
-namespace traits {
+//-----------------------------------------------------------------------------
+// VALUE, GRAD, AND OP TYPES IN DUAL EXPRESSIONS
+//-----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
-// WHAT IS THE VALUE TYPE OF AN EXPRESSION NODE?
-//-----------------------------------------------------------------------------
+template<typename T> struct AuxDualType;
+template<typename T> struct AuxDualValueType;
+template<typename T> struct AuxDualGradType;
+template<typename T> struct AuxDualOpType;
+
+
+template<typename T> struct DualTypeNotDefinedFor {};
+template<typename T> struct DualValueTypeNotDefinedFor {};
+template<typename T> struct DualGradTypeNotDefinedFor {};
+template<typename T> struct DualOpTypeNotDefinedFor {};
+
+
+template<typename T> using DualType = typename AuxDualType<PlainType<T>>::type;
+template<typename T> using DualValueType = typename AuxDualValueType<PlainType<T>>::type;
+template<typename T> using DualGradType = typename AuxDualGradType<PlainType<T>>::type;
+template<typename T> using DualOpType = typename AuxDualOpType<PlainType<T>>::type;
 
 struct ValueTypeInvalid {};
 
 template<typename T>
-struct ValueType { using type = std::conditional_t<forward::isArithmetic<T>, T, ValueTypeInvalid>; };
+struct AuxDualType { using type = std::conditional_t<isArithmetic<T>, T,  DualTypeNotDefinedFor<T>>; };
 
 template<typename T, typename G>
-struct ValueType<Dual<T, G>> { using type = typename ValueType<plain<T>>::type; };
+struct AuxDualType<Dual<T, G>> { using type = Dual<T, G>; };
 
 template<typename Op, typename R>
-struct ValueType<UnaryExpr<Op, R>> { using type = typename ValueType<plain<R>>::type; };
+struct AuxDualType<UnaryExpr<Op, R>> { using type = DualType<R>; };
 
 template<typename Op, typename L, typename R>
-struct ValueType<BinaryExpr<Op, L, R>> { using type = common<typename ValueType<plain<L>>::type, typename ValueType<plain<R>>::type>; };
+struct AuxDualType<BinaryExpr<Op, L, R>> { using type = std::conditional_t<isDual<DualType<L>>, DualType<L>, DualType<R>>; };
 
 template<typename Op, typename L, typename C, typename R>
-struct ValueType<TernaryExpr<Op, L, C, R>> { using type = common<typename ValueType<plain<L>>::type, common<typename ValueType<plain<C>>::type, typename ValueType<plain<R>>::type>>; };
+struct AuxDualType<TernaryExpr<Op, L, C, R>> { using type = std::conditional_t<isDual<DualType<L>>, DualType<L>, std::conditional_t<isDual<DualType<C>>, DualType<C>, DualType<R>>>; };
 
-//-----------------------------------------------------------------------------
-// WHAT IS THE GRADIENT TYPE OF AN EXPRESSION NODE?
-//-----------------------------------------------------------------------------
-
-struct GradTypeInvalid {};
 
 template<typename T>
-struct GradType { using type = std::conditional_t<forward::isArithmetic<T>, T, GradTypeInvalid>; };
+struct AuxDualValueType { using type = std::conditional_t<isArithmetic<T>, T, DualValueTypeNotDefinedFor<T>>; };
 
 template<typename T, typename G>
-struct GradType<Dual<T, G>> { using type = typename GradType<plain<G>>::type; };
+struct AuxDualValueType<Dual<T, G>> { using type = DualValueType<T>; };
 
 template<typename Op, typename R>
-struct GradType<UnaryExpr<Op, R>> { using type = typename GradType<plain<R>>::type; };
+struct AuxDualValueType<UnaryExpr<Op, R>> { using type = DualValueType<R>; };
 
 template<typename Op, typename L, typename R>
-struct GradType<BinaryExpr<Op, L, R>> { using type = common<typename GradType<plain<L>>::type, typename GradType<plain<R>>::type>; };
+struct AuxDualValueType<BinaryExpr<Op, L, R>> { using type = CommonType<DualValueType<L>, DualValueType<R>>; };
 
 template<typename Op, typename L, typename C, typename R>
-struct GradType<TernaryExpr<Op, L, C, R>> { using type = common<typename GradType<plain<L>>::type, common<typename GradType<plain<C>>::type, typename GradType<plain<R>>::type>>; };
+struct AuxDualValueType<TernaryExpr<Op, L, C, R>> { using type = CommonType<DualValueType<L>, CommonType<DualValueType<C>, DualValueType<R>>>; };
 
-//-----------------------------------------------------------------------------
-// WHAT IS THE OPERATOR TYPE OF AN EXPRESSION NODE?
-//-----------------------------------------------------------------------------
-
-struct OperatorTypeInvalid {};
 
 template<typename T>
-struct OperatorType { using type = OperatorTypeInvalid; };
+struct AuxDualGradType { using type = std::conditional_t<isNumber<T>, T, DualGradTypeNotDefinedFor<T>>; };
+
+template<typename T, typename G>
+struct AuxDualGradType<Dual<T, G>> { using type = DualGradType<G>; };
 
 template<typename Op, typename R>
-struct OperatorType<UnaryExpr<Op, R>> { using type = Op; };
+struct AuxDualGradType<UnaryExpr<Op, R>> { using type = DualGradType<R>; };
 
 template<typename Op, typename L, typename R>
-struct OperatorType<BinaryExpr<Op, L, R>> { using type = Op; };
+struct AuxDualGradType<BinaryExpr<Op, L, R>> { using type = CommonType<DualGradType<L>, DualGradType<R>>; };
 
 template<typename Op, typename L, typename C, typename R>
-struct OperatorType<TernaryExpr<Op, L, C, R>> { using type = Op; };
+struct AuxDualGradType<TernaryExpr<Op, L, C, R>> { using type = CommonType<DualGradType<L>, CommonType<DualGradType<C>, DualGradType<R>>>; };
 
-} // namespace traits
-
-template<typename T>
-using ValueType = typename traits::ValueType<plain<T>>::type;
 
 template<typename T>
-using GradType = typename traits::GradType<plain<T>>::type;
+struct AuxDualOpType { using type = DualOpTypeNotDefinedFor<T>; };
 
-template<typename T>
-using OperatorType = typename traits::OperatorType<plain<T>>::type;
+template<typename Op, typename R>
+struct AuxDualOpType<UnaryExpr<Op, R>> { using type = Op; };
+
+template<typename Op, typename L, typename R>
+struct AuxDualOpType<BinaryExpr<Op, L, R>> { using type = Op; };
+
+template<typename Op, typename L, typename C, typename R>
+struct AuxDualOpType<TernaryExpr<Op, L, C, R>> { using type = Op; };
 
 //=====================================================================================================================
 //
@@ -490,19 +493,19 @@ struct Dual
 
     explicit operator T() const { return this->val; }
 
-    template<typename U, enableif<isConvertible<U, T> && !isExpr<U>>...>
+    template<typename U, EnableIf<isConvertible<U, T> && !isExpr<U>>...>
     Dual(U&& val)
     : val(std::forward<U>(val)), grad(0)
     {
     }
 
-    template<typename U, enableif<isExpr<U> && !isDual<U>>...>
+    template<typename U, EnableIf<isExpr<U> && !isDual<U>>...>
     Dual(U&& other)
     {
         assign(*this, std::forward<U>(other));
     }
 
-    template<typename U, enableif<isExpr<U> && !isDual<U>>...>
+    template<typename U, EnableIf<isExpr<U> && !isDual<U>>...>
     Dual& operator=(U&& other)
     {
         Dual tmp;
@@ -511,7 +514,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, enableif<isArithmetic<U> || isExpr<U>>...>
+    template<typename U, EnableIf<isArithmetic<U> || isExpr<U>>...>
     Dual& operator+=(U&& other)
     {
         Dual tmp;
@@ -520,7 +523,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, enableif<isArithmetic<U> || isExpr<U>>...>
+    template<typename U, EnableIf<isArithmetic<U> || isExpr<U>>...>
     Dual& operator-=(U&& other)
     {
         Dual tmp;
@@ -529,7 +532,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, enableif<isArithmetic<U> || isExpr<U>>...>
+    template<typename U, EnableIf<isArithmetic<U> || isExpr<U>>...>
     Dual& operator*=(U&& other)
     {
         Dual tmp;
@@ -538,7 +541,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, enableif<isArithmetic<U> || isExpr<U>>...>
+    template<typename U, EnableIf<isArithmetic<U> || isExpr<U>>...>
     Dual& operator/=(U&& other)
     {
         Dual tmp;
@@ -588,16 +591,18 @@ auto right(const BinaryExpr<Op, L, R>& expr) -> const R
 template<typename T>
 auto eval(T&& expr)
 {
+    static_assert(isDual<T> || isExpr<T> || isNumber<T>);
     if constexpr (isDual<T>)
         return std::forward<T>(expr);
     else if constexpr (isExpr<T>)
-        return Dual<ValueType<T>, GradType<T>>(std::forward<T>(expr));
+        return DualType<T>(std::forward<T>(expr));
     else return std::forward<T>(expr);
 }
 
 template<typename T>
 auto val(T&& expr)
 {
+    static_assert(isDual<T> || isExpr<T> || isNumber<T>);
     if constexpr (isDual<T>)
         return val(expr.val);
     else if constexpr (isExpr<T>)
@@ -605,133 +610,45 @@ auto val(T&& expr)
     else return std::forward<T>(expr);
 }
 
-namespace internal {
+//=====================================================================================================================
+//
+// DERIVATIVE FUNCTIONS
+//
+//=====================================================================================================================
 
-template<int num, typename Arg>
-auto seed(Arg& dual) -> void
-{
-    static_assert(isDual<Arg>);
-    dual.grad = num;
-}
-
-template<int num, typename Arg, typename... Args>
-auto seed(Arg& dual, Args&... duals) -> void
-{
-    static_assert(isDual<Arg>);
-    seed<num>(duals.val...);
-    dual.grad = num;
-}
-
-template<typename T>
-constexpr auto repeat(T&& t, std::index_sequence<0>)
-{
-    // Just stop recursion
-    return std::forward_as_tuple(std::forward<T>(t));
-}
-
-template<typename T, std::size_t I, std::size_t... N>
-constexpr auto repeat(T&& t, std::index_sequence<I, N...>)
-{
-    // concat tuple with rest N
-    return std::tuple_cat(std::forward_as_tuple(std::forward<T>(t)),
-        repeat<T>(std::forward<T>(t), std::make_index_sequence<sizeof...(N)>{}));
-}
-
-} // namespace internal
-
-template<typename Arg>
-auto seed(std::tuple<Arg&> dual)
-{
-    static_assert(isDual<Arg>);
-    internal::seed<1>(std::get<0>(dual));
-}
-
-template<typename... Args>
-auto seed(std::tuple<Args&...> duals)
-{
-    std::apply(internal::seed<1, Args&...>, duals);
-}
-
-template<typename Arg>
-auto unseed(std::tuple<Arg&> dual)
-{
-    static_assert(isDual<Arg>);
-    internal::seed<0>(std::get<0>(dual));
-}
-
-template<typename... Args>
-auto unseed(std::tuple<Args&...> duals)
-{
-    std::apply(internal::seed<0, Args&...>, duals);
-}
-
-template<typename... Args>
-auto wrt(Args&&... args)
-{
-    return std::forward_as_tuple(std::forward<Args>(args)...);
-}
-
-template<std::size_t N, typename Wrt>
-auto wrt(Wrt&& arg)
-{
-    return internal::repeat<Wrt>(std::forward<Wrt>(arg), std::make_index_sequence<N>{});
-}
-
-template<typename... Args>
-auto at(Args&&... args)
-{
-    return std::forward_as_tuple(std::forward<Args>(args)...);
-}
-
-template<std::size_t order, typename T, typename G>
+template<size_t order, typename T, typename G>
 auto derivative(const Dual<T, G>& dual)
 {
     if constexpr (order == 0)
-        return dual.val;
-    if constexpr (order == 1)
-        return dual.grad;
-    else
-        return derivative<order - 1>(dual.grad);
+        return val(dual.val);
+    else if constexpr (order == 1)
+        return val(dual.grad);
+    else return derivative<order - 1>(dual.grad);
 }
 
-template<typename Function, typename Wrt, typename Args, typename Result>
-auto derivative(const Function& f, Wrt&& wrt, Args&& args, Result& u)
+//=====================================================================================================================
+//
+// SEED FUNCTION
+//
+//=====================================================================================================================
+
+/// Traverse down along the `val` branch until depth `order` is reached, then return the `grad` node.
+template<size_t order, typename T, typename G>
+auto& gradnode(Dual<T, G>& dual)
 {
-    seed(wrt);
-    u = std::apply(f, args);
-    unseed(wrt);
-    return derivative<std::tuple_size<Wrt>::value>(u);
+    constexpr auto N = Order<Dual<T, G>>;
+    static_assert(order <= N);
+    if constexpr (order == 0) return dual.val;
+    else if constexpr (order == 1) return dual.grad;
+    else return gradnode<order - 1>(dual.val);
 }
 
-template<typename Function, typename Wrt, typename Args>
-auto derivative(const Function& f, Wrt&& wrt, Args&& args)
+/// Set the `grad` node of a dual number along the `val` branch at a depth `order`.
+template<size_t order, typename T, typename G, typename U>
+auto seed(Dual<T, G>& dual, U&& seedval)
 {
-    using Result = decltype(std::apply(f, args));
-    Result u;
-    return derivative(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u);
+    gradnode<order>(dual) = static_cast<NumericType<T>>(seedval);
 }
-
-// Code below requires template argument deduction, which is not available in clang v4,
-// only osx supported compiler in conda-forge at the moment
-
-// namespace internal {
-
-// template<typename T, typename G, typename... Args>
-// auto grad(const std::function<Dual<T, G>(Args...)>& f)
-// {
-//     auto g = [=](Dual<T, G>& wrt, Args&... args) -> G {
-//         return derivative(f, wrt, args...);
-//     };
-//     return g;
-// }
-
-// } // namespace internal
-
-// template<typename Function>
-// auto grad(const Function& f)
-// {
-//     return internal::grad(std::function{f});
-// }
 
 //=====================================================================================================================
 //
@@ -745,7 +662,7 @@ auto derivative(const Function& f, Wrt&& wrt, Args&& args)
 /// This alias template allows only dual numbers to have their original type.
 /// All other types become plain, without reference and const attributes.
 template<typename T>
-using PreventExprRef = std::conditional_t<isDual<T>, T, plain<T>>;
+using PreventExprRef = std::conditional_t<isDual<T>, T, PlainType<T>>;
 
 //-----------------------------------------------------------------------------
 // NEGATIVE EXPRESSION GENERATOR FUNCTION
@@ -777,13 +694,13 @@ constexpr auto inverse(U&& expr)
 template<typename U>
 constexpr auto Zero()
 {
-    return static_cast<ValueType<U>>(0);
+    return static_cast<DualValueType<U>>(0);
 }
 
 template<typename U>
 constexpr auto One()
 {
-    return static_cast<ValueType<U>>(1);
+    return static_cast<DualValueType<U>>(1);
 }
 
 //=====================================================================================================================
@@ -795,7 +712,7 @@ constexpr auto One()
 //-----------------------------------------------------------------------------
 // POSITIVE OPERATOR: +x
 //-----------------------------------------------------------------------------
-template<typename R, enableif<isExpr<R>>...>
+template<typename R, EnableIf<isExpr<R>>...>
 constexpr auto operator+(R&& expr)
 {
     return std::forward<R>(expr); // expression optimization: +(expr) => expr
@@ -807,7 +724,7 @@ constexpr auto operator+(R&& expr)
 //
 //=====================================================================================================================
 
-template<typename R, enableif<isExpr<R>>...>
+template<typename R, EnableIf<isExpr<R>>...>
 constexpr auto operator-(R&& expr)
 {
     // NEGATIVE EXPRESSION CASE: -(-x) => x when expr is (-x)
@@ -826,7 +743,7 @@ constexpr auto operator-(R&& expr)
 //
 //=====================================================================================================================
 
-template<typename L, typename R, enableif<isOperable<L, R>>...>
+template<typename L, typename R, EnableIf<isOperable<L, R>>...>
 constexpr auto operator+(L&& l, R&& r)
 {
     // ADDITION EXPRESSION CASE: (-x) + (-y) => -(x + y)
@@ -845,7 +762,7 @@ constexpr auto operator+(L&& l, R&& r)
 //
 //=====================================================================================================================
 
-template<typename L, typename R, enableif<isOperable<L, R>>...>
+template<typename L, typename R, EnableIf<isOperable<L, R>>...>
 constexpr auto operator*(L&& l, R&& r)
 {
     // MULTIPLICATION EXPRESSION CASE: (-expr) * (-expr) => expr * expr
@@ -879,7 +796,7 @@ constexpr auto operator*(L&& l, R&& r)
 //-----------------------------------------------------------------------------
 // SUBTRACTION OPERATOR: expr - expr, scalar - expr, expr - scalar
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isOperable<L, R>>...>
+template<typename L, typename R, EnableIf<isOperable<L, R>>...>
 constexpr auto operator-(L&& l, R&& r)
 {
     return std::forward<L>(l) + ( -std::forward<R>(r) );
@@ -894,7 +811,7 @@ constexpr auto operator-(L&& l, R&& r)
 //-----------------------------------------------------------------------------
 // DIVISION OPERATOR: expr / expr
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isOperable<L, R>>...>
+template<typename L, typename R, EnableIf<isOperable<L, R>>...>
 constexpr auto operator/(L&& l, R&& r)
 {
     if constexpr (isArithmetic<R>)
@@ -908,12 +825,12 @@ constexpr auto operator/(L&& l, R&& r)
 //
 //=====================================================================================================================
 
-template<typename R, enableif<isExpr<R>>...> constexpr auto sin(R&& r) -> SinExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto cos(R&& r) -> CosExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto tan(R&& r) -> TanExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto asin(R&& r) -> ArcSinExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto acos(R&& r) -> ArcCosExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto atan(R&& r) -> ArcTanExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto sin(R&& r) -> SinExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto cos(R&& r) -> CosExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto tan(R&& r) -> TanExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto asin(R&& r) -> ArcSinExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto acos(R&& r) -> ArcCosExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto atan(R&& r) -> ArcTanExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -921,9 +838,9 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto atan(R&& r) -> ArcTa
 //
 //=====================================================================================================================
 
-template<typename R, enableif<isExpr<R>>...> constexpr auto sinh(R&& r) -> SinhExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto cosh(R&& r) -> CoshExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto tanh(R&& r) -> TanhExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto sinh(R&& r) -> SinhExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto cosh(R&& r) -> CoshExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto tanh(R&& r) -> TanhExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -931,9 +848,9 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto tanh(R&& r) -> TanhE
 //
 //=====================================================================================================================
 
-template<typename R, enableif<isExpr<R>>...> constexpr auto exp(R&& r) -> ExpExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto log(R&& r) -> LogExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto log10(R&& r) -> Log10Expr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto exp(R&& r) -> ExpExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto log(R&& r) -> LogExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto log10(R&& r) -> Log10Expr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -941,8 +858,8 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto log10(R&& r) -> Log1
 //
 //=====================================================================================================================
 
-template<typename L, typename R, enableif<isOperable<L, R>>...> constexpr auto pow(L&& l, R&& r) -> PowExpr<L, R> { return { l, r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto sqrt(R&& r) -> SqrtExpr<R> { return { r }; }
+template<typename L, typename R, EnableIf<isOperable<L, R>>...> constexpr auto pow(L&& l, R&& r) -> PowExpr<L, R> { return { l, r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto sqrt(R&& r) -> SqrtExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -950,12 +867,11 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto sqrt(R&& r) -> SqrtE
 //
 //=====================================================================================================================
 
-template<typename R, enableif<isExpr<R>>...> constexpr auto abs(R&& r) -> AbsExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto abs2(R&& r) { return std::forward<R>(r) * std::forward<R>(r); }
-template<typename R, enableif<isExpr<R>>...> constexpr auto conj(R&& r) { return std::forward<R>(r); }
-template<typename R, enableif<isExpr<R>>...> constexpr auto real(R&& r) { return std::forward<R>(r); }
-template<typename R, enableif<isExpr<R>>...> constexpr auto imag(R&& r) { return 0.0; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto erf(R&& r) -> ErfExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto abs(R&& r) -> AbsExpr<R> { return { r }; }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto abs2(R&& r) { return std::forward<R>(r) * std::forward<R>(r); }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto conj(R&& r) { return std::forward<R>(r); }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto real(R&& r) { return std::forward<R>(r); }
+template<typename R, EnableIf<isExpr<R>>...> constexpr auto imag(R&& r) { return 0.0; }
 
 //=====================================================================================================================
 //
@@ -963,12 +879,12 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto erf(R&& r) -> ErfExp
 //
 //=====================================================================================================================
 
-template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator==(L&& l, R&& r) { return val(l) == val(r); }
-template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator!=(L&& l, R&& r) { return val(l) != val(r); }
-template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator<=(L&& l, R&& r) { return val(l) <= val(r); }
-template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator>=(L&& l, R&& r) { return val(l) >= val(r); }
-template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator<(L&& l, R&& r) { return val(l) < val(r); }
-template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator>(L&& l, R&& r) { return val(l) > val(r); }
+template<typename L, typename R, EnableIf<isOperable<L, R>>...> bool operator==(L&& l, R&& r) { return val(l) == val(r); }
+template<typename L, typename R, EnableIf<isOperable<L, R>>...> bool operator!=(L&& l, R&& r) { return val(l) != val(r); }
+template<typename L, typename R, EnableIf<isOperable<L, R>>...> bool operator<=(L&& l, R&& r) { return val(l) <= val(r); }
+template<typename L, typename R, EnableIf<isOperable<L, R>>...> bool operator>=(L&& l, R&& r) { return val(l) >= val(r); }
+template<typename L, typename R, EnableIf<isOperable<L, R>>...> bool operator<(L&& l, R&& r) { return val(l) < val(r); }
+template<typename L, typename R, EnableIf<isOperable<L, R>>...> bool operator>(L&& l, R&& r) { return val(l) > val(r); }
 
 //=====================================================================================================================
 //
@@ -1026,7 +942,7 @@ constexpr void assign(Dual<T, G>& self, U&& other)
     }
     // ASSIGN A UNARY EXPRESSION: self = unaryexpr
     else if constexpr (isUnaryExpr<U>) {
-        using Op = OperatorType<U>;
+        using Op = DualOpType<U>;
         assign(self, other.r);
         apply<Op>(self);
     }
@@ -1054,7 +970,7 @@ constexpr void assign(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 
     // ASSIGN AN UNARY EXPRESSION: self = func(expr)
     if constexpr (isUnaryExpr<U>) {
-        using Op = OperatorType<U>;
+        using Op = DualOpType<U>;
         assign(self, other.r, tmp);
         apply<Op>(self);
     }
@@ -1489,7 +1405,7 @@ constexpr void apply(Dual<T, G>& self, LogOp)
 template<typename T, typename G>
 constexpr void apply(Dual<T, G>& self, Log10Op)
 {
-    constexpr T ln10 = 2.3025850929940456840179914546843;
+    constexpr auto ln10 = 2.3025850929940456840179914546843;
     const T aux = One<T>() / (ln10 * self.val);
     self.val = log10(self.val);
     self.grad *= aux;
@@ -1532,37 +1448,59 @@ std::ostream& operator<<(std::ostream& out, const Dual<T, G>& x)
     return out;
 }
 
-namespace internal {
+//=====================================================================================================================
+//
+// NUMBER TRAITS DEFINITION
+//
+//=====================================================================================================================
 
-template<std::size_t N>
-struct HigherOrderDual;
-
-template<>
-struct HigherOrderDual<0>
+template<typename T, typename G>
+struct NumberTraits<Dual<T, G>>
 {
-    using type = double;
+    /// The underlying floating point type of Dual<T, G>.
+    using NumericType = DualValueType<T>;
+
+    /// The order of Dual<T, G>.
+    static constexpr auto Order = 1 + NumberTraits<PlainType<T>>::Order;
 };
 
-template<std::size_t N>
-struct HigherOrderDual
+//=====================================================================================================================
+//
+// HIGHER-ORDER DUAL NUMBERS
+//
+//=====================================================================================================================
+
+template<size_t N, typename T>
+struct AuxHigherOrderDual;
+
+template<typename T>
+struct AuxHigherOrderDual<0, T>
 {
-    using type = Dual<typename HigherOrderDual<N-1>::type, typename HigherOrderDual<N-1>::type>;
+    using type = T;
 };
 
-} // namespace internal
+template<size_t N, typename T>
+struct AuxHigherOrderDual
+{
+    using type = Dual<typename AuxHigherOrderDual<N - 1, T>::type, typename AuxHigherOrderDual<N - 1, T>::type>;
+};
 
-template<std::size_t N>
-using HigherOrderDual = typename internal::HigherOrderDual<N>::type;
+template<size_t N, typename T>
+using HigherOrderDual = typename AuxHigherOrderDual<N, T>::type;
 
-using dual = forward::Dual<double, double>;
+} // namespace detail
 
-} // namespace forward
+using detail::val;
+using detail::eval;
+using detail::Dual;
+using detail::HigherOrderDual;
 
-using forward::dual;
-using forward::val;
-using forward::eval;
-using forward::derivative;
-using forward::wrt;
-using forward::HigherOrderDual;
+using dual0th = HigherOrderDual<0, double>;
+using dual1st = HigherOrderDual<1, double>;
+using dual2nd = HigherOrderDual<2, double>;
+using dual3rd = HigherOrderDual<3, double>;
+using dual4th = HigherOrderDual<4, double>;
+
+using dual = dual1st;
 
 } // namespace autodiff

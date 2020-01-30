@@ -1,4 +1,3 @@
-
 # Create the autodiff interface library
 add_library(autodiff INTERFACE)
 
