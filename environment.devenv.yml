@@ -1,5 +1,6 @@
 name: autodiff
-
+channels:
+  - conda-forge
 dependencies:
   - gxx_linux-64=7.3.0  # [linux]
   - clangxx_osx-64=9.0.0  # [osx]
