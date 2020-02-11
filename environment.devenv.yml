@@ -8,9 +8,8 @@ dependencies:
   - gxx_linux-64=7.3.0  # [linux]
   - ccache  # [unix]
   - pip
-  - pip:
-    - mkdocs
-    - mkdocs-material
-    - mkdocs-macros-plugin
+  - mkdocs
+  - mkdocs-material
+  - mkdocs-macros-plugin
   - pre-commit
   - shellcheck
