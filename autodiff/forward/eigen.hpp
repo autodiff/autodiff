@@ -77,15 +77,15 @@ struct ScalarBinaryOpTraits<autodiff::forward::ValueType<T>, autodiff::forward::
 namespace autodiff {
 
 #define EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)   \
-typedef Matrix<Type, Size, Size, 0, Size, Size> Matrix##SizeSuffix##TypeSuffix;  \
-typedef Matrix<Type, Size, 1, 0, Size, 1>       Vector##SizeSuffix##TypeSuffix;  \
-typedef Array<Type, Size, 1, 0, Size, 1>        Array##SizeSuffix##TypeSuffix;  \
-typedef Matrix<Type, 1, Size, 1, 1, Size>       RowVector##SizeSuffix##TypeSuffix;
+typedef Eigen::Matrix<Type, Size, Size, 0, Size, Size> Matrix##SizeSuffix##TypeSuffix;  \
+typedef Eigen::Matrix<Type, Size, 1, 0, Size, 1>       Vector##SizeSuffix##TypeSuffix;  \
+typedef Eigen::Array<Type, Size, 1, 0, Size, 1>        Array##SizeSuffix##TypeSuffix;  \
+typedef Eigen::Matrix<Type, 1, Size, 1, 1, Size>       RowVector##SizeSuffix##TypeSuffix;
 
 #define EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, Size)         \
-typedef Array<Type, Size, -1, 0, Size, -1> Array##Size##X##TypeSuffix;  \
-typedef Matrix<Type, Size, -1, 0, Size, -1> Matrix##Size##X##TypeSuffix;  \
-typedef Matrix<Type, -1, Size, 0, -1, Size> Matrix##X##Size##TypeSuffix;
+typedef Eigen::Array<Type, Size, -1, 0, Size, -1> Array##Size##X##TypeSuffix;  \
+typedef Eigen::Matrix<Type, Size, -1, 0, Size, -1> Matrix##Size##X##TypeSuffix;  \
+typedef Eigen::Matrix<Type, -1, Size, 0, -1, Size> Matrix##X##Size##TypeSuffix;
 
 #define EIGEN_MAKE_TYPEDEFS_ALL_SIZES(Type, TypeSuffix) \
 EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 2, 2) \
@@ -334,7 +334,7 @@ auto hessian(const Function& f, Wrt&& wrt, Args&& args) -> Eigen::MatrixXd
 {
     using Result = decltype(std::apply(f, args));
     Result u;
-    VectorXd g;
+    Eigen::VectorXd g;
     return hessian(f, std::forward<Wrt>(wrt), std::forward<Args>(args), u, g);
 }
 } // namespace autodiff::forward
