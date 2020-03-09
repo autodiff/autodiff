@@ -16,7 +16,13 @@ include(GNUInstallDirs)
 # Ensure proper configuration if in a conda environment
 include(CondaAware)
 
-find_package(Eigen3 REQUIRED)
+# Find Eigen3 if its include path is not given
+if(NOT DEFINED EIGEN3_INCLUDE_DIR)
+    find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+endif()
+
+# Show message stating path to Eigen3
+message(STATUS "Using Eigen3 library found at ${EIGEN3_INCLUDE_DIR}")
 
 # autodiff requires a c++17 enabled compiler
 set(CMAKE_CXX_STANDARD 17)
