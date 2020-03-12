@@ -15,9 +15,6 @@ inline double grad(const var& y, var& x)
 /// Convenient function used in the tests to calculate the derivative of a variable y with respect to a variable x (for higher order derivatives).
 inline var gradx(const var& y, var& x)
 {
-    // const auto dyd = derivativesx(y);
-    // return dyd(x);
-
     auto gx = gradientx(y, wrt(x));
     return gx[0];
 }
