@@ -52,6 +52,9 @@ using ReturnType = std::invoke_result_t<Fun, Args...>;
 template<typename T>
 constexpr bool isNumber = std::is_arithmetic<PlainType<T>>::value;
 
+template<typename T>
+constexpr bool isArithmetic = std::is_arithmetic<PlainType<T>>::value;
+
 template<typename Tuple>
 constexpr auto TupleSize = std::tuple_size_v<std::decay_t<Tuple>>;
 
