@@ -6,17 +6,20 @@
 using namespace autodiff;
 
 /// Convenient function used in the tests to calculate the derivative of a variable y with respect to a variable x.
-inline double grad(const var& y, const var& x)
+inline double grad(const var& y, var& x)
 {
-    const auto dyd = derivatives(y);
-    return dyd(x);
+    auto g = gradient(y, wrt(x));
+    return g[0];
 }
 
 /// Convenient function used in the tests to calculate the derivative of a variable y with respect to a variable x (for higher order derivatives).
-inline var gradx(const var& y, const var& x)
+inline var gradx(const var& y, var& x)
 {
-    const auto dyd = derivativesx(y);
-    return dyd(x);
+    // const auto dyd = derivativesx(y);
+    // return dyd(x);
+
+    auto gx = gradientx(y, wrt(x));
+    return gx[0];
 }
 
 class approx : public Approx
@@ -50,6 +53,7 @@ TEST_CASE("autodiff::var tests", "[var]")
     //------------------------------------------------------------------------------
     c = +a;
 
+    REQUIRE( val(c) == val(a) );
     REQUIRE( grad(c, a) == 1 );
 
     //------------------------------------------------------------------------------
@@ -57,16 +61,26 @@ TEST_CASE("autodiff::var tests", "[var]")
     //------------------------------------------------------------------------------
     c = -a;
 
+    REQUIRE( val(c) == -val(a) );
     REQUIRE( grad(c, a) == -1 );
 
     //------------------------------------------------------------------------------
     // TEST WHEN IDENTICAL/EQUIVALENT VARIABLES ARE PRESENT
     //------------------------------------------------------------------------------
     x = a;
-    c = a + x;
+    c = a*a + x;
 
-    REQUIRE( grad(c, a) == 2 );
-    REQUIRE( grad(c, x) == 2 );
+    REQUIRE( val(c) == val(a)*val(a) + val(x) );
+    REQUIRE( grad(c, a) == 2*val(a) + val(grad(x, a)) );
+    REQUIRE( grad(c, x) == 2*val(a) * val(grad(a, x)) + 1 );
+
+    //------------------------------------------------------------------------------
+    // TEST DERIVATIVES COMPUTATION REMAINS CORRECT AFTER CHANGING VAR VALUE
+    //------------------------------------------------------------------------------
+    a = 20.0;
+
+    REQUIRE( grad(c, a) == 2*val(a) + val(grad(x, a)) );
+    REQUIRE( grad(c, x) == 2*val(a) * val(grad(a, x)) + 1 );
 
     //------------------------------------------------------------------------------
     // TEST MULTIPLICATION OPERATOR (USING CONSTANT FACTOR)
@@ -117,6 +131,7 @@ TEST_CASE("autodiff::var tests", "[var]")
     //------------------------------------------------------------------------------
     // TEST COMPARISON OPERATORS
     //------------------------------------------------------------------------------
+    a = 10;
     x = 10;
 
     REQUIRE( a == a );
@@ -210,9 +225,12 @@ TEST_CASE("autodiff::var tests", "[var]")
 
     y = 2 * a;
 
+    REQUIRE( y == Approx( 2 * val(a) ) );
+    REQUIRE( grad(y, a) == Approx( 2.0 ) );
+
     REQUIRE( val(pow(x, y)) == Approx(std::pow(val(x), val(y))) );
     REQUIRE( grad(pow(x, y), x) == Approx( val(y)/val(x) * std::pow(val(x), val(y)) ) );
-    REQUIRE( grad(pow(x, y), a) == Approx( std::log(val(x)) * grad(y, a) * std::pow(val(x), val(y)) ) );
+    REQUIRE( grad(pow(x, y), a) == Approx( std::pow(val(x), val(y)) * (val(y)/val(x) * grad(x, a) + std::log(val(x)) * grad(y, a)) ) );
     REQUIRE( grad(pow(x, y), y) == Approx( std::log(val(x)) * std::pow(val(x), val(y)) ) );
 
     //--------------------------------------------------------------------------
