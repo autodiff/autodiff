@@ -1020,14 +1020,14 @@ template<typename T> ExprPtr<T> real(const Variable<T>& x) { return real(x.expr)
 template<typename T> ExprPtr<T> imag(const Variable<T>& x) { return imag(x.expr); }
 template<typename T> ExprPtr<T> erf(const Variable<T>& x) { return erf(x.expr); }
 
-/// Return the value of a variable x.
+/// Return the value of a variable.
 template<typename T>
 const T& val(const Variable<T>& x)
 {
     return x.expr->val;
 }
 
-/// Return the value of a variable x.
+/// Return the value of an expression.
 template<typename T>
 const T& val(const ExprPtr<T>& x)
 {
