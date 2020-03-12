@@ -68,16 +68,16 @@ TEST_CASE("autodiff::var tests", "[var]")
     c = a*a + x;
 
     REQUIRE( val(c) == val(a)*val(a) + val(x) );
-    REQUIRE( grad(c, a) == 2*val(a) + val(grad(x, a)) );
-    REQUIRE( grad(c, x) == 2*val(a) * val(grad(a, x)) + 1 );
+    REQUIRE( grad(c, a) == 2*val(a) + grad(x, a) );
+    REQUIRE( grad(c, x) == 2*val(a) * grad(a, x) + 1 );
 
     //------------------------------------------------------------------------------
     // TEST DERIVATIVES COMPUTATION REMAINS CORRECT AFTER CHANGING VAR VALUE
     //------------------------------------------------------------------------------
     a = 20.0;
 
-    REQUIRE( grad(c, a) == 2*val(a) + val(grad(x, a)) );
-    REQUIRE( grad(c, x) == 2*val(a) * val(grad(a, x)) + 1 );
+    REQUIRE( grad(c, a) == 2*val(a) + grad(x, a) );
+    REQUIRE( grad(c, x) == 2*val(a) * grad(a, x) + 1 );
 
     //------------------------------------------------------------------------------
     // TEST MULTIPLICATION OPERATOR (USING CONSTANT FACTOR)
@@ -163,7 +163,7 @@ TEST_CASE("autodiff::var tests", "[var]")
     //--------------------------------------------------------------------------
     x = 0.5;
 
-    REQUIRE( val(sin(x)) == approx(std::sin(val(x))) );
+    REQUIRE( val<double>(sin(x)) == approx(std::sin(val(x))) );
     REQUIRE( grad(sin(x), x) == approx(std::cos(val(x))) );
 
     REQUIRE( val(cos(x)) == approx(std::cos(val(x))) );
@@ -237,13 +237,12 @@ TEST_CASE("autodiff::var tests", "[var]")
     y = x;
 
     REQUIRE( val(abs(x)) == Approx(std::abs(val(x))) );
-    REQUIRE( val(grad(x, x)) == Approx(1.0) );
+    REQUIRE( grad(x, x) == Approx(1.0) );
 
     x = 0.5;
     constexpr double pi = 3.141592653589793238462643383279502884197169399375105820974;
     REQUIRE( val(erf(x)) == approx(std::erf(val(x))) );
     REQUIRE( grad(erf(x), x) == approx(2/sqrt(pi) * std::exp(-val(x)*val(x))) );
-
 
     //--------------------------------------------------------------------------
     // TEST HIGHER ORDER DERIVATIVES (2nd order)
