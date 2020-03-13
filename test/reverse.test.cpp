@@ -22,10 +22,11 @@ inline auto grad(const var& y, var& x)
 
 inline auto gradx(const var& y, var& x)
 {
-    auto g = gradient(y, wrt(x));
+    auto g = gradientx(y, wrt(x));
     return g[0];
 }
 
+/// A helper class to deal with catch::Approx combined with autodiff::Variable number type.
 class approx : public Approx
 {
 public:
@@ -33,7 +34,15 @@ public:
     approx(const var& x) : Approx(val(x)) {}
 };
 
-bool operator==(const var& l, const Approx& r) { return val(l) == r; }
+namespace autodiff {
+namespace reverse {
+
+/// A helper equal operator to deal with catch::Approx combined with autodiff::Variable number type.
+template<typename T>
+bool operator==(const Variable<T>& l, const Approx& r) { return val(l) == r; }
+
+} // namespace reverse
+} // namespace autodiff
 
 TEST_CASE("autodiff::var tests", "[var]")
 {
@@ -254,20 +263,20 @@ TEST_CASE("autodiff::var tests", "[var]")
     //--------------------------------------------------------------------------
     // TEST HIGHER ORDER DERIVATIVES (2nd order)
     //--------------------------------------------------------------------------
-    // REQUIRE( val(gradx(gradx(x * x, x), x)) == Approx(2.0) );
-    // REQUIRE( val(gradx(gradx(1.0/x, x), x)) == Approx(val(2.0/(x * x * x))) );
-    // REQUIRE( val(gradx(gradx(sin(x), x), x)) == Approx(val(-sin(x))) );
-    // REQUIRE( val(gradx(gradx(cos(x), x), x)) == Approx(val(-cos(x))) );
-    // REQUIRE( val(gradx(gradx(log(x), x), x)) == Approx(val(-1.0/(x * x))) );
-    // REQUIRE( val(gradx(gradx(exp(x), x), x)) == Approx(val(exp(x))) );
-    // REQUIRE( val(gradx(gradx(pow(x, 2.0), x), x)) == Approx(2.0) );
-    // REQUIRE( val(gradx(gradx(pow(2.0, x), x), x)) == Approx(val(std::log(2.0) * std::log(2.0) * pow(2.0, x))) );
-    // REQUIRE( val(gradx(gradx(pow(x, x), x), x)) == Approx(val(((log(x) + 1) * (log(x) + 1) + 1.0/x) * pow(x, x))) );
-    // REQUIRE( val(gradx(gradx(sqrt(x), x), x)) == Approx(val(-0.25 / (x * sqrt(x)))) );
+    REQUIRE( val(gradx(gradx(x * x, x), x)) == Approx(2.0) );
+    REQUIRE( val(gradx(gradx(1.0/x, x), x)) == Approx(val(2.0/(x * x * x))) );
+    REQUIRE( val(gradx(gradx(sin(x), x), x)) == Approx(val(-sin(x))) );
+    REQUIRE( val(gradx(gradx(cos(x), x), x)) == Approx(val(-cos(x))) );
+    REQUIRE( val(gradx(gradx(log(x), x), x)) == Approx(val(-1.0/(x * x))) );
+    REQUIRE( val(gradx(gradx(exp(x), x), x)) == Approx(val(exp(x))) );
+    REQUIRE( val(gradx(gradx(pow(x, 2.0), x), x)) == Approx(2.0) );
+    REQUIRE( val(gradx(gradx(pow(2.0, x), x), x)) == Approx(val(std::log(2.0) * std::log(2.0) * pow(2.0, x))) );
+    REQUIRE( val(gradx(gradx(pow(x, x), x), x)) == Approx(val(((log(x) + 1) * (log(x) + 1) + 1.0/x) * pow(x, x))) );
+    REQUIRE( val(gradx(gradx(sqrt(x), x), x)) == Approx(val(-0.25 / (x * sqrt(x)))) );
 
     //--------------------------------------------------------------------------
     // TEST HIGHER ORDER DERIVATIVES (3rd order)
     //--------------------------------------------------------------------------
-    // REQUIRE( val(gradx(gradx(gradx(log(x), x), x), x)) == approx(val(2.0/(x * x * x))) );
-    // REQUIRE( val(gradx(gradx(gradx(exp(x), x), x), x)) == approx(val(exp(x))) );
+    REQUIRE( val(gradx(gradx(gradx(log(x), x), x), x)) == approx(val(2.0/(x * x * x))) );
+    REQUIRE( val(gradx(gradx(gradx(exp(x), x), x), x)) == approx(val(exp(x))) );
 }

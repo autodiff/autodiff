@@ -95,11 +95,9 @@ template<typename T> struct PowExpr;
 template<typename T> struct SqrtExpr;
 template<typename T> struct AbsExpr;
 template<typename T> struct ErfExpr;
-
-template<typename T> using ExprPtr = std::shared_ptr<Expr<T>>;
-
 template<typename T> struct Variable;
 
+template<typename T> using ExprPtr = std::shared_ptr<Expr<T>>;
 
 template<typename T>
 struct VariableValueTypeNotDefinedFor {};
@@ -118,7 +116,6 @@ struct AuxVariableValueType<ExprPtr<T>> { using type = typename AuxVariableValue
 
 template<typename T>
 using VariableValueType = typename AuxVariableValueType<T>::type;
-
 
 template<typename T>
 struct VariableModeFirstOrder
@@ -251,6 +248,10 @@ struct Expr
     /// Update the contribution of this expression in the derivative of the root node of the expression tree.
     /// @param wprime The derivative of the root expression node w.r.t. the child expression of this expression node.
     virtual void propagate(const T& wprime) = 0;
+
+    /// Update the contribution of this expression in the derivative of the root node of the expression tree.
+    /// @param wprime The derivative of the root expression node w.r.t. the child expression of this expression node (as an expression).
+    virtual void propagatex(const ExprPtr<T>& wprime) = 0;
 };
 
 /// The node in the expression tree representing either an independent or dependent variable.
@@ -259,6 +260,9 @@ struct VariableExpr : Expr<T>
 {
     /// The derivative of the root expression node with respect to this variable.
     T grad = {};
+
+    /// The derivative of the root expression node with respect to this variable (as an expression for higher-order derivatives).
+    ExprPtr<T> gradx = {};
 
     /// Construct a VariableExpr object with given value.
     VariableExpr(const T& val) : Expr<T>(val) {}
@@ -270,15 +274,22 @@ struct IndependentVariableExpr : VariableExpr<T>
 {
     // Using declarations for data members of base class
     using VariableExpr<T>::grad;
+    using VariableExpr<T>::gradx;
 
     /// Construct an IndependentVariableExpr object with given value.
     IndependentVariableExpr(const T& val) : VariableExpr<T>(val)
     {
+        gradx = constant<T>(0.0); // TODO: Check if this can be done at the seed function.
     }
 
     virtual void propagate(const T& wprime)
     {
         grad += wprime;
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        gradx = gradx + wprime;
     }
 };
 
@@ -288,6 +299,7 @@ struct DependentVariableExpr : VariableExpr<T>
 {
     // Using declarations for data members of base class
     using VariableExpr<T>::grad;
+    using VariableExpr<T>::gradx;
 
     /// The expression tree that defines how the dependent variable is calculated.
     ExprPtr<T> expr;
@@ -295,12 +307,19 @@ struct DependentVariableExpr : VariableExpr<T>
     /// Construct an DependentVariableExpr object with given value.
     DependentVariableExpr(const ExprPtr<T>& expr) : VariableExpr<T>(expr->val), expr(expr)
     {
+        gradx = constant<T>(0.0); // TODO: Check if this can be done at the seed function.
     }
 
     virtual void propagate(const T& wprime)
     {
         grad += wprime;
         expr->propagate(wprime);
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        gradx = gradx + wprime;
+        expr->propagatex(wprime);
     }
 };
 
@@ -310,6 +329,9 @@ struct ConstantExpr : Expr<T>
     using Expr<T>::Expr;
 
     virtual void propagate(const T& wprime)
+    {}
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
     {}
 };
 
@@ -332,6 +354,11 @@ struct NegativeExpr : UnaryExpr<T>
     virtual void propagate(const T& wprime)
     {
         x->propagate(-wprime);
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(-wprime);
     }
 };
 
@@ -357,6 +384,12 @@ struct AddExpr : BinaryExpr<T>
         l->propagate(wprime);
         r->propagate(wprime);
     }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        l->propagatex(wprime);
+        r->propagatex(wprime);
+    }
 };
 
 template<typename T>
@@ -372,6 +405,12 @@ struct SubExpr : BinaryExpr<T>
         l->propagate( wprime);
         r->propagate(-wprime);
     }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        l->propagatex( wprime);
+        r->propagatex(-wprime);
+    }
 };
 
 template<typename T>
@@ -386,6 +425,12 @@ struct MulExpr : BinaryExpr<T>
     {
         l->propagate(wprime * r->val);
         r->propagate(wprime * l->val);
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        l->propagatex(wprime * r);
+        r->propagatex(wprime * l);
     }
 };
 
@@ -404,6 +449,14 @@ struct DivExpr : BinaryExpr<T>
         l->propagate(wprime * aux1);
         r->propagate(wprime * aux2);
     }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        const auto aux1 = 1.0 / r;
+        const auto aux2 = -l * aux1 * aux1;
+        l->propagatex(wprime * aux1);
+        r->propagatex(wprime * aux2);
+    }
 };
 
 template<typename T>
@@ -418,6 +471,11 @@ struct SinExpr : UnaryExpr<T>
     {
         x->propagate(wprime * cos(x->val));
     }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(wprime * cos(x));
+    }
 };
 
 template<typename T>
@@ -431,6 +489,11 @@ struct CosExpr : UnaryExpr<T>
     virtual void propagate(const T& wprime)
     {
         x->propagate(-wprime * sin(x->val));
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(-wprime * sin(x));
     }
 };
 
@@ -447,6 +510,12 @@ struct TanExpr : UnaryExpr<T>
         const auto aux = 1.0 / cos(x->val);
         x->propagate(wprime * aux * aux);
     }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        const auto aux = 1.0 / cos(x);
+        x->propagatex(wprime * aux * aux);
+    }
 };
 
 template<typename T>
@@ -461,6 +530,11 @@ struct SinhExpr : UnaryExpr<T>
     {
         x->propagate(wprime * cosh(x->val));
     }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(wprime * cosh(x));
+    }
 };
 
 template<typename T>
@@ -474,6 +548,11 @@ struct CoshExpr : UnaryExpr<T>
     virtual void propagate(const T& wprime)
     {
         x->propagate(wprime * sinh(x->val));
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(wprime * sinh(x));
     }
 };
 
@@ -490,6 +569,12 @@ struct TanhExpr : UnaryExpr<T>
         const auto aux = 1.0 / cosh(x->val);
         x->propagate(wprime * aux * aux);
     }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        const auto aux = 1.0 / cosh(x);
+        x->propagatex(wprime * aux * aux);
+    }
 };
 
 template<typename T>
@@ -503,6 +588,11 @@ struct ArcSinExpr : UnaryExpr<T>
     virtual void propagate(const T& wprime)
     {
         x->propagate(wprime / sqrt(1.0 - x->val * x->val));
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(wprime / sqrt(1.0 - x * x));
     }
 };
 
@@ -518,6 +608,11 @@ struct ArcCosExpr : UnaryExpr<T>
     {
         x->propagate(-wprime / sqrt(1.0 - x->val * x->val));
     }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(-wprime / sqrt(1.0 - x * x));
+    }
 };
 
 template<typename T>
@@ -531,6 +626,11 @@ struct ArcTanExpr : UnaryExpr<T>
     virtual void propagate(const T& wprime)
     {
         x->propagate(wprime / (1.0 + x->val * x->val));
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(wprime / (1.0 + x * x));
     }
 };
 
@@ -546,6 +646,11 @@ struct ExpExpr : UnaryExpr<T>
     {
         x->propagate(wprime * val);
     }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(wprime * exp(x));
+    }
 };
 
 template<typename T>
@@ -558,6 +663,11 @@ struct LogExpr : UnaryExpr<T>
     virtual void propagate(const T& wprime)
     {
         x->propagate(wprime / x->val);
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(wprime / x);
     }
 };
 
@@ -574,6 +684,11 @@ struct Log10Expr : UnaryExpr<T>
     virtual void propagate(const T& wprime)
     {
         x->propagate(wprime / (ln10 * x->val));
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(wprime / (ln10 * x));
     }
 };
 
@@ -597,6 +712,13 @@ struct PowExpr : BinaryExpr<T>
         l->propagate(aux * rval / lval);
         r->propagate(aux * log(lval));
     }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        const auto aux = wprime * pow(l, r - 1);
+        l->propagatex(aux * r);
+        r->propagatex(aux * l * log(l));
+    }
 };
 
 template<typename T>
@@ -612,6 +734,11 @@ struct PowConstantLeftExpr : BinaryExpr<T>
     virtual void propagate(const T& wprime)
     {
         r->propagate(wprime * val * log(l->val));
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        r->propagatex(wprime * pow(l, r) * log(l));
     }
 };
 
@@ -629,6 +756,11 @@ struct PowConstantRightExpr : BinaryExpr<T>
     {
         l->propagate(wprime * val * r->val / l->val);
     }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        l->propagatex(wprime * pow(l, r - 1) * r);
+    }
 };
 
 template<typename T>
@@ -643,6 +775,11 @@ struct SqrtExpr : UnaryExpr<T>
     {
         x->propagate(wprime / (2.0 * sqrt(x->val)));
     }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(wprime / (2.0 * sqrt(x)));
+    }
 };
 
 template<typename T>
@@ -656,6 +793,11 @@ struct AbsExpr : UnaryExpr<T>
     virtual void propagate(const T& wprime)
     {
         x->propagate(wprime * std::copysign(1.0, val(x)));
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        x->propagatex(wprime * std::copysign(1.0, val(x)));
     }
 };
 
@@ -673,6 +815,12 @@ struct ErfExpr : UnaryExpr<T>
     {
         const auto aux = 2.0/sqrt_pi * exp(-(x->val)*(x->val));
         x->propagate(wprime * aux);
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        const auto aux = 2.0/sqrt_pi * exp(-x*x);
+        x->propagatex(wprime * aux);
     }
 };
 
@@ -788,10 +936,11 @@ struct Variable
     /// Construct a Variable object variable with given expression
     Variable(const ExprPtr<T>& expr) : expr(std::make_shared<DependentVariableExpr<T>>(expr)) {}
 
-    // auto grad() const { return expr->grad; }
     auto grad() const { return static_cast<VariableExpr<T>*>(expr.get())->grad; }
+    auto gradx() const { return static_cast<VariableExpr<T>*>(expr.get())->gradx; }
 
     auto seed() { static_cast<VariableExpr<T>*>(expr.get())->grad = 0; }
+    auto seedx() { static_cast<VariableExpr<T>*>(expr.get())->gradx = constant<T>(0); }
 
     /// Implicitly convert this Variable object variable into an expression pointer
     operator ExprPtr<T>() const { return expr; }
@@ -942,31 +1091,19 @@ using Derivatives = std::function<double(const Variable<double>&)>;
 using DerivativesX = std::function<Variable<double>(const Variable<double>&)>;
 
 /// Return the derivatives of a variable y with respect to all independent variables.
-[[deprecated("Use method gradient(y, wrt(a, b, c,...) instead.")]]
-Derivatives derivatives(const Variable<double>& y)
+template<typename T>
+[[deprecated("Use method `gradient(y, wrt(a, b, c,...)` instead.")]]
+Derivatives derivatives(const T& y)
 {
-    DerivativesMap map;
-
-    auto fn = [=](const Variable<double>& x)
-    {
-        return 0.0;
-    };
-
-    return fn;
+    static_assert(!std::is_same_v<T,T>, "Method derivatives(const var&) has been deprecated. Use method gradient(y, wrt(a, b, c,...) instead.");
 }
 
 /// Return the derivatives of a variable y with respect to all independent variables.
+template<typename T>
 [[deprecated("Use method gradientx(y, wrt(a, b, c,...) instead.")]]
-DerivativesX derivativesx(const Variable<double>& y)
+DerivativesX derivativesx(const T& y)
 {
-    DerivativesMapX map;
-
-    auto fn = [=](const Variable<double>& x)
-    {
-        return 0.0;
-    };
-
-    return fn;
+    static_assert(!std::is_same_v<T,T>, "Method derivativesx(const var&) has been deprecated. Use method gradientx(y, wrt(a, b, c,...) instead.");
 }
 
 template<typename... Vars>
@@ -982,7 +1119,7 @@ auto wrt(Args&&... args)
     return Wrt<Args&&...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
 }
 
-/// Seed each Variable number in the **wrt** list.
+/// Seed each variable in the **wrt** list.
 template<typename... Vars>
 auto seed(const Wrt<Vars...>& wrt)
 {
@@ -992,7 +1129,17 @@ auto seed(const Wrt<Vars...>& wrt)
     });
 }
 
-/// Return the derivatives of a variable y with respect to all independent variables.
+/// Seed each variable in the **wrt** list.
+template<typename... Vars>
+auto seedx(const Wrt<Vars...>& wrt)
+{
+    constexpr static auto N = sizeof...(Vars);
+    For<N>([&](auto i) constexpr {
+        std::get<i>(wrt.args).seedx();
+    });
+}
+
+/// Return the gradient of a dependent variable y with respect given independent variables.
 template<typename T, typename... Vars>
 auto gradient(const Variable<T>& y, const Wrt<Vars...>& wrt)
 {
@@ -1003,6 +1150,22 @@ auto gradient(const Variable<T>& y, const Wrt<Vars...>& wrt)
     std::array<T, N> values;
     For<N>([&](auto i) constexpr {
         values[i.index] = std::get<i>(wrt.args).grad();
+    });
+
+    return values;
+}
+
+/// Return the gradient of a dependent variable y with respect given independent variables.
+template<typename T, typename... Vars>
+auto gradientx(const Variable<T>& y, const Wrt<Vars...>& wrt)
+{
+    seedx(wrt);
+    y.expr->propagatex(constant<T>(1.0));
+
+    constexpr static auto N = sizeof...(Vars);
+    std::array<Variable<T>, N> values;
+    For<N>([&](auto i) constexpr {
+        values[i.index] = std::get<i>(wrt.args).gradx();
     });
 
     return values;
