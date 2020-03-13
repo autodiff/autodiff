@@ -1,17 +1,24 @@
 // Catch includes
 #include "catch.hpp"
 
+// C++ includes
+#include <iostream>
+
 // autodiff includes
 #include <autodiff/reverse.hpp>
-// using namespace autodiff;
+#include <autodiff/reverse/eigen.hpp>
 
 using autodiff::val;
 using autodiff::gradient;
 using autodiff::wrt;
 using autodiff::Variable;
 
-// using var = Variable<double>;
-using var = Variable<Variable<double>>;
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
+using Eigen::VectorXvar;
+
+using var = Variable<double>;
+// using var = Variable<Variable<double>>;
 
 /// Convenient function used in the tests to calculate the derivative of a variable y with respect to a variable x.
 inline auto grad(const var& y, var& x)
@@ -279,4 +286,47 @@ TEST_CASE("autodiff::var tests", "[var]")
     //--------------------------------------------------------------------------
     REQUIRE( val(gradx(gradx(gradx(log(x), x), x), x)) == approx(val(2.0/(x * x * x))) );
     REQUIRE( val(gradx(gradx(gradx(exp(x), x), x), x)) == approx(val(exp(x))) );
+}
+
+TEST_CASE("autodiff::VectorXvar tests", "[VectorXvar]")
+{
+    //--------------------------------------------------------------------------
+    // TEST GRADIENT CALCULATION IN COMBINATION WITH EIGEN
+    //--------------------------------------------------------------------------
+    SECTION("Testing VectorXvar")
+    {
+        var y;
+        VectorXd g;
+        MatrixXd H;
+        VectorXvar x(5);
+        x << 1.0, 2.0, 3.0, 4.0, 5.0;
+
+        y = x.sum();
+        g = gradient(y, x);
+
+        CHECK( val(y) == approx(15.0) );
+        for(auto i = 0; i < x.size(); ++i)
+            CHECK( g[i] == approx(1.0) );
+
+        H = hessian(y, x, g);
+        for(auto i = 0; i < x.size(); ++i) {
+            CHECK( val(g[i]) == approx(1.0) );
+            for(auto j = 0; j < x.size(); ++j)
+                CHECK( H(i, j) == approx(0.0) );
+        }
+
+        y = x.cwiseProduct(x).sum();
+        g = gradient(y, x);
+
+        CHECK( val(y) == approx(1 + 2*2 + 3*3 + 4*4 + 5*5) );
+        for(auto i = 0; i < x.size(); ++i)
+            CHECK( val(g[i]) == approx(2 * x[i]) );
+
+        H = hessian(y, x, g);
+        for(auto i = 0; i < x.size(); ++i) {
+            CHECK( val(g[i]) == approx(2 * x[i]) );
+            for(auto j = 0; j < x.size(); ++j)
+                CHECK( H(i, j) == approx(i == j ? 2.0 : 0.0) );
+        }
+    }
 }
