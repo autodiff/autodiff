@@ -937,9 +937,15 @@ struct Variable
     Variable(const ExprPtr<T>& expr) : expr(std::make_shared<DependentVariableExpr<T>>(expr)) {}
 
     auto grad() const { return static_cast<VariableExpr<T>*>(expr.get())->grad; }
+
+    auto& grad() { return static_cast<VariableExpr<T>*>(expr.get())->grad; }
+
     auto gradx() const { return static_cast<VariableExpr<T>*>(expr.get())->gradx; }
 
+    auto& gradx() { return static_cast<VariableExpr<T>*>(expr.get())->gradx; }
+
     auto seed() { static_cast<VariableExpr<T>*>(expr.get())->grad = 0; }
+
     auto seedx() { static_cast<VariableExpr<T>*>(expr.get())->gradx = constant<T>(0); }
 
     /// Implicitly convert this Variable object variable into an expression pointer
