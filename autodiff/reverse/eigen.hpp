@@ -117,15 +117,15 @@ auto gradient(const Variable<T>& y, Eigen::DenseBase<X>& x)
 }
 
 /// Return the Hessian matrix of variable y with respect to variables x.
-template<typename T, typename X, typename G>
-auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, Eigen::DenseBase<G>& g)
+template<typename T, typename X, typename Vec>
+auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, Vec& g)
 {
     using U = VariableValueType<T>;
 
     using ScalarX = typename X::Scalar;
     static_assert(isVariable<ScalarX>, "Argument x is not a vector with Variable<T> (aka var) objects.");
 
-    using ScalarG = typename G::Scalar;
+    using ScalarG = typename Vec::Scalar;
     static_assert(std::is_same_v<U, ScalarG>, "Argument g does not have the same arithmetic type as y.");
 
     constexpr auto Rows = X::RowsAtCompileTime;
@@ -155,6 +155,17 @@ auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, Eigen::DenseBase<G>& 
     }
 
     return H;
+}
+
+/// Return the Hessian matrix of variable y with respect to variables x.
+template<typename T, typename X>
+auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x)
+{
+    using U = VariableValueType<T>;
+    constexpr auto Rows = X::RowsAtCompileTime;
+    constexpr auto MaxRows = X::MaxRowsAtCompileTime;
+    Vec<U, Rows, MaxRows> g;
+    return hessian(y, x, g);
 }
 
 } // namespace reverse

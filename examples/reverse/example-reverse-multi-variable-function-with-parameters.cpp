@@ -22,24 +22,19 @@ var f(var x, const Params& params)
 
 int main()
 {
-    Params params;                       // initialize the parameter variables
-    params.a = 1.0;                      // the parameter a of type var, not double!
-    params.b = 2.0;                      // the parameter b of type var, not double!
-    params.c = 3.0;                      // the parameter c of type var, not double!
+    Params params;   // initialize the parameter variables
+    params.a = 1.0;  // the parameter a of type var, not double!
+    params.b = 2.0;  // the parameter b of type var, not double!
+    params.c = 3.0;  // the parameter c of type var, not double!
 
-    var x = 0.5;                         // the input variable x
-    var u = f(x, params);                // the output variable u
+    var x = 0.5;  // the input variable x
+    var u = f(x, params);  // the output variable u
 
-    Derivatives dud = derivatives(u);    // evaluate all derivatives of u
+    auto [ux, ua, ub, uc] = derivatives(u, wrt(x, params.a, params.b, params.c)); // evaluate the derivatives of u with respect to x and parameters a, b, c
 
-    var dudx = dud(x);                   // extract the derivative du/dx
-    var duda = dud(params.a);            // extract the derivative du/da
-    var dudb = dud(params.b);            // extract the derivative du/db
-    var dudc = dud(params.c);            // extract the derivative du/dc
-
-    cout << "u = " << u << endl;         // print the evaluated output u
-    cout << "du/dx = " << dudx << endl;  // print the evaluated derivative du/dx
-    cout << "du/da = " << duda << endl;  // print the evaluated derivative du/da
-    cout << "du/db = " << dudb << endl;  // print the evaluated derivative du/db
-    cout << "du/dc = " << dudc << endl;  // print the evaluated derivative du/dc
+    cout << "u = " << u << endl;    // print the evaluated output u
+    cout << "ux = " << ux << endl;  // print the evaluated derivative du/dx
+    cout << "ua = " << ua << endl;  // print the evaluated derivative du/da
+    cout << "ub = " << ub << endl;  // print the evaluated derivative du/db
+    cout << "uc = " << uc << endl;  // print the evaluated derivative du/dc
 }

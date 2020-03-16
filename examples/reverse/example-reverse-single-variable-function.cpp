@@ -14,13 +14,11 @@ var f(var x)
 
 int main()
 {
-    var x = 2.0;                         // the input variable x
-    var u = f(x);                        // the output variable u
+    var x = 2.0;   // the input variable x
+    var u = f(x);  // the output variable u
 
-    Derivatives dud = derivatives(u);    // evaluate all derivatives of u
+    auto [ux] = derivatives(u, wrt(x)); // evaluate the derivative of u with respect to x
 
-    var dudx = dud(x);                   // extract the derivative du/dx
-
-    cout << "u = " << u << endl;         // print the evaluated output u
-    cout << "du/dx = " << dudx << endl;  // print the evaluated derivative du/dx
+    cout << "u = " << u << endl;  // print the evaluated output variable u
+    cout << "ux = " << ux << endl;  // print the evaluated derivative ux
 }

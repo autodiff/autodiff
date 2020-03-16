@@ -1175,9 +1175,17 @@ auto derivativesx(const Variable<T>& y, const Wrt<Vars...>& wrt)
     return values;
 }
 
-/// Output a Variable object variable to the output stream.
+/// Output a Variable object to the output stream.
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Variable<T>& x)
+{
+    out << val(x);
+    return out;
+}
+
+/// Output an ExprPrt object to the output stream.
+template<typename T>
+std::ostream& operator<<(std::ostream& out, const ExprPtr<T>& x)
 {
     out << val(x);
     return out;
