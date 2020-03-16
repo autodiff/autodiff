@@ -935,19 +935,20 @@ struct Variable
     /// Construct a Variable object with given expression
     Variable(const ExprPtr<T>& expr) : expr(std::make_shared<DependentVariableExpr<T>>(expr)) {}
 
-    auto variableExpr() const { return static_cast<VariableExpr<T>*>(expr.get()); }
+    /// Return a pointer to the underlying VariableExpr object in this variable.
+    auto __variableExpr() const { return static_cast<VariableExpr<T>*>(expr.get()); }
 
     /// Return the derivative value stored in this variable.
-    auto grad() const { return variableExpr()->grad; }
+    auto grad() const { return __variableExpr()->grad; }
 
     /// Return the derivative expression stored in this variable.
-    auto gradx() const { return variableExpr()->gradx; }
+    auto gradx() const { return __variableExpr()->gradx; }
 
     /// Reeet the derivative value stored in this variable to zero.
-    auto seed() { variableExpr()->grad = 0; }
+    auto seed() { __variableExpr()->grad = 0; }
 
     /// Reeet the derivative expression stored in this variable to zero expression.
-    auto seedx() { variableExpr()->gradx = constant<T>(0); }
+    auto seedx() { __variableExpr()->gradx = constant<T>(0); }
 
     /// Implicitly convert this Variable object into an expression pointer.
     operator ExprPtr<T>() const { return expr; }
@@ -957,19 +958,22 @@ struct Variable
 
     /// Assign an arithmetic value to this variable.
     template<typename U, EnableIf<isArithmetic<U>>...>
-    auto operator=(const U& val) -> Variable& { expr->val = val; return *this; }
+    auto operator=(const U& val) -> Variable& { *this = Variable(val); return *this; }
+
+    /// Assign an expression to this variable.
+    auto operator=(const ExprPtr<T>& x) -> Variable& { *this = Variable(x); return *this; }
 
 	// Assignment operators
-    Variable& operator+=(const ExprPtr<T>& x) { expr = expr + x; return *this; }
-    Variable& operator-=(const ExprPtr<T>& x) { expr = expr - x; return *this; }
-    Variable& operator*=(const ExprPtr<T>& x) { expr = expr * x; return *this; }
-    Variable& operator/=(const ExprPtr<T>& x) { expr = expr / x; return *this; }
+    Variable& operator+=(const ExprPtr<T>& x) { *this = Variable(expr + x); return *this; }
+    Variable& operator-=(const ExprPtr<T>& x) { *this = Variable(expr - x); return *this; }
+    Variable& operator*=(const ExprPtr<T>& x) { *this = Variable(expr * x); return *this; }
+    Variable& operator/=(const ExprPtr<T>& x) { *this = Variable(expr / x); return *this; }
 
 	// Assignment operators with arithmetic values
-    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator+=(const U& x) { expr = expr + constant<T>(x); return *this; }
-    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator-=(const U& x) { expr = expr - constant<T>(x); return *this; }
-    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator*=(const U& x) { expr = expr * constant<T>(x); return *this; }
-    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator/=(const U& x) { expr = expr / constant<T>(x); return *this; }
+    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator+=(const U& x) { *this = Variable(expr + x); return *this; }
+    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator-=(const U& x) { *this = Variable(expr - x); return *this; }
+    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator*=(const U& x) { *this = Variable(expr * x); return *this; }
+    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator/=(const U& x) { *this = Variable(expr / x); return *this; }
 };
 
 //------------------------------------------------------------------------------

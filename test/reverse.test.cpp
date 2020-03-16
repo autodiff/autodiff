@@ -93,12 +93,12 @@ TEST_CASE("autodiff::var tests", "[var]")
     REQUIRE( grad(c, x) == 2*val(a) * grad(a, x) + 1 );
 
     //------------------------------------------------------------------------------
-    // TEST DERIVATIVES COMPUTATION REMAINS CORRECT AFTER CHANGING VAR VALUE
+    // TEST DERIVATIVES COMPUTATION AFTER CHANGING VAR VALUE
     //------------------------------------------------------------------------------
-    a = 20.0;
+    a = 20.0; // a is now a new independent variable
 
-    REQUIRE( grad(c, a) == 2*val(a) + grad(x, a) );
-    REQUIRE( grad(c, x) == 2*val(a) * grad(a, x) + 1 );
+    REQUIRE( grad(c, a) == approx(0.0) );
+    REQUIRE( grad(c, x) == 2*val(x) + 1 );
 
     //------------------------------------------------------------------------------
     // TEST MULTIPLICATION OPERATOR (USING CONSTANT FACTOR)
@@ -115,8 +115,55 @@ TEST_CASE("autodiff::var tests", "[var]")
     REQUIRE( grad(c, a) == approx(1.0/3.0) );
 
     //------------------------------------------------------------------------------
+    // TEST DERIVATIVES WITH RESPECT TO DEPENDENT VARIABLES USING += -= *= /=
+    //------------------------------------------------------------------------------
+
+    a += 2.0;
+    c = a * b;
+
+    REQUIRE( grad(c, a) == approx(b) );
+
+    a -= 3.0;
+    c = a * b;
+
+    REQUIRE( grad(c, a) == approx(b) );
+
+    a *= 2.0;
+    c = a * b;
+
+    REQUIRE( grad(c, a) == approx(b) );
+
+    a /= 3.0;
+    c = a * b;
+
+    REQUIRE( grad(c, a) == approx(b) );
+
+    a += 2*b;
+    c = a * b;
+
+    REQUIRE( grad(c, a) == approx(b + a * grad(b, a)) );
+
+    // a -= 3*b;
+    // c = a * b;
+
+    // REQUIRE( grad(c, a) == approx(b) );
+
+    // a *= b;
+    // c = a * b;
+
+    // REQUIRE( grad(c, a) == approx(b) );
+
+    // a /= b;
+    // c = a * b;
+
+    // REQUIRE( grad(c, a) == approx(b) );
+
+    //------------------------------------------------------------------------------
     // TEST BINARY ARITHMETIC OPERATORS
     //------------------------------------------------------------------------------
+    a = 100.0;
+    b = 200.0;
+
     c = a + b;
 
     REQUIRE( grad(c, a) == 1.0 );
