@@ -789,13 +789,13 @@ struct AbsExpr : UnaryExpr<T>
 
     virtual void propagate(const T& wprime)
     {
-        if(val(x) < 0.0) x->propagate(-wprime);
+        if(x->val < 0.0) x->propagate(-wprime);
         else x->propagate(wprime);
     }
 
     virtual void propagatex(const ExprPtr<T>& wprime)
     {
-        if(val(x) < 0.0) x->propagatex(-wprime);
+        if(x->val < 0.0) x->propagatex(-wprime);
         else x->propagatex(wprime);
     }
 };
