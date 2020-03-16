@@ -2,6 +2,8 @@
 
 ---
 
+[![Gitter chat](https://badges.gitter.im/autodiff/gitter.png)](https://gitter.im/autodiff/community)
+
 # {{autodiff}}
 
 {{autodiff}} is a C++17 library that uses modern and advanced programming
@@ -72,9 +74,9 @@ dual y = 2.0;
 dual z = 3.0;
 dual u = f(x, y, z);
 
-double dudx = derivative(f, wrt(x), at(x, y, z));
-double dudy = derivative(f, wrt(y), at(x, y, z));
-double dudz = derivative(f, wrt(z), at(x, y, z));
+double ux = derivative(f, wrt(x), at(x, y, z));
+double uy = derivative(f, wrt(y), at(x, y, z));
+double uz = derivative(f, wrt(z), at(x, y, z));
 ```
 
 The auxiliary function `autodiff::wrt`, an acronym for **with respect to**,
@@ -126,11 +128,7 @@ var y = 2.0;
 var z = 3.0;
 var u = f(x, y, z);
 
-Derivatives dud = derivatives(u);
-
-double dudx = dud(x);
-double dudy = dud(y);
-double dudz = dud(z);
+double [ux, uy, uz] = derivatives(u, wrt(x, y, z));
 ```
 
 The function `autodiff::derivatives` will traverse the expression tree stored
@@ -140,3 +138,7 @@ derivative of `u` with respect to input variable `x` (i.e., *∂u/∂x*) can the
 be extracted from `dud` using `dud(x)`. The operations `dud(x)`, `dud(y)`,
 `dud(z)` involve no computations! Just extraction of derivatives previously
 computed with a call to function `autodiff::derivatives`.
+
+## Get in touch!
+
+Contact us on [Gitter](https://gitter.im/autodiff/community) if you need support and assistance when using {{autodiff}}.
