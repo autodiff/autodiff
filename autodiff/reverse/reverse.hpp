@@ -783,17 +783,20 @@ struct AbsExpr : UnaryExpr<T>
 {
     // Using declarations for data members of base class
     using UnaryExpr<T>::x;
+    using U = VariableValueType<T>;
 
     AbsExpr(const T& val, const ExprPtr<T>& x) : UnaryExpr<T>(val, x) {}
 
     virtual void propagate(const T& wprime)
     {
-        x->propagate(wprime * std::copysign(1.0, val(x)));
+        if(val(x) < 0.0) x->propagate(-wprime);
+        else x->propagate(wprime);
     }
 
     virtual void propagatex(const ExprPtr<T>& wprime)
     {
-        x->propagatex(wprime * std::copysign(1.0, val(x)));
+        if(val(x) < 0.0) x->propagatex(-wprime);
+        else x->propagatex(wprime);
     }
 };
 
