@@ -30,12 +30,11 @@
 #pragma once
 
 // C++ includes
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
-#include <functional>
 #include <memory>
-#include <unordered_map>
 
 // autodiff includes
 #include <autodiff/common/meta.hpp>
@@ -138,9 +137,6 @@ constexpr auto VariableOrder = traits::VariableOrder<T>::value;
 
 template<typename T>
 constexpr auto isVariable = traits::isVariable<T>::value;
-
-using DerivativesMap = std::unordered_map<const Expr<double>*, double>;
-using DerivativesMapX = std::unordered_map<const Expr<double>*, ExprPtr<double>>;
 
 //------------------------------------------------------------------------------
 // CONVENIENT FUNCTIONS (DECLARATION ONLY)
@@ -1091,13 +1087,10 @@ auto val(const ExprPtr<T>& x)
     return val(x->val);
 }
 
-using Derivatives = std::function<double(const Variable<double>&)>;
-using DerivativesX = std::function<Variable<double>(const Variable<double>&)>;
-
 /// Return the derivatives of a variable y with respect to all independent variables.
 template<typename T>
 [[deprecated("Use method `derivatives(y, wrt(a, b, c,...)` instead.")]]
-Derivatives derivatives(const T& y)
+auto derivatives(const T& y)
 {
     static_assert(!std::is_same_v<T,T>, "Method derivatives(const var&) has been deprecated. Use method derivatives(y, wrt(a, b, c,...) instead.");
 }
@@ -1105,7 +1098,7 @@ Derivatives derivatives(const T& y)
 /// Return the derivatives of a variable y with respect to all independent variables.
 template<typename T>
 [[deprecated("Use method derivativesx(y, wrt(a, b, c,...) instead.")]]
-DerivativesX derivativesx(const T& y)
+auto derivativesx(const T& y)
 {
     static_assert(!std::is_same_v<T,T>, "Method derivativesx(const var&) has been deprecated. Use method derivativesx(y, wrt(a, b, c,...) instead.");
 }
