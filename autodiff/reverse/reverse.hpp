@@ -99,45 +99,45 @@ template<typename T> struct Variable;
 
 template<typename T> using ExprPtr = std::shared_ptr<Expr<T>>;
 
+namespace traits {
+
 template<typename T>
 struct VariableValueTypeNotDefinedFor {};
 
 template<typename T>
-struct AuxVariableValueType;
+struct VariableValueType;
 
 template<typename T>
-struct AuxVariableValueType { using type = std::conditional_t<isArithmetic<T>, T, VariableValueTypeNotDefinedFor<T>>; };
+struct VariableValueType { using type = std::conditional_t<isArithmetic<T>, T, VariableValueTypeNotDefinedFor<T>>; };
 
 template<typename T>
-struct AuxVariableValueType<Variable<T>> { using type = typename AuxVariableValueType<T>::type; };
+struct VariableValueType<Variable<T>> { using type = typename VariableValueType<T>::type; };
 
 template<typename T>
-struct AuxVariableValueType<ExprPtr<T>> { using type = typename AuxVariableValueType<T>::type; };
+struct VariableValueType<ExprPtr<T>> { using type = typename VariableValueType<T>::type; };
 
 template<typename T>
-using VariableValueType = typename AuxVariableValueType<T>::type;
+struct VariableOrder { constexpr static auto value = 0; };
 
 template<typename T>
-struct VariableModeFirstOrder
-{
-    using GradType = T;
-
-    static constexpr auto val(const ExprPtr<T>& x)
-    {
-        return x->val;
-    }
-};
+struct VariableOrder<Variable<T>> { constexpr static auto value = 1 + VariableOrder<T>::value; };
 
 template<typename T>
-struct VariableModeHigherOrder
-{
-    using GradType = ExprPtr<T>;
+struct isVariable { constexpr static bool value = false; };
 
-    static constexpr auto val(const ExprPtr<T>& x)
-    {
-        return x;
-    }
-};
+template<typename T>
+struct isVariable<Variable<T>> { constexpr static bool value = true; };
+
+} // namespace traits
+
+template<typename T>
+using VariableValueType = typename traits::VariableValueType<T>::type;
+
+template<typename T>
+constexpr auto VariableOrder = traits::VariableOrder<T>::value;
+
+template<typename T>
+constexpr auto isVariable = traits::isVariable<T>::value;
 
 using DerivativesMap = std::unordered_map<const Expr<double>*, double>;
 using DerivativesMapX = std::unordered_map<const Expr<double>*, ExprPtr<double>>;
@@ -1185,13 +1185,43 @@ std::ostream& operator<<(std::ostream& out, const Variable<T>& x)
     return out;
 }
 
+//=====================================================================================================================
+//
+// HIGHER-ORDER VAR NUMBERS
+//
+//=====================================================================================================================
+
+template<size_t N, typename T>
+struct AuxHigherOrderVariable;
+
+template<typename T>
+struct AuxHigherOrderVariable<0, T>
+{
+    using type = T;
+};
+
+template<size_t N, typename T>
+struct AuxHigherOrderVariable
+{
+    using type = Variable<typename AuxHigherOrderVariable<N - 1, T>::type>;
+};
+
+template<size_t N, typename T>
+using HigherOrderVariable = typename AuxHigherOrderVariable<N, T>::type;
+
 } // namespace reverse
 
 using reverse::wrt;
 using reverse::gradient;
 using reverse::Variable;
 using reverse::val;
+using reverse::HigherOrderVariable;
 
-using var = Variable<double>;
+using var1st = HigherOrderVariable<1, double>;
+using var2nd = HigherOrderVariable<2, double>;
+using var3rd = HigherOrderVariable<3, double>;
+using var4th = HigherOrderVariable<4, double>;
+
+using var = var1st;
 
 } // namespace autodiff
