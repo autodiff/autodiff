@@ -8,18 +8,25 @@ using namespace autodiff;
 
 int main()
 {
-    var x = 0.5;                              // the input variable x
-    var u = sin(x) * cos(x);                  // the output variable u
+    var x = 0.5;  // the input variable x
+    var u = sin(x) * cos(x);  // the output variable u
 
-    DerivativesX dud = derivativesx(u);       // evaluate the first order derivatives of u
+    auto [ux] = derivativesx(u, wrt(x));  // evaluate the first order derivatives of u
+    auto [uxx] = derivativesx(ux, wrt(x));  // evaluate the second order derivatives of ux
 
-    var dudx = dud(x);                        // extract the first order derivative du/dx of type var, not double!
-
-    DerivativesX d2udxd = derivativesx(dudx); // evaluate the second order derivatives of du/dx
-
-    var d2udxdx = d2udxd(x);                  // extract the second order derivative d2u/dxdx of type var, not double!
-
-    cout << "u = " << u << endl;              // print the evaluated output variable u
-    cout << "du/dx = " << dudx << endl;       // print the evaluated first order derivative du/dx
-    cout << "d2u/dx2 = " << d2udxdx << endl;  // print the evaluated second order derivative d2u/dxdx
+    cout << "u = " << u << endl;  // print the evaluated output variable u
+    cout << "ux(autodiff) = " << ux << endl;  // print the evaluated first order derivative ux
+    cout << "ux(exact) = " << 1 - 2*sin(x)*sin(x) << endl;  // print the exact first order derivative ux
+    cout << "uxx(autodiff) = " << uxx << endl;  // print the evaluated second order derivative uxx
+    cout << "uxx(exact) = " << -4*cos(x)*sin(x) << endl;  // print the exact second order derivative uxx
 }
+
+/*===============================================================================
+Output:
+=================================================================================
+u = 0.420735
+ux(autodiff) = 0.540302
+ux(exact) = 0.540302
+uxx(autodiff) = -1.68294
+uxx(exact) = -1.68294
+===============================================================================*/
