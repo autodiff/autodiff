@@ -143,20 +143,20 @@ TEST_CASE("autodiff::var tests", "[var]")
 
     REQUIRE( grad(c, a) == approx(b + a * grad(b, a)) );
 
-    // a -= 3*b;
-    // c = a * b;
+    a -= 3*b;
+    c = a * b;
 
-    // REQUIRE( grad(c, a) == approx(b) );
+    REQUIRE( grad(c, a) == approx(b) );
 
-    // a *= b;
-    // c = a * b;
+    a *= b;
+    c = a * b;
 
-    // REQUIRE( grad(c, a) == approx(b) );
+    REQUIRE( grad(c, a) == approx(b) );
 
-    // a /= b;
-    // c = a * b;
+    a /= b;
+    c = a * b;
 
-    // REQUIRE( grad(c, a) == approx(b) );
+    REQUIRE( grad(c, a) == approx(b) );
 
     //------------------------------------------------------------------------------
     // TEST BINARY ARITHMETIC OPERATORS
