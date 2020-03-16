@@ -33,6 +33,7 @@
 #include <Eigen/Core>
 
 // autodiff includes
+#include <autodiff/common/eigen.hpp>
 #include <autodiff/common/meta.hpp>
 
 //------------------------------------------------------------------------------
@@ -73,51 +74,16 @@ struct ScalarBinaryOpTraits<T, autodiff::Variable<T>, BinOp>
     typedef autodiff::Variable<T> ReturnType;
 };
 
-#define EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, Size, SizeSuffix)   \
-typedef Matrix<Type, Size, Size, 0, Size, Size> Matrix##SizeSuffix##TypeSuffix;  \
-typedef Matrix<Type, Size, 1, 0, Size, 1>       Vector##SizeSuffix##TypeSuffix;  \
-typedef Matrix<Type, 1, Size, 1, 1, Size>       RowVector##SizeSuffix##TypeSuffix;
-
-#define EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, Size)         \
-typedef Matrix<Type, Size, -1, 0, Size, -1> Matrix##Size##X##TypeSuffix;  \
-typedef Matrix<Type, -1, Size, 0, -1, Size> Matrix##X##Size##TypeSuffix;
-
-#define EIGEN_MAKE_TYPEDEFS_ALL_SIZES(Type, TypeSuffix) \
-EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 2, 2) \
-EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 3, 3) \
-EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, 4, 4) \
-EIGEN_MAKE_TYPEDEFS(Type, TypeSuffix, -1, X) \
-EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 2) \
-EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 3) \
-EIGEN_MAKE_FIXED_TYPEDEFS(Type, TypeSuffix, 4)
-
-EIGEN_MAKE_TYPEDEFS_ALL_SIZES(autodiff::var, var)
-
-#undef EIGEN_MAKE_TYPEDEFS_ALL_SIZES
-#undef EIGEN_MAKE_TYPEDEFS
-#undef EIGEN_MAKE_FIXED_TYPEDEFS
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var1st, var1st);
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var2nd, var2nd);
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var3rd, var3rd);
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var4th, var4th);
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var, var)
 
 } // namespace Eigen
 
 namespace autodiff {
 namespace reverse {
-
-using detail::EnableIf;
-using detail::PlainType;
-using detail::isArithmetic;
-
-namespace traits {
-
-template<typename T>
-struct isVariable { constexpr static bool value = false; };
-
-template<typename T>
-struct isVariable<Variable<T>> { constexpr static bool value = true; };
-
-} // namespace traits
-
-template<typename T>
-constexpr bool isVariable = traits::isVariable<PlainType<T>>::value;
 
 template<typename T, int Rows, int MaxRows>
 using Vec = Eigen::Matrix<T, Rows, 1, 0, MaxRows, 1>;
@@ -129,6 +95,8 @@ using Mat = Eigen::Matrix<T, Rows, Cols, 0, MaxRows, MaxCols>;
 template<typename T, typename X>
 auto gradient(const Variable<T>& y, Eigen::DenseBase<X>& x)
 {
+    using U = VariableValueType<T>;
+
     using ScalarX = typename X::Scalar;
     static_assert(isVariable<ScalarX>, "Argument x is not a vector with Variable<T> (aka var) objects..");
 
@@ -144,9 +112,9 @@ auto gradient(const Variable<T>& y, Eigen::DenseBase<X>& x)
 
     y.expr->propagate(1.0);
 
-    Vec<T, Rows, MaxRows> g(n);
+    Vec<U, Rows, MaxRows> g(n);
     for(auto i = 0; i < n; ++i)
-        g[i] = x[i].grad();
+        g[i] = val(x[i].grad());
 
     return g;
 }
@@ -155,36 +123,46 @@ auto gradient(const Variable<T>& y, Eigen::DenseBase<X>& x)
 template<typename T, typename X, typename G>
 auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, Eigen::DenseBase<G>& g)
 {
+    using U = VariableValueType<T>;
+
+    static_assert(VariableOrder<Variable<T>> > 1, "Cannot compute Hessian matrix using a var number of first order. Use var2nd or a higher order var number type.");
+
     using ScalarX = typename X::Scalar;
     static_assert(isVariable<ScalarX>, "Argument x is not a vector with Variable<T> (aka var) objects.");
 
     using ScalarG = typename G::Scalar;
-    static_assert(std::is_same_v<T, ScalarG>, "Argument g is not a vector with T values.");
+    static_assert(std::is_same_v<U, ScalarG>, "Argument g does not have the same arithmetic type as y.");
 
     constexpr auto Rows = X::RowsAtCompileTime;
     constexpr auto MaxRows = X::MaxRowsAtCompileTime;
 
     const auto n = x.size();
     for(auto k = 0; k < n; ++k)
-        x[k].seedx();
+        // x[k].seedx();
+        x[k].seed();
 
-    y.expr->propagatex(constant<T>(1.0));
+    // y.expr->propagatex(constant<T>(1.0));
+    y.expr->propagate(1.0);
 
     g.resize(n);
     for(auto i = 0; i < n; ++i)
-        g[i] = val(x[i].gradx());
+        // g[i] = val(x[i].gradx());
+        g[i] = val(x[i].grad());
 
-    Mat<T, Rows, Rows, MaxRows, MaxRows> H(n, n);
+
+    Mat<U, Rows, Rows, MaxRows, MaxRows> H(n, n);
     for(auto i = 0; i < n; ++i)
     {
         for(auto k = 0; k < n; ++k)
             x[k].seed();
 
-        auto& dydxi = x[i].gradx();
-        dydxi->propagate(1.0);
+        // auto& dydxi = x[i].gradx();
+        // dydxi->propagate(1.0);
+        auto& dydxi = x[i].grad();
+        dydxi.expr->propagate(1.0);
 
         for(auto j = i; j < n; ++j)
-            H(i, j) = H(j, i) = x[j].grad();
+            H(i, j) = H(j, i) = val(x[j].grad());
     }
 
     return H;
