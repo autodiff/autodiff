@@ -35,6 +35,7 @@
 // autodiff includes
 #include <autodiff/common/eigen.hpp>
 #include <autodiff/common/meta.hpp>
+#include <autodiff/reverse/reverse.hpp>
 
 //------------------------------------------------------------------------------
 // SUPPORT FOR EIGEN MATRICES AND VECTORS OF VAR
@@ -74,10 +75,6 @@ struct ScalarBinaryOpTraits<T, autodiff::Variable<T>, BinOp>
     typedef autodiff::Variable<T> ReturnType;
 };
 
-AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var1st, var1st);
-AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var2nd, var2nd);
-AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var3rd, var3rd);
-AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var4th, var4th);
 AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var, var)
 
 } // namespace Eigen
@@ -125,8 +122,6 @@ auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, Eigen::DenseBase<G>& 
 {
     using U = VariableValueType<T>;
 
-    static_assert(VariableOrder<Variable<T>> > 1, "Cannot compute Hessian matrix using a var number of first order. Use var2nd or a higher order var number type.");
-
     using ScalarX = typename X::Scalar;
     static_assert(isVariable<ScalarX>, "Argument x is not a vector with Variable<T> (aka var) objects.");
 
@@ -138,17 +133,13 @@ auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, Eigen::DenseBase<G>& 
 
     const auto n = x.size();
     for(auto k = 0; k < n; ++k)
-        // x[k].seedx();
-        x[k].seed();
+        x[k].seedx();
 
-    // y.expr->propagatex(constant<T>(1.0));
-    y.expr->propagate(1.0);
+    y.expr->propagatex(constant<T>(1.0));
 
     g.resize(n);
     for(auto i = 0; i < n; ++i)
-        // g[i] = val(x[i].gradx());
-        g[i] = val(x[i].grad());
-
+        g[i] = val(x[i].gradx());
 
     Mat<U, Rows, Rows, MaxRows, MaxRows> H(n, n);
     for(auto i = 0; i < n; ++i)
@@ -156,10 +147,8 @@ auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, Eigen::DenseBase<G>& 
         for(auto k = 0; k < n; ++k)
             x[k].seed();
 
-        // auto& dydxi = x[i].gradx();
-        // dydxi->propagate(1.0);
-        auto& dydxi = x[i].grad();
-        dydxi.expr->propagate(1.0);
+        auto dydxi = x[i].gradx();
+        dydxi->propagate(1.0);
 
         for(auto j = i; j < n; ++j)
             H(i, j) = H(j, i) = val(x[j].grad());

@@ -8,38 +8,36 @@
 #include <autodiff/reverse.hpp>
 #include <autodiff/reverse/eigen.hpp>
 
-using autodiff::val;
+using autodiff::derivatives;
 using autodiff::gradient;
+using autodiff::hessian;
+using autodiff::val;
+using autodiff::var;
 using autodiff::wrt;
-using autodiff::Variable;
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using Eigen::VectorXvar;
 
-using var = Variable<double>;
-// using var = Variable<Variable<double>>;
-
 /// Convenient function used in the tests to calculate the derivative of a variable y with respect to a variable x.
 inline auto grad(const var& y, var& x)
 {
-    auto g = gradient(y, wrt(x));
+    auto g = derivatives(y, wrt(x));
     return val(g[0]);
 }
 
 inline auto gradx(const var& y, var& x)
 {
-    auto g = gradientx(y, wrt(x));
+    auto g = derivativesx(y, wrt(x));
     return g[0];
 }
 
 /// A helper class to deal with catch::Approx combined with autodiff::Variable number type.
-class approx : public Approx
+template<typename Var>
+auto approx(const Var& x) -> Approx
 {
-public:
-    using Approx::Approx;
-    approx(const var& x) : Approx(val(x)) {}
-};
+    return Approx(val(x));
+}
 
 namespace autodiff {
 namespace reverse {
@@ -290,17 +288,17 @@ TEST_CASE("autodiff::var tests", "[var]")
 
 TEST_CASE("autodiff::VectorXvar tests", "[VectorXvar]")
 {
-    //--------------------------------------------------------------------------
-    // TEST GRADIENT CALCULATION IN COMBINATION WITH EIGEN
-    //--------------------------------------------------------------------------
     SECTION("Testing VectorXvar")
     {
         var y;
         VectorXd g;
         MatrixXd H;
         VectorXvar x(5);
-        x << 1.0, 2.0, 3.0, 4.0, 5.0;
+        x.setConstant(3.0);
 
+        //--------------------------------------------------------------------------
+        // TESTING GRADIENT AND HESSIAN WHEN y = sum(x)
+        //--------------------------------------------------------------------------
         y = x.sum();
         g = gradient(y, x);
 
@@ -315,6 +313,10 @@ TEST_CASE("autodiff::VectorXvar tests", "[VectorXvar]")
                 CHECK( H(i, j) == approx(0.0) );
         }
 
+        //--------------------------------------------------------------------------
+        // TESTING GRADIENT AND HESSIAN WHEN y = ||x||^2
+        //--------------------------------------------------------------------------
+        x << 1, 2, 3, 4, 5;
         y = x.cwiseProduct(x).sum();
         g = gradient(y, x);
 
@@ -327,6 +329,26 @@ TEST_CASE("autodiff::VectorXvar tests", "[VectorXvar]")
             CHECK( val(g[i]) == approx(2 * x[i]) );
             for(auto j = 0; j < x.size(); ++j)
                 CHECK( H(i, j) == approx(i == j ? 2.0 : 0.0) );
+        }
+
+        //--------------------------------------------------------------------------
+        // TESTING GRADIENT AND HESSIAN WHEN y = prod(sin(x))
+        //--------------------------------------------------------------------------
+        y = x.array().sin().prod();
+        g = gradient(y, x);
+
+        CHECK( val(y) == approx(sin(1) * sin(2) * sin(3) * sin(4) * sin(5)) );
+        for(auto i = 0; i < x.size(); ++i)
+            CHECK( val(g[i]) == approx(y / tan(x[i])) );
+
+        H = hessian(y, x, g);
+        for(auto i = 0; i < x.size(); ++i) {
+            CHECK( val(g[i]) == approx(y / tan(x[i])) );
+            for(auto j = 0; j < x.size(); ++j)
+                if(i == j)
+                    CHECK( H(i, j) == Approx(val(g[i] / tan(x[i]) * (1.0 - 1.0/(cos(x[i]) * cos(x[i]))))) );
+                else
+                    CHECK( H(i, j) == Approx(val(g[j] / tan(x[i]))) );
         }
     }
 }

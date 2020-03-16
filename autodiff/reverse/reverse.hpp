@@ -916,59 +916,57 @@ template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>=(c
 template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<(const ExprPtr<T>& l, const U& r) { return l->val < r; }
 template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>(const ExprPtr<T>& l, const U& r) { return l->val > r; }
 
-/// The autodiff variable type used for automatic differentiation.
+/// The autodiff variable type used for reverse mode automatic differentiation.
 template<typename T>
 struct Variable
 {
     /// The pointer to the expression tree of variable operations
     ExprPtr<T> expr;
 
-    /// Construct a default Variable object variable
+    /// Construct a default Variable object
     Variable() : Variable(0.0) {}
 
-    /// Construct a default Variable object variable
+    /// Construct a copy of a Variable object
     Variable(const Variable& other) : Variable(other.expr) {}
 
-    /// Construct a Variable object variable with given value
+    /// Construct a Variable object with given arithmetic value
     template<typename U, EnableIf<isArithmetic<U>>...>
     Variable(const U& val) : expr(std::make_shared<IndependentVariableExpr<T>>(val)) {}
 
-    /// Construct a Variable object variable with given expression
+    /// Construct a Variable object with given expression
     Variable(const ExprPtr<T>& expr) : expr(std::make_shared<DependentVariableExpr<T>>(expr)) {}
 
-    auto grad() const { return static_cast<VariableExpr<T>*>(expr.get())->grad; }
+    auto variableExpr() const { return static_cast<VariableExpr<T>*>(expr.get()); }
 
-    auto& grad() { return static_cast<VariableExpr<T>*>(expr.get())->grad; }
+    /// Return the derivative value stored in this variable.
+    auto grad() const { return variableExpr()->grad; }
 
-    auto gradx() const { return static_cast<VariableExpr<T>*>(expr.get())->gradx; }
+    /// Return the derivative expression stored in this variable.
+    auto gradx() const { return variableExpr()->gradx; }
 
-    auto& gradx() { return static_cast<VariableExpr<T>*>(expr.get())->gradx; }
+    /// Reeet the derivative value stored in this variable to zero.
+    auto seed() { variableExpr()->grad = 0; }
 
-    auto seed() { static_cast<VariableExpr<T>*>(expr.get())->grad = 0; }
+    /// Reeet the derivative expression stored in this variable to zero expression.
+    auto seedx() { variableExpr()->gradx = constant<T>(0); }
 
-    auto seedx() { static_cast<VariableExpr<T>*>(expr.get())->gradx = constant<T>(0); }
-
-    /// Implicitly convert this Variable object variable into an expression pointer
+    /// Implicitly convert this Variable object into an expression pointer.
     operator ExprPtr<T>() const { return expr; }
 
-    /// Explicitly convert this Variable object variable into a double value
+    /// Explicitly convert this Variable object into its underlying arithmetic type.
     explicit operator T() const { return expr->val; }
 
-    auto operator=(int val) -> Variable& { expr->val = val; return *this; }
-
+    /// Assign an arithmetic value to this variable.
     template<typename U, EnableIf<isArithmetic<U>>...>
     auto operator=(const U& val) -> Variable& { expr->val = val; return *this; }
 
-    // auto operator=(const Variable& other) -> Variable& { expr->val = other.expr->val; return *this; }
-
-    // auto operator=(const ExprPtr<T>& e) -> Variable& { expr = e; return *this; }
-
-	// Arithmetic-assignment operators
+	// Assignment operators
     Variable& operator+=(const ExprPtr<T>& x) { expr = expr + x; return *this; }
     Variable& operator-=(const ExprPtr<T>& x) { expr = expr - x; return *this; }
     Variable& operator*=(const ExprPtr<T>& x) { expr = expr * x; return *this; }
     Variable& operator/=(const ExprPtr<T>& x) { expr = expr / x; return *this; }
 
+	// Assignment operators with arithmetic values
     template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator+=(const U& x) { expr = expr + constant<T>(x); return *this; }
     template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator-=(const U& x) { expr = expr - constant<T>(x); return *this; }
     template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator*=(const U& x) { expr = expr * constant<T>(x); return *this; }
@@ -1098,18 +1096,18 @@ using DerivativesX = std::function<Variable<double>(const Variable<double>&)>;
 
 /// Return the derivatives of a variable y with respect to all independent variables.
 template<typename T>
-[[deprecated("Use method `gradient(y, wrt(a, b, c,...)` instead.")]]
+[[deprecated("Use method `derivatives(y, wrt(a, b, c,...)` instead.")]]
 Derivatives derivatives(const T& y)
 {
-    static_assert(!std::is_same_v<T,T>, "Method derivatives(const var&) has been deprecated. Use method gradient(y, wrt(a, b, c,...) instead.");
+    static_assert(!std::is_same_v<T,T>, "Method derivatives(const var&) has been deprecated. Use method derivatives(y, wrt(a, b, c,...) instead.");
 }
 
 /// Return the derivatives of a variable y with respect to all independent variables.
 template<typename T>
-[[deprecated("Use method gradientx(y, wrt(a, b, c,...) instead.")]]
+[[deprecated("Use method derivativesx(y, wrt(a, b, c,...) instead.")]]
 DerivativesX derivativesx(const T& y)
 {
-    static_assert(!std::is_same_v<T,T>, "Method derivativesx(const var&) has been deprecated. Use method gradientx(y, wrt(a, b, c,...) instead.");
+    static_assert(!std::is_same_v<T,T>, "Method derivativesx(const var&) has been deprecated. Use method derivativesx(y, wrt(a, b, c,...) instead.");
 }
 
 template<typename... Vars>
@@ -1145,9 +1143,9 @@ auto seedx(const Wrt<Vars...>& wrt)
     });
 }
 
-/// Return the gradient of a dependent variable y with respect given independent variables.
+/// Return the derivatives of a dependent variable y with respect given independent variables.
 template<typename T, typename... Vars>
-auto gradient(const Variable<T>& y, const Wrt<Vars...>& wrt)
+auto derivatives(const Variable<T>& y, const Wrt<Vars...>& wrt)
 {
     seed(wrt);
     y.expr->propagate(1.0);
@@ -1161,9 +1159,9 @@ auto gradient(const Variable<T>& y, const Wrt<Vars...>& wrt)
     return values;
 }
 
-/// Return the gradient of a dependent variable y with respect given independent variables.
+/// Return the derivatives of a dependent variable y with respect given independent variables.
 template<typename T, typename... Vars>
-auto gradientx(const Variable<T>& y, const Wrt<Vars...>& wrt)
+auto derivativesx(const Variable<T>& y, const Wrt<Vars...>& wrt)
 {
     seedx(wrt);
     y.expr->propagatex(constant<T>(1.0));
@@ -1212,16 +1210,10 @@ using HigherOrderVariable = typename AuxHigherOrderVariable<N, T>::type;
 } // namespace reverse
 
 using reverse::wrt;
-using reverse::gradient;
+using reverse::derivatives;
 using reverse::Variable;
 using reverse::val;
-using reverse::HigherOrderVariable;
 
-using var1st = HigherOrderVariable<1, double>;
-using var2nd = HigherOrderVariable<2, double>;
-using var3rd = HigherOrderVariable<3, double>;
-using var4th = HigherOrderVariable<4, double>;
-
-using var = var1st;
+using var = Variable<double>;
 
 } // namespace autodiff
