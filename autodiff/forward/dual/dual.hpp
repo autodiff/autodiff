@@ -596,7 +596,7 @@ auto val(T&& expr)
 //
 //=====================================================================================================================
 
-template<size_t order, typename T, typename G>
+template<size_t order = 1, typename T, typename G>
 auto derivative(const Dual<T, G>& dual)
 {
     if constexpr (order == 0)

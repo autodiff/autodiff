@@ -160,6 +160,20 @@ auto eval(const Fun& f, const At<Args...>& at, const Along<Vecs...>& along)
     return u;
 }
 
+/// Extract the derivative of given order from a vector of dual/real numbers.
+template<size_t order = 1, typename Vec, EnableIf<isVector<Vec>>...>
+auto derivative(const Vec& x)
+{
+    size_t len = x.size(); // the length of the vector containing dual/real numbers
+    using NumType = decltype(x[0]); // get the type of the dual/real number
+    using T = NumericType<NumType>; // get the numeric/floating point type of the dual/real number
+    using Res = VectorReplaceValueType<Vec, T>; // get the type of the vector containing numeric values instead of dual/real numbers (e.g., vector<real> becomes vector<double>, VectorXdual becomes VectorXd, etc.)
+    Res res(len); // create an array to store the derivatives stored inside the dual/real number
+    for(auto i = 0; i < len; ++i)
+        res[i] = derivative<order>(x[i]); // get the derivative of given order from i-th dual/real number
+    return res;
+}
+
 /// Unpack the derivatives from the result of an @ref eval call into an array.
 template<typename Result>
 auto derivatives(const Result& result)
