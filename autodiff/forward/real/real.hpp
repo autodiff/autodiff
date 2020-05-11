@@ -389,7 +389,8 @@ constexpr auto sqrt(const Real<N, T>& x)
 
     if constexpr (N > 0)
     {
-        assert(x[0] != 0 && "autodiff: sqrt(x) has undefined derivatives when x = 0");
+        // assert(x[0] != 0 && "autodiff: sqrt(x) has undefined derivatives when x = 0");
+        if(x[0] == 0) return res;
         Real<N, T> a;
         For<1, N + 1>([&](auto i) constexpr {
             a[i] = x[i] - Sum<1, i>([&](auto j) constexpr {
@@ -414,7 +415,8 @@ constexpr auto pow(const Real<N, T>& x, const Real<N, T>& y)
     res[0] = pow(x[0], y[0]);
     if constexpr (N > 0)
     {
-        assert(x[0] != 0 && "autodiff: pow(x, y) has undefined derivatives when x = 0");
+        // assert(x[0] != 0 && "autodiff: pow(x, y) has undefined derivatives when x = 0");
+        if(x[0] == 0) return res;
         Real<N, T> lnx = log(x);
         Real<N, T> a;
         For<1, N + 1>([&](auto i) constexpr {
@@ -439,7 +441,8 @@ constexpr auto pow(const Real<N, T>& x, const U& c)
     res[0] = pow(x[0], static_cast<T>(c));
     if constexpr (N > 0)
     {
-        assert(x[0] != 0 && "autodiff: pow(x, y) has undefined derivatives when x = 0");
+        // assert(x[0] != 0 && "autodiff: pow(x, y) has undefined derivatives when x = 0");
+        if(x[0] == 0) return res;
         Real<N, T> a = c * log(x);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = Sum<0, i>([&](auto j) constexpr {
@@ -458,7 +461,8 @@ constexpr auto pow(const U& c, const Real<N, T>& y)
     res[0] = pow(static_cast<T>(c), y[0]);
     if constexpr (N > 0)
     {
-        assert(c != 0 && "autodiff: pow(x, y) has undefined derivatives when x = 0");
+        // assert(c != 0 && "autodiff: pow(x, y) has undefined derivatives when x = 0");
+        if(c == 0) return res;
         Real<N, T> a = y * log(c);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = Sum<0, i>([&](auto j) constexpr {
@@ -723,7 +727,8 @@ constexpr auto abs(const Real<N, T>& x)
     res[0] = std::abs(x[0]);
     if constexpr (N > 0)
     {
-        assert(x[0] != 0 && "autodiff: abs(x) has undefined derivative when x = 0");
+        // assert(x[0] != 0 && "autodiff: abs(x) has undefined derivatives when x = 0");
+        if(x[0] == 0) return res;
         const T s = std::copysign(1.0, x[0]);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = s * x[i];
@@ -792,7 +797,7 @@ constexpr auto val(const Real<N, T>& x)
 }
 
 /// Return the derivative of a Real number with given order.
-template<size_t order, size_t N, typename T>
+template<size_t order = 1, size_t N, typename T>
 constexpr auto derivative(const Real<N, T>& x)
 {
     return x[order];
