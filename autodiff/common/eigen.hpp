@@ -96,7 +96,16 @@ struct VectorTraits<Eigen::VectorBlock<VectorType, Size>>
     using ValueType = typename PlainType<VectorType>::Scalar;
 
     template<typename NewValueType>
-    using ReplaceValueType = VectorReplaceValueTypeNotSupportedFor<Eigen::VectorBlock<VectorType, Size>>;
+    using ReplaceValueType = VectorReplaceValueType<VectorType, NewValueType>;
+};
+
+template<typename MatrixType>
+struct VectorTraits<Eigen::Ref<MatrixType>>
+{
+    using ValueType = VectorValueType<MatrixType>;
+
+    template<typename NewValueType>
+    using ReplaceValueType = VectorReplaceValueType<MatrixType, NewValueType>;
 };
 
 //=====================================================================================================================

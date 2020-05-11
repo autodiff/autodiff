@@ -63,7 +63,7 @@ using VectorValueType = typename VectorTraits<PlainType<V>>::ValueType;
 
 /// A template alias used to get the type of a vector that is equivalent to another but with a different value type.
 template<typename V, typename NewValueType>
-using VectorReplaceValueType = typename VectorTraits<V>::template ReplaceValueType<NewValueType>;
+using VectorReplaceValueType = typename VectorTraits<PlainType<V>>::template ReplaceValueType<NewValueType>;
 
 /// A compile-time constant that indicates with a type is a vector type.
 template<typename V>

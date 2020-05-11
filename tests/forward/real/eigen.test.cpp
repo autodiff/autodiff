@@ -69,6 +69,38 @@ TEST_CASE("testing autodiff::real (with eigen)", "[forward][real][eigen]")
         CHECK( u4[0] == approx(derivative<4>(x)) );
         CHECK( u4[1] == approx(derivative<4>(y)) );
         CHECK( u4[2] == approx(derivative<4>(z)) );
+
+        auto u0th = derivative<0>(u);
+        auto u1th = derivative<1>(u);
+        auto u2th = derivative<2>(u);
+        auto u3th = derivative<3>(u);
+        auto u4th = derivative<4>(u);
+
+        CHECK( u0th.size() == 3);
+        CHECK( u1th.size() == 3);
+        CHECK( u2th.size() == 3);
+        CHECK( u3th.size() == 3);
+        CHECK( u4th.size() == 3);
+
+        CHECK( u0th[0] == derivative<0>(x) );
+        CHECK( u0th[1] == derivative<0>(y) );
+        CHECK( u0th[2] == derivative<0>(z) );
+
+        CHECK( u1th[0] == derivative<1>(x) );
+        CHECK( u1th[1] == derivative<1>(y) );
+        CHECK( u1th[2] == derivative<1>(z) );
+
+        CHECK( u2th[0] == derivative<2>(x) );
+        CHECK( u2th[1] == derivative<2>(y) );
+        CHECK( u2th[2] == derivative<2>(z) );
+
+        CHECK( u3th[0] == derivative<3>(x) );
+        CHECK( u3th[1] == derivative<3>(y) );
+        CHECK( u3th[2] == derivative<3>(z) );
+
+        CHECK( u4th[0] == derivative<4>(x) );
+        CHECK( u4th[1] == derivative<4>(y) );
+        CHECK( u4th[2] == derivative<4>(z) );
     }
 
     SECTION("testing casting to VectorXd")
