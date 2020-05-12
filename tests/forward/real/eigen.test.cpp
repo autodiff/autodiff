@@ -101,6 +101,26 @@ TEST_CASE("testing autodiff::real (with eigen)", "[forward][real][eigen]")
         CHECK( u4th[0] == derivative<4>(x) );
         CHECK( u4th[1] == derivative<4>(y) );
         CHECK( u4th[2] == derivative<4>(z) );
+
+        CHECK( u0th[0] == grad<0>(x) );
+        CHECK( u0th[1] == grad<0>(y) );
+        CHECK( u0th[2] == grad<0>(z) );
+
+        CHECK( u1th[0] == grad<1>(x) );
+        CHECK( u1th[1] == grad<1>(y) );
+        CHECK( u1th[2] == grad<1>(z) );
+
+        CHECK( u2th[0] == grad<2>(x) );
+        CHECK( u2th[1] == grad<2>(y) );
+        CHECK( u2th[2] == grad<2>(z) );
+
+        CHECK( u3th[0] == grad<3>(x) );
+        CHECK( u3th[1] == grad<3>(y) );
+        CHECK( u3th[2] == grad<3>(z) );
+
+        CHECK( u4th[0] == grad<4>(x) );
+        CHECK( u4th[1] == grad<4>(y) );
+        CHECK( u4th[2] == grad<4>(z) );
     }
 
     SECTION("testing casting to VectorXd")

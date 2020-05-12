@@ -142,6 +142,18 @@ auto unseed(const At<Args...>& at)
     });
 }
 
+template<size_t order = 1, typename T, EnableIf<Order<T>>...>
+auto seed(T& x)
+{
+    seed<order>(x, 1.0);
+}
+
+template<size_t order = 1, typename T, EnableIf<Order<T>>...>
+auto unseed(T& x)
+{
+    seed<order>(x, 0.0);
+}
+
 template<typename Fun, typename... Args, typename... Vars>
 auto eval(const Fun& f, const At<Args...>& at, const Wrt<Vars...>& wrt)
 {
@@ -162,16 +174,23 @@ auto eval(const Fun& f, const At<Args...>& at, const Along<Vecs...>& along)
 
 /// Extract the derivative of given order from a vector of dual/real numbers.
 template<size_t order = 1, typename Vec, EnableIf<isVector<Vec>>...>
-auto derivative(const Vec& x)
+auto derivative(const Vec& u)
 {
-    size_t len = x.size(); // the length of the vector containing dual/real numbers
-    using NumType = decltype(x[0]); // get the type of the dual/real number
+    size_t len = u.size(); // the length of the vector containing dual/real numbers
+    using NumType = decltype(u[0]); // get the type of the dual/real number
     using T = NumericType<NumType>; // get the numeric/floating point type of the dual/real number
     using Res = VectorReplaceValueType<Vec, T>; // get the type of the vector containing numeric values instead of dual/real numbers (e.g., vector<real> becomes vector<double>, VectorXdual becomes VectorXd, etc.)
     Res res(len); // create an array to store the derivatives stored inside the dual/real number
     for(auto i = 0; i < len; ++i)
-        res[i] = derivative<order>(x[i]); // get the derivative of given order from i-th dual/real number
+        res[i] = derivative<order>(u[i]); // get the derivative of given order from i-th dual/real number
     return res;
+}
+
+/// Alias method to `derivative<order>(x)` where `x` is either a dual/real number or vector/array of such numbers.
+template<size_t order = 1, typename T>
+auto grad(const T& x)
+{
+    return derivative<order>(x);
 }
 
 /// Unpack the derivatives from the result of an @ref eval call into an array.
@@ -235,8 +254,11 @@ auto derivatives(const Fun& f, const Along<Vecs...>& along, const At<Args...>& a
 
 using detail::derivatives;
 using detail::derivative;
+using detail::grad;
 using detail::along;
 using detail::wrt;
 using detail::at;
+using detail::seed;
+using detail::unseed;
 
 } // namespace autodiff
