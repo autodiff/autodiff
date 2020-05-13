@@ -261,4 +261,8 @@ using detail::at;
 using detail::seed;
 using detail::unseed;
 
+using detail::Along;
+using detail::At;
+using detail::Wrt;
+
 } // namespace autodiff
