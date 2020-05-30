@@ -298,6 +298,34 @@ TEST_CASE("autodiff::var tests", "[var]")
     REQUIRE( grad(pow(x, y), a) == Approx( std::pow(val(x), val(y)) * (val(y)/val(x) * grad(x, a) + std::log(val(x)) * grad(y, a)) ) );
     REQUIRE( grad(pow(x, y), y) == Approx( std::log(val(x)) * std::pow(val(x), val(y)) ) );
 
+
+    //--------------------------------------------------------------------------
+    // TEST ATAN2 FUNCTION
+    //--------------------------------------------------------------------------
+
+    // Testing atan2 function on (double, var)
+    x = 1.0;
+    REQUIRE( atan2(2.0, x) == std::atan2(2.0, val(x)) );
+    REQUIRE( grad(atan2(2.0, x), x) == approx(-2.0 / (2*2 + x*x)) );
+
+    // Testing atan2 function on (var, double)
+    x = 1.0;
+    REQUIRE( atan2(x, 2.0) == std::atan2(val(x), 2.0) );
+    REQUIRE( grad(atan2(x, 2.0), x) == approx(2.0 / (2*2 + x*x)) );
+
+    // Testing atan2 function on (var, var)
+    x = 1.1;
+    y = 0.9;
+    REQUIRE( atan2(y, x) == std::atan2(val(y), val(x)) );
+    REQUIRE( grad(atan2(y, x), y) == approx(x / (x*x + y*y)) );
+    REQUIRE( grad(atan2(y, x), x) == approx(-y / (x*x + y*y)) );
+
+    // Testing atan2 function on (expr, expr)
+    REQUIRE( 3*atan2(sin(y), 2 * x + 1) == 3 * std::atan2(sin(val(y)), 2*val(x)+1) );
+    REQUIRE( grad(3*atan2(sin(y), 2 * x + 1), y) == approx(3*(2*x+1)*cos(y) / ((2*x+1)*(2*x+1) + sin(y)*sin(y))) );
+    REQUIRE( grad(3*atan2(sin(y), 2 * x + 1), x) == approx(3*-2*sin(y) / ((2*x+1)*(2*x+1) + sin(y)*sin(y))) );
+
+
     //--------------------------------------------------------------------------
     // TEST OTHER FUNCTIONS
     //--------------------------------------------------------------------------
