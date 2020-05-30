@@ -49,6 +49,7 @@ using std::abs;
 using std::acos;
 using std::asin;
 using std::atan;
+using std::atan2;
 using std::cos;
 using std::exp;
 using std::log10;
@@ -79,24 +80,25 @@ struct DivOp    {};  // DIVISION OPERATOR
 //-----------------------------------------------------------------------------
 // MATHEMATICAL OPERATORS
 //-----------------------------------------------------------------------------
-struct NegOp    {};  // NEGATIVE OPERATOR
-struct InvOp    {};  // INVERSE OPERATOR
-struct SinOp    {};  // SINE OPERATOR
-struct CosOp    {};  // COSINE OPERATOR
-struct TanOp    {};  // TANGENT OPERATOR
-struct SinhOp   {};  // HYPERBOLIC SINE OPERATOR
-struct CoshOp   {};  // HYPERBOLIC COSINE OPERATOR
-struct TanhOp   {};  // HYPERBOLIC TANGENT OPERATOR
-struct ArcSinOp {};  // ARC SINE OPERATOR
-struct ArcCosOp {};  // ARC COSINE OPERATOR
-struct ArcTanOp {};  // ARC TANGENT OPERATOR
-struct ExpOp    {};  // EXPONENTIAL OPERATOR
-struct LogOp    {};  // NATURAL LOGARITHM OPERATOR
-struct Log10Op  {};  // BASE-10 LOGARITHM OPERATOR
-struct SqrtOp   {};  // SQUARE ROOT OPERATOR
-struct PowOp    {};  // POWER OPERATOR
-struct AbsOp    {};  // ABSOLUTE OPERATOR
-struct ErfOp    {};  // ERROR FUNCTION OPERATOR
+struct NegOp     {};  // NEGATIVE OPERATOR
+struct InvOp     {};  // INVERSE OPERATOR
+struct SinOp     {};  // SINE OPERATOR
+struct CosOp     {};  // COSINE OPERATOR
+struct TanOp     {};  // TANGENT OPERATOR
+struct SinhOp    {};  // HYPERBOLIC SINE OPERATOR
+struct CoshOp    {};  // HYPERBOLIC COSINE OPERATOR
+struct TanhOp    {};  // HYPERBOLIC TANGENT OPERATOR
+struct ArcSinOp  {};  // ARC SINE OPERATOR
+struct ArcCosOp  {};  // ARC COSINE OPERATOR
+struct ArcTanOp  {};  // ARC TANGENT OPERATOR
+struct ArcTan2Op {};  // 2-ARGUMENT ARC TANGENT OPERATOR
+struct ExpOp     {};  // EXPONENTIAL OPERATOR
+struct LogOp     {};  // NATURAL LOGARITHM OPERATOR
+struct Log10Op   {};  // BASE-10 LOGARITHM OPERATOR
+struct SqrtOp    {};  // SQUARE ROOT OPERATOR
+struct PowOp     {};  // POWER OPERATOR
+struct AbsOp     {};  // ABSOLUTE OPERATOR
+struct ErfOp     {};  // ERROR FUNCTION OPERATOR
 
 //-----------------------------------------------------------------------------
 // OTHER OPERATORS
@@ -163,6 +165,9 @@ using ArcCosExpr = UnaryExpr<ArcCosOp, R>;
 
 template<typename R>
 using ArcTanExpr = UnaryExpr<ArcTanOp, R>;
+
+template<typename L, typename R>
+using ArcTan2Expr = BinaryExpr<ArcTan2Op, L, R>;
 
 template<typename R>
 using ExpExpr = UnaryExpr<ExpOp, R>;
@@ -333,6 +338,15 @@ template<typename L, typename R>
 struct isPowExpr<PowExpr<L, R>> { constexpr static bool value = true; };
 
 //-----------------------------------------------------------------------------
+// IS TYPE T A ARCTAN2 EXPRESSION?
+//-----------------------------------------------------------------------------
+template<typename T>
+struct isArcTan2Expr { constexpr static bool value = false; };
+
+template<typename L, typename R>
+struct isArcTan2Expr<ArcTan2Expr<L, R>> { constexpr static bool value = true; };
+
+//-----------------------------------------------------------------------------
 // IS TYPE T A NUMBER-DUAL MULTIPLICATION EXPRESSION?
 //-----------------------------------------------------------------------------
 template<typename T>
@@ -387,6 +401,9 @@ constexpr bool isMulExpr = traits::isMulExpr<plain<T>>::value;
 
 template<typename T>
 constexpr bool isPowExpr = traits::isPowExpr<plain<T>>::value;
+
+template<typename T>
+constexpr bool isArcTan2Expr = traits::isArcTan2Expr<plain<T>>::value;
 
 template<typename T>
 constexpr bool isNumberDualMulExpr = traits::isNumberDualMulExpr<plain<T>>::value;
@@ -914,6 +931,7 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto tan(R&& r) -> TanExp
 template<typename R, enableif<isExpr<R>>...> constexpr auto asin(R&& r) -> ArcSinExpr<R> { return { r }; }
 template<typename R, enableif<isExpr<R>>...> constexpr auto acos(R&& r) -> ArcCosExpr<R> { return { r }; }
 template<typename R, enableif<isExpr<R>>...> constexpr auto atan(R&& r) -> ArcTanExpr<R> { return { r }; }
+template<typename L, typename R, enableif<isOperable<L, R>>...> constexpr auto atan2(L&& l, R&& r) -> ArcTan2Expr<L, R> { return { l, r }; }
 
 //=====================================================================================================================
 //
@@ -1044,6 +1062,10 @@ constexpr void assign(Dual<T, G>& self, U&& other)
     else if constexpr (isPowExpr<U>) {
         assign(self, other.l);
         assignPow(self, other.r);
+    }
+    // ASSIGN A ATAN2 EXPRESSION: self = atan2(expr, expr)
+    else if constexpr (isArcTan2Expr<U>) {
+        assignArcTan2(self, other.l, other.r);
     }
 }
 
@@ -1383,6 +1405,52 @@ constexpr void assignPow(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
     assign(tmp, other);
     assignPow(self, tmp);
 }
+
+//=====================================================================================================================
+//
+// ASSIGNMENT-ARCTAN2 FUNCTION
+//
+//=====================================================================================================================
+
+template<typename T, typename G, typename Y, typename X>
+constexpr void assignArcTan2(Dual<T, G>& self, Y&&y, X&&x)
+{
+    static_assert(isArithmetic<Y> || isExpr<Y>);
+    static_assert(isArithmetic<X> || isExpr<X>);
+
+    // self = atan2(number, dual)
+    if constexpr (isArithmetic<Y> && isDual<X>) {
+        self.val = atan2(y, x.val);
+        self.grad = -y/(y*y + x.val * x.val) * x.grad;
+    }
+
+    // self = atan2(dual, number)
+    else if constexpr (isDual<Y> && isArithmetic<X>) {
+        self.val = atan2(y.val, x);
+        self.grad = x/(y.val * y.val + x * x) * y.grad;
+    }
+
+    // self = atan2(dual, dual)
+    else if constexpr (isDual<Y> && isDual<X>) {
+        self.val = atan2(y.val, x.val);
+        self.grad = (x.val * y.grad - y.val * x.grad)/(y.val * y.val + x.val * x.val);
+    }
+
+    // self = atan2(expr, .)
+    else if constexpr (!isDual<Y> && !isArithmetic<Y>) {
+        Dual<T, G> y_tmp;
+        assign(y_tmp, std::forward<Y>(y));
+        assignArcTan2(self, std::move(y_tmp), std::forward<X>(x));
+    }
+
+    // self = atan2(., expr)
+    else {
+        Dual<T, G> x_tmp;
+        assign(x_tmp, std::forward<X>(x));
+        assignArcTan2(self, std::forward<Y>(y), std::move(x_tmp));
+    }
+}
+
 
 //=====================================================================================================================
 //
