@@ -619,6 +619,32 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         x = -1.4;
         REQUIRE( f(x) == std::erf(val(x)) );
         REQUIRE( derivative(f, wrt(x), at(x)) == approx(0.158942) );
+
+        // Testing atan2 function on (double, dual)
+        f = [](dual x) -> dual { return atan2(2.0, x); };
+        x = 1.0;
+        REQUIRE( f(x) == std::atan2(2.0, val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(-2.0 / (2*2 + x*x)) );
+
+        // Testing atan2 function on (dual, double)
+        f = [](dual y) -> dual { return atan2(y, 2.0); };
+        x = 1.0;
+        REQUIRE( f(x) == std::atan2(val(x), 2.0) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(2.0 /  (2*2 + x*x)) );
+
+        // Testing atan2 function on (dual, dual)
+        std::function<dual(dual, dual)> g = [](dual y, dual x) -> dual { return atan2(y, x); };
+        x = 1.1;
+        dual y = 0.9;
+        REQUIRE( g(y, x) == std::atan2(val(y), val(x)) );
+        REQUIRE( derivative(g, wrt(y), at(y, x)) == approx(x / (x*x + y*y)) );
+        REQUIRE( derivative(g, wrt(x), at(y, x)) == approx(-y / (x*x + y*y)) );
+
+        // Testing atan2 function on (expr, expr)
+        g = [](dual y, dual x) -> dual { return 3 * atan2(sin(y), 2*x+1); };
+        REQUIRE( g(y, x) == 3 * std::atan2(sin(val(y)), 2*val(x)+1) );
+        REQUIRE( derivative(g, wrt(y), at(y, x)) == approx(3*(2*x+1)*cos(y) / ((2*x+1)*(2*x+1) + sin(y)*sin(y))) );
+        REQUIRE( derivative(g, wrt(x), at(y, x)) == approx(3*-2*sin(y) / ((2*x+1)*(2*x+1) + sin(y)*sin(y))) );
     }
 
     SECTION("testing complex expressions")

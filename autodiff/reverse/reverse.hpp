@@ -53,6 +53,7 @@ using std::abs;
 using std::acos;
 using std::asin;
 using std::atan;
+using std::atan2;
 using std::cos;
 using std::cosh;
 using std::erf;
@@ -87,6 +88,7 @@ template<typename T> struct TanhExpr;
 template<typename T> struct ArcSinExpr;
 template<typename T> struct ArcCosExpr;
 template<typename T> struct ArcTanExpr;
+template<typename T> struct ArcTan2Expr;
 template<typename T> struct ExpExpr;
 template<typename T> struct LogExpr;
 template<typename T> struct Log10Expr;
@@ -174,6 +176,9 @@ template<typename T> ExprPtr<T> tan(const ExprPtr<T>& x);
 template<typename T> ExprPtr<T> asin(const ExprPtr<T>& x);
 template<typename T> ExprPtr<T> acos(const ExprPtr<T>& x);
 template<typename T> ExprPtr<T> atan(const ExprPtr<T>& x);
+template<typename T> ExprPtr<T> atan2(const ExprPtr<T>& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const ExprPtr<T>& l, const U& r);
 
 //------------------------------------------------------------------------------
 // HYPERBOLIC FUNCTIONS (DECLARATION ONLY)
@@ -631,6 +636,30 @@ struct ArcTanExpr : UnaryExpr<T>
 };
 
 template<typename T>
+struct ArcTan2Expr : BinaryExpr<T>
+{
+    using BinaryExpr<T>::val;
+    using BinaryExpr<T>::l;
+    using BinaryExpr<T>::r;
+
+    ArcTan2Expr(const T& val, const ExprPtr<T>& l, const ExprPtr<T>& r) : BinaryExpr<T>(val, l, r) {}
+
+    virtual void propagate(const T& wprime)
+    {
+        const auto aux = wprime / (l->val * l->val + r->val * r->val);
+        l->propagate(r->val * aux);
+        r->propagate(-l->val * aux);
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        const auto aux = wprime / (l*l + r*r);
+        l->propagatex(r * aux);
+        r->propagatex(-l * aux);
+    }
+};
+
+template<typename T>
 struct ExpExpr : UnaryExpr<T>
 {
     // Using declarations for data members of base class
@@ -858,6 +887,9 @@ template<typename T> ExprPtr<T> tan(const ExprPtr<T>& x) { return std::make_shar
 template<typename T> ExprPtr<T> asin(const ExprPtr<T>& x) { return std::make_shared<ArcSinExpr<T>>(asin(x->val), x); }
 template<typename T> ExprPtr<T> acos(const ExprPtr<T>& x) { return std::make_shared<ArcCosExpr<T>>(acos(x->val), x); }
 template<typename T> ExprPtr<T> atan(const ExprPtr<T>& x) { return std::make_shared<ArcTanExpr<T>>(atan(x->val), x); }
+template<typename T> ExprPtr<T> atan2(const ExprPtr<T>& l, const ExprPtr<T>& r) { return std::make_shared<ArcTan2Expr<T>>(atan2(l->val, r->val), l, r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const U& l, const ExprPtr<T>& r) { return std::make_shared<ArcTan2Expr<T>>(atan2(l, r->val), constant<T>(l), r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const ExprPtr<T>& l, const U& r) { return std::make_shared<ArcTan2Expr<T>>(atan2(l->val, r), l, constant<T>(r)); }
 
 //------------------------------------------------------------------------------
 // HYPERBOLIC FUNCTIONS
@@ -1040,6 +1072,9 @@ template<typename T> ExprPtr<T> tan(const Variable<T>& x) { return tan(x.expr); 
 template<typename T> ExprPtr<T> asin(const Variable<T>& x) { return asin(x.expr); }
 template<typename T> ExprPtr<T> acos(const Variable<T>& x) { return acos(x.expr); }
 template<typename T> ExprPtr<T> atan(const Variable<T>& x) { return atan(x.expr); }
+template<typename T> ExprPtr<T> atan2(const Variable<T> & l, const Variable<T> & r) { return atan2(l.expr, r.expr); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const U& l, const Variable<T>& r) { return atan2(l, r.expr); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const Variable<T>& l, const U& r) { return atan2(l.expr, r); }
 
 //------------------------------------------------------------------------------
 // HYPERBOLIC FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE Variable)
