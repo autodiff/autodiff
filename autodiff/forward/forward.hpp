@@ -1489,19 +1489,19 @@ constexpr void assignHypot(Dual<T, G>& self, Y&&y, X&&x)
     // self = atan2(number, dual)
     if constexpr (isArithmetic<Y> && isDual<X>) {
         self.val = hypot(x.val, y);
-        self.grad = x.val * self.val * x.grad;
+        self.grad = x.val / self.val * x.grad;
     }
 
     // self = atan2(dual, number)
     else if constexpr (isDual<Y> && isArithmetic<X>) {
         self.val = hypot(x, y.val);
-        self.grad = y.val * self.val * y.grad;
+        self.grad = y.val / self.val * y.grad;
     }
 
     // self = atan2(dual, dual)
     else if constexpr (isDual<Y> && isDual<X>) {
         self.val = hypot(y.val, x.val);
-        self.grad = self.val * (y.val * y.grad + x.val * x.grad);
+        self.grad = (y.grad * y.val + x.grad * x.val) / self.val;
     }
 
     // self = atan2(expr, .)

@@ -650,21 +650,21 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         f = [](dual x) -> dual { return hypot(2.0, x); };
         x = 1.0;
         REQUIRE( f(x) == std::hypot(2.0, val(x)) );
-        REQUIRE( derivative(f, wrt(x), at(x)) == approx(x * std::hypot(2.0, val(x))) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(x / std::hypot(2.0, val(x))) );
 
         // Testing hypot function on (dual, double)
         f = [](dual y) -> dual { return hypot(y, 2.0); };
         x = 1.0;
         REQUIRE( f(x) == std::hypot(val(x), 2.0) );
-        REQUIRE( derivative(f, wrt(x), at(x)) == approx(x * std::hypot(val(x), 2.0)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(x / std::hypot(val(x), 2.0)) );
         
         // Testing hypot function on (dual, dual)
         g = [](dual y, dual x) -> dual { return hypot(x,y); };
         x = 1.1;
         y = 0.9;
         REQUIRE( g(y, x) == std::hypot(val(x), val(y)) );
-        REQUIRE( derivative(g, wrt(y), at(y, x)) == approx(y * std::hypot(val(x), val(y))) );
-        REQUIRE( derivative(g, wrt(x), at(y, x)) == approx(x * std::hypot(val(x), val(y))) );
+        REQUIRE( derivative(g, wrt(y), at(y, x)) == approx(y / std::hypot(val(x), val(y))) );
+        REQUIRE( derivative(g, wrt(x), at(y, x)) == approx(x / std::hypot(val(x), val(y))) );
     }
 
     SECTION("testing complex expressions")
