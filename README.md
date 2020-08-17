@@ -6,6 +6,10 @@
 ![](https://github.com/autodiff/autodiff/workflows/osx/badge.svg?branch=master)
 ![](https://github.com/autodiff/autodiff/workflows/windows/badge.svg?branch=master)
 
+# Differences between this fork and original
+* Fixed issue where `-Wshadow` triggered.
+* Added `std::hypot(double, double)` to forward-mode
+
 # Overview
 
 **autodiff** is a C++17 library that uses modern and advanced programming
