@@ -645,6 +645,26 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( g(y, x) == 3 * std::atan2(sin(val(y)), 2*val(x)+1) );
         REQUIRE( derivative(g, wrt(y), at(y, x)) == approx(3*(2*x+1)*cos(y) / ((2*x+1)*(2*x+1) + sin(y)*sin(y))) );
         REQUIRE( derivative(g, wrt(x), at(y, x)) == approx(3*-2*sin(y) / ((2*x+1)*(2*x+1) + sin(y)*sin(y))) );
+        
+        // Testing hypot function on (double, dual)
+        f = [](dual x) -> dual { return hypot(2.0, x); };
+        x = 1.0;
+        REQUIRE( f(x) == std::hypot(2.0, val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(x * std::hypot(2.0, val(x))) );
+
+        // Testing hypot function on (dual, double)
+        f = [](dual y) -> dual { return hypot(y, 2.0); };
+        x = 1.0;
+        REQUIRE( f(x) == std::hypot(val(x), 2.0) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(x * std::hypot(val(x), 2.0)) );
+        
+        // Testing hypot function on (dual, dual)
+        g = [](dual y, dual x) -> dual { return hypot(x,y); };
+        x = 1.1;
+        y = 0.9;
+        REQUIRE( g(y, x) == std::hypot(val(x), val(y)) );
+        REQUIRE( derivative(g, wrt(y), at(y, x)) == approx(y * std::hypot(val(x), val(y))) );
+        REQUIRE( derivative(g, wrt(x), at(y, x)) == approx(x * std::hypot(val(x), val(y))) );
     }
 
     SECTION("testing complex expressions")
