@@ -159,7 +159,7 @@ auto count(Tuple&& t) -> std::size_t
 template<typename T>
 struct EigenVectorAdaptor {
     /// implicit construct from value
-    constexpr EigenVectorAdaptor(T v) : val(v) { }
+    constexpr EigenVectorAdaptor(T val) : val(val) { }
     /// operator [] to add array like access
     T operator[](Eigen::Index) const {
         return val;
