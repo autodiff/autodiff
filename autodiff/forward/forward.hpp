@@ -100,7 +100,8 @@ struct SqrtOp    {};  // SQUARE ROOT OPERATOR
 struct PowOp     {};  // POWER OPERATOR
 struct AbsOp     {};  // ABSOLUTE OPERATOR
 struct ErfOp     {};  // ERROR FUNCTION OPERATOR
-struct HypotOp   {};  // HYPOT OPERATOR
+struct Hypot2Op  {};  // 2D HYPOT OPERATOR
+struct Hypot3Op  {};  // 3D HYPOT OPERATOR
 
 //-----------------------------------------------------------------------------
 // OTHER OPERATORS
@@ -193,7 +194,10 @@ template<typename R>
 using ErfExpr = UnaryExpr<ErfOp, R>;
 
 template<typename L, typename R>
-using HypotExpr = BinaryExpr<HypotOp, L, R>;
+using Hypot2Expr = BinaryExpr<Hypot2Op, L, R>;
+
+template<typename L, typename C, typename R>
+using Hypot3Expr = TernaryExpr<Hypot3Op, L, C, R>;
 
 //-----------------------------------------------------------------------------
 // DERIVED ARITHMETIC EXPRESSIONS
@@ -373,10 +377,16 @@ struct isNumberDualDualMulExpr<NumberDualDualMulExpr<L, C, R>> { constexpr stati
 // IS TYPE T A HYPOT EXPRESSION?
 //-----------------------------------------------------------------------------
 template<typename T>
-struct isHypotExpr { constexpr static bool value = false; };
+struct isHypot2Expr { constexpr static bool value = false; };
 
 template<typename L, typename R>
-struct isHypotExpr<HypotExpr<L, R>> { constexpr static bool value = true; };
+struct isHypot2Expr<Hypot2Expr<L, R>> { constexpr static bool value = true; };
+
+template<typename T>
+struct isHypot3Expr { constexpr static bool value = false; };
+
+template<typename L, typename C, typename R>
+struct isHypot3Expr<Hypot3Expr<L, C, R>> { constexpr static bool value = true; };
 
 } // namespace traits
 
@@ -420,7 +430,10 @@ template<typename T>
 constexpr bool isArcTan2Expr = traits::isArcTan2Expr<plain<T>>::value;
 
 template<typename T>
-constexpr bool isHypotExpr = traits::isHypotExpr<plain<T>>::value;
+constexpr bool isHypot2Expr = traits::isHypot2Expr<plain<T>>::value;
+
+template<typename T>
+constexpr bool isHypot3Expr = traits::isHypot3Expr<plain<T>>::value;
 
 template<typename T>
 constexpr bool isNumberDualMulExpr = traits::isNumberDualMulExpr<plain<T>>::value;
@@ -433,6 +446,9 @@ constexpr bool isNumberDualDualMulExpr = traits::isNumberDualDualMulExpr<plain<T
 //-----------------------------------------------------------------------------
 template<typename L, typename R>
 constexpr bool isOperable = (isExpr<L> && isExpr<R>) || (isArithmetic<L> && isExpr<R>) || (isExpr<L> && isArithmetic<R>);
+
+template<typename L, typename C, typename R>
+constexpr bool isOperable3 = (isOperable<L,C> && isOperable<L,R>) || (isOperable<C,L> && isOperable<C,R>) || (isOperable<R,L> && isOperable<R,C>);
 
 namespace traits {
 
@@ -592,6 +608,14 @@ template<typename Op, typename L, typename R>
 struct BinaryExpr
 {
     L l;
+    R r;
+};
+
+template<typename Op, typename L, typename C, typename R>
+struct TernaryExpr
+{
+    L l;
+    C c;
     R r;
 };
 
@@ -949,7 +973,9 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto asin(R&& r) -> ArcSi
 template<typename R, enableif<isExpr<R>>...> constexpr auto acos(R&& r) -> ArcCosExpr<R> { return { r }; }
 template<typename R, enableif<isExpr<R>>...> constexpr auto atan(R&& r) -> ArcTanExpr<R> { return { r }; }
 template<typename L, typename R, enableif<isOperable<L, R>>...> constexpr auto atan2(L&& l, R&& r) -> ArcTan2Expr<L, R> { return { l, r }; }
-template<typename L, typename R, enableif<isOperable<L, R>>...> constexpr auto hypot(L&& l, R&& r) -> HypotExpr<L, R> { return { l, r }; }
+template<typename L, typename R, enableif<isOperable<L, R>>...> constexpr auto hypot(L&& l, R&& r) -> Hypot2Expr<L, R> { return { l, r }; }
+template<typename L, typename C, typename R, enableif<isOperable3<L, C, R>>...> 
+    constexpr auto hypot(L&& l, C&& c, R&& r) -> Hypot3Expr<L, C, R> { return { l, c, r }; }
 
 //=====================================================================================================================
 //
@@ -1086,9 +1112,16 @@ constexpr void assign(Dual<T, G>& self, U&& other)
         assignArcTan2(self, other.l, other.r);
     }
     
-    else if constexpr (isHypotExpr<U>) {
-        assignHypot(self, other.l, other.r);
+    // ASSIGN A HYPOT2 EXPRESSION: self = hypot(expr, expr)
+    else if constexpr (isHypot2Expr<U>) {
+        assignHypot2(self, other.l, other.r);
     }
+    
+    // ASSIGN A HYPOT3 EXPRESSION: self = hypot(expr, expr)
+    else if constexpr (isHypot3Expr<U>) {
+        assignHypot3(self, other.l, other.c, other.r);
+    }
+    
 }
 
 template<typename T, typename G, typename U>
@@ -1480,42 +1513,113 @@ constexpr void assignArcTan2(Dual<T, G>& self, Y&&y, X&&x)
 //
 //=====================================================================================================================
 
-template<typename T, typename G, typename Y, typename X>
-constexpr void assignHypot(Dual<T, G>& self, Y&&y, X&&x)
+template<typename T, typename G, typename X, typename Y>
+constexpr void assignHypot2(Dual<T, G>& self, X&& x, Y&& y)
 {
-    static_assert(isArithmetic<Y> || isExpr<Y>);
     static_assert(isArithmetic<X> || isExpr<X>);
+    static_assert(isArithmetic<Y> || isExpr<Y>);
 
-    // self = atan2(number, dual)
-    if constexpr (isArithmetic<Y> && isDual<X>) {
+    // self = hypot(number, dual)
+    if constexpr (isDual<X> && isArithmetic<Y>) {
         self.val = hypot(x.val, y);
         self.grad = x.val / self.val * x.grad;
     }
 
-    // self = atan2(dual, number)
-    else if constexpr (isDual<Y> && isArithmetic<X>) {
+    // self = hypot(dual, number)
+    else if constexpr (isArithmetic<X> && isDual<Y>) {
         self.val = hypot(x, y.val);
         self.grad = y.val / self.val * y.grad;
     }
 
-    // self = atan2(dual, dual)
-    else if constexpr (isDual<Y> && isDual<X>) {
-        self.val = hypot(y.val, x.val);
-        self.grad = (y.grad * y.val + x.grad * x.val) / self.val;
+    // self = hypot(dual, dual)
+    else if constexpr (isDual<X> && isDual<Y>) {
+        self.val = hypot(x.val, y.val);
+        self.grad = (x.grad * x.val + y.grad * y.val) / self.val;
     }
 
-    // self = atan2(expr, .)
-    else if constexpr (!isDual<Y> && !isArithmetic<Y>) {
-        Dual<T, G> y_tmp;
-        assign(y_tmp, std::forward<Y>(y));
-        assignHypot(self, std::move(y_tmp), std::forward<X>(x));
-    }
-
-    // self = atan2(., expr)
-    else {
+    // self = hypot(expr, .)
+    else if constexpr (!isDual<X> && !isArithmetic<X>) {
         Dual<T, G> x_tmp;
         assign(x_tmp, std::forward<X>(x));
-        assignHypot(self, std::forward<Y>(y), std::move(x_tmp));
+        assignHypot2(self, std::move(x_tmp), std::forward<Y>(y));
+    }
+
+    // self = hypot(., expr)
+    else {
+        Dual<T, G> y_tmp;
+        assign(y_tmp, std::forward<Y>(y));
+        assignHypot2(self, std::forward<X>(x), std::move(y_tmp));
+    }
+}
+
+template<typename T, typename G, typename X, typename Y, typename Z>
+constexpr void assignHypot3(Dual<T, G>& self, X&& x, Y&& y, Z&& z)
+{
+    static_assert(isArithmetic<X> || isExpr<X>);
+    static_assert(isArithmetic<Y> || isExpr<Y>);
+    static_assert(isArithmetic<Z> || isExpr<Z>);
+
+    // self = hypot(dual, number, number)
+    if constexpr (isDual<X> && isArithmetic<Y> && isArithmetic<Z>) {
+        self.val = hypot(x.val, y, z);
+        self.grad = x.val / self.val * x.grad;
+    }
+
+    // self = hypot(number, dual, number)
+    else if constexpr (isArithmetic<X> && isDual<Y> && isArithmetic<Z>) {
+        self.val = hypot(x, y.val, z);
+        self.grad = y.val / self.val * y.grad;
+    }
+
+    // self = hypot(number, number, dual)
+    else if constexpr (isArithmetic<X> && isArithmetic<Y> && isDual<Z>) {
+        self.val = hypot(x, y, z.val);
+        self.grad = z.val / self.val * z.grad;
+    }
+
+    // self = hypot(dual, dual, number)
+    else if constexpr (isDual<X> && isDual<Y> && isArithmetic<Z>) {
+        self.val = hypot(x.val, y.val, z);
+        self.grad = (x.grad * x.val + y.grad * y.val ) / self.val;
+    }
+
+    // self = hypot(number, dual, dual)
+    else if constexpr (isArithmetic<X> && isDual<Y> && isDual<Z>) {
+        self.val = hypot(x, y.val, z.val);
+        self.grad = (y.grad * y.val + z.grad * z.val) / self.val;
+    }
+
+    // self = hypot(dual, number, dual)
+    else if constexpr (isDual<X> && isArithmetic<Y> && isDual<Z>) {
+        self.val = hypot(x.val, y, z.val);
+        self.grad = (x.grad * x.val + z.grad * z.val) / self.val;
+    }
+
+    // self = hypot(dual, dual, dual)
+    else if constexpr (isDual<X> && isDual<Y> && isDual<Z>) {
+        self.val = hypot(x.val, y.val, z.val);
+        self.grad = (x.grad * x.val + y.grad * y.val + z.grad * z.val) / self.val;
+    }
+
+    // self = hypot(expr, ., .)
+    else if constexpr (!isDual<X> && !isArithmetic<X>) {
+        Dual<T, G> tmp;
+        assign(tmp, std::forward<X>(x));
+        assignHypot3(self, std::move(tmp), std::forward<Y>(y), std::forward<Z>(z));
+    }
+
+    // self = hypot(., expr, .)
+    else if constexpr (!isDual<Y> && !isArithmetic<Y>) {
+        Dual<T, G> tmp;
+        assign(tmp, std::forward<Y>(y));
+        assignHypot3(self, std::forward<X>(x), std::move(tmp), std::forward<Z>(z));
+    }
+
+    // self = hypot(., ., expr)
+    else {
+        Dual<T, G> tmp;
+        assign(tmp, std::forward<Z>(z));
+        assignHypot3(self, std::forward<X>(x), std::forward<Y>(y), std::move(tmp));
     }
 }
 
