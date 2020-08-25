@@ -66,6 +66,7 @@ using std::sinh;
 using std::sqrt;
 using std::tan;
 using std::tanh;
+using std::hypot;
 
 template<typename T> struct Expr;
 template<typename T> struct VariableExpr;
@@ -75,6 +76,7 @@ template<typename T> struct ConstantExpr;
 template<typename T> struct UnaryExpr;
 template<typename T> struct NegativeExpr;
 template<typename T> struct BinaryExpr;
+template<typename T> struct TernaryExpr;
 template<typename T> struct AddExpr;
 template<typename T> struct SubExpr;
 template<typename T> struct MulExpr;
@@ -96,6 +98,8 @@ template<typename T> struct PowExpr;
 template<typename T> struct SqrtExpr;
 template<typename T> struct AbsExpr;
 template<typename T> struct ErfExpr;
+template<typename T> struct Hypot2Expr;
+template<typename T> struct Hypot3Expr;
 template<typename T> struct Variable;
 
 template<typename T> using ExprPtr = std::shared_ptr<Expr<T>>;
@@ -369,6 +373,14 @@ struct BinaryExpr : Expr<T>
     ExprPtr<T> l, r;
 
     BinaryExpr(const T& val, const ExprPtr<T>& l, const ExprPtr<T>& r) : Expr<T>(val), l(l), r(r) {}
+};
+
+template<typename T>
+struct TernaryExpr : Expr<T>
+{
+    ExprPtr<T> l, c, r;
+    
+    TernaryExpr(const T& val, const ExprPtr<T>& l, const ExprPtr<T>& c, const ExprPtr<T>& r) : Expr<T>(val), l(l), c(c), r(r) {}
 };
 
 template<typename T>
@@ -852,6 +864,55 @@ struct ErfExpr : UnaryExpr<T>
     }
 };
 
+template<typename T>
+struct Hypot2Expr : BinaryExpr<T>
+{
+    // Using declarations for data members of base class
+    using BinaryExpr<T>::val;
+    using BinaryExpr<T>::l;
+    using BinaryExpr<T>::r;
+
+    Hypot2Expr(const T& val, const ExprPtr<T>& l, const ExprPtr<T>& r) : BinaryExpr<T>(val, l, r) {}
+
+    virtual void propagate(const T& wprime)
+    {
+        l->propagate(wprime * l->val / val);
+        r->propagate(wprime * r->val / val);
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        l->propagatex(wprime * l / val);
+        r->propagatex(wprime * r / val);
+    }
+};
+
+template<typename T>
+struct Hypot3Expr : TernaryExpr<T>
+{
+    // Using declarations for data members of base class
+    using TernaryExpr<T>::val;
+    using TernaryExpr<T>::l;
+    using TernaryExpr<T>::c;
+    using TernaryExpr<T>::r;
+    
+    Hypot3Expr(const T& val, const ExprPtr<T>& l, const ExprPtr<T>& c, const ExprPtr<T>& r) : TernaryExpr<T>(val, l, c, r) {}
+
+    virtual void propagate(const T& wprime)
+    {
+        l->propagate(wprime * l->val / val);
+        c->propagate(wprime * c->val / val);
+        r->propagate(wprime * r->val / val);
+    }
+
+    virtual void propagatex(const ExprPtr<T>& wprime)
+    {
+        l->propagatex(wprime * l / val);
+        c->propagatex(wprime * c / val);
+        r->propagatex(wprime * r / val);
+    }
+};
+
 //------------------------------------------------------------------------------
 // CONVENIENT FUNCTIONS
 //------------------------------------------------------------------------------
@@ -890,6 +951,26 @@ template<typename T> ExprPtr<T> atan(const ExprPtr<T>& x) { return std::make_sha
 template<typename T> ExprPtr<T> atan2(const ExprPtr<T>& l, const ExprPtr<T>& r) { return std::make_shared<ArcTan2Expr<T>>(atan2(l->val, r->val), l, r); }
 template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const U& l, const ExprPtr<T>& r) { return std::make_shared<ArcTan2Expr<T>>(atan2(l, r->val), constant<T>(l), r); }
 template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const ExprPtr<T>& l, const U& r) { return std::make_shared<ArcTan2Expr<T>>(atan2(l->val, r), l, constant<T>(r)); }
+
+
+//------------------------------------------------------------------------------
+// HYPOT2 FUNCTIONS
+//------------------------------------------------------------------------------
+template<typename T> ExprPtr<T> hypot(const ExprPtr<T>& l, const ExprPtr<T>& r) { return std::make_shared<Hypot2Expr<T>>(hypot(l->val, r->val), l, r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const U& l, const ExprPtr<T>& r) { return std::make_shared<Hypot2Expr<T>>(hypot(l, r->val), constant<T>(l), r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const ExprPtr<T>& l, const U& r) { return std::make_shared<Hypot2Expr<T>>(hypot(l->val, r), l, constant<T>(r)); }
+
+//------------------------------------------------------------------------------
+// HYPOT3 FUNCTIONS
+//------------------------------------------------------------------------------
+template<typename T> ExprPtr<T> hypot(const ExprPtr<T>& l, const ExprPtr<T>& c, const ExprPtr<T>& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l->val,c->val, r->val), l, c, r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const ExprPtr<T>& l, const ExprPtr<T>& c, const U& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l->val, c->val, r), l, c, constant<T>(r)); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const U& l, const ExprPtr<T>& c, const ExprPtr<T>& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l, c->val, r->val), constant<T>(l), c, r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const ExprPtr<T>& l,const U& c, const ExprPtr<T>& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l->val, c, r->val), l, constant<T>(c), r); }
+template<typename T, typename U, typename V, EnableIf<isArithmetic<U> && isArithmetic<V>>...> ExprPtr<T> hypot(const ExprPtr<T>& l, const U& c, const V& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l->val, c, r), l, constant<T>(c), constant<T>(r)); }
+template<typename T, typename U, typename V, EnableIf<isArithmetic<U> && isArithmetic<V>>...> ExprPtr<T> hypot(const U& l, const ExprPtr<T>& c, const V& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l, c->val, r), constant<T>(l), c, constant<T>(r)); }
+template<typename T, typename U, typename V, EnableIf<isArithmetic<U> && isArithmetic<V>>...> ExprPtr<T> hypot(const V& l, const U& c, const ExprPtr<T>& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l, c, r->val), constant<T>(l), constant<T>(c), r); }
+
 
 //------------------------------------------------------------------------------
 // HYPERBOLIC FUNCTIONS
@@ -1075,6 +1156,24 @@ template<typename T> ExprPtr<T> atan(const Variable<T>& x) { return atan(x.expr)
 template<typename T> ExprPtr<T> atan2(const Variable<T> & l, const Variable<T> & r) { return atan2(l.expr, r.expr); }
 template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const U& l, const Variable<T>& r) { return atan2(l, r.expr); }
 template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const Variable<T>& l, const U& r) { return atan2(l.expr, r); }
+
+//------------------------------------------------------------------------------
+// HYPOT2 FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE Variable)
+//------------------------------------------------------------------------------
+template<typename T> ExprPtr<T> hypot(const Variable<T>& l, const Variable<T>& r) { return hypot(l.expr, r.expr); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const U& l, const Variable<T>& r) { return hypot(l, r.expr); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const Variable<T>& l, const U& r) { return hypot(l.expr, r); }
+
+//------------------------------------------------------------------------------
+// HYPOT3 FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE Variable)
+//------------------------------------------------------------------------------
+template<typename T> ExprPtr<T> hypot(const Variable<T> &l, const Variable<T> &c, const Variable<T> &r) { return hypot(l.expr, c.expr, r.expr); }
+template<typename T, typename U, typename V, EnableIf<isArithmetic<U> && isArithmetic<V>>...> ExprPtr<T> hypot(const Variable<T>& l, const U& c, const V& r) { return hypot(l.expr, c, r); }
+template<typename T, typename U, typename V, EnableIf<isArithmetic<U> && isArithmetic<V>>...> ExprPtr<T> hypot(const U& l, const Variable<T>& c, const V& r) { return hypot(l, c.expr, r); }
+template<typename T, typename U, typename V, EnableIf<isArithmetic<U> && isArithmetic<V>>...> ExprPtr<T> hypot(const U& l, const V& c, const Variable<T>& r) { return hypot(l, c, r.expr); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const Variable<T> &l, const Variable<T> &c, const U& r) { return hypot(l.expr, c.expr, r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const U &l, const Variable<T> &c, const Variable<T>& r) { return hypot(l, c.expr, r.expr); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const Variable<T> &l, const U &c, const Variable<T>& r) { return hypot(l.expr, c, r.expr); }
 
 //------------------------------------------------------------------------------
 // HYPERBOLIC FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE Variable)
