@@ -645,6 +645,96 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( g(y, x) == 3 * std::atan2(sin(val(y)), 2*val(x)+1) );
         REQUIRE( derivative(g, wrt(y), at(y, x)) == approx(3*(2*x+1)*cos(y) / ((2*x+1)*(2*x+1) + sin(y)*sin(y))) );
         REQUIRE( derivative(g, wrt(x), at(y, x)) == approx(3*-2*sin(y) / ((2*x+1)*(2*x+1) + sin(y)*sin(y))) );
+        
+        // Testing hypot function on (dual, double)
+        f = [](dual y) -> dual { return hypot(y, 2.0); };
+        x = 1.5;
+        REQUIRE( f(x) == std::hypot(val(x), 2.0) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(x / std::hypot(val(x), 2.0)) );
+        
+        // Testing hypot function on (double, dual)
+        f = [](dual y) -> dual { return hypot(2.0, y); };
+        y = 1.5;
+        REQUIRE( f(y) == std::hypot(2.0, val(y)) );
+        REQUIRE( derivative(f, wrt(y), at(y)) == approx(y / std::hypot(2.0, val(y))) );
+        
+        // Testing hypot function on (dual, dual)
+        g = [](dual x, dual y) -> dual { return hypot(x,y); };
+        x = 1.1;
+        y = 0.9;
+        REQUIRE( g(x, y) == std::hypot(val(x), val(y)) );
+        REQUIRE( derivative(g, wrt(y), at(x,y)) == approx(y / std::hypot(val(x), val(y))) );
+        REQUIRE( derivative(g, wrt(x), at(x,y)) == approx(x / std::hypot(val(x), val(y))) );
+        
+        // Testing hypot function on (expr, expr)
+        g = [](dual x, dual y) -> dual { return hypot(2.0*x,3.0*y); };
+        x = 1.1;
+        y = 0.9;
+        REQUIRE( g(x, y) == std::hypot(2.0*val(x), 3.0*val(y)) );
+        REQUIRE( derivative(g, wrt(x), at(x,y)) == approx(4.0*x / std::hypot(2.0*val(x), 3.0*val(y))) );
+        REQUIRE( derivative(g, wrt(y), at(x,y)) == approx(9.0*y / std::hypot(2.0*val(x), 3.0*val(y))) );
+        
+        // Testing hypot function on (dual, double, double)
+        f = [](dual x) -> dual { return hypot(x, 2.0, 2.0); };
+        x = 1.5;
+        REQUIRE( f(x) == std::hypot(val(x), 2.0, 2.0) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(x / std::hypot(val(x), 2.0, 2.0)) );
+        
+        // Testing hypot function on (double, dual, double)
+        f = [](dual y) -> dual { return hypot(2.0, y, 2.0); };
+        y = 2.5;
+        REQUIRE( f(y) == std::hypot(2.0, val(y), 2.0) );
+        REQUIRE( derivative(f, wrt(y), at(y)) == approx(y / std::hypot(2.0, val(y), 2.0)) );
+        
+        // Testing hypot function on (double, double, dual)
+        f = [](dual z) -> dual { return hypot(2.0, 2.0, z); };
+        dual z = 3.5;
+        REQUIRE( f(z) == std::hypot(2.0, 2.0, val(z)) );
+        REQUIRE( derivative(f, wrt(z), at(z)) == approx(z / std::hypot(2.0, 2.0, val(z))) );
+        
+        // Testing hypot function on (dual, dual, double)
+        g = [](dual x, dual y) -> dual { return hypot(x, y, 2.0); };
+        x = 1.4;
+        y = 2.4;
+        REQUIRE( g(x,y) == std::hypot(val(x), val(y), 2.0) );
+        REQUIRE( derivative(g, wrt(x), at(x,y)) == approx(x / std::hypot(val(x), val(y), 2.0)) );
+        REQUIRE( derivative(g, wrt(y), at(x,y)) == approx(y / std::hypot(val(x), val(y), 2.0)) );
+        
+        // Testing hypot function on (double, dual, dual)
+        g = [](dual y, dual z) -> dual { return hypot(2.0, y, z); };
+        y = 2.4;
+        z = 3.4;
+        REQUIRE( g(y,z) == std::hypot(2.0, val(y), val(z)) );
+        REQUIRE( derivative(g, wrt(y), at(y,z)) == approx(y / std::hypot(2.0, val(y), val(z))) );
+        REQUIRE( derivative(g, wrt(z), at(y,z)) == approx(z / std::hypot(2.0, val(y), val(z))) );
+        
+        // Testing hypot function on (dual, double, dual)
+        g = [](dual x, dual z) -> dual { return hypot(x, 2.0, z); };
+        x = 3.4;
+        z = 4.4;
+        REQUIRE( g(x,z) == std::hypot(val(x), 2.0, val(z)) );
+        REQUIRE( derivative(g, wrt(x), at(x,z)) == approx(x / std::hypot(val(x), 2.0, val(z))) );
+        REQUIRE( derivative(g, wrt(z), at(x,z)) == approx(z / std::hypot(val(x), 2.0, val(z))) );
+      
+        // Testing hypot function on (dual, double, dual)
+        std::function<dual(dual, dual, dual)> h = [](dual x, dual y, dual z) -> dual { return hypot(x, y, z); };
+        x = 1.6;
+        y = 2.6;
+        z = 3.6;
+        REQUIRE( h(x,y,z) == std::hypot(val(x), val(y), val(z)) );
+        REQUIRE( derivative(h, wrt(x), at(x,y,z)) == approx(x / std::hypot(val(x), val(y), val(z))) );
+        REQUIRE( derivative(h, wrt(y), at(x,y,z)) == approx(y / std::hypot(val(x), val(y), val(z))) );
+        REQUIRE( derivative(h, wrt(z), at(x,y,z)) == approx(z / std::hypot(val(x), val(y), val(z))) );
+      
+        // Testing hypot function on (expr, expr, expr)
+        h = [](dual x, dual y, dual z) -> dual { return hypot(2.0*x, 3.0*y, 4.0*z); };
+        x = 2.6;
+        y = 3.6;
+        z = 4.6;
+        REQUIRE( h(x,y,z) == std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z)) );
+        REQUIRE( derivative(h, wrt(x), at(x,y,z)) == approx(4.0*x / std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z))) );
+        REQUIRE( derivative(h, wrt(y), at(x,y,z)) == approx(9.0*y / std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z))) );
+        REQUIRE( derivative(h, wrt(z), at(x,y,z)) == approx(16.*z / std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z))) );
     }
 
     SECTION("testing complex expressions")
