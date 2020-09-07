@@ -77,7 +77,7 @@ template<size_t i>
 struct Index
 {
     constexpr static size_t index = i;
-    constexpr operator const size_t() const { return index; }
+    constexpr operator size_t() const { return index; }
     constexpr operator size_t() { return index; }
 };
 

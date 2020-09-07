@@ -541,8 +541,8 @@ struct Dual
     explicit operator T() const { return this->val; }
 
     template<typename U, enableif<isConvertible<U, T> && !isExpr<U>>...>
-    Dual(U&& val)
-    : val(std::forward<U>(val)), grad(0)
+    Dual(U&& v)
+    : val(std::forward<U>(v)), grad(0)
     {
     }
 
