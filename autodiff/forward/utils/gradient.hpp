@@ -75,8 +75,8 @@ constexpr auto ForEachWrtVar(const Wrt<Vars...>& wrt, Function&& f)
 }
 
 /// Return the gradient of scalar function *f* with respect to some or all variables *x*.
-template<typename Fun, typename... Vars, typename... Args>
-auto gradient(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, ReturnType<Fun, Args...>& u)
+template<typename Fun, typename... Vars, typename... Args, typename Y>
+auto gradient(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Y& u)
 {
     static_assert(sizeof...(Vars) >= 1);
     static_assert(sizeof...(Args) >= 1);
@@ -108,8 +108,8 @@ auto gradient(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
 }
 
 /// Return the Jacobian matrix of a function *f* with respect to some or all variables.
-template<typename Fun, typename... Vars, typename... Args>
-auto jacobian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, ReturnType<Fun, Args...>& F)
+template<typename Fun, typename... Vars, typename... Args, typename Y>
+auto jacobian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Y& F)
 {
     static_assert(sizeof...(Vars) >= 1);
     static_assert(sizeof...(Args) >= 1);
@@ -138,7 +138,13 @@ auto jacobian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Retu
 template<typename Fun, typename... Vars, typename... Args>
 auto jacobian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
 {
-    ReturnType<Fun, Args...> F;
+    using Y = ReturnType<Fun, Args...>;
+    static_assert(!std::is_same_v<Y, void>,
+        "In jacobian(f, wrt(x), at(x)), the type of x "
+        "might not be the same as in the definition of f. "
+        "For example, x is Eigen::VectorXdual but the "
+        "definition of f uses Eigen::Ref<const Eigen::VectorXdual>.");
+    Y F;
     return jacobian(f, wrt, at, F);
 }
 
