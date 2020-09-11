@@ -766,6 +766,12 @@ bool operator==(const Real<N, T>& x, const Real<N, T>& y)
     return res;
 }
 
+template<size_t N, typename T>
+bool operator!=(const Real<N, T>& x, const Real<N, T>& y)
+{
+    return !(x == y);
+}
+
 //=====================================================================================================================
 //
 // SEED FUNCTION

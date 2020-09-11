@@ -325,6 +325,25 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
 
     //=====================================================================================================================
     //
+    // TESTING COMPARISON OPERATORS
+    //
+    //=====================================================================================================================
+    x = {0.5, 3.0, -5.0, -15.0, 11.0};
+
+    // Check equality not only on value but also on the derivatives
+    CHECK( x == real4th({0.5, 3.0, -5.0, -15.0, 11.0}) );
+
+    // Check equality against plain numeric types (double) do not require check against derivatives
+    CHECK_FALSE( x == 0.6 );
+    CHECK( x == 0.5 );
+
+    // Check some inequalities
+    CHECK_FALSE( x == real4th({0.5, 3.1, -5.0, -15.0, 11.0}) );
+    CHECK( x != real4th({0.5, 3.1, -5.0, -15.0, 11.0}) );
+    CHECK( x != 1.0 );
+
+    //=====================================================================================================================
+    //
     // TESTING DERIVATIVE CALCULATIONS
     //
     //=====================================================================================================================
@@ -333,7 +352,7 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_DERIVATIVES_REAL4TH_WRT( sin(2*x + 3*y) );
     CHECK_DERIVATIVES_REAL4TH_WRT( exp(2*x + 3*y) * log(x/y) );
 
-    SECTION("testing array-unpacking of derivatives for real number")
+    // Testing array-unpacking of derivatives for real number
     {
         real4th x = {{2.0, 3.0, 4.0, 5.0, 6.0}};
 
@@ -346,7 +365,7 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         CHECK_APPROX( x4, x[4] );
     }
 
-    SECTION("testing array-unpacking of derivatives for vector of real numbers")
+    // Testing array-unpacking of derivatives for vector of real numbers
     {
         real4th x = {{2.0, 3.0, 4.0, 5.0, 6.0}};
         real4th y = {{3.0, 4.0, 5.0, 6.0, 7.0}};
