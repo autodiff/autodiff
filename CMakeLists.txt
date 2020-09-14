@@ -18,6 +18,7 @@ include(CondaAware)
 
 # Define build options
 option(AUTODIFF_BUILD_TESTS "Enable the compilation of the test files." TRUE)
+option(AUTODIFF_BUILD_PYTHON "Enable the compilation of the python bindings." TRUE)
 option(AUTODIFF_BUILD_EXAMPLES "Enable the compilation of the example files." TRUE)
 
 # Find eigen library
@@ -34,6 +35,11 @@ add_subdirectory(autodiff)
 # Build the tests
 if(AUTODIFF_BUILD_TESTS)
     add_subdirectory(tests)
+endif()
+
+# Build the python wrappers
+if(AUTODIFF_BUILD_PYTHON)
+    add_subdirectory(python)
 endif()
 
 # Build the examples

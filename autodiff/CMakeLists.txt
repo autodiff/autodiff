@@ -1,6 +1,9 @@
 # Create the autodiff interface library
 add_library(autodiff INTERFACE)
 
+# Add an alias autodiff::autodiff to the target library autodiff
+add_library(autodiff::autodiff ALIAS autodiff)
+
 # Set autodiff compilation features to be propagated to client code.
 target_compile_features(autodiff INTERFACE cxx_std_17)
 

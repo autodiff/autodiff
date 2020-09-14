@@ -8,6 +8,7 @@ dependencies:
   - eigen
   - catch2
   - ccache  # [unix]
+  - pybind11 >=2.5.0
   - pip
   - pip:
     - mkdocs
