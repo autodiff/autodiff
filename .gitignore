@@ -54,6 +54,7 @@ language.settings.xml
 
 # VSCode files
 .vscode/
+.history/
 
 # Qt Creator files
 CMakeLists.txt.user
