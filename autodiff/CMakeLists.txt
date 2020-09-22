@@ -7,7 +7,6 @@ add_library(autodiff::autodiff ALIAS autodiff)
 # Set autodiff compilation features to be propagated to client code.
 target_compile_features(autodiff INTERFACE cxx_std_17)
 
-# target_include_directories(autodiff INTERFACE ${CMAKE_INSTALL_INCLUDEDIR})
 # Add the include paths to the Reaktoro target
 target_include_directories(autodiff
     INTERFACE
