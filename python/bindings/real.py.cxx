@@ -32,6 +32,7 @@
 #include <pybind11/eigen.h>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 namespace py = pybind11;
 
 // autodiff includes
@@ -51,6 +52,13 @@ void exportReal(py::module& m, std::string typestr)
         self[i] = value;
     };
 
+    auto __str__ = [](Real<N, T>& self)
+    {
+        std::stringstream ss;
+        ss << self;
+        return ss.str();
+    };
+
     py::class_<Real<N, T>>(m, typestr.c_str())
         .def(py::init<>())
         .def(py::init<const T&>())
@@ -58,6 +66,7 @@ void exportReal(py::module& m, std::string typestr)
         .def(py::init<const Real<N, T>&>())
         .def("__getitem__", __getitem__)
         .def("__setitem__", __setitem__)
+        .def("__str__", __str__)
 
         .def(-py::self)
 
@@ -86,6 +95,8 @@ void exportReal(py::module& m, std::string typestr)
         .def(py::self *= T())
         .def(py::self /= T())
         ;
+
+    py::implicitly_convertible<T, Real<N, T>>();
 }
 
 void export_real1st(py::module& m) { exportReal<1, double>(m, "real1st"); }

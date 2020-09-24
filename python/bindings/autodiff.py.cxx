@@ -36,6 +36,11 @@ void export_real2nd(py::module& m);
 void export_real3rd(py::module& m);
 void export_real4th(py::module& m);
 
+void exportArrayXreal(py::module& m);
+void exportArrayXdual(py::module& m);
+void exportVectorXreal(py::module& m);
+void exportVectorXdual(py::module& m);
+
 PYBIND11_MODULE(autodiff4py, m)
 {
     export_real1st(m);
@@ -44,4 +49,9 @@ PYBIND11_MODULE(autodiff4py, m)
     export_real4th(m);
 
     m.attr("real") = m.attr("real1st");
+
+    exportArrayXreal(m);
+    exportArrayXdual(m);
+    exportVectorXreal(m);
+    exportVectorXdual(m);
 }
