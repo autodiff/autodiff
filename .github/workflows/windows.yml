@@ -37,8 +37,8 @@ jobs:
       shell: powershell
       run: |
         conda activate autodiff
-        cmake -S . -B build
-        cmake --build build --config ${{ env.configuration }} --target install
+        cmake -S . -B .build
+        cmake --build .build --config ${{ env.configuration }} --target install
     - name: Tests
       shell: powershell
-      run: .\build\test\${{ env.configuration }}\tests.exe
+      run: .\.build\test\${{ env.configuration }}\tests.exe
