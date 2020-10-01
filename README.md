@@ -102,7 +102,7 @@ simultaneously (e.g., in a single forward pass, *∂u/∂x*,  *∂u/∂y*, and *
 are evaluated together with *u*, in contrast with three forward passes, each
 one computing the individual derivatives).
 
-Similar as before, we can use {{autodiff}} to enable reverse automatic
+Similar as before, we can use **autodiff** to enable reverse automatic
 differentiation for our function *f* by simply replacing type `double` by
 `autodiff::var` as follows:
 
