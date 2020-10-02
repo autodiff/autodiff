@@ -283,7 +283,8 @@ auto operator-(Real<N, T> x, const U& y)
 template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
 auto operator-(const U& x, Real<N, T> y)
 {
-    For<0, N + 1>([&](auto i) constexpr { y[i] = static_cast<T>(x) - y[i]; });
+    y -= x;
+    y *= -static_cast<T>(1.0);
     return y;
 }
 

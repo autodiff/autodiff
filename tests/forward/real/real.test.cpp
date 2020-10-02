@@ -126,6 +126,22 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_APPROX( z[3],  x[3] - y[3] );
     CHECK_APPROX( z[4],  x[4] - y[4] );
 
+    z = x - 1.0;
+
+    CHECK_APPROX( z[0],  x[0] - 1.0 );
+    CHECK_APPROX( z[1],  x[1] );
+    CHECK_APPROX( z[2],  x[2] );
+    CHECK_APPROX( z[3],  x[3] );
+    CHECK_APPROX( z[4],  x[4] );
+
+    z = 1.0 - x;
+
+    CHECK_APPROX( z[0],  1.0 - x[0] );
+    CHECK_APPROX( z[1],  -x[1] );
+    CHECK_APPROX( z[2],  -x[2] );
+    CHECK_APPROX( z[3],  -x[3] );
+    CHECK_APPROX( z[4],  -x[4] );
+
     z = x * y;
 
     CHECK_APPROX( z[0],  x[0]*y[0] );
@@ -133,6 +149,22 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_APPROX( z[2],  x[2]*y[0] + 2*x[1]*y[1] + x[0]*y[2] );
     CHECK_APPROX( z[3],  x[3]*y[0] + 3*x[2]*y[1] + 3*x[1]*y[2] + x[0]*y[3] );
     CHECK_APPROX( z[4],  x[4]*y[0] + 4*x[3]*y[1] + 6*x[2]*y[2] + 4*x[1]*y[3] + x[0]*y[4] );
+
+    z = x * 3.0;
+
+    CHECK_APPROX( z[0],  x[0]*3.0 );
+    CHECK_APPROX( z[1],  x[1]*3.0 );
+    CHECK_APPROX( z[2],  x[2]*3.0 );
+    CHECK_APPROX( z[3],  x[3]*3.0 );
+    CHECK_APPROX( z[4],  x[4]*3.0 );
+
+    z = 5.0 * x;
+
+    CHECK_APPROX( z[0],  5.0*x[0] );
+    CHECK_APPROX( z[1],  5.0*x[1] );
+    CHECK_APPROX( z[2],  5.0*x[2] );
+    CHECK_APPROX( z[3],  5.0*x[3] );
+    CHECK_APPROX( z[4],  5.0*x[4] );
 
     z = x / y;
 
@@ -149,6 +181,14 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_APPROX( z[2],  -(y[2]*z[0] + 2*y[1]*z[1])/y[0] );
     CHECK_APPROX( z[3],  -(y[3]*z[0] + 3*y[2]*z[1] + 3*y[1]*z[2])/y[0] );
     CHECK_APPROX( z[4],  -(y[4]*z[0] + 4*y[3]*z[1] + 6*y[2]*z[2] + 4*y[1]*z[3])/y[0] );
+
+    z = y / 5.0;
+
+    CHECK_APPROX( z[0],  y[0] / 5.0 );
+    CHECK_APPROX( z[1],  y[1] / 5.0 );
+    CHECK_APPROX( z[2],  y[2] / 5.0 );
+    CHECK_APPROX( z[3],  y[3] / 5.0 );
+    CHECK_APPROX( z[4],  y[4] / 5.0 );
 
     //=====================================================================================================================
     //
