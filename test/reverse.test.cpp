@@ -300,6 +300,21 @@ TEST_CASE("autodiff::var tests", "[var]")
 
 
     //--------------------------------------------------------------------------
+    // TEST ABS FUNCTION
+    //--------------------------------------------------------------------------
+
+    x = 1.0;
+    REQUIRE( val(abs(x)) == std::abs(val(x)) );
+    REQUIRE( grad(abs(x), x) == approx(1.0) );
+    x = -1.0;
+    REQUIRE( val(abs(x)) == std::abs(val(x)) );
+    REQUIRE( grad(abs(x), x) == approx(-1.0) );
+    x = 0.0;
+    REQUIRE( val(abs(x)) == std::abs(val(x)) );
+    REQUIRE( grad(abs(x), x) == approx(0.0) );
+
+
+    //--------------------------------------------------------------------------
     // TEST ATAN2 FUNCTION
     //--------------------------------------------------------------------------
 
