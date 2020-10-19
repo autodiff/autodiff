@@ -602,7 +602,7 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( f(x) == std::pow(val(x), 2.0 * val(x)) );
         REQUIRE( derivative(f, wrt(x), at(x)) == approx(2.0 * (log(x) + 1) * pow(x, 2.0 * x)) );
 
-        // Testing abs function (when x > 0 and when x < 0)
+        // Testing abs function (for x > 0, x < 0, and x = 0)
         f = [](dual x) -> dual { return abs(x); };
         x = 1.0;
         REQUIRE( f(x) == std::abs(val(x)) );
@@ -610,6 +610,10 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         x = -1.0;
         REQUIRE( f(x) == std::abs(val(x)) );
         REQUIRE( derivative(f, wrt(x), at(x)) == approx(-1.0) );
+        x = 0;
+        REQUIRE( f(x) == std::abs(val(x)) );
+        REQUIRE( derivative(f, wrt(x), at(x)) == approx(0.0) );
+
 
         // Testing erf function
         f = [](dual x) -> dual { return erf(x); };

@@ -1744,9 +1744,8 @@ constexpr void apply(Dual<T, G>& self, SqrtOp)
 template<typename T, typename G>
 constexpr void apply(Dual<T, G>& self, AbsOp)
 {
-    const T aux = self.val;
+    self.grad *= self.val < T(0) ? G(-1) : (self.val > T(0) ? G(1) : G(0));
     self.val = abs(self.val);
-    self.grad *= aux / self.val;
 }
 
 template<typename T, typename G>
