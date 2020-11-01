@@ -13,3 +13,5 @@ dependencies:
   - mkdocs-macros-plugin
   - pre-commit
   - shellcheck
+  - invoke
+  - exec-wrappers
