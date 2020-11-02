@@ -1,6 +1,6 @@
 # Build files
 build/
-.build/
+build-autodiff/
 
 # conda
 environment.yml
