@@ -37,8 +37,7 @@ jobs:
       shell: powershell
       run: |
         conda activate autodiff
-        cmake -S . -B .build
-        cmake --build .build --config ${{ env.configuration }} --target install
+        inv compile -c -n 2
     - name: Tests
       shell: powershell
       run: .\.build\test\${{ env.configuration }}\tests.exe
