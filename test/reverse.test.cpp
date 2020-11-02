@@ -1,5 +1,5 @@
 // Catch includes
-#include "catch.hpp"
+#include <catch2/catch.hpp>
 
 // C++ includes
 #include <iostream>
@@ -344,7 +344,7 @@ TEST_CASE("autodiff::var tests", "[var]")
     //--------------------------------------------------------------------------
     // TEST HYPOT2 FUNCTIONS
     //--------------------------------------------------------------------------
-    
+
     // Testing hypot function on (var, double)
     x = 1.8;
     REQUIRE( hypot(x, 2.0) == std::hypot(val(x), 2.0) );
@@ -354,14 +354,14 @@ TEST_CASE("autodiff::var tests", "[var]")
     y = 1.5;
     REQUIRE( hypot(2.0, y) == std::hypot(2.0, val(y)) );
     REQUIRE( grad(hypot(2.0, y), y) == approx(y / std::hypot(2.0, val(y))) );
-    
+
     // Testing hypot function on (var, var)
     x = 1.3;
     y = 2.3;
     REQUIRE( hypot(x, y) == std::hypot(val(x), val(y)) );
     REQUIRE( grad(hypot(x, y), x) == approx(x / std::hypot(val(x), val(y))) );
     REQUIRE( grad(hypot(x, y), y) == approx(y / std::hypot(val(x), val(y))) );
-    
+
     // Testing hypot function on (expr, expr)
     x = 1.3;
     y = 2.3;
@@ -378,38 +378,38 @@ TEST_CASE("autodiff::var tests", "[var]")
     x = 1.5;
     REQUIRE( hypot(x, 2.0, 3.0) == std::hypot(val(x), 2.0, 3.0) );
     REQUIRE( grad(hypot(x, 2.0, 3.0), x) == approx(x / std::hypot(val(x), 2.0, 3.0)) );
-    
+
     // Testing hypot function on (double, var, double)
     y = 1.8;
     REQUIRE( hypot(2.0, y, 3.0) == std::hypot(2.0, val(y), 3.0) );
     REQUIRE( grad(hypot(2.0, y, 3.0), y) == approx(y / std::hypot(2.0, val(y), 3.0)) );
-    
+
     // Testing hypot function on (double, var, double)
     var z = 1.9;
     REQUIRE( hypot(2.0, 3.0, z) == std::hypot(2.0, 3.0, val(z)) );
     REQUIRE( grad(hypot(2.0, 3.0, z), z) == approx(z / std::hypot(2.0, 3.0, val(z))) );
-    
+
     // Testing hypot function on (var, var, double)
     x = 1.3;
     y = 2.3;
     REQUIRE( hypot(x, y, 2.0) == std::hypot(val(x), val(y), 2.0) );
     REQUIRE( grad(hypot(x, y, 2.0), x) == approx(x / std::hypot(val(x), val(y), 2.0)) );
     REQUIRE( grad(hypot(x, y, 2.0), y) == approx(y / std::hypot(val(x), val(y), 2.0)) );
-    
+
     // Testing hypot function on (double, var, var)
     y = 2.3;
     z = 3.3;
     REQUIRE( hypot(2.0, y, z) == std::hypot(2.0, val(y), val(z)) );
     REQUIRE( grad(hypot(2.0, y, z), y) == approx(y / std::hypot(2.0, val(y), val(z))) );
     REQUIRE( grad(hypot(2.0, y, z), z) == approx(z / std::hypot(2.0, val(y), val(z))) );
-    
+
     // Testing hypot function on (double, var, var)
     x = 3.3;
     z = 4.3;
     REQUIRE( hypot(x, 2.0, z) == std::hypot(val(x), 2.0, val(z)) );
     REQUIRE( grad(hypot(x, 2.0, z), x) == approx(x / std::hypot(val(x), 2.0, val(z))) );
     REQUIRE( grad(hypot(x, 2.0, z), z) == approx(z / std::hypot(val(x), 2.0, val(z))) );
-    
+
     // Testing hypot function on (var, var, var)
     x = 4.3;
     y = 5.3;
@@ -418,13 +418,13 @@ TEST_CASE("autodiff::var tests", "[var]")
     REQUIRE( grad(hypot(x, y, z), x) == approx(x / std::hypot(val(x), val(y), val(z))) );
     REQUIRE( grad(hypot(x, y, z), y) == approx(y / std::hypot(val(x), val(y), val(z))) );
     REQUIRE( grad(hypot(x, y, z), z) == approx(z / std::hypot(val(x), val(y), val(z))) );
-    
+
     // Testing hypot function on (expr, expr, expr)
     REQUIRE( hypot(2.0*x, 3.0*y, 4.0*z) == std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z)) );
     REQUIRE( grad(hypot(2.0*x, 3.0*y, 4.0*z), x) == approx(4.0*x / std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z))) );
     REQUIRE( grad(hypot(2.0*x, 3.0*y, 4.0*z), y) == approx(9.0*y / std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z))) );
     REQUIRE( grad(hypot(2.0*x, 3.0*y, 4.0*z), z) == approx(16.*z / std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z))) );
-    
+
 
     //--------------------------------------------------------------------------
     // TEST OTHER FUNCTIONS
