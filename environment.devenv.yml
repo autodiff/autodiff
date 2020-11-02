@@ -30,5 +30,5 @@ dependencies:
 environment:
 
   AUTODIFF_BUILD_DIR:
-    - {{ root }}/build  # [unix]
-    - {{ root }}\build  # [win]
+    - {{ root }}/.build  # [unix]
+    - {{ root }}\.build  # [win]
