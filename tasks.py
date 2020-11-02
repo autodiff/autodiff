@@ -6,7 +6,7 @@ import os
 import shutil
 import sys
 
-BUILD_DIR_DEFAULT = Path(os.environ['AUTODIFF_BUILD_DIR'][:-1])
+BUILD_DIR_DEFAULT = Path(os.environ['AUTODIFF_BUILD_DIR'].replace(":", ""))
 
 
 def _get_vcvars_paths():
