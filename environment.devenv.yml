@@ -2,16 +2,27 @@ name: autodiff
 channels:
   - conda-forge
 dependencies:
+
+  # C++
   - cmake>=3.13
   - ninja
   - eigen
   - gxx_linux-64=7.3.0  # [linux]
   - ccache  # [unix]
+
+  # Python
   - pip
+  - invoke
+  - colorama
+
+  # Docs
   - mkdocs
   - mkdocs-material
   - mkdocs-macros-plugin
+
+  # Linters and checkers
   - pre-commit
   - shellcheck
-  - invoke
+
+  # Conda tools
   - exec-wrappers
