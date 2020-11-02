@@ -54,7 +54,7 @@ def _get_and_prepare_build(
 def _get_cmake_command(
         build_dir: Path,
         cmake_generator: str,
-        cmake_arch: Optional[str]=None,
+        cmake_arch: Optional[str] = None,
         config: str = 'Release',
 ):
     '''
