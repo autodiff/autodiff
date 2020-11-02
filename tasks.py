@@ -55,8 +55,7 @@ def _get_cmake_command(
         build_dir: Path,
         cmake_generator: str,
         cmake_arch: Optional[str]=None,
-        config: str='Release',
-        verbose=False,
+        config: str = 'Release',
 ):
     '''
     :param build_dir: Directory from where cmake will be called.
@@ -71,7 +70,6 @@ def _get_cmake_command(
             {f'-A "{cmake_arch}"' if cmake_arch is not None else ""}
             -DCMAKE_BUILD_TYPE={config}
             -DCMAKE_INSTALL_PREFIX="{relative_artifacts_dir.as_posix()}"
-            {f'-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON' if verbose else ''}
             "{str(relative_root_dir)}"
     """)
 
@@ -128,7 +126,7 @@ if sys.platform.startswith('win'):
 
 
 @task
-def compile(c, clean=False, config='Release', number_of_jobs=-1, verbose=False, gen_wrappers=False):
+def compile(c, clean=False, config='Release', number_of_jobs=-1, gen_wrappers=False):
     """
     Compiles autodiff by running CMake and building with `ninja`.
     Assumes that the environment is already configured using:
@@ -141,7 +139,7 @@ def compile(c, clean=False, config='Release', number_of_jobs=-1, verbose=False, 
         build_subdirectory=BUILD_DIR_DEFAULT,
     )
 
-    cmake_command = _get_cmake_command(build_dir=build_dir, cmake_generator="Ninja", config=config, verbose=verbose)
+    cmake_command = _get_cmake_command(build_dir=build_dir, cmake_generator="Ninja", config=config)
     build_command = strip_and_join(f"""
         cmake
             --build .
