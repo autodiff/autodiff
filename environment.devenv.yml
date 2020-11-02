@@ -26,3 +26,9 @@ dependencies:
 
   # Conda tools
   - exec-wrappers
+
+environment:
+
+  AUTODIFF_BUILD_DIR:
+    - {{ root }}/build  # [unix]
+    - {{ root }}\build  # [win]
