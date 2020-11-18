@@ -67,7 +67,7 @@ constexpr auto TupleHead(Tuple&& tuple)
 template<typename Tuple>
 constexpr auto TupleTail(Tuple&& tuple)
 {
-    auto g = [&](auto&& arg, auto&&... args) constexpr {
+    auto g = [&](auto&&, auto&&... args) constexpr {
         return std::forward_as_tuple(args...);
     };
     return std::apply(g, std::forward<Tuple>(tuple));
