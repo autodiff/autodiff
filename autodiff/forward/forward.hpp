@@ -1016,7 +1016,7 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto abs(R&& r) -> AbsExp
 template<typename R, enableif<isExpr<R>>...> constexpr auto abs2(R&& r) { return std::forward<R>(r) * std::forward<R>(r); }
 template<typename R, enableif<isExpr<R>>...> constexpr auto conj(R&& r) { return std::forward<R>(r); }
 template<typename R, enableif<isExpr<R>>...> constexpr auto real(R&& r) { return std::forward<R>(r); }
-template<typename R, enableif<isExpr<R>>...> constexpr auto imag(R&& r) { return 0.0; }
+template<typename R, enableif<isExpr<R>>...> constexpr auto imag(R&&) { return 0.0; }
 template<typename R, enableif<isExpr<R>>...> constexpr auto erf(R&& r) -> ErfExpr<R> { return { r }; }
 
 //=====================================================================================================================
