@@ -243,13 +243,13 @@ template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>(co
 /// The abstract type of any node type in the expression tree.
 template<typename T>
 struct Expr
-{    
+{
     /// The value of this expression node.
     T val = {};
 
     /// Construct an Expr object with given value.
     explicit Expr(const T& v) : val(v) {}
-    
+
     /// Destructor (to avoid warning)
     virtual ~Expr() {}
 
@@ -382,7 +382,7 @@ template<typename T>
 struct TernaryExpr : Expr<T>
 {
     ExprPtr<T> l, c, r;
-    
+
     TernaryExpr(const T& v, const ExprPtr<T>& ll, const ExprPtr<T>& cc, const ExprPtr<T>& rr) : Expr<T>(v), l(ll), c(cc), r(rr) {}
 };
 
@@ -900,7 +900,7 @@ struct Hypot3Expr : TernaryExpr<T>
     using TernaryExpr<T>::l;
     using TernaryExpr<T>::c;
     using TernaryExpr<T>::r;
-    
+
     Hypot3Expr(const T& v, const ExprPtr<T>& ll, const ExprPtr<T>& cc, const ExprPtr<T>& rr) : TernaryExpr<T>(v, ll, cc, rr) {}
 
     virtual void propagate(const T& wprime)
@@ -1052,7 +1052,7 @@ struct Variable
 
     /// Construct a Variable object with given expression
     Variable(const ExprPtr<T>& e) : expr(std::make_shared<DependentVariableExpr<T>>(e)) {}
-    
+
     /// Default copy assignment
     Variable &operator=(const Variable &) = default;
 
@@ -1106,6 +1106,20 @@ template<typename T> bool operator<=(const Variable<T>& l, const Variable<T>& r)
 template<typename T> bool operator>=(const Variable<T>& l, const Variable<T>& r) { return l.expr >= r.expr; }
 template<typename T> bool operator<(const Variable<T>& l, const Variable<T>& r) { return l.expr < r.expr; }
 template<typename T> bool operator>(const Variable<T>& l, const Variable<T>& r) { return l.expr > r.expr; }
+
+template<typename T> bool operator==(const Variable<T>& l, const ExprPtr<T>& r) { return l.expr->val == r->val; }
+template<typename T> bool operator!=(const Variable<T>& l, const ExprPtr<T>& r) { return l.expr->val != r->val; }
+template<typename T> bool operator<=(const Variable<T>& l, const ExprPtr<T>& r) { return l.expr->val <= r->val; }
+template<typename T> bool operator>=(const Variable<T>& l, const ExprPtr<T>& r) { return l.expr->val >= r->val; }
+template<typename T> bool operator<(const Variable<T>& l, const ExprPtr<T>& r) { return l.expr->val < r->val; }
+template<typename T> bool operator>(const Variable<T>& l, const ExprPtr<T>& r) { return l.expr->val > r->val; }
+
+template<typename T> bool operator==(const ExprPtr<T>& l, const Variable<T>& r) { return l->val == r.expr->val; }
+template<typename T> bool operator!=(const ExprPtr<T>& l, const Variable<T>& r) { return l->val != r.expr->val; }
+template<typename T> bool operator<=(const ExprPtr<T>& l, const Variable<T>& r) { return l->val <= r.expr->val; }
+template<typename T> bool operator>=(const ExprPtr<T>& l, const Variable<T>& r) { return l->val >= r.expr->val; }
+template<typename T> bool operator<(const ExprPtr<T>& l, const Variable<T>& r) { return l->val < r.expr->val; }
+template<typename T> bool operator>(const ExprPtr<T>& l, const Variable<T>& r) { return l->val > r.expr->val; }
 
 template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator==(const U& l, const Variable<T>& r) { return l == r.expr; }
 template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator!=(const U& l, const Variable<T>& r) { return l != r.expr; }
