@@ -8,7 +8,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(CCache)
 
 # Name and details of the project
-project(autodiff VERSION 0.5.11 LANGUAGES CXX)
+project(autodiff VERSION 0.5.13 LANGUAGES CXX)
 
 # Include the cmake variables with values for installation directories
 include(GNUInstallDirs)
