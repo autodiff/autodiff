@@ -16,10 +16,10 @@ int main()
 {
     using Eigen::VectorXd;
 
-    VectorXreal x(5);   // the input vector x with 5 variables
+    ArrayXreal x(5);    // the input vector x with 5 variables
     x << 1, 2, 3, 4, 5; // x = [1, 2, 3, 4, 5]
 
-    VectorXreal p(3);   // the input parameter vector p with 3 variables
+    ArrayXreal p(3);    // the input parameter vector p with 3 variables
     p << 1, 2, 3;       // p = [1, 2, 3]
 
     real q = -2;        // the input parameter q as a single variable

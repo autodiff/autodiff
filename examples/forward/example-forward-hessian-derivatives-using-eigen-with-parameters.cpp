@@ -17,10 +17,10 @@ int main()
     using Eigen::VectorXd;
     using Eigen::MatrixXd;
 
-    VectorXdual2nd x(3); // the input vector x with 3 variables
+    ArrayXdual2nd x(3);  // the input vector x with 3 variables
     x << 1, 2, 3;
 
-    VectorXdual2nd p(2); // the input parameter vector p with 2 variables
+    ArrayXdual2nd p(2);  // the input parameter vector p with 2 variables
     p << 4, 5;
 
     dual2nd q = -2;      // the input parameter q as a single variable

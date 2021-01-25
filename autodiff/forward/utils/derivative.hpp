@@ -123,7 +123,7 @@ auto seed(const At<Args...>& at, const Along<Vecs...>& along)
         if constexpr (isVector<decltype(arg)>) {
             static_assert(isVector<decltype(dir)>);
             assert(arg.size() == dir.size());
-            for(size_t i = 0; i < dir.size(); ++i)
+            for(auto i = 0; i < dir.size(); ++i)
                 seed<1>(arg[i], dir[i]);
         }
         else seed<1>(arg, dir);
@@ -135,7 +135,7 @@ auto unseed(const At<Args...>& at)
 {
     ForEach(at.args, [&](auto& arg) constexpr {
         if constexpr (isVector<decltype(arg)>) {
-            for(size_t i = 0; i < arg.size(); ++i)
+            for(auto i = 0; i < arg.size(); ++i)
                 seed<1>(arg[i], 0.0);
         }
         else seed<1>(arg, 0.0);
@@ -207,7 +207,7 @@ auto derivatives(const Result& result)
         std::array<Vec, N + 1> values; // create an array to store the derivatives stored inside the dual/real number
         For<N + 1>([&](auto i) constexpr {
             values[i].resize(len);
-            for(size_t j = 0; j < len; ++j)
+            for(auto j = 0; j < len; ++j)
                 values[i][j] = derivative<i>(result[j]); // get the ith derivative of the jth dual/real number
         });
         return values;

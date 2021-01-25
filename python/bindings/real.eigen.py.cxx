@@ -63,13 +63,15 @@ void exportVector(py::module& m, std::string typestr)
     cls.def("__len__", [](const Vec& s) { return s.size(); });
 
     cls.def("__getitem__", [](const Vec& s, size_t i) {
-        if(i >= s.size()) throw py::index_error();
+        const size_t size = s.size();
+        if(i >= size) throw py::index_error();
         return s[i];
     });
 
     if constexpr (!isconst) {
         cls.def("__setitem__", [](Vec& s, size_t i, const T& val) {
-            if(i >= s.size()) throw py::index_error();
+            const size_t size = s.size();
+            if(i >= size) throw py::index_error();
             s[i] = val;
         });
     }

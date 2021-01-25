@@ -10,6 +10,9 @@ include(CCache)
 # Name and details of the project
 project(autodiff VERSION 0.5.9 LANGUAGES CXX)
 
+# Enable parallel build if MSVC is used
+add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
+
 # Include the cmake variables with values for installation directories
 include(GNUInstallDirs)
 

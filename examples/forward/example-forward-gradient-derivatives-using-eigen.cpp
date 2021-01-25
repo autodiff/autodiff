@@ -16,7 +16,7 @@ int main()
 {
     using Eigen::VectorXd;
 
-    VectorXreal x(5);                           // the input vector x with 5 variables
+    ArrayXreal x(5);                            // the input array x with 5 variables
     x << 1, 2, 3, 4, 5;                         // x = [1, 2, 3, 4, 5]
 
     real u;                                     // the output scalar u = f(x) evaluated together with gradient below
