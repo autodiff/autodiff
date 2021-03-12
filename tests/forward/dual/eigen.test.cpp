@@ -38,6 +38,7 @@ TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")
 {
     using Eigen::MatrixXd;
     using Eigen::VectorXd;
+    using Eigen::ArrayXd;
 
     SECTION("testing array-unpacking of derivatives for eigen vector of dual numbers")
     {
@@ -131,5 +132,29 @@ TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")
 
         CHECK( derivative<1>(b[0]) == approx(18.0) );
         CHECK( derivative<1>(b[1]) == approx(50.0) );
+    }
+
+    SECTION("testing class template specializations for Eigen::ScalarBinaryOpTraits")
+    {
+        dual4th x = 4.0;
+
+        MatrixXd A(2, 2);
+        A << 1.0, 3.0, 5.0, 7.0;
+
+        // The checks below also allow us to determine if compilation succeeds.
+        // Note that we mix not only dual4th times MatrixXd, but also expressions,
+        // such as UnaryExp -x and +x, BinaryExpr (x+x) and (x+x)*(x+x).
+
+        CHECK( (x*A).isApprox(x*A.cast<dual4th>()) );
+        CHECK( ((+x)*A).isApprox(+x*A.cast<dual4th>()) );
+        CHECK( ((-x)*A).isApprox(-x*A.cast<dual4th>()) );
+        CHECK( ((x+x)*A).isApprox(2*x*A.cast<dual4th>()) );
+        CHECK( (((x+x)*(x+x))*A).isApprox(4*x*x*A.cast<dual4th>()) );
+
+        CHECK( (A*x).isApprox(x*A.cast<dual4th>()) );
+        CHECK( (A*(+x)).isApprox(+x*A.cast<dual4th>()) );
+        CHECK( (A*(-x)).isApprox(-x*A.cast<dual4th>()) );
+        CHECK( (A*(x+x)).isApprox(2*x*A.cast<dual4th>()) );
+        CHECK( (A*((x+x)*(x+x))).isApprox(4*x*x*A.cast<dual4th>()) );
     }
 }

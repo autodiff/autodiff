@@ -42,6 +42,9 @@
 //------------------------------------------------------------------------------
 namespace Eigen {
 
+using namespace autodiff;
+using namespace autodiff::detail;
+
 template<typename T>
 struct NumTraits;
 
@@ -64,15 +67,51 @@ struct NumTraits<autodiff::Dual<T, G>> : NumTraits<double> // permits to get the
 };
 
 template<typename T, typename G, typename BinOp>
-struct ScalarBinaryOpTraits<autodiff::Dual<T, G>, T, BinOp>
+struct ScalarBinaryOpTraits<Dual<T, G>, DualValueType<T>, BinOp>
 {
-    typedef autodiff::Dual<T, G> ReturnType;
+    typedef Dual<T, G> ReturnType;
+};
+
+template<typename Op, typename R, typename BinOp>
+struct ScalarBinaryOpTraits<UnaryExpr<Op, R>, DualValueType<UnaryExpr<Op, R>>, BinOp>
+{
+    typedef DualType<UnaryExpr<Op, R>> ReturnType;
+};
+
+template<typename Op, typename L, typename R, typename BinOp>
+struct ScalarBinaryOpTraits<BinaryExpr<Op, L, R>, DualValueType<BinaryExpr<Op, L, R>>, BinOp>
+{
+    typedef DualType<BinaryExpr<Op, L, R>> ReturnType;
+};
+
+template<typename Op, typename L, typename C, typename R, typename BinOp>
+struct ScalarBinaryOpTraits<TernaryExpr<Op, L, C, R>, DualValueType<TernaryExpr<Op, L, C, R>>, BinOp>
+{
+    typedef DualType<TernaryExpr<Op, L, C, R>> ReturnType;
 };
 
 template<typename T, typename G, typename BinOp>
-struct ScalarBinaryOpTraits<T, autodiff::Dual<T, G>, BinOp>
+struct ScalarBinaryOpTraits<DualValueType<T>, Dual<T, G>, BinOp>
 {
-    typedef autodiff::Dual<T, G> ReturnType;
+    typedef Dual<T, G> ReturnType;
+};
+
+template<typename Op, typename R, typename BinOp>
+struct ScalarBinaryOpTraits<DualValueType<UnaryExpr<Op, R>>, UnaryExpr<Op, R>, BinOp>
+{
+    typedef DualType<UnaryExpr<Op, R>> ReturnType;
+};
+
+template<typename Op, typename L, typename R, typename BinOp>
+struct ScalarBinaryOpTraits<DualValueType<BinaryExpr<Op, L, R>>, BinaryExpr<Op, L, R>, BinOp>
+{
+    typedef DualType<BinaryExpr<Op, L, R>> ReturnType;
+};
+
+template<typename Op, typename L, typename C, typename R, typename BinOp>
+struct ScalarBinaryOpTraits<DualValueType<TernaryExpr<Op, L, C, R>>, TernaryExpr<Op, L, C, R>, BinOp>
+{
+    typedef DualType<TernaryExpr<Op, L, C, R>> ReturnType;
 };
 
 } // namespace Eigen
