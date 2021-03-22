@@ -184,8 +184,9 @@ public:
         return *this;
     }
 
-    /// Convert this Real number into its value of type T.
-    constexpr explicit operator const T&() const { return m_data[0]; }
+    /// Convert this Real number into a value of type @p U.
+    template<typename U, EnableIf<isNumber<U>>...>
+    constexpr explicit operator U() const { return static_cast<U>(m_data[0]); }
 };
 
 //=====================================================================================================================
@@ -207,6 +208,8 @@ using std::cosh;
 using std::exp;
 using std::log;
 using std::log10;
+using std::max;
+using std::min;
 using std::pow;
 using std::sin;
 using std::sinh;
@@ -776,6 +779,42 @@ constexpr auto abs(const Real<N, T>& x)
         });
     }
     return res;
+}
+
+template<size_t N, typename T>
+constexpr auto min(const Real<N, T>& x, const Real<N, T>& y)
+{
+    return (x[0] <= y[0]) ? x : y;
+}
+
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+constexpr auto min(const Real<N, T>& x, const U& y)
+{
+    return (x[0] <= y) ? x : y;
+}
+
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+constexpr auto min(const U& x, const Real<N, T>& y)
+{
+    return (x < y[0]) ? x : y;
+}
+
+template<size_t N, typename T>
+constexpr auto max(const Real<N, T>& x, const Real<N, T>& y)
+{
+    return (x[0] >= y[0]) ? x : y;
+}
+
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+constexpr auto max(const Real<N, T>& x, const U& y)
+{
+    return (x[0] >= y) ? x : y;
+}
+
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+constexpr auto max(const U& x, const Real<N, T>& y)
+{
+    return (x > y[0]) ? x : y;
 }
 
 //=====================================================================================================================
