@@ -222,6 +222,11 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
 
     CHECK_4TH_ORDER_REAL_NUMBERS(y, z);
 
+    y = cbrt(x);
+    z = exp(1.0/3.0 * log(x));
+
+    CHECK_4TH_ORDER_REAL_NUMBERS(y, z);
+
     y = pow(x, x);
     z = exp(x * log(x));
 
