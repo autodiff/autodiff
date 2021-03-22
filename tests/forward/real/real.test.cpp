@@ -377,10 +377,16 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_FALSE( x == 0.6 );
     CHECK( x == 0.5 );
 
-    // Check some inequalities
+    // Check inequalities
     CHECK_FALSE( x == real4th({0.5, 3.1, -5.0, -15.0, 11.0}) );
     CHECK( x != real4th({0.5, 3.1, -5.0, -15.0, 11.0}) );
     CHECK( x != 1.0 );
+    CHECK( x < 1.0 );
+    CHECK( x > 0.1 );
+    CHECK( x <= 1.0 );
+    CHECK( x >= 0.1 );
+    CHECK( x <= 0.5 );
+    CHECK( x >= 0.5 );
 
     //=====================================================================================================================
     //

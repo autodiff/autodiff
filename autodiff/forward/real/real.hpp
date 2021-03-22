@@ -81,6 +81,18 @@ public:
         });
     }
 
+    /// Return the value of the Real number.
+    constexpr auto val() -> T&
+    {
+        return m_data[0];
+    }
+
+    /// Return the value of the Real number.
+    constexpr auto val() const -> const T&
+    {
+        return m_data[0];
+    }
+
     constexpr auto operator[](size_t i) -> T&
     {
         return m_data[i];
@@ -173,7 +185,7 @@ public:
     }
 
     /// Convert this Real number into its value of type T.
-    constexpr operator const T&() const { return m_data[0]; }
+    constexpr explicit operator const T&() const { return m_data[0]; }
 };
 
 //=====================================================================================================================
@@ -767,11 +779,25 @@ bool operator==(const Real<N, T>& x, const Real<N, T>& y)
     return res;
 }
 
-template<size_t N, typename T>
-bool operator!=(const Real<N, T>& x, const Real<N, T>& y)
-{
-    return !(x == y);
-}
+template<size_t N, typename T> bool operator!=(const Real<N, T>& x, const Real<N, T>& y) { return !(x == y); }
+template<size_t N, typename T> bool operator< (const Real<N, T>& x, const Real<N, T>& y) { return x[0] <  y[0]; }
+template<size_t N, typename T> bool operator> (const Real<N, T>& x, const Real<N, T>& y) { return x[0] >  y[0]; }
+template<size_t N, typename T> bool operator<=(const Real<N, T>& x, const Real<N, T>& y) { return x[0] <= y[0]; }
+template<size_t N, typename T> bool operator>=(const Real<N, T>& x, const Real<N, T>& y) { return x[0] >= y[0]; }
+
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator==(const Real<N, T>& x, const U& y) { return x[0] == y; }
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator!=(const Real<N, T>& x, const U& y) { return x[0] != y; }
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator< (const Real<N, T>& x, const U& y) { return x[0] <  y; }
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator> (const Real<N, T>& x, const U& y) { return x[0] >  y; }
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator<=(const Real<N, T>& x, const U& y) { return x[0] <= y; }
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator>=(const Real<N, T>& x, const U& y) { return x[0] >= y; }
+
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator==(const U& x, const Real<N, T>& y) { return x == y[0]; }
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator!=(const U& x, const Real<N, T>& y) { return x != y[0]; }
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator< (const U& x, const Real<N, T>& y) { return x <  y[0]; }
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator> (const U& x, const Real<N, T>& y) { return x >  y[0]; }
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator<=(const U& x, const Real<N, T>& y) { return x <= y[0]; }
+template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator>=(const U& x, const Real<N, T>& y) { return x >= y[0]; }
 
 //=====================================================================================================================
 //
