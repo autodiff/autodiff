@@ -14,6 +14,17 @@ git clone https://github.com/autodiff/autodiff
 or by [clicking here][zip] to start the download of a zip file, which
 you should extract to a directory of your choice.
 
+## Installation by conda
+
+The easiest way of installing `autodiff` is via conda:
+
+~~~
+conda install conda-forge autodiff
+~~~
+
+For this, install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+with Python 3.8+. You should be familiar with conda though.
+
 ## Installation by copying
 
 Assuming the git cloned repository or extracted source code resides in a
@@ -29,7 +40,7 @@ If you have `cmake` installed in your system, you can then install {{autodiff}}
 (and also build its tests and examples) as follows:
 
 ~~~
-mkdir build && cd build
+mkdir .build && cd .build
 cmake ..
 cmake --build . --target install
 ~~~
@@ -37,7 +48,11 @@ cmake --build . --target install
 !!! attention
 
     We assume above that you are in the root of the source code directory, under
-    `autodiff`! The build directory will be created at `autodiff/build`.
+    `autodiff`! The build directory will be created at `autodiff/.build`.
+    We use `.build` here instead of the more usual `build` because there is a
+    file called `BUILD` that provides support to [Bazel](https://bazel.build/) build system.
+    In operating systems that treats file and directory names as case insensitive,
+    you may not be able to create a `build` directory.
 
 The previous installation commands will require administrative rights in most
 systems. To install {{autodiff}} locally, use:
