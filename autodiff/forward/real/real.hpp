@@ -185,8 +185,13 @@ public:
     }
 
     /// Convert this Real number into a value of type @p U.
+#if defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION_REAL) || defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION)
+    template<typename U, EnableIf<isNumber<U>>...>
+    constexpr operator U() const { return static_cast<U>(m_data[0]); }
+#else
     template<typename U, EnableIf<isNumber<U>>...>
     constexpr explicit operator U() const { return static_cast<U>(m_data[0]); }
+#endif
 };
 
 //=====================================================================================================================

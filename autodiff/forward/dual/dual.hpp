@@ -529,6 +529,15 @@ struct Dual
         assignDiv(*this, tmp);
         return *this;
     }
+
+    /// Convert this Dual number into a value of type @p U.
+#if defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION_DUAL) || defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION)
+    template<typename U, EnableIf<isNumber<U>>...>
+    constexpr operator U() const { return static_cast<U>(val); }
+#else
+    template<typename U, EnableIf<isNumber<U>>...>
+    constexpr explicit operator U() const { return static_cast<U>(val); }
+#endif
 };
 
 template<typename Op, typename R>
