@@ -128,7 +128,7 @@ var y = 2.0;
 var z = 3.0;
 var u = f(x, y, z);
 
-double [ux, uy, uz] = derivatives(u, wrt(x, y, z));
+auto [ux, uy, uz] = derivatives(u, wrt(x, y, z));
 ```
 
 The function `autodiff::derivatives` will traverse the expression tree stored
