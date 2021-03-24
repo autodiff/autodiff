@@ -19,7 +19,7 @@ you should extract to a directory of your choice.
 The easiest way of installing `autodiff` is via conda:
 
 ~~~
-conda install conda-forge autodiff
+conda install conda-forge::autodiff
 ~~~
 
 For this, install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
