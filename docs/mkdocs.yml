@@ -9,7 +9,7 @@ repo_name: autodiff/autodiff
 repo_url: https://github.com/autodiff/autodiff/
 
 # Copyright
-copyright: 'Copyright &copy; 2018–2020 Allan Leal'
+copyright: 'Copyright &copy; 2018–2021 Allan Leal'
 
 # Configuration
 theme:
@@ -18,6 +18,9 @@ theme:
     primary: 'teal'
     accent: 'pink'
   favicon: 'img/logo.png'
+
+# Path where the markdown files are
+docs_dir: 'website'
 
 # Navigation
 nav:
@@ -34,6 +37,7 @@ extra_css:
 # Extensions
 markdown_extensions:
   - admonition
+  - attr_list
   - toc:
       permalink: true
   - pymdownx.arithmatex
@@ -56,7 +60,8 @@ markdown_extensions:
 # Plugins
 plugins:
   - search
-  - macros
+  - macros:
+      module_name: mkdocs-macros
 
 # Macros
 extra:
