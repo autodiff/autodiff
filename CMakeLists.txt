@@ -30,6 +30,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(autodiff)
 add_subdirectory(examples)
 add_subdirectory(test)
+add_subdirectory(docs)
 
 # Install the cmake config files that permit users to use find_package(Reaktoro)
 include(autodiffInstallCMakeConfigFiles)
