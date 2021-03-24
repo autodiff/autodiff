@@ -1,0 +1,44 @@
+name: website
+
+on:
+  push:
+    branches:
+      - master
+
+  schedule:
+    - cron: "0 5 * * 1"  # runs at 05:00 UTC on Mondays
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+
+      - name: Conda Environment
+        shell: bash -l {0}
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install conda-devenv
+          conda devenv
+      - name: Build Website
+        shell: bash -l {0}
+        run: |
+          source activate autodiff
+          cmake -S . -B .build
+          cmake --build .build --target docs
+      - name: Deploy Website
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.ORGANIZATION_TOKEN }}
+          external_repository: autodiff/autodiff.github.io
+          publish_dir: ./.build/docs/site
+          publish_branch: master
+          commit_message: ${{ github.event.head_commit.message }}
