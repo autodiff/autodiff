@@ -1059,3 +1059,17 @@ TEST_CASE("Eigen::VectorXdual tests", "[dual]")
                 REQUIRE(J(i + 3, j + 4) == approx((i == j) ? y.val : 0.0));
     }
 }
+
+TEST_CASE("VectorXdual2nd tests", "[dual2nd]")
+{
+    SECTION("testing casting to VectorXd")
+    {
+        VectorXdual2nd x(3);
+        x << 1.0, 2.0, 3.0;
+        
+        VectorXd y = x.template cast<double>();
+
+        for(auto i = 0; i < 3; ++i)
+            REQUIRE( x(i) == approx(y(i)) );
+    }
+}

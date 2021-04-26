@@ -538,7 +538,8 @@ struct Dual
 
     Dual() : Dual(0.0) {}
 
-    explicit operator T() const { return this->val; }
+    template<typename U>
+    explicit operator U() const { return static_cast<U>(this->val); }
 
     template<typename U, enableif<isConvertible<U, T> && !isExpr<U>>...>
     Dual(U&& v)
