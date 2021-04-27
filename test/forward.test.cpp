@@ -820,6 +820,13 @@ TEST_CASE("autodiff::dual tests", "[dual]")
         REQUIRE( derivative(f, wrt(x, y, y), at(x, y)) == Approx(6.0) );
         REQUIRE( derivative(f, wrt<3>(y), at(x, y)) == Approx(6.0) );
     }
+    
+    SECTION("testing eval higher order derivatives expression")
+    {
+        using dual3rd = HigherOrderDual<3>;
+        dual3rd x = 1.5;
+        REQUIRE(2.5 == approx(x + 1.0));
+    }
 
     SECTION("testing reference to unary and binary expression nodes are not present")
     {

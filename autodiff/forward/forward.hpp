@@ -462,7 +462,7 @@ template<typename T>
 struct ValueType { using type = std::conditional_t<forward::isArithmetic<T>, T, ValueTypeInvalid>; };
 
 template<typename T, typename G>
-struct ValueType<Dual<T, G>> { using type = typename ValueType<plain<T>>::type; };
+struct ValueType<Dual<T, G>> { using type = plain<T>; };
 
 template<typename Op, typename R>
 struct ValueType<UnaryExpr<Op, R>> { using type = typename ValueType<plain<R>>::type; };
@@ -483,7 +483,7 @@ template<typename T>
 struct GradType { using type = std::conditional_t<forward::isArithmetic<T>, T, GradTypeInvalid>; };
 
 template<typename T, typename G>
-struct GradType<Dual<T, G>> { using type = typename GradType<plain<G>>::type; };
+struct GradType<Dual<T, G>> { using type = plain<G>; };
 
 template<typename Op, typename R>
 struct GradType<UnaryExpr<Op, R>> { using type = typename GradType<plain<R>>::type; };
