@@ -1079,4 +1079,135 @@ TEST_CASE("VectorXdual2nd tests", "[dual2nd]")
         for(auto i = 0; i < 3; ++i)
             REQUIRE( x(i) == approx(y(i)) );
     }
+
+    using dual2nd = HigherOrderDual<2>;
+
+    SECTION("testing gradient derivatives")
+    {
+        // Testing complex function involving sin and cos
+        auto f = [](const VectorXdual2nd& x) -> dual2nd
+        {
+            return 0.5 * ( x.array() * x.array() ).sum();
+        };
+
+        VectorXdual2nd x(3);
+        x << 1.0, 2.0, 3.0;
+
+        VectorXd g = gradient(f, wrt(x), at(x));
+
+        REQUIRE( g[0] == approx(x[0]) );
+        REQUIRE( g[1] == approx(x[1]) );
+        REQUIRE( g[2] == approx(x[2]) );
+    }
+
+    SECTION("testing jacobian derivatives")
+    {
+        // Testing complex function involving sin and cos
+        auto f = [](const VectorXdual2nd& x) -> VectorXdual2nd
+        {
+            return x / x.array().sum();
+        };
+
+        VectorXdual2nd x(3);
+        x << 0.5, 0.2, 0.3;
+
+        VectorXdual2nd F;
+
+        const MatrixXd J = jacobian(f, wrt(x), at(x), F);
+
+        for(auto i = 0; i < 3; ++i)
+            for(auto j = 0; j < 3; ++j)
+                REQUIRE( J(i, j) == approx(-F[i] + ((i == j) ? 1.0 : 0.0)) );
+    }
+
+    SECTION("testing hessian derivatives")
+    {
+        // Testing complex function involving sin and cos
+        auto f = [](const VectorXdual2nd& x) -> dual2nd
+        {
+            return 0.5 * ( x.array() * x.array() ).sum();
+        };
+
+        VectorXdual2nd x(3);
+        x << 1.0, 2.0, 3.0;
+
+        MatrixXd H = hessian(f, wrt(x), at(x));
+
+        for(auto i = 0; i < 3; ++i)
+            for(auto j = 0; j < 3; ++j)
+                REQUIRE( H(i, j) == approx(((i == j) ? 1.0 : 0.0)) );
+    }
+}
+
+TEST_CASE("VectorXdual3rd tests", "[dual3rd]")
+{
+    using dual3rd = HigherOrderDual<2>;
+    using VectorXdual3rd = Eigen::Matrix<dual3rd, -1, 1, 0, -1, 1>;
+
+    SECTION("testing casting to VectorXd")
+    {
+        VectorXdual3rd x(3);
+        x << 1.0, 2.0, 3.0;
+        
+        VectorXd y = x.template cast<double>();
+
+        for(auto i = 0; i < 3; ++i)
+            REQUIRE( x(i) == approx(y(i)) );
+    }
+
+    SECTION("testing gradient derivatives")
+    {
+        // Testing complex function involving sin and cos
+        auto f = [](const VectorXdual3rd& x) -> dual3rd
+        {
+            return 0.5 * ( x.array() * x.array() ).sum();
+        };
+
+        VectorXdual3rd x(3);
+        x << 1.0, 2.0, 3.0;
+
+        VectorXd g = gradient(f, wrt(x), at(x));
+
+        REQUIRE( g[0] == approx(x[0]) );
+        REQUIRE( g[1] == approx(x[1]) );
+        REQUIRE( g[2] == approx(x[2]) );
+    }
+
+    SECTION("testing jacobian derivatives")
+    {
+        // Testing complex function involving sin and cos
+        auto f = [](const VectorXdual3rd& x) -> VectorXdual3rd
+        {
+            return x / x.array().sum();
+        };
+
+        VectorXdual3rd x(3);
+        x << 0.5, 0.2, 0.3;
+
+        VectorXdual3rd F;
+
+        const MatrixXd J = jacobian(f, wrt(x), at(x), F);
+
+        for(auto i = 0; i < 3; ++i)
+            for(auto j = 0; j < 3; ++j)
+                REQUIRE( J(i, j) == approx(-F[i] + ((i == j) ? 1.0 : 0.0)) );
+    }
+
+    SECTION("testing hessian derivatives")
+    {
+        // Testing complex function involving sin and cos
+        auto f = [](const VectorXdual3rd& x) -> dual3rd
+        {
+            return 0.5 * ( x.array() * x.array() ).sum();
+        };
+
+        VectorXdual3rd x(3);
+        x << 1.0, 2.0, 3.0;
+
+        MatrixXd H = hessian(f, wrt(x), at(x));
+
+        for(auto i = 0; i < 3; ++i)
+            for(auto j = 0; j < 3; ++j)
+                REQUIRE( H(i, j) == approx(((i == j) ? 1.0 : 0.0)) );
+    }
 }

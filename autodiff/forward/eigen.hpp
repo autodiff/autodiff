@@ -212,7 +212,7 @@ auto gradient(const Function& f, Wrt&& wrt, Args&& args, Result& u) -> Eigen::Ve
             w[j].grad = 1.0;
             u = std::apply(f, args);
             w[j].grad = 0.0;
-            g[j + current_index_pos] = u.grad;
+            g[j + current_index_pos] = val(u.grad);
         }
 
         current_index_pos += w.size();
@@ -247,7 +247,7 @@ auto jacobian(const Function& f, Wrt&& wrt, Args&& args, Result& F) -> Eigen::Ma
     Eigen::MatrixXd J(m, n);
 
     for(auto i = 0; i < m; ++i)
-        J(i, 0) = F[i].grad;
+        J(i, 0) = val(F[i].grad);
 
     Eigen::Index current_index_pos = std::get<0>(wrt).size();
     constexpr auto wrt_count = std::tuple_size_v<std::remove_reference_t<Wrt>>;
@@ -257,7 +257,7 @@ auto jacobian(const Function& f, Wrt&& wrt, Args&& args, Result& F) -> Eigen::Ma
         w[0].grad = 0.0;
 
         for(auto i = 0; i < m; ++i)
-            J(i, current_index_pos) = F[i].grad;
+            J(i, current_index_pos) = val(F[i].grad);
 
         current_index_pos += w.size();
     });
@@ -271,7 +271,7 @@ auto jacobian(const Function& f, Wrt&& wrt, Args&& args, Result& F) -> Eigen::Ma
             w[j].grad = 0.0;
 
             for(auto i = 0; i < m; ++i)
-                J(i, j + current_index_pos) = F[i].grad;
+                J(i, j + current_index_pos) = val(F[i].grad);
         }
 
         current_index_pos += w.size();
@@ -315,8 +315,8 @@ auto hessian(const Function& f, Wrt&& wrt, Args&& args, Result& u, Gradient& g) 
                     u = std::apply(f, args);
                     inner[j].val.grad = 0.0;
 
-                    H(jj, ii) = H(ii, jj) = u.grad.grad;
-                    g(ii) = static_cast<double>(u.grad);
+                    H(jj, ii) = H(ii, jj) = val(u.grad.grad);
+                    g(ii) = val(u.grad);
                 }
                 outer[i].grad = 0.0;
             }
