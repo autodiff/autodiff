@@ -32,5 +32,5 @@ add_subdirectory(examples)
 add_subdirectory(test)
 add_subdirectory(docs)
 
-# Install the cmake config files that permit users to use find_package(Reaktoro)
+# Install the cmake config files that permit users to use find_package(autodiff)
 include(autodiffInstallCMakeConfigFiles)
