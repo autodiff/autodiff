@@ -30,6 +30,7 @@
 #pragma once
 
 // C++ includes
+#include <algorithm>
 #include <cmath>
 #include <functional>
 #include <memory>
