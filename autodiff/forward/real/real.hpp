@@ -34,6 +34,7 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <sstream>
 #include <tuple>
 #include <utility>
 
@@ -836,6 +837,17 @@ std::ostream& operator<<(std::ostream& out, const Real<N, T>& x)
     return out;
 }
 
+template<size_t N, typename T>
+auto repr(const Real<N, T>& x)
+{
+    std::stringstream ss;
+    ss << "autodiff.real(";
+    for(auto i = 0; i <= N; ++i)
+        ss << (i == 0 ? "" : ", ") << x[i];
+    ss << ")";
+    return ss.str();
+};
+
 //=====================================================================================================================
 //
 // COMPARISON OPERATORS
@@ -935,6 +947,7 @@ struct NumberTraits<Real<N, T>>
 
 using detail::Real;
 using detail::derivative;
+using detail::repr;
 
 using real0th = Real<0, double>;
 using real1st = Real<1, double>;

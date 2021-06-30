@@ -34,6 +34,7 @@
 #include <cmath>
 #include <functional>
 #include <iostream>
+#include <sstream>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -1423,6 +1424,25 @@ std::ostream& operator<<(std::ostream& out, const Dual<T, G>& x)
     return out;
 }
 
+template<typename T, EnableIf<isNumber<T>>...>
+auto reprAux(const T& x)
+{
+    std::stringstream ss; ss << x;
+    return ss.str();
+}
+
+template<typename T, typename G>
+auto reprAux(const Dual<T, G>& x)
+{
+    return "(" + reprAux(x.val) + ", " + reprAux(x.grad) + ")";
+}
+
+template<typename T, typename G>
+auto repr(const Dual<T, G>& x)
+{
+    return "autodiff.dual" + reprAux(x);
+}
+
 //=====================================================================================================================
 //
 // NUMBER TRAITS DEFINITION
@@ -1467,6 +1487,7 @@ using HigherOrderDual = typename AuxHigherOrderDual<N, T>::type;
 
 using detail::val;
 using detail::eval;
+using detail::repr;
 using detail::Dual;
 using detail::HigherOrderDual;
 
