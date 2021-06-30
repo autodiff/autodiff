@@ -27,12 +27,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// C++ includes
+#include <sstream>
+
 // pybind11 includes
 #include <pybind11/pybind11.h>
-#include <pybind11/eigen.h>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
-#include <pybind11/numpy.h>
 namespace py = pybind11;
 
 // autodiff includes
@@ -40,7 +41,7 @@ namespace py = pybind11;
 using namespace autodiff;
 
 template<size_t N, typename T>
-void exportReal(py::module& m, std::string typestr)
+void exportReal(py::module& m, const char* typestr)
 {
     auto __getitem__ = [](const Real<N, T>& self, size_t i)
     {
@@ -52,14 +53,19 @@ void exportReal(py::module& m, std::string typestr)
         self[i] = value;
     };
 
-    auto __str__ = [](Real<N, T>& self)
+    auto __str__ = [](const Real<N, T>& self)
     {
         std::stringstream ss;
         ss << self;
         return ss.str();
     };
 
-    py::class_<Real<N, T>>(m, typestr.c_str())
+    auto __repr__ = [](const Real<N, T>& self)
+    {
+        return repr(self);
+    };
+
+    py::class_<Real<N, T>>(m, typestr)
         .def(py::init<>())
         .def(py::init<const T&>())
         .def(py::init<const std::array<T, N + 1>&>())
@@ -67,6 +73,7 @@ void exportReal(py::module& m, std::string typestr)
         .def("__getitem__", __getitem__)
         .def("__setitem__", __setitem__)
         .def("__str__", __str__)
+        .def("__repr__", __repr__)
 
         .def(-py::self)
 
@@ -90,10 +97,31 @@ void exportReal(py::module& m, std::string typestr)
         .def(py::self *= py::self)
         .def(py::self /= py::self)
 
+        .def(py::self == py::self)
+        .def(py::self != py::self)
+        .def(py::self < py::self)
+        .def(py::self > py::self)
+        .def(py::self <= py::self)
+        .def(py::self >= py::self)
+
         .def(py::self += T())
         .def(py::self -= T())
         .def(py::self *= T())
         .def(py::self /= T())
+
+        .def(py::self == T())
+        .def(py::self != T())
+        .def(py::self < T())
+        .def(py::self > T())
+        .def(py::self <= T())
+        .def(py::self >= T())
+
+        .def(T() == py::self)
+        .def(T() != py::self)
+        .def(T() < py::self)
+        .def(T() > py::self)
+        .def(T() <= py::self)
+        .def(T() >= py::self)
         ;
 
     py::implicitly_convertible<T, Real<N, T>>();
