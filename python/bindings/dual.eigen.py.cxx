@@ -32,9 +32,9 @@
 namespace py = pybind11;
 
 // autodiff includes
-#include "common.eigen.py.hxx"
 #include <autodiff/forward/dual/dual.hpp>
 #include <autodiff/forward/dual/eigen.hpp>
+#include "common.eigen.py.hxx"
 using namespace autodiff;
 
 void exportVectorXdual(py::module& m)

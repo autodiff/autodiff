@@ -85,6 +85,15 @@ void exportVector(py::module& m, const char* typestr)
         return stream.str();
     });
 
+    cls.def("__repr__", [=](const Vec& s) {
+        std::stringstream stream;
+        stream << "autodiff." << typestr << "([";
+        for(auto i = 0; i < s.size(); ++i)
+            stream << (i == 0 ? ", " : "") << s[i];
+        stream << "])";
+        return stream.str();
+    });
+
     cls.def(-py::self);
 
     cls.def(py::self + py::self);
@@ -128,6 +137,14 @@ void exportVector(py::module& m, const char* typestr)
             cls.def(py::self -= T());
         }
     }
+
+    cls.def("asarray", [](const Vec& s) {
+        py::array_t<double> res(s.size());
+        auto data = res.mutable_data();
+        for(auto i = 0; i < s.size(); ++i)
+            data[i] = autodiff::val(s[i]);
+        return res;
+    });
 }
 
 constexpr auto isview(bool val) { return val; }

@@ -32,9 +32,9 @@
 namespace py = pybind11;
 
 // autodiff includes
-#include "common.eigen.py.hxx"
 #include <autodiff/forward/real/real.hpp>
 #include <autodiff/forward/real/eigen.hpp>
+#include "common.eigen.py.hxx"
 using namespace autodiff;
 
 void exportVectorXreal(py::module& m)

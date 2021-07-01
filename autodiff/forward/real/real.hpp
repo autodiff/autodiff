@@ -946,6 +946,7 @@ struct NumberTraits<Real<N, T>>
 //=====================================================================================================================
 
 using detail::Real;
+using detail::val;
 using detail::derivative;
 using detail::repr;
 
