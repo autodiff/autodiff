@@ -32,6 +32,7 @@
 
 // pybind11 includes
 #include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 #include <pybind11/operators.h>
 namespace py = pybind11;
 
@@ -101,7 +102,9 @@ void exportVector(py::module& m, const char* typestr)
         cls.def(py::self != py::self);
     } else {
         cls.def("__eq__", [](const Vec& l, const Vec& r) { return (l == r).all(); } );
+        cls.def("__eq__", [](const Vec& l, const py::array_t<double>& r) { return (l == Eigen::ArrayXd::Map(r.data(), r.size())).all(); } );
         cls.def("__ne__", [](const Vec& l, const Vec& r) { return (l != r).any(); } );
+        cls.def("__eq__", [](const Vec& l, const py::array_t<double>& r) { return (l != Eigen::ArrayXd::Map(r.data(), r.size())).any(); } );
     }
 
     if constexpr (isarray) {
