@@ -99,6 +99,9 @@ void exportVector(py::module& m, const char* typestr)
     if constexpr (!isarray) {
         cls.def(py::self == py::self);
         cls.def(py::self != py::self);
+    } else {
+        cls.def("__eq__", [](const Vec& l, const Vec& r) { return (l == r).all(); } );
+        cls.def("__ne__", [](const Vec& l, const Vec& r) { return (l != r).any(); } );
     }
 
     if constexpr (isarray) {
