@@ -52,6 +52,20 @@ using namespace autodiff;
     CHECK( dfdy[1] == approx(val(uy)) );                  \
 }
 
+#define CHECK_DERIVATIVES_FXYZ(expr, u, ux, uy, uz)               \
+{                                                                 \
+    auto f = [](dual x, dual y, dual z) -> dual { return expr; }; \
+    auto dfdx = derivatives(f, wrt(x), at(x, y, z));              \
+    CHECK( dfdx[0] == approx(val(u)) );                           \
+    CHECK( dfdx[1] == approx(val(ux)) );                          \
+    auto dfdy = derivatives(f, wrt(y), at(x, y, z));              \
+    CHECK( dfdy[0] == approx(val(u)) );                           \
+    CHECK( dfdy[1] == approx(val(uy)) );                          \
+    auto dfdz = derivatives(f, wrt(z), at(x, y, z));              \
+    CHECK( dfdz[0] == approx(val(u)) );                           \
+    CHECK( dfdz[1] == approx(val(uz)) );                          \
+}
+
 #define CHECK_DERIVATIVES_FXY_3RD_ORDER(expr, u, ux, uy, uxx, uxy, uyy, uxxx, uxxy, uxyy, uyyy) \
 {                                                                                               \
     dual3rd x = 1;                                                                              \
@@ -133,6 +147,7 @@ TEST_CASE("testing autodiff::dual", "[forward][dual]")
 {
     dual x = 100;
     dual y = 10;
+    dual z = 1;
 
     SECTION("trivial tests")
     {
@@ -378,6 +393,7 @@ TEST_CASE("testing autodiff::dual", "[forward][dual]")
     SECTION("testing mathematical functions")
     {
         x = 0.5;
+        y = 0.8;
 
         // Testing sin function
         CHECK_DERIVATIVES_FX(sin(x), sin(val(x)), cos(x));
@@ -432,6 +448,86 @@ TEST_CASE("testing autodiff::dual", "[forward][dual]")
 
         // Testing abs function (when x < 0)
         x = -1.0; CHECK_DERIVATIVES_FX(abs(x), abs(val(x)), -1.0);
+
+        // Testing erf function (when x = 1.0)
+        x =  1.0; CHECK_DERIVATIVES_FX(erf(x), erf(val(x)), 0.4151074974);
+
+        // Testing erf function (when x = -1.4)
+        x = -1.4; CHECK_DERIVATIVES_FX(erf(x), erf(val(x)), 0.1589417077);
+
+        // Testing atan2 function on (double, dual)
+        x = 1.0; CHECK_DERIVATIVES_FX(atan2(2.0, x), atan2(2.0, val(x)), -2.0 / (2*2 + x*x));
+
+        // Testing atan2 function on (dual, double)
+        x = 1.0; CHECK_DERIVATIVES_FX(atan2(x, 2.0), atan2(val(x), 2.0), 2.0 / (2*2 + x*x));
+
+        // Testing atan2 function on (dual, dual)
+        x = 1.1;
+        y = 0.9;
+        CHECK_DERIVATIVES_FXY(atan2(y, x), atan2(val(y), val(x)), -y/(x*x + y*y), x/(x*x + y*y));
+
+        // // Testing atan2 function on (expr, expr)
+        CHECK_DERIVATIVES_FXY(3 * atan2(sin(x), 2*y+1), 3 * atan2(sin(val(x)), 2*val(y)+1), 3*(2*y+1)*cos(x) / ((2*y+1)*(2*y+1) + sin(x)*sin(x)), 3*-2*sin(x) / ((2*y+1)*(2*y+1) + sin(x)*sin(x)));
+
+        // Testing hypot function on (dual, double)
+        x = 1.5;
+        CHECK_DERIVATIVES_FX(hypot(x, 2.0), hypot(val(x), 2.0), x/hypot(val(x), 2.0));
+
+        // Testing hypot function on (double, dual)
+        CHECK_DERIVATIVES_FX(hypot(2.0, x), hypot(2.0, val(x)), x/hypot(2.0, val(x)));
+
+        // Testing hypot function on (dual, dual)
+        x = 1.1;
+        y = 0.9;
+        CHECK_DERIVATIVES_FXY(hypot(x, y), hypot(val(x), val(y)), x/hypot(val(x), val(y)), y/hypot(val(x), val(y)));
+
+        // Testing hypot function on (expr, expr)
+        CHECK_DERIVATIVES_FXY(hypot(2.0*x,3.0*y), hypot(2.0*val(x), 3.0*val(y)), 4.0*x/hypot(2.0*val(x), 3.0*val(y)), 9.0*y/hypot(2.0*val(x), 3.0*val(y)));
+
+        // Testing hypot function on (dual, double, double)
+        x = 1.5;
+        CHECK_DERIVATIVES_FX(hypot(x, 2.0, 2.0), std::hypot(val(x), 2.0, 2.0), x/std::hypot(val(x), 2.0, 2.0));
+
+        // Testing hypot function on (double, dual, double)
+        x = 2.5;
+        CHECK_DERIVATIVES_FX(hypot(2.0, x, 2.0), std::hypot(2.0, val(x), 2.0), x/std::hypot(2.0, val(x), 2.0));
+
+        // Testing hypot function on (double, double, dual)
+        x = 3.5;
+        CHECK_DERIVATIVES_FX(hypot(2.0, 2.0, x), std::hypot(2.0, 2.0, val(x)), x/std::hypot(2.0, 2.0, val(x)));
+
+        // Testing hypot function on (dual, dual, double)
+        x = 1.4;
+        y = 2.4;
+        CHECK_DERIVATIVES_FXY(hypot(x, y, 2.0), std::hypot(val(x), val(y), 2.0), x/std::hypot(val(x), val(y), 2.0), y/std::hypot(val(x), val(y), 2.0));
+
+        // Testing hypot function on (double, dual, dual)
+        x = 2.4;
+        y = 3.4;
+        CHECK_DERIVATIVES_FXY(hypot(2.0, x, y), std::hypot(2.0, val(x), val(y)), x/std::hypot(2.0, val(x), val(y)), y/std::hypot(2.0, val(x), val(y)));
+
+        // Testing hypot function on (dual, double, dual)
+        x = 3.4;
+        y = 4.4;
+        CHECK_DERIVATIVES_FXY(hypot(x, 2.0, y), std::hypot(val(x), 2.0, val(y)), x/std::hypot(val(x), 2.0, val(y)), y/std::hypot(val(x), 2.0, val(y)));
+
+        // Testing hypot function on (dual, double, dual)
+        x = 1.6;
+        y = 2.6;
+        z = 3.6;
+        CHECK_DERIVATIVES_FXYZ(hypot(x, y, z), std::hypot(val(x), val(y), val(z)),
+            x/std::hypot(val(x), val(y), val(z)),
+            y/std::hypot(val(x), val(y), val(z)),
+            z/std::hypot(val(x), val(y), val(z)));
+
+        // Testing hypot function on (expr, expr, expr)
+        x = 2.6;
+        y = 3.6;
+        z = 4.6;
+        CHECK_DERIVATIVES_FXYZ(hypot(2.0*x, 3.0*y, 4.0*z), std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z)),
+            4.0*x/std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z)),
+            9.0*y/std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z)),
+            16.*z/std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z)));
     }
 
     SECTION("testing complex expressions")
