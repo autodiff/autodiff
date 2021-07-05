@@ -1,5 +1,5 @@
 <a href="https://autodiff.github.io" target="_blank">
-    <img src='docs/img/header.svg' width='100%'>
+    <img src='docs/website/img/header.svg' width='100%'>
 </a>
 
 ![](https://github.com/autodiff/autodiff/workflows/linux/badge.svg?branch=master)
