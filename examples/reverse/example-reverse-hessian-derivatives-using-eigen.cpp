@@ -1,20 +1,15 @@
 // C++ includes
 #include <iostream>
-using namespace std;
-
-// Eigen includes
-#include <Eigen/Core>
-using namespace Eigen;
 
 // autodiff include
-#include <autodiff/reverse.hpp>
-#include <autodiff/reverse/eigen.hpp>
+#include <autodiff/reverse/var.hpp>
+#include <autodiff/reverse/var/eigen.hpp>
 using namespace autodiff;
 
 // The scalar function for which the gradient is needed
-var f(const VectorXvar& x)
+var f(const ArrayXvar& x)
 {
-    return sqrt(x.cwiseProduct(x).sum()); // sqrt(sum([x(i) * x(i) for i = 1:5]))
+    return sqrt((x * x).sum()); // sqrt(sum([xi * xi for i = 1:5]))
 }
 
 int main()
@@ -24,8 +19,8 @@ int main()
 
     var u = f(x);  // the output variable u
 
-    VectorXd g;  // the gradient vector to be computed in method `hessian`
-    MatrixXd H = hessian(u, x, g);  // evaluate the Hessian matrix H and the gradient vector g of u
+    Eigen::VectorXd g;  // the gradient vector to be computed in method `hessian`
+    Eigen::MatrixXd H = hessian(u, x, g);  // evaluate the Hessian matrix H and the gradient vector g of u
 
     cout << "u = " << u << endl;    // print the evaluated output variable u
     cout << "g = \n" << g << endl;  // print the evaluated gradient vector of u

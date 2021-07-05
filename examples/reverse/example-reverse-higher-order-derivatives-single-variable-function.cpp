@@ -1,9 +1,8 @@
 // C++ includes
 #include <iostream>
-using namespace std;
 
 // autodiff include
-#include <autodiff/reverse.hpp>
+#include <autodiff/reverse/var.hpp>
 using namespace autodiff;
 
 int main()
