@@ -38,10 +38,10 @@ using autodiff::gradient;
 using autodiff::hessian;
 using autodiff::val;
 using autodiff::var;
+using autodiff::VectorXvar;
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
-using Eigen::VectorXvar;
 
 template<typename Var>
 auto approx(const Var& x) -> Approx

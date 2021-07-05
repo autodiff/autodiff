@@ -43,7 +43,7 @@
 namespace autodiff {}
 
 namespace autodiff {
-namespace reverse {
+namespace detail {
 
 using detail::EnableIf;
 using detail::For;
@@ -1033,7 +1033,7 @@ template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>=(const
 template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<(const ExprPtr<T>& l, const U& r) { return l->val < r; }
 template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>(const ExprPtr<T>& l, const U& r) { return l->val > r; }
 
-/// The autodiff variable type used for reverse mode automatic differentiation.
+/// The autodiff variable type used for detail mode automatic differentiation.
 template<typename T>
 struct Variable
 {
@@ -1371,12 +1371,12 @@ struct AuxHigherOrderVariable
 template<size_t N, typename T>
 using HigherOrderVariable = typename AuxHigherOrderVariable<N, T>::type;
 
-} // namespace reverse
+} // namespace detail
 
-using reverse::wrt;
-using reverse::derivatives;
-using reverse::Variable;
-using reverse::val;
+using detail::wrt;
+using detail::derivatives;
+using detail::Variable;
+using detail::val;
 
 using var = Variable<double>;
 

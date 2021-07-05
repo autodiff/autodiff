@@ -1,5 +1,6 @@
 // C++ includes
 #include <iostream>
+using namespace std;
 
 // autodiff include
 #include <autodiff/reverse/var.hpp>

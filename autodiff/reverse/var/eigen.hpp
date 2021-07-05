@@ -75,12 +75,11 @@ struct ScalarBinaryOpTraits<T, autodiff::Variable<T>, BinOp>
     typedef autodiff::Variable<T> ReturnType;
 };
 
-AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var, var)
 
 } // namespace Eigen
 
 namespace autodiff {
-namespace reverse {
+namespace detail {
 
 template<typename T, int Rows, int MaxRows>
 using Vec = Eigen::Matrix<T, Rows, 1, 0, MaxRows, 1>;
@@ -168,9 +167,11 @@ auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x)
     return hessian(y, x, g);
 }
 
-} // namespace reverse
+} // namespace detail
 
-using reverse::gradient;
-using reverse::hessian;
+AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var, var)
+
+using detail::gradient;
+using detail::hessian;
 
 } // namespace autodiff
