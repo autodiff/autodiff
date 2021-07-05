@@ -20,9 +20,10 @@ include(GNUInstallDirs)
 include(CondaAware)
 
 # Define build options
-option(AUTODIFF_BUILD_TESTS "Enable the compilation of the test files." TRUE)
-option(AUTODIFF_BUILD_PYTHON "Enable the compilation of the python bindings." TRUE)
-option(AUTODIFF_BUILD_EXAMPLES "Enable the compilation of the example files." TRUE)
+option(AUTODIFF_BUILD_TESTS "Enable the compilation of the test files." ON)
+option(AUTODIFF_BUILD_PYTHON "Enable the compilation of the python bindings." ON)
+option(AUTODIFF_BUILD_EXAMPLES "Enable the compilation of the example files." ON)
+option(AUTODIFF_BUILD_DOCS "Enable the build of the documentation and website." ON)
 
 # Find eigen library
 find_package(Eigen3 REQUIRED)
@@ -50,6 +51,11 @@ endif()
 # Build the examples
 if(AUTODIFF_BUILD_EXAMPLES)
     add_subdirectory(examples)
+endif()
+
+# Build the docs
+if(AUTODIFF_BUILD_DOCS)
+    add_subdirectory(docs)
 endif()
 
 # Install the cmake config files that permit users to use find_package(Reaktoro)
