@@ -14,20 +14,51 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+
     env:
       os: Linux-x86_64
+      configuration: Release
+
     strategy:
       fail-fast: true
       max-parallel: 4
 
     steps:
-    - uses: actions/checkout@v1
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        auto-update-conda: true
-    - name: Install
-      shell: bash -l {0}
-      run: bash ci/actions/install.sh
-    - name: Tests
-      shell: bash -l {0}
-      run: bash ci/actions/test.sh
+      - uses: actions/checkout@v1
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+      - name: Configure
+        shell: bash -l {0}
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install conda-devenv
+          conda devenv
+          source activate autodiff
+          cmake -S . -B .build
+      - name: Cache
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('hashFile.txt') }}  # https://github.community/t/caching-for-c-builds/124529/2
+          restore-keys: ${{ runner.os }}-ccache-
+      - name: Build
+        shell: bash -l {0}
+        run: |
+          source activate autodiff
+          ccache -s
+          ccache -z
+          cmake --build .build --config ${{ env.configuration }} --parallel 3
+          ccache -s
+      - name: Install
+        shell: bash -l {0}
+        run: |
+          source activate autodiff
+          cmake --build .build --config ${{ env.configuration }} --target install
+      - name: Tests
+        shell: bash -l {0}
+        run: |
+          source activate autodiff
+          cmake --build .build --config ${{ env.configuration }} --target tests
