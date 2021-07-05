@@ -1,8 +1,11 @@
-<img src='img/header.svg' width='100%'>
+<img src='img/autodiff-header.svg' width='100%'>
 
 ---
 
 [![Gitter chat](https://badges.gitter.im/autodiff/gitter.png)](https://gitter.im/autodiff/community)
+![Linux build status](https://github.com/autodiff/autodiff/workflows/linux/badge.svg?branch=master)
+![macOS build status](https://github.com/autodiff/autodiff/workflows/osx/badge.svg?branch=master)
+![Windows build status](https://github.com/autodiff/autodiff/workflows/windows/badge.svg?branch=master)
 
 # {{autodiff}}
 

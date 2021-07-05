@@ -1,10 +1,11 @@
 <a href="https://autodiff.github.io" target="_blank">
-    <img src='docs/website/img/header.svg' width='100%'>
+    <img src='art/autodiff-header.svg' width='100%'>
 </a>
 
-![](https://github.com/autodiff/autodiff/workflows/linux/badge.svg?branch=master)
-![](https://github.com/autodiff/autodiff/workflows/osx/badge.svg?branch=master)
-![](https://github.com/autodiff/autodiff/workflows/windows/badge.svg?branch=master)
+[![Gitter chat](https://badges.gitter.im/autodiff/gitter.png)](https://gitter.im/autodiff/community)
+![Linux build status](https://github.com/autodiff/autodiff/workflows/linux/badge.svg?branch=master)
+![macOS build status](https://github.com/autodiff/autodiff/workflows/osx/badge.svg?branch=master)
+![Windows build status](https://github.com/autodiff/autodiff/workflows/windows/badge.svg?branch=master)
 
 # Overview
 
