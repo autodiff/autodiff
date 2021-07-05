@@ -43,17 +43,20 @@ using EnableIf = typename std::enable_if<value>::type;
 template<typename T>
 using PlainType = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
 
+template<bool Cond, typename WhenTrue, typename WhenFalse>
+using ConditionalType = typename std::conditional<Cond, WhenTrue, WhenFalse>::type;
+
 template<typename A, typename B>
 using CommonType = typename std::common_type<A, B>::type;
 
 template<typename Fun, typename... Args>
 using ReturnType = std::invoke_result_t<Fun, Args...>;
 
-template<typename T>
-constexpr bool isNumber = std::is_arithmetic<PlainType<T>>::value;
+template<typename T, typename U>
+constexpr bool isConvertible = std::is_convertible<PlainType<T>, U>::value;
 
-template<typename T>
-constexpr bool isArithmetic = std::is_arithmetic<PlainType<T>>::value;
+template<typename A, typename B>
+constexpr bool isSame = std::is_same_v<A, B>;
 
 template<typename Tuple>
 constexpr auto TupleSize = std::tuple_size_v<std::decay_t<Tuple>>;

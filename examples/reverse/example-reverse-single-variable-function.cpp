@@ -3,7 +3,7 @@
 using namespace std;
 
 // autodiff include
-#include <autodiff/reverse.hpp>
+#include <autodiff/reverse/var.hpp>
 using namespace autodiff;
 
 // The single-variable function for which derivatives are needed

@@ -4,16 +4,18 @@
 using namespace std;
 
 // autodiff include
-#include <autodiff/forward.hpp>
+#include <autodiff/forward/dual.hpp>
 using namespace autodiff;
 
-// Specialize isNumber for complex to make it compatible with dual
-namespace autodiff::forward::traits {
-template<typename T>
-struct isArithmetic<complex<T>> : std::true_type { };
-} // autodiff::forward::traits
+// Specialize isArithmetic for complex to make it compatible with dual
+namespace autodiff::detail {
 
-using cxdual = forward::Dual<complex<double>, complex<double>>;
+template<typename T>
+struct ArithmeticTraits<complex<T>> : ArithmeticTraits<T> {};
+
+} // autodiff::detail
+
+using cxdual = Dual<complex<double>, complex<double>>;
 
 // The single-variable function for which derivatives are needed
 cxdual f(cxdual x)

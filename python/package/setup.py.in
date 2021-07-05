@@ -1,0 +1,12 @@
+from distutils.core import setup
+
+setup(name='autodiff',
+      version='${PROJECT_VERSION}',
+      description='The Python interface of the autodiff library.',
+      author='Allan Leal',
+      author_email='allan.leal@erdw.ethz.ch',
+      url='autodiff.github.io',
+      license='MIT',
+      packages=['autodiff', 'autodiff._extensions'],
+      package_data={'autodiff': ['@AUTODIFF_PYTHON_MODULE_FILENAME@']}
+      )

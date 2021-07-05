@@ -1,7 +1,6 @@
 #include <iostream>
-using namespace std;
 
-#include <autodiff/forward.hpp>
+#include <autodiff/forward/dual.hpp>
 using namespace autodiff;
 
 dual f(dual x)
@@ -15,6 +14,6 @@ int main()
     dual u = f(x);
     double dudx = derivative(f, wrt(x), at(x));
 
-    cout << "u = " << u << endl;
-    cout << "du/dx = " << dudx << endl;
+    std::cout << "u = " << u << std::endl;
+    std::cout << "du/dx = " << dudx << std::endl;
 }

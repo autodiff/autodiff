@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   width="32.883926mm"
+   height="32.883926mm"
+   viewBox="0 0 32.883926 32.883926"
+   version="1.1"
+   id="svg8">
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient897">
+      <stop
+         style="stop-color:#ff8282;stop-opacity:1"
+         offset="0"
+         id="stop893" />
+      <stop
+         style="stop-color:#ff5f00;stop-opacity:0"
+         offset="1"
+         id="stop895" />
+    </linearGradient>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       id="filter877"
+       x="-0.035385899"
+       width="1.0707718"
+       y="-0.036635794"
+       height="1.0732716">
+      <feGaussianBlur
+         stdDeviation="0.21666787"
+         id="feGaussianBlur879" />
+    </filter>
+    <linearGradient
+       gradientTransform="translate(-108.81627,-204.88757)"
+       xlink:href="#linearGradient897"
+       id="linearGradient899"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       xlink:href="#linearGradient897"
+       id="linearGradient941"
+       gradientUnits="userSpaceOnUse"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994"
+       gradientTransform="translate(-54.768361,-198.71131)" />
+    <linearGradient
+       xlink:href="#linearGradient897"
+       id="linearGradient941-4"
+       gradientUnits="userSpaceOnUse"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994"
+       gradientTransform="translate(-59.554949,-165.63435)" />
+    <linearGradient
+       xlink:href="#linearGradient897"
+       id="linearGradient1349"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-131.00699,-301.40963)"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994" />
+    <linearGradient
+       xlink:href="#linearGradient897"
+       id="linearGradient1388"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-174.77238,-66.14563)"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994" />
+    <linearGradient
+       xlink:href="#linearGradient897"
+       id="linearGradient1407"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-261.13994,-69.64191)"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994" />
+    <linearGradient
+       xlink:href="#linearGradient897"
+       id="linearGradient1437"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-292.70095,18.61553)"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994" />
+    <linearGradient
+       xlink:href="#linearGradient897"
+       id="linearGradient1453"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-108.83699,-56.78026)"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994" />
+    <linearGradient
+       xlink:href="#linearGradient897"
+       id="linearGradient1453-3"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-108.83699,-56.780257)"
+       x1="126.61893"
+       y1="64.609146"
+       x2="156.15222"
+       y2="112.24994" />
+  </defs>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="matrix(4.3309323,0,0,4.3309323,-680.71571,-264.26705)"
+     style="fill:#ff5555;fill-opacity:0.78167114;stroke-width:0.23089716"
+     id="g1476">
+    <g
+       style="fill:#ff5555;fill-opacity:0.78167114;stroke-width:0.34995404"
+       transform="matrix(0.65979282,0,0,0.65979282,68.549214,20.186671)"
+       id="g1474">
+      <text
+         id="text1464"
+         y="71.757782"
+         x="135.41026"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.95367336px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ffaaaa;fill-opacity:0.78167114;stroke:none;stroke-width:0.092592"
+         xml:space="preserve"
+         transform="scale(0.99964273,1.0003574)"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#ffaaaa;fill-opacity:0.78167114;stroke-width:0.092592"
+           y="71.757782"
+           x="135.41026"
+           id="tspan1462">c</tspan></text>
+      <text
+         transform="scale(0.99964273,1.0003574)"
+         xml:space="preserve"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.07198048px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ff5555;fill-opacity:0.78167114;stroke:none;stroke-width:0.092592"
+         x="142.17412"
+         y="68.633606"
+         id="text1468"><tspan
+           id="tspan1466"
+           x="142.17412"
+           y="68.633606"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#ff5555;fill-opacity:0.78167114;stroke-width:0.092592">+</tspan></text>
+      <text
+         id="text1472"
+         y="68.633606"
+         x="139.88055"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.07198048px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#ff5555;fill-opacity:0.78167114;stroke:none;stroke-width:0.092592"
+         xml:space="preserve"
+         transform="scale(0.99964273,1.0003574)"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'TeX Gyre Adventor';-inkscape-font-specification:'TeX Gyre Adventor';fill:#ff5555;fill-opacity:0.78167114;stroke-width:0.092592"
+           y="68.633606"
+           x="139.88055"
+           id="tspan1470">+</tspan></text>
+    </g>
+  </g>
+  <circle
+     style="opacity:1;fill:url(#linearGradient1453-3);fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     id="circle1439"
+     cx="16.441963"
+     cy="16.441963"
+     r="16.441963" />
+  <g
+     style="stroke-width:0.80249375"
+     id="g1451"
+     transform="matrix(1.2461156,0,0,1.2461156,-208.96057,-81.876928)">
+    <g
+       transform="translate(0.27508293)"
+       id="g1460">
+      <text
+         transform="scale(0.99964272,1.0003574)"
+         xml:space="preserve"
+         style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:22.91419411px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:0.78436656;stroke:none;stroke-width:0.21232647"
+         x="170.62088"
+         y="85.747505"
+         id="text1443"><tspan
+           id="tspan1441"
+           x="170.62088"
+           y="85.747505"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola';fill:#333333;fill-opacity:0.78436656;stroke-width:0.21232647">Δ</tspan></text>
+      <g
+         id="g1449"
+         transform="matrix(2.1261339,0,0,2.1276542,-152.5511,-88.226256)"
+         style="fill:#f9f9f9;fill-opacity:0.9380054;stroke-width:0.37730786">
+        <text
+           id="text1447"
+           y="82.299408"
+           x="156.2959"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.42682648px;line-height:1.25;font-family:'Linux Biolinum O';-inkscape-font-specification:'Linux Biolinum O Italic';letter-spacing:0px;word-spacing:0px;fill:#f9f9f9;fill-opacity:0.9380054;stroke:none;stroke-width:0.09982935"
+           xml:space="preserve"><tspan
+             style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.77354813px;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola Italic';fill:#f9f9f9;fill-opacity:0.9380054;stroke-width:0.09982935"
+             y="82.299408"
+             x="156.2959"
+             id="tspan1445">f</tspan></text>
+      </g>
+    </g>
+  </g>
+</svg>

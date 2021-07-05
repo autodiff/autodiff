@@ -4,13 +4,16 @@ channels:
   - conda-forge
 
 dependencies:
-  - gxx_linux-64=7.3.0             # [linux]
-  - clangxx=9.0.0                  # [osx]
+  - gxx_linux-64=7.3.0  # [linux]
+  - clangxx=9.0.0  # [osx]
   - cmake>=3.13
   - ninja>=1.9.0
   - git>=2.28
   - eigen
   - python
+  - catch2
+  - ccache  # [unix]
+  - pybind11 >=2.5.0
   - pip
   - pip:
     - mkdocs

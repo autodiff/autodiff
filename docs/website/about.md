@@ -7,7 +7,9 @@ automatic differentiation. If you appreciate how it has been developed so far,
 and want to contribute, you are most welcome to join us in its development. And
 if you dislike it, please let us know how we can improve!
 
-You can contact us [here][issues].
+You can contact us using our [Gitter Community Channel][gitter] or by creating
+a new [GitHub Discussion][discussion]. If you would like to report a bug, then
+please create a new [GitHub Issue][issues].
 
 ## License
 
@@ -33,5 +35,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-
+[discussion]: https://github.com/autodiff/autodiff/discussions/new
+[gitter]: https://gitter.im/autodiff/community
 [issues]: https://github.com/autodiff/autodiff/issues/new

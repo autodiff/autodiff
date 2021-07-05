@@ -1,38 +1,63 @@
 # Tutorials
 
+We present here some examples demonstrating the use of {{autodiff}} for
+computing different types of derivatives. We welcome any contribution towards
+improving and expanding this list of examples. We would also love to hear your
+suggestions on how to better demonstrate the capabilities of {{autodiff}}.
+
 ## Forward mode
 
-### Single-variable function
+### Derivatives of a single-variable function
 
 {{ inputcpp('examples/forward/example-forward-single-variable-function.cpp') }}
 
-### Multi-variable function
+### Derivatives of a single-variable function using a custom scalar (complex)
+
+{{ inputcpp('examples/forward/example-forward-single-variable-function-custom-scalar.cpp') }}
+
+### Derivatives of a multi-variable function
 
 {{ inputcpp('examples/forward/example-forward-multi-variable-function.cpp') }}
 
-### Multi-variable function with parameters
+### Derivatives of a multi-variable function with parameters
 
 {{ inputcpp('examples/forward/example-forward-multi-variable-function-with-parameters.cpp') }}
 
-### Gradient of a scalar function
+### Gradient vector of a scalar function
 
 {{ inputcpp('examples/forward/example-forward-gradient-derivatives-using-eigen.cpp') }}
 
-### Gradient of a scalar function with parameters
+### Gradient vector of a scalar function with parameters
 
 {{ inputcpp('examples/forward/example-forward-gradient-derivatives-using-eigen-with-parameters.cpp') }}
 
-### Jacobian of a vector function
+### Jacobian matrix of a vector function
 
 {{ inputcpp('examples/forward/example-forward-jacobian-derivatives-using-eigen.cpp') }}
 
-### Jacobian of a vector function with parameters
+### Jacobian matrix of a vector function with parameters
 
 {{ inputcpp('examples/forward/example-forward-jacobian-derivatives-using-eigen-with-parameters.cpp') }}
 
-### Higher-order derivatives of a multi-variable function
+### Higher-order cross derivatives of a scalar function
 
-{{ inputcpp('examples/forward/example-forward-higher-order-derivatives.cpp') }}
+{{ inputcpp('examples/forward/example-forward-higher-order-cross-derivatives.cpp') }}
+
+### Higher-order directional derivatives of a scalar function
+
+{{ inputcpp('examples/forward/example-forward-higher-order-directional-derivatives.cpp') }}
+
+### Higher-order directional derivatives of a vector function
+
+{{ inputcpp('examples/forward/example-forward-higher-order-directional-derivatives-using-eigen.cpp') }}
+
+### Taylor series of a scalar function along a direction
+
+{{ inputcpp('examples/forward/example-forward-directional-taylor-series.cpp') }}
+
+### Taylor series of a vector function along a direction
+
+{{ inputcpp('examples/forward/example-forward-directional-taylor-series-using-eigen.cpp') }}
 
 ## Reverse mode
 

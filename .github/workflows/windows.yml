@@ -14,31 +14,54 @@ jobs:
   build:
 
     runs-on: windows-latest
+
     env:
       configuration: Release
+
     strategy:
       fail-fast: true
       max-parallel: 4
 
     steps:
-    - uses: actions/checkout@v1
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        auto-update-conda: true
-        auto-activate-base: true
-        activate-environment: ''
-    - name: Install conda-devenv
-      shell: powershell
-      run: |
-        conda install -c conda-forge conda-devenv
-        conda info -a
-        conda devenv
-    - name: Build
-      shell: powershell
-      run: |
-        conda activate autodiff
-        cmake -S . -B .build
-        cmake --build .build --config ${{ env.configuration }} --target install
-    - name: Tests
-      shell: powershell
-      run: .\.build\test\${{ env.configuration }}\tests.exe
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          auto-activate-base: true
+          activate-environment: ''
+      - name: Conda Environment
+        shell: powershell
+        run: |
+          conda config --set always_yes yes --set changeps1 no
+          conda config --add channels conda-forge
+          conda install conda-devenv
+          conda devenv
+      - name: Cache
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: $HOME\clcache
+          key: ${{ runner.os }}-clcache
+      - name: Configure
+        shell: powershell
+        run: |
+          conda activate autodiff
+          cmake -S . -B .build
+      - name: Build
+        shell: powershell
+        run: |
+          conda activate autodiff
+          cmake --build .build --config ${{ env.configuration }}
+      - name: Install
+        shell: powershell
+        run: |
+          conda activate autodiff
+          cmake --build .build --config ${{ env.configuration }} --target install
+      - name: Test
+        shell: powershell
+        run: |
+          conda activate autodiff
+          cmake --build .build --config ${{ env.configuration }} --target tests
