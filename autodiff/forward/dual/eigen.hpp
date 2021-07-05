@@ -67,49 +67,49 @@ struct NumTraits<autodiff::Dual<T, G>> : NumTraits<double> // permits to get the
 };
 
 template<typename T, typename G, typename BinOp>
-struct ScalarBinaryOpTraits<Dual<T, G>, DualValueType<T>, BinOp>
+struct ScalarBinaryOpTraits<Dual<T, G>, NumericType<T>, BinOp>
 {
-    typedef Dual<T, G> ReturnType;
+    typedef DualType<Dual<T, G>> ReturnType;
 };
 
 template<typename Op, typename R, typename BinOp>
-struct ScalarBinaryOpTraits<UnaryExpr<Op, R>, DualValueType<UnaryExpr<Op, R>>, BinOp>
+struct ScalarBinaryOpTraits<UnaryExpr<Op, R>, NumericType<UnaryExpr<Op, R>>, BinOp>
 {
     typedef DualType<UnaryExpr<Op, R>> ReturnType;
 };
 
 template<typename Op, typename L, typename R, typename BinOp>
-struct ScalarBinaryOpTraits<BinaryExpr<Op, L, R>, DualValueType<BinaryExpr<Op, L, R>>, BinOp>
+struct ScalarBinaryOpTraits<BinaryExpr<Op, L, R>, NumericType<BinaryExpr<Op, L, R>>, BinOp>
 {
     typedef DualType<BinaryExpr<Op, L, R>> ReturnType;
 };
 
 template<typename Op, typename L, typename C, typename R, typename BinOp>
-struct ScalarBinaryOpTraits<TernaryExpr<Op, L, C, R>, DualValueType<TernaryExpr<Op, L, C, R>>, BinOp>
+struct ScalarBinaryOpTraits<TernaryExpr<Op, L, C, R>, NumericType<TernaryExpr<Op, L, C, R>>, BinOp>
 {
     typedef DualType<TernaryExpr<Op, L, C, R>> ReturnType;
 };
 
 template<typename T, typename G, typename BinOp>
-struct ScalarBinaryOpTraits<DualValueType<T>, Dual<T, G>, BinOp>
+struct ScalarBinaryOpTraits<NumericType<T>, Dual<T, G>, BinOp>
 {
-    typedef Dual<T, G> ReturnType;
+    typedef DualType<Dual<T, G>> ReturnType;
 };
 
 template<typename Op, typename R, typename BinOp>
-struct ScalarBinaryOpTraits<DualValueType<UnaryExpr<Op, R>>, UnaryExpr<Op, R>, BinOp>
+struct ScalarBinaryOpTraits<NumericType<UnaryExpr<Op, R>>, UnaryExpr<Op, R>, BinOp>
 {
     typedef DualType<UnaryExpr<Op, R>> ReturnType;
 };
 
 template<typename Op, typename L, typename R, typename BinOp>
-struct ScalarBinaryOpTraits<DualValueType<BinaryExpr<Op, L, R>>, BinaryExpr<Op, L, R>, BinOp>
+struct ScalarBinaryOpTraits<NumericType<BinaryExpr<Op, L, R>>, BinaryExpr<Op, L, R>, BinOp>
 {
     typedef DualType<BinaryExpr<Op, L, R>> ReturnType;
 };
 
 template<typename Op, typename L, typename C, typename R, typename BinOp>
-struct ScalarBinaryOpTraits<DualValueType<TernaryExpr<Op, L, C, R>>, TernaryExpr<Op, L, C, R>, BinOp>
+struct ScalarBinaryOpTraits<NumericType<TernaryExpr<Op, L, C, R>>, TernaryExpr<Op, L, C, R>, BinOp>
 {
     typedef DualType<TernaryExpr<Op, L, C, R>> ReturnType;
 };

@@ -54,7 +54,7 @@ void exportDual(py::module& m, const char* typestr)
         return repr(self);
     };
 
-    using U = autodiff::detail::DualValueType<T>;
+    using U = autodiff::detail::NumericType<T>;
 
     py::class_<Dual<T, G>>(m, typestr)
         .def(py::init<>())

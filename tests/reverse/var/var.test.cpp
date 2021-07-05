@@ -30,9 +30,6 @@
 // Catch includes
 #include <catch2/catch.hpp>
 
-// C++ includes
-#include <iostream>
-
 // autodiff includes
 #include <autodiff/reverse/var.hpp>
 

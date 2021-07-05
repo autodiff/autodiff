@@ -27,11 +27,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// Catch includes
+#include <catch2/catch.hpp>
+
 // autodiff includes
 #include <autodiff/forward/dual.hpp>
-#include <tests/utils/catch.hpp>
 using namespace autodiff;
 
+template<typename T>
+auto approx(T&& expr) -> Approx
+{
+    return Approx(val(std::forward<T>(expr))).margin(1e-12);
+}
 
 #define CHECK_DERIVATIVES_FX(expr, u, ux)         \
 {                                                 \

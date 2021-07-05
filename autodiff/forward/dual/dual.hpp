@@ -33,7 +33,6 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
-#include <iostream>
 #include <sstream>
 #include <tuple>
 #include <type_traits>
@@ -437,25 +436,22 @@ constexpr bool isOperable3 = (isOperable<L,C> && isOperable<L,R>) || (isOperable
 //-----------------------------------------------------------------------------
 
 template<typename T> struct AuxDualType;
-template<typename T> struct AuxDualValueType;
-template<typename T> struct AuxDualGradType;
 template<typename T> struct AuxDualOpType;
+template<typename L, typename R> struct AuxCommonDualType;
 
 
 template<typename T> struct DualTypeNotDefinedFor {};
-template<typename T> struct DualValueTypeNotDefinedFor {};
-template<typename T> struct DualGradTypeNotDefinedFor {};
 template<typename T> struct DualOpTypeNotDefinedFor {};
+template<typename L, typename R> struct CommonDualTypeNotDefinedFor {};
 
 
 template<typename T> using DualType = typename AuxDualType<PlainType<T>>::type;
-template<typename T> using DualValueType = typename AuxDualValueType<PlainType<T>>::type;
-template<typename T> using DualGradType = typename AuxDualGradType<PlainType<T>>::type;
 template<typename T> using DualOpType = typename AuxDualOpType<PlainType<T>>::type;
+template<typename L, typename R> using CommonDualType = typename AuxCommonDualType<PlainType<L>, PlainType<R>>::type;
 
 
 template<typename T>
-struct AuxDualType { using type = DualTypeNotDefinedFor<T>; };
+struct AuxDualType { using type = ConditionalType<isNumber<T>, T, DualTypeNotDefinedFor<T>>; };
 
 template<typename T, typename G>
 struct AuxDualType<Dual<T, G>> { using type = Dual<T, G>; };
@@ -464,42 +460,10 @@ template<typename Op, typename R>
 struct AuxDualType<UnaryExpr<Op, R>> { using type = DualType<R>; };
 
 template<typename Op, typename L, typename R>
-struct AuxDualType<BinaryExpr<Op, L, R>> { using type = std::conditional_t<isDual<DualType<L>>, DualType<L>, DualType<R>>; };
+struct AuxDualType<BinaryExpr<Op, L, R>> { using type = CommonDualType<L, R>; };
 
 template<typename Op, typename L, typename C, typename R>
-struct AuxDualType<TernaryExpr<Op, L, C, R>> { using type = std::conditional_t<isDual<DualType<L>>, DualType<L>, std::conditional_t<isDual<DualType<C>>, DualType<C>, DualType<R>>>; };
-
-
-template<typename T>
-struct AuxDualValueType { using type = std::conditional_t<isNumber<T>, T, DualValueTypeNotDefinedFor<T>>; };
-
-template<typename T, typename G>
-struct AuxDualValueType<Dual<T, G>> { using type = DualValueType<T>; };
-
-template<typename Op, typename R>
-struct AuxDualValueType<UnaryExpr<Op, R>> { using type = DualValueType<R>; };
-
-template<typename Op, typename L, typename R>
-struct AuxDualValueType<BinaryExpr<Op, L, R>> { using type = CommonType<DualValueType<L>, DualValueType<R>>; };
-
-template<typename Op, typename L, typename C, typename R>
-struct AuxDualValueType<TernaryExpr<Op, L, C, R>> { using type = CommonType<DualValueType<L>, CommonType<DualValueType<C>, DualValueType<R>>>; };
-
-
-template<typename T>
-struct AuxDualGradType { using type = std::conditional_t<isNumber<T>, T, DualGradTypeNotDefinedFor<T>>; };
-
-template<typename T, typename G>
-struct AuxDualGradType<Dual<T, G>> { using type = DualGradType<G>; };
-
-template<typename Op, typename R>
-struct AuxDualGradType<UnaryExpr<Op, R>> { using type = DualGradType<R>; };
-
-template<typename Op, typename L, typename R>
-struct AuxDualGradType<BinaryExpr<Op, L, R>> { using type = CommonType<DualGradType<L>, DualGradType<R>>; };
-
-template<typename Op, typename L, typename C, typename R>
-struct AuxDualGradType<TernaryExpr<Op, L, C, R>> { using type = CommonType<DualGradType<L>, CommonType<DualGradType<C>, DualGradType<R>>>; };
+struct AuxDualType<TernaryExpr<Op, L, C, R>> { using type = CommonDualType<L, CommonDualType<C, R>>; };
 
 
 template<typename T>
@@ -513,6 +477,27 @@ struct AuxDualOpType<BinaryExpr<Op, L, R>> { using type = Op; };
 
 template<typename Op, typename L, typename C, typename R>
 struct AuxDualOpType<TernaryExpr<Op, L, C, R>> { using type = Op; };
+
+template<typename L, typename R>
+constexpr auto auxCommonDualType()
+{
+    if constexpr (isNumber<L> && isNumber<R>)
+        return CommonType<L, R>();
+    else if constexpr (isExpr<L> && isNumber<R>)
+        return DualType<L>();
+    else if constexpr (isNumber<L> && isExpr<R>)
+        return DualType<R>();
+    else if constexpr (isExpr<L> && isExpr<R>) {
+        using DualTypeL = DualType<L>;
+        using DualTypeR = DualType<R>;
+        static_assert(isSame<DualTypeL, DualTypeR>);
+        return DualTypeL();
+    }
+    else return CommonDualTypeNotDefinedFor<L, R>();
+}
+
+template<typename L, typename R>
+struct AuxCommonDualType { using type = decltype(auxCommonDualType<L, R>()); };
 
 //=====================================================================================================================
 //
@@ -529,18 +514,13 @@ struct Dual
 
     Dual() : Dual(0.0) {}
 
-    explicit operator T() const { return this->val; }
-
-    template<typename U>
-    explicit operator U() const { return static_cast<U>(this->val); }
-
     template<typename U, EnableIf<isConvertible<U, T> && !isExpr<U>>...>
     Dual(U&& v)
     : val(std::forward<U>(v)), grad(0)
     {
     }
 
-    Dual(const DualValueType<T>& val)
+    Dual(const NumericType<T>& val)
     : val(val), grad(0)
     {
     }
@@ -598,11 +578,15 @@ struct Dual
 
     /// Convert this Dual number into a value of type @p U.
 #if defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION_DUAL) || defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION)
-    template<typename U, EnableIf<isNumber<U>>...>
-    constexpr operator U() const { return static_cast<U>(val); }
+    operator T() const { return val; }
+
+    template<typename U>
+    operator U() const { return static_cast<U>(val); }
 #else
-    template<typename U, EnableIf<isNumber<U>>...>
-    constexpr explicit operator U() const { return static_cast<U>(val); }
+    explicit operator T() const { return val; }
+
+    template<typename U>
+    explicit operator U() const { return static_cast<U>(val); }
 #endif
 };
 
@@ -725,7 +709,7 @@ auto seed(Dual<T, G>& dual, U&& seedval)
 /// This alias template allows only dual numbers to have their original type.
 /// All other types become plain, without reference and const attributes.
 template<typename T>
-using PreventExprRef = std::conditional_t<isDual<T>, T, PlainType<T>>;
+using PreventExprRef = ConditionalType<isDual<T>, T, PlainType<T>>;
 
 //-----------------------------------------------------------------------------
 // NEGATIVE EXPRESSION GENERATOR FUNCTION
@@ -755,10 +739,10 @@ constexpr auto inverse(U&& expr)
 // AUXILIARY CONSTEXPR CONSTANTS
 //-----------------------------------------------------------------------------
 template<typename U>
-constexpr auto Zero() { return static_cast<DualValueType<U>>(0); }
+constexpr auto Zero() { return static_cast<NumericType<U>>(0); }
 
 template<typename U>
-constexpr auto One() { return static_cast<DualValueType<U>>(1); }
+constexpr auto One() { return static_cast<NumericType<U>>(1); }
 
 //=====================================================================================================================
 //
@@ -1712,11 +1696,53 @@ auto repr(const Dual<T, G>& x)
 template<typename T, typename G>
 struct NumberTraits<Dual<T, G>>
 {
+    /// The dual type resulting from the evaluation of the expression (in case T is not double but an expression!).
+    using ResultDualType = DualType<T>;
+
     /// The underlying floating point type of Dual<T, G>.
-    using NumericType = DualValueType<T>;
+    using NumericType = typename NumberTraits<ResultDualType>::NumericType;
 
     /// The order of Dual<T, G>.
-    static constexpr auto Order = 1 + NumberTraits<PlainType<T>>::Order;
+    static constexpr auto Order = 1 + NumberTraits<ResultDualType>::Order;
+};
+
+template<typename Op, typename R>
+struct NumberTraits<UnaryExpr<Op, R>>
+{
+    /// The dual type resulting from the evaluation of the expression.
+    using ResultDualType = DualType<UnaryExpr<Op, R>>;
+
+    /// The underlying floating point type of UnaryExpr<Op, R>.
+    using NumericType = typename NumberTraits<ResultDualType>::NumericType;
+
+    /// The order of the expression UnaryExpr<Op, R> as the order of the evaluated dual type.
+    static constexpr auto Order = NumberTraits<ResultDualType>::Order;
+};
+
+template<typename Op, typename L, typename R>
+struct NumberTraits<BinaryExpr<Op, L, R>>
+{
+    /// The dual type resulting from the evaluation of the expression.
+    using ResultDualType = DualType<BinaryExpr<Op, L, R>>;
+
+    /// The underlying floating point type of BinaryExpr<Op, L, R>.
+    using NumericType = typename NumberTraits<ResultDualType>::NumericType;
+
+    /// The order of the expression BinaryExpr<Op, L, R> as the order of the evaluated dual type.
+    static constexpr auto Order = NumberTraits<ResultDualType>::Order;
+};
+
+template<typename Op, typename L, typename C, typename R>
+struct NumberTraits<TernaryExpr<Op, L, C, R>>
+{
+    /// The dual type resulting from the evaluation of the expression.
+    using ResultDualType = DualType<TernaryExpr<Op, L, C, R>>;
+
+    /// The underlying floating point type of TernaryExpr<Op, L, C, R>.
+    using NumericType = typename NumberTraits<ResultDualType>::NumericType;
+
+    /// The order of the expression TernaryExpr<Op, L, C, R> as the order of the evaluated dual type.
+    static constexpr auto Order = NumberTraits<ResultDualType>::Order;
 };
 
 //=====================================================================================================================
