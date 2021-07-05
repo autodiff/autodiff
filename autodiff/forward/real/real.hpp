@@ -52,7 +52,7 @@ class Real
 {
 private:
     // Ensure type T is a numeric type
-    static_assert(isNumber<T>);
+    static_assert(isArithmetic<T>);
 
     /// The value and derivatives of the number up to order *N*.
     std::array<T, N + 1> m_data = {};
@@ -74,7 +74,7 @@ public:
     {}
 
     /// Construct a Real number with given data.
-    template<size_t M, typename U, EnableIf<isNumber<U>>...>
+    template<size_t M, typename U, EnableIf<isArithmetic<U>>...>
     constexpr explicit Real(const Real<M, U>& other)
     {
         static_assert(N <= M);
@@ -105,7 +105,7 @@ public:
         return m_data[i];
     }
 
-    template<typename U, EnableIf<isNumber<U>>...>
+    template<typename U, EnableIf<isArithmetic<U>>...>
     constexpr auto operator=(const U& value) -> Real&
     {
         m_data[0] = value;
@@ -119,28 +119,28 @@ public:
         return *this;
     }
 
-    template<typename U, EnableIf<isNumber<U>>...>
+    template<typename U, EnableIf<isArithmetic<U>>...>
     constexpr auto operator+=(const U& value) -> Real&
     {
         m_data[0] += static_cast<T>(value);
         return *this;
     }
 
-    template<typename U, EnableIf<isNumber<U>>...>
+    template<typename U, EnableIf<isArithmetic<U>>...>
     constexpr auto operator-=(const U& value) -> Real&
     {
         m_data[0] -= static_cast<T>(value);
         return *this;
     }
 
-    template<typename U, EnableIf<isNumber<U>>...>
+    template<typename U, EnableIf<isArithmetic<U>>...>
     constexpr auto operator*=(const U& value) -> Real&
     {
         For<0, N + 1>([&](auto i) constexpr { m_data[i] *= static_cast<T>(value); });
         return *this;
     }
 
-    template<typename U, EnableIf<isNumber<U>>...>
+    template<typename U, EnableIf<isArithmetic<U>>...>
     constexpr auto operator/=(const U& value) -> Real&
     {
         For<0, N + 1>([&](auto i) constexpr { m_data[i] /= static_cast<T>(value); });
@@ -188,10 +188,10 @@ public:
 
     /// Convert this Real number into a value of type @p U.
 #if defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION_REAL) || defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION)
-    template<typename U, EnableIf<isNumber<U>>...>
+    template<typename U, EnableIf<isArithmetic<U>>...>
     constexpr operator U() const { return static_cast<U>(m_data[0]); }
 #else
-    template<typename U, EnableIf<isNumber<U>>...>
+    template<typename U, EnableIf<isArithmetic<U>>...>
     constexpr explicit operator U() const { return static_cast<U>(m_data[0]); }
 #endif
 };
@@ -274,13 +274,13 @@ auto operator+(Real<N, T> x, const Real<N, T>& y)
     return x += y;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 auto operator+(Real<N, T> x, const U& y)
 {
     return x += y;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 auto operator+(const U& x, Real<N, T> y)
 {
     return y += x;
@@ -297,13 +297,13 @@ auto operator-(Real<N, T> x, const Real<N, T>& y)
     return x -= y;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 auto operator-(Real<N, T> x, const U& y)
 {
     return x -= y;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 auto operator-(const U& x, Real<N, T> y)
 {
     y -= x;
@@ -323,13 +323,13 @@ auto operator*(Real<N, T> x, const Real<N, T>& y)
     return x *= y;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 auto operator*(Real<N, T> x, const U& y)
 {
     return x *= y;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 auto operator*(const U& x, Real<N, T> y)
 {
     return y *= x;
@@ -347,13 +347,13 @@ auto operator/(Real<N, T> x, const Real<N, T>& y)
     return x /= y;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 auto operator/(Real<N, T> x, const U& y)
 {
     return x /= y;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 auto operator/(const U& x, Real<N, T> y)
 {
     Real<N, T> z = x;
@@ -485,7 +485,7 @@ constexpr auto pow(const Real<N, T>& x, const Real<N, T>& y)
     return res;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 constexpr auto pow(const Real<N, T>& x, const U& c)
 {
     Real<N, T> res;
@@ -505,7 +505,7 @@ constexpr auto pow(const Real<N, T>& x, const U& c)
     return res;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 constexpr auto pow(const U& c, const Real<N, T>& y)
 {
     Real<N, T> res;
@@ -794,13 +794,13 @@ constexpr auto min(const Real<N, T>& x, const Real<N, T>& y)
     return (x[0] <= y[0]) ? x : y;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 constexpr auto min(const Real<N, T>& x, const U& y)
 {
     return (x[0] <= y) ? x : y;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 constexpr auto min(const U& x, const Real<N, T>& y)
 {
     return (x < y[0]) ? x : y;
@@ -812,13 +812,13 @@ constexpr auto max(const Real<N, T>& x, const Real<N, T>& y)
     return (x[0] >= y[0]) ? x : y;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 constexpr auto max(const Real<N, T>& x, const U& y)
 {
     return (x[0] >= y) ? x : y;
 }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...>
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
 constexpr auto max(const U& x, const Real<N, T>& y)
 {
     return (x > y[0]) ? x : y;
@@ -870,19 +870,19 @@ template<size_t N, typename T> bool operator> (const Real<N, T>& x, const Real<N
 template<size_t N, typename T> bool operator<=(const Real<N, T>& x, const Real<N, T>& y) { return x[0] <= y[0]; }
 template<size_t N, typename T> bool operator>=(const Real<N, T>& x, const Real<N, T>& y) { return x[0] >= y[0]; }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator==(const Real<N, T>& x, const U& y) { return x[0] == y; }
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator!=(const Real<N, T>& x, const U& y) { return x[0] != y; }
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator< (const Real<N, T>& x, const U& y) { return x[0] <  y; }
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator> (const Real<N, T>& x, const U& y) { return x[0] >  y; }
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator<=(const Real<N, T>& x, const U& y) { return x[0] <= y; }
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator>=(const Real<N, T>& x, const U& y) { return x[0] >= y; }
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator==(const Real<N, T>& x, const U& y) { return x[0] == y; }
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator!=(const Real<N, T>& x, const U& y) { return x[0] != y; }
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator< (const Real<N, T>& x, const U& y) { return x[0] <  y; }
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator> (const Real<N, T>& x, const U& y) { return x[0] >  y; }
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<=(const Real<N, T>& x, const U& y) { return x[0] <= y; }
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>=(const Real<N, T>& x, const U& y) { return x[0] >= y; }
 
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator==(const U& x, const Real<N, T>& y) { return x == y[0]; }
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator!=(const U& x, const Real<N, T>& y) { return x != y[0]; }
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator< (const U& x, const Real<N, T>& y) { return x <  y[0]; }
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator> (const U& x, const Real<N, T>& y) { return x >  y[0]; }
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator<=(const U& x, const Real<N, T>& y) { return x <= y[0]; }
-template<size_t N, typename T, typename U, EnableIf<isNumber<U>>...> bool operator>=(const U& x, const Real<N, T>& y) { return x >= y[0]; }
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator==(const U& x, const Real<N, T>& y) { return x == y[0]; }
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator!=(const U& x, const Real<N, T>& y) { return x != y[0]; }
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator< (const U& x, const Real<N, T>& y) { return x <  y[0]; }
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator> (const U& x, const Real<N, T>& y) { return x >  y[0]; }
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<=(const U& x, const Real<N, T>& y) { return x <= y[0]; }
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>=(const U& x, const Real<N, T>& y) { return x >= y[0]; }
 
 //=====================================================================================================================
 //

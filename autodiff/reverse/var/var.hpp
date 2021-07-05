@@ -38,6 +38,7 @@
 
 // autodiff includes
 #include <autodiff/common/meta.hpp>
+#include <autodiff/common/numbertraits.hpp>
 
 /// autodiff namespace where @ref Variable and @ref grad are defined.
 namespace autodiff {}
@@ -47,7 +48,7 @@ namespace detail {
 
 using detail::EnableIf;
 using detail::For;
-using detail::isNumber;
+using detail::isArithmetic;
 
 using std::abs;
 using std::acos;
@@ -113,7 +114,7 @@ template<typename T>
 struct VariableValueType;
 
 template<typename T>
-struct VariableValueType { using type = std::conditional_t<isNumber<T>, T, VariableValueTypeNotDefinedFor<T>>; };
+struct VariableValueType { using type = std::conditional_t<isArithmetic<T>, T, VariableValueTypeNotDefinedFor<T>>; };
 
 template<typename T>
 struct VariableValueType<Variable<T>> { using type = typename VariableValueType<T>::type; };
@@ -161,15 +162,15 @@ template<typename T> ExprPtr<T> operator-(const ExprPtr<T>& l, const ExprPtr<T>&
 template<typename T> ExprPtr<T> operator*(const ExprPtr<T>& l, const ExprPtr<T>& r);
 template<typename T> ExprPtr<T> operator/(const ExprPtr<T>& l, const ExprPtr<T>& r);
 
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator+(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator-(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator*(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator/(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator+(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator-(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator*(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator/(const U& l, const ExprPtr<T>& r);
 
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator+(const ExprPtr<T>& l, const U& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator-(const ExprPtr<T>& l, const U& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator*(const ExprPtr<T>& l, const U& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator/(const ExprPtr<T>& l, const U& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator+(const ExprPtr<T>& l, const U& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator-(const ExprPtr<T>& l, const U& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator*(const ExprPtr<T>& l, const U& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator/(const ExprPtr<T>& l, const U& r);
 
 //------------------------------------------------------------------------------
 // TRIGONOMETRIC FUNCTIONS (DECLARATION ONLY)
@@ -181,8 +182,8 @@ template<typename T> ExprPtr<T> asin(const ExprPtr<T>& x);
 template<typename T> ExprPtr<T> acos(const ExprPtr<T>& x);
 template<typename T> ExprPtr<T> atan(const ExprPtr<T>& x);
 template<typename T> ExprPtr<T> atan2(const ExprPtr<T>& l, const ExprPtr<T>& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> atan2(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> atan2(const ExprPtr<T>& l, const U& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const ExprPtr<T>& l, const U& r);
 
 //------------------------------------------------------------------------------
 // HYPERBOLIC FUNCTIONS (DECLARATION ONLY)
@@ -203,8 +204,8 @@ template<typename T> ExprPtr<T> log10(const ExprPtr<T>& x);
 //------------------------------------------------------------------------------
 template<typename T> ExprPtr<T> sqrt(const ExprPtr<T>& x);
 template<typename T> ExprPtr<T> pow(const ExprPtr<T>& l, const ExprPtr<T>& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> pow(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> pow(const ExprPtr<T>& l, const U& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> pow(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> pow(const ExprPtr<T>& l, const U& r);
 
 //------------------------------------------------------------------------------
 // OTHER FUNCTIONS (DECLARATION ONLY)
@@ -226,19 +227,19 @@ template<typename T> bool operator>=(const ExprPtr<T>& l, const ExprPtr<T>& r);
 template<typename T> bool operator<(const ExprPtr<T>& l, const ExprPtr<T>& r);
 template<typename T> bool operator>(const ExprPtr<T>& l, const ExprPtr<T>& r);
 
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator==(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator!=(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<=(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>=(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator==(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator!=(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<=(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>=(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<(const U& l, const ExprPtr<T>& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>(const U& l, const ExprPtr<T>& r);
 
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator==(const ExprPtr<T>& l, const U& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator!=(const ExprPtr<T>& l, const U& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<=(const ExprPtr<T>& l, const U& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>=(const ExprPtr<T>& l, const U& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<(const ExprPtr<T>& l, const U& r);
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>(const ExprPtr<T>& l, const U& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator==(const ExprPtr<T>& l, const U& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator!=(const ExprPtr<T>& l, const U& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<=(const ExprPtr<T>& l, const U& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>=(const ExprPtr<T>& l, const U& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<(const ExprPtr<T>& l, const U& r);
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>(const ExprPtr<T>& l, const U& r);
 
 /// The abstract type of any node type in the expression tree.
 template<typename T>
@@ -934,15 +935,15 @@ template<typename T> ExprPtr<T> operator-(const ExprPtr<T>& l, const ExprPtr<T>&
 template<typename T> ExprPtr<T> operator*(const ExprPtr<T>& l, const ExprPtr<T>& r) { return std::make_shared<MulExpr<T>>(l->val * r->val, l, r); }
 template<typename T> ExprPtr<T> operator/(const ExprPtr<T>& l, const ExprPtr<T>& r) { return std::make_shared<DivExpr<T>>(l->val / r->val, l, r); }
 
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator+(const U& l, const ExprPtr<T>& r) { return constant<T>(l) + r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator-(const U& l, const ExprPtr<T>& r) { return constant<T>(l) - r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator*(const U& l, const ExprPtr<T>& r) { return constant<T>(l) * r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator/(const U& l, const ExprPtr<T>& r) { return constant<T>(l) / r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator+(const U& l, const ExprPtr<T>& r) { return constant<T>(l) + r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator-(const U& l, const ExprPtr<T>& r) { return constant<T>(l) - r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator*(const U& l, const ExprPtr<T>& r) { return constant<T>(l) * r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator/(const U& l, const ExprPtr<T>& r) { return constant<T>(l) / r; }
 
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator+(const ExprPtr<T>& l, const U& r) { return l + constant<T>(r); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator-(const ExprPtr<T>& l, const U& r) { return l - constant<T>(r); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator*(const ExprPtr<T>& l, const U& r) { return l * constant<T>(r); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator/(const ExprPtr<T>& l, const U& r) { return l / constant<T>(r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator+(const ExprPtr<T>& l, const U& r) { return l + constant<T>(r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator-(const ExprPtr<T>& l, const U& r) { return l - constant<T>(r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator*(const ExprPtr<T>& l, const U& r) { return l * constant<T>(r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator/(const ExprPtr<T>& l, const U& r) { return l / constant<T>(r); }
 
 //------------------------------------------------------------------------------
 // TRIGONOMETRIC FUNCTIONS
@@ -954,27 +955,27 @@ template<typename T> ExprPtr<T> asin(const ExprPtr<T>& x) { return std::make_sha
 template<typename T> ExprPtr<T> acos(const ExprPtr<T>& x) { return std::make_shared<ArcCosExpr<T>>(acos(x->val), x); }
 template<typename T> ExprPtr<T> atan(const ExprPtr<T>& x) { return std::make_shared<ArcTanExpr<T>>(atan(x->val), x); }
 template<typename T> ExprPtr<T> atan2(const ExprPtr<T>& l, const ExprPtr<T>& r) { return std::make_shared<ArcTan2Expr<T>>(atan2(l->val, r->val), l, r); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> atan2(const U& l, const ExprPtr<T>& r) { return std::make_shared<ArcTan2Expr<T>>(atan2(l, r->val), constant<T>(l), r); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> atan2(const ExprPtr<T>& l, const U& r) { return std::make_shared<ArcTan2Expr<T>>(atan2(l->val, r), l, constant<T>(r)); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const U& l, const ExprPtr<T>& r) { return std::make_shared<ArcTan2Expr<T>>(atan2(l, r->val), constant<T>(l), r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const ExprPtr<T>& l, const U& r) { return std::make_shared<ArcTan2Expr<T>>(atan2(l->val, r), l, constant<T>(r)); }
 
 
 //------------------------------------------------------------------------------
 // HYPOT2 FUNCTIONS
 //------------------------------------------------------------------------------
 template<typename T> ExprPtr<T> hypot(const ExprPtr<T>& l, const ExprPtr<T>& r) { return std::make_shared<Hypot2Expr<T>>(hypot(l->val, r->val), l, r); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> hypot(const U& l, const ExprPtr<T>& r) { return std::make_shared<Hypot2Expr<T>>(hypot(l, r->val), constant<T>(l), r); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> hypot(const ExprPtr<T>& l, const U& r) { return std::make_shared<Hypot2Expr<T>>(hypot(l->val, r), l, constant<T>(r)); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const U& l, const ExprPtr<T>& r) { return std::make_shared<Hypot2Expr<T>>(hypot(l, r->val), constant<T>(l), r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const ExprPtr<T>& l, const U& r) { return std::make_shared<Hypot2Expr<T>>(hypot(l->val, r), l, constant<T>(r)); }
 
 //------------------------------------------------------------------------------
 // HYPOT3 FUNCTIONS
 //------------------------------------------------------------------------------
 template<typename T> ExprPtr<T> hypot(const ExprPtr<T>& l, const ExprPtr<T>& c, const ExprPtr<T>& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l->val,c->val, r->val), l, c, r); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> hypot(const ExprPtr<T>& l, const ExprPtr<T>& c, const U& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l->val, c->val, r), l, c, constant<T>(r)); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> hypot(const U& l, const ExprPtr<T>& c, const ExprPtr<T>& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l, c->val, r->val), constant<T>(l), c, r); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> hypot(const ExprPtr<T>& l,const U& c, const ExprPtr<T>& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l->val, c, r->val), l, constant<T>(c), r); }
-template<typename T, typename U, typename V, EnableIf<isNumber<U> && isNumber<V>>...> ExprPtr<T> hypot(const ExprPtr<T>& l, const U& c, const V& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l->val, c, r), l, constant<T>(c), constant<T>(r)); }
-template<typename T, typename U, typename V, EnableIf<isNumber<U> && isNumber<V>>...> ExprPtr<T> hypot(const U& l, const ExprPtr<T>& c, const V& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l, c->val, r), constant<T>(l), c, constant<T>(r)); }
-template<typename T, typename U, typename V, EnableIf<isNumber<U> && isNumber<V>>...> ExprPtr<T> hypot(const V& l, const U& c, const ExprPtr<T>& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l, c, r->val), constant<T>(l), constant<T>(c), r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const ExprPtr<T>& l, const ExprPtr<T>& c, const U& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l->val, c->val, r), l, c, constant<T>(r)); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const U& l, const ExprPtr<T>& c, const ExprPtr<T>& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l, c->val, r->val), constant<T>(l), c, r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const ExprPtr<T>& l,const U& c, const ExprPtr<T>& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l->val, c, r->val), l, constant<T>(c), r); }
+template<typename T, typename U, typename V, EnableIf<isArithmetic<U> && isArithmetic<V>>...> ExprPtr<T> hypot(const ExprPtr<T>& l, const U& c, const V& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l->val, c, r), l, constant<T>(c), constant<T>(r)); }
+template<typename T, typename U, typename V, EnableIf<isArithmetic<U> && isArithmetic<V>>...> ExprPtr<T> hypot(const U& l, const ExprPtr<T>& c, const V& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l, c->val, r), constant<T>(l), c, constant<T>(r)); }
+template<typename T, typename U, typename V, EnableIf<isArithmetic<U> && isArithmetic<V>>...> ExprPtr<T> hypot(const V& l, const U& c, const ExprPtr<T>& r) { return std::make_shared<Hypot3Expr<T>>(hypot(l, c, r->val), constant<T>(l), constant<T>(c), r); }
 
 
 //------------------------------------------------------------------------------
@@ -996,8 +997,8 @@ template<typename T> ExprPtr<T> log10(const ExprPtr<T>& x) { return std::make_sh
 //------------------------------------------------------------------------------
 template<typename T> ExprPtr<T> sqrt(const ExprPtr<T>& x) { return std::make_shared<SqrtExpr<T>>(sqrt(x->val), x); }
 template<typename T> ExprPtr<T> pow(const ExprPtr<T>& l, const ExprPtr<T>& r) { return std::make_shared<PowExpr<T>>(pow(l->val, r->val), l, r); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> pow(const U& l, const ExprPtr<T>& r) { return std::make_shared<PowConstantLeftExpr<T>>(pow(l, r->val), constant<T>(l), r); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> pow(const ExprPtr<T>& l, const U& r) { return std::make_shared<PowConstantRightExpr<T>>(pow(l->val, r), l, constant<T>(r)); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> pow(const U& l, const ExprPtr<T>& r) { return std::make_shared<PowConstantLeftExpr<T>>(pow(l, r->val), constant<T>(l), r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> pow(const ExprPtr<T>& l, const U& r) { return std::make_shared<PowConstantRightExpr<T>>(pow(l->val, r), l, constant<T>(r)); }
 
 //------------------------------------------------------------------------------
 // OTHER FUNCTIONS
@@ -1019,19 +1020,19 @@ template<typename T> bool operator>=(const ExprPtr<T>& l, const ExprPtr<T>& r) {
 template<typename T> bool operator<(const ExprPtr<T>& l, const ExprPtr<T>& r) { return l->val < r->val; }
 template<typename T> bool operator>(const ExprPtr<T>& l, const ExprPtr<T>& r) { return l->val > r->val; }
 
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator==(const U& l, const ExprPtr<T>& r) { return l == r->val; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator!=(const U& l, const ExprPtr<T>& r) { return l != r->val; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<=(const U& l, const ExprPtr<T>& r) { return l <= r->val; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>=(const U& l, const ExprPtr<T>& r) { return l >= r->val; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<(const U& l, const ExprPtr<T>& r) { return l < r->val; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>(const U& l, const ExprPtr<T>& r) { return l > r->val; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator==(const U& l, const ExprPtr<T>& r) { return l == r->val; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator!=(const U& l, const ExprPtr<T>& r) { return l != r->val; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<=(const U& l, const ExprPtr<T>& r) { return l <= r->val; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>=(const U& l, const ExprPtr<T>& r) { return l >= r->val; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<(const U& l, const ExprPtr<T>& r) { return l < r->val; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>(const U& l, const ExprPtr<T>& r) { return l > r->val; }
 
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator==(const ExprPtr<T>& l, const U& r) { return l->val == r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator!=(const ExprPtr<T>& l, const U& r) { return l->val != r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<=(const ExprPtr<T>& l, const U& r) { return l->val <= r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>=(const ExprPtr<T>& l, const U& r) { return l->val >= r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<(const ExprPtr<T>& l, const U& r) { return l->val < r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>(const ExprPtr<T>& l, const U& r) { return l->val > r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator==(const ExprPtr<T>& l, const U& r) { return l->val == r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator!=(const ExprPtr<T>& l, const U& r) { return l->val != r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<=(const ExprPtr<T>& l, const U& r) { return l->val <= r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>=(const ExprPtr<T>& l, const U& r) { return l->val >= r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<(const ExprPtr<T>& l, const U& r) { return l->val < r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>(const ExprPtr<T>& l, const U& r) { return l->val > r; }
 
 /// The autodiff variable type used for detail mode automatic differentiation.
 template<typename T>
@@ -1047,7 +1048,7 @@ struct Variable
     Variable(const Variable& other) : Variable(other.expr) {}
 
     /// Construct a Variable object with given arithmetic value
-    template<typename U, EnableIf<isNumber<U>>...>
+    template<typename U, EnableIf<isArithmetic<U>>...>
     Variable(const U& val) : expr(std::make_shared<IndependentVariableExpr<T>>(val)) {}
 
     /// Construct a Variable object with given expression
@@ -1078,7 +1079,7 @@ struct Variable
     explicit operator T() const { return expr->val; }
 
     /// Assign an arithmetic value to this variable.
-    template<typename U, EnableIf<isNumber<U>>...>
+    template<typename U, EnableIf<isArithmetic<U>>...>
     auto operator=(const U& val) -> Variable& { *this = Variable(val); return *this; }
 
     /// Assign an expression to this variable.
@@ -1091,10 +1092,10 @@ struct Variable
     Variable& operator/=(const ExprPtr<T>& x) { *this = Variable(expr / x); return *this; }
 
 	// Assignment operators with arithmetic values
-    template<typename U, EnableIf<isNumber<U>>...> Variable& operator+=(const U& x) { *this = Variable(expr + x); return *this; }
-    template<typename U, EnableIf<isNumber<U>>...> Variable& operator-=(const U& x) { *this = Variable(expr - x); return *this; }
-    template<typename U, EnableIf<isNumber<U>>...> Variable& operator*=(const U& x) { *this = Variable(expr * x); return *this; }
-    template<typename U, EnableIf<isNumber<U>>...> Variable& operator/=(const U& x) { *this = Variable(expr / x); return *this; }
+    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator+=(const U& x) { *this = Variable(expr + x); return *this; }
+    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator-=(const U& x) { *this = Variable(expr - x); return *this; }
+    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator*=(const U& x) { *this = Variable(expr * x); return *this; }
+    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator/=(const U& x) { *this = Variable(expr / x); return *this; }
 };
 
 //------------------------------------------------------------------------------
@@ -1121,19 +1122,19 @@ template<typename T> bool operator>=(const ExprPtr<T>& l, const Variable<T>& r) 
 template<typename T> bool operator<(const ExprPtr<T>& l, const Variable<T>& r) { return l->val < r.expr->val; }
 template<typename T> bool operator>(const ExprPtr<T>& l, const Variable<T>& r) { return l->val > r.expr->val; }
 
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator==(const U& l, const Variable<T>& r) { return l == r.expr; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator!=(const U& l, const Variable<T>& r) { return l != r.expr; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<=(const U& l, const Variable<T>& r) { return l <= r.expr; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>=(const U& l, const Variable<T>& r) { return l >= r.expr; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<(const U& l, const Variable<T>& r) { return l < r.expr; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>(const U& l, const Variable<T>& r) { return l > r.expr; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator==(const U& l, const Variable<T>& r) { return l == r.expr; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator!=(const U& l, const Variable<T>& r) { return l != r.expr; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<=(const U& l, const Variable<T>& r) { return l <= r.expr; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>=(const U& l, const Variable<T>& r) { return l >= r.expr; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<(const U& l, const Variable<T>& r) { return l < r.expr; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>(const U& l, const Variable<T>& r) { return l > r.expr; }
 
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator==(const Variable<T>& l, const U& r) { return l.expr == r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator!=(const Variable<T>& l, const U& r) { return l.expr != r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<=(const Variable<T>& l, const U& r) { return l.expr <= r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>=(const Variable<T>& l, const U& r) { return l.expr >= r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator<(const Variable<T>& l, const U& r) { return l.expr < r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> bool operator>(const Variable<T>& l, const U& r) { return l.expr > r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator==(const Variable<T>& l, const U& r) { return l.expr == r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator!=(const Variable<T>& l, const U& r) { return l.expr != r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<=(const Variable<T>& l, const U& r) { return l.expr <= r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>=(const Variable<T>& l, const U& r) { return l.expr >= r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator<(const Variable<T>& l, const U& r) { return l.expr < r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> bool operator>(const Variable<T>& l, const U& r) { return l.expr > r; }
 
 //------------------------------------------------------------------------------
 // ARITHMETIC OPERATORS (DEFINED FOR ARGUMENTS OF TYPE Variable)
@@ -1156,15 +1157,15 @@ template<typename T> ExprPtr<T> operator-(const Variable<T>& l, const ExprPtr<T>
 template<typename T> ExprPtr<T> operator*(const Variable<T>& l, const ExprPtr<T>& r) { return l.expr * r; }
 template<typename T> ExprPtr<T> operator/(const Variable<T>& l, const ExprPtr<T>& r) { return l.expr / r; }
 
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator+(const U& l, const Variable<T>& r) { return l + r.expr; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator-(const U& l, const Variable<T>& r) { return l - r.expr; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator*(const U& l, const Variable<T>& r) { return l * r.expr; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator/(const U& l, const Variable<T>& r) { return l / r.expr; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator+(const U& l, const Variable<T>& r) { return l + r.expr; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator-(const U& l, const Variable<T>& r) { return l - r.expr; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator*(const U& l, const Variable<T>& r) { return l * r.expr; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator/(const U& l, const Variable<T>& r) { return l / r.expr; }
 
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator+(const Variable<T>& l, const U& r) { return l.expr + r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator-(const Variable<T>& l, const U& r) { return l.expr - r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator*(const Variable<T>& l, const U& r) { return l.expr * r; }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> operator/(const Variable<T>& l, const U& r) { return l.expr / r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator+(const Variable<T>& l, const U& r) { return l.expr + r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator-(const Variable<T>& l, const U& r) { return l.expr - r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator*(const Variable<T>& l, const U& r) { return l.expr * r; }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> operator/(const Variable<T>& l, const U& r) { return l.expr / r; }
 
 //------------------------------------------------------------------------------
 // TRIGONOMETRIC FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE Variable)
@@ -1176,26 +1177,26 @@ template<typename T> ExprPtr<T> asin(const Variable<T>& x) { return asin(x.expr)
 template<typename T> ExprPtr<T> acos(const Variable<T>& x) { return acos(x.expr); }
 template<typename T> ExprPtr<T> atan(const Variable<T>& x) { return atan(x.expr); }
 template<typename T> ExprPtr<T> atan2(const Variable<T> & l, const Variable<T> & r) { return atan2(l.expr, r.expr); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> atan2(const U& l, const Variable<T>& r) { return atan2(l, r.expr); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> atan2(const Variable<T>& l, const U& r) { return atan2(l.expr, r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const U& l, const Variable<T>& r) { return atan2(l, r.expr); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> atan2(const Variable<T>& l, const U& r) { return atan2(l.expr, r); }
 
 //------------------------------------------------------------------------------
 // HYPOT2 FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE Variable)
 //------------------------------------------------------------------------------
 template<typename T> ExprPtr<T> hypot(const Variable<T>& l, const Variable<T>& r) { return hypot(l.expr, r.expr); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> hypot(const U& l, const Variable<T>& r) { return hypot(l, r.expr); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> hypot(const Variable<T>& l, const U& r) { return hypot(l.expr, r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const U& l, const Variable<T>& r) { return hypot(l, r.expr); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const Variable<T>& l, const U& r) { return hypot(l.expr, r); }
 
 //------------------------------------------------------------------------------
 // HYPOT3 FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE Variable)
 //------------------------------------------------------------------------------
 template<typename T> ExprPtr<T> hypot(const Variable<T> &l, const Variable<T> &c, const Variable<T> &r) { return hypot(l.expr, c.expr, r.expr); }
-template<typename T, typename U, typename V, EnableIf<isNumber<U> && isNumber<V>>...> ExprPtr<T> hypot(const Variable<T>& l, const U& c, const V& r) { return hypot(l.expr, c, r); }
-template<typename T, typename U, typename V, EnableIf<isNumber<U> && isNumber<V>>...> ExprPtr<T> hypot(const U& l, const Variable<T>& c, const V& r) { return hypot(l, c.expr, r); }
-template<typename T, typename U, typename V, EnableIf<isNumber<U> && isNumber<V>>...> ExprPtr<T> hypot(const U& l, const V& c, const Variable<T>& r) { return hypot(l, c, r.expr); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> hypot(const Variable<T> &l, const Variable<T> &c, const U& r) { return hypot(l.expr, c.expr, r); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> hypot(const U &l, const Variable<T> &c, const Variable<T>& r) { return hypot(l, c.expr, r.expr); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> hypot(const Variable<T> &l, const U &c, const Variable<T>& r) { return hypot(l.expr, c, r.expr); }
+template<typename T, typename U, typename V, EnableIf<isArithmetic<U> && isArithmetic<V>>...> ExprPtr<T> hypot(const Variable<T>& l, const U& c, const V& r) { return hypot(l.expr, c, r); }
+template<typename T, typename U, typename V, EnableIf<isArithmetic<U> && isArithmetic<V>>...> ExprPtr<T> hypot(const U& l, const Variable<T>& c, const V& r) { return hypot(l, c.expr, r); }
+template<typename T, typename U, typename V, EnableIf<isArithmetic<U> && isArithmetic<V>>...> ExprPtr<T> hypot(const U& l, const V& c, const Variable<T>& r) { return hypot(l, c, r.expr); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const Variable<T> &l, const Variable<T> &c, const U& r) { return hypot(l.expr, c.expr, r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const U &l, const Variable<T> &c, const Variable<T>& r) { return hypot(l, c.expr, r.expr); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> hypot(const Variable<T> &l, const U &c, const Variable<T>& r) { return hypot(l.expr, c, r.expr); }
 
 //------------------------------------------------------------------------------
 // HYPERBOLIC FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE Variable)
@@ -1216,8 +1217,8 @@ template<typename T> ExprPtr<T> log10(const Variable<T>& x) { return log10(x.exp
 //------------------------------------------------------------------------------
 template<typename T> ExprPtr<T> sqrt(const Variable<T>& x) { return sqrt(x.expr); }
 template<typename T> ExprPtr<T> pow(const Variable<T>& l, const Variable<T>& r) { return pow(l.expr, r.expr); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> pow(const U& l, const Variable<T>& r) { return pow(l, r.expr); }
-template<typename T, typename U, EnableIf<isNumber<U>>...> ExprPtr<T> pow(const Variable<T>& l, const U& r) { return pow(l.expr, r); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> pow(const U& l, const Variable<T>& r) { return pow(l, r.expr); }
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> pow(const Variable<T>& l, const U& r) { return pow(l.expr, r); }
 
 //------------------------------------------------------------------------------
 // OTHER FUNCTIONS (DEFINED FOR ARGUMENTS OF TYPE Variable)
@@ -1230,7 +1231,7 @@ template<typename T> ExprPtr<T> imag(const Variable<T>& x) { return imag(x.expr)
 template<typename T> ExprPtr<T> erf(const Variable<T>& x) { return erf(x.expr); }
 
 /// Return the value of a scalar.
-template<typename U, EnableIf<isNumber<U>>...>
+template<typename U, EnableIf<isArithmetic<U>>...>
 auto val(const U& x)
 {
     return x;
