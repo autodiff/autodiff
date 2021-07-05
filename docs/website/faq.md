@@ -86,9 +86,7 @@ use the following BibTeX reference entry:
 
 This should produce a formatted citation that looks more or less the following:
 
-* Allan M. M. Leal et al. *autodiff, a modern, fast and expressive C++ library
-for automatic differentiation*. [`https://autodiff.github.io`](https://autodiff.github.io), 2018.
+> Leal, A.M.M. (2018). *autodiff, a modern, fast and expressive C++ library for automatic differentiation*.
+> [https://autodiff.github.io](https://autodiff.github.io)
 
 Please ensure the website URL is displayed.
-
-

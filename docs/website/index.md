@@ -141,4 +141,10 @@ computed with a call to function `autodiff::derivatives`.
 
 ## Get in touch!
 
-Contact us on [Gitter](https://gitter.im/autodiff/community) if you need support and assistance when using {{autodiff}}.
+Contact us on [Gitter][gitter] or via a [GitHub Discussion][discussion] if you
+need support and assistance when using {{autodiff}}. If you would like to
+report a bug, then please create a new [GitHub Issue][issues].
+
+[discussion]: https://github.com/autodiff/autodiff/discussions/new
+[gitter]: https://gitter.im/autodiff/community
+[issues]: https://github.com/autodiff/autodiff/issues/new
