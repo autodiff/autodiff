@@ -18,6 +18,14 @@ it is necessary. You may want to do so by chatting with us on our [Gitter
 Community Channel][gitter] and/or by making proposals by creating a [GitHub
 issue][issues].
 
+!!! attention
+
+    There are breaking changes in {{autodiff}} v0.6! Please check the updated
+    [Tutorials](tutorials.md) page to learn how to correctly include the header
+    files, the slightly changed API, and the new autodiff type `real` designed for
+    efficient **higher-order directional derivatives**. This is in contrast to the
+    `dual` type, which is designed for higher-order cross derivatives.
+
 ## Demonstration
 
 Consider the following function *f(x, y, z)*:
