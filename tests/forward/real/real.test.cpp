@@ -353,20 +353,20 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
 
     y = abs(x);
 
-    CHECK_APPROX( y[0], abs(x[0]) );
-    CHECK_APPROX( y[1], abs(x[0])/x[0] * x[1] );
-    CHECK_APPROX( y[2], abs(x[0])/x[0] * x[2] );
-    CHECK_APPROX( y[3], abs(x[0])/x[0] * x[3] );
-    CHECK_APPROX( y[4], abs(x[0])/x[0] * x[4] );
+    CHECK_APPROX( y[0], std::abs(x[0]) );
+    CHECK_APPROX( y[1], std::abs(x[0])/x[0] * x[1] );
+    CHECK_APPROX( y[2], std::abs(x[0])/x[0] * x[2] );
+    CHECK_APPROX( y[3], std::abs(x[0])/x[0] * x[3] );
+    CHECK_APPROX( y[4], std::abs(x[0])/x[0] * x[4] );
 
     y = -x;
     z = abs(y);
 
-    CHECK_APPROX( z[0], abs(y[0]) );
-    CHECK_APPROX( z[1], abs(y[0])/(y[0]) * y[1] );
-    CHECK_APPROX( z[2], abs(y[0])/(y[0]) * y[2] );
-    CHECK_APPROX( z[3], abs(y[0])/(y[0]) * y[3] );
-    CHECK_APPROX( z[4], abs(y[0])/(y[0]) * y[4] );
+    CHECK_APPROX( z[0], std::abs(y[0]) );
+    CHECK_APPROX( z[1], std::abs(y[0])/(y[0]) * y[1] );
+    CHECK_APPROX( z[2], std::abs(y[0])/(y[0]) * y[2] );
+    CHECK_APPROX( z[3], std::abs(y[0])/(y[0]) * y[3] );
+    CHECK_APPROX( z[4], std::abs(y[0])/(y[0]) * y[4] );
 
     //=====================================================================================================================
     //

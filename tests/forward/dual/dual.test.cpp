@@ -451,10 +451,10 @@ TEST_CASE("testing autodiff::dual", "[forward][dual]")
         CHECK_DERIVATIVES_FX(pow(x, 2.0 * x), pow(val(x), 2.0 * val(x)), 2.0 * (log(x) + 1) * pow(x, 2.0 * x));
 
         // Testing abs function (when x > 0)
-        x = 1.0; CHECK_DERIVATIVES_FX(abs(x), abs(val(x)), 1.0);
+        x = 1.0; CHECK_DERIVATIVES_FX(abs(x), std::abs(val(x)), 1.0);
 
         // Testing abs function (when x < 0)
-        x = -1.0; CHECK_DERIVATIVES_FX(abs(x), abs(val(x)), -1.0);
+        x = -1.0; CHECK_DERIVATIVES_FX(abs(x), std::abs(val(x)), -1.0);
 
         // Testing erf function (when x = 1.0)
         x =  1.0; CHECK_DERIVATIVES_FX(erf(x), erf(val(x)), 0.4151074974);
