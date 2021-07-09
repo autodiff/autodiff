@@ -158,7 +158,7 @@ new library additions.
 Check the documentation website for more details:
 
 <a href="https://autodiff.github.io" target="_blank">
-    <img src='docs/img/autodiff.github.io.svg' width='100%'>
+    <img src='art/autodiff.github.io.svg' width='100%'>
 </a>
 
 # License
