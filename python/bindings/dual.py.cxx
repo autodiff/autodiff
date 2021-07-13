@@ -36,8 +36,10 @@
 namespace py = pybind11;
 
 // autodiff includes
+#include <autodiff/common/meta.hpp>
 #include <autodiff/forward/dual/dual.hpp>
 using namespace autodiff;
+using autodiff::detail::isSame;
 
 template<typename T, typename G>
 void exportDual(py::module& m, const char* typestr)
@@ -56,7 +58,7 @@ void exportDual(py::module& m, const char* typestr)
 
     using U = autodiff::detail::NumericType<T>;
 
-    py::class_<Dual<T, G>>(m, typestr)
+    auto cls = py::class_<Dual<T, G>>(m, typestr)
         .def(py::init<>())
         .def(py::init<const U&>())
         .def(py::init<const Dual<T, G>&>())
@@ -112,7 +114,17 @@ void exportDual(py::module& m, const char* typestr)
         .def(U() >= py::self)
         ;
 
+    if constexpr (!isSame<U, int>) cls.def(py::init<int>());
+    if constexpr (!isSame<U, long>) cls.def(py::init<long>());
+    if constexpr (!isSame<U, float>) cls.def(py::init<float>());
+    if constexpr (!isSame<U, double>) cls.def(py::init<double>());
+
     py::implicitly_convertible<T, Dual<T, G>>();
+
+    if constexpr (!isSame<T, int>) py::implicitly_convertible<int, Dual<T, G>>();
+    if constexpr (!isSame<T, long>) py::implicitly_convertible<long, Dual<T, G>>();
+    if constexpr (!isSame<T, float>) py::implicitly_convertible<float, Dual<T, G>>();
+    if constexpr (!isSame<T, double>) py::implicitly_convertible<double, Dual<T, G>>();
 }
 
 void export_dual1st(py::module& m) { exportDual<dual0th, dual0th>(m, "dual1st"); }
