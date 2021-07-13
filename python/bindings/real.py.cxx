@@ -37,8 +37,10 @@
 namespace py = pybind11;
 
 // autodiff includes
+#include <autodiff/common/meta.hpp>
 #include <autodiff/forward/real/real.hpp>
 using namespace autodiff;
+using autodiff::detail::isSame;
 
 template<size_t N, typename T>
 void exportReal(py::module& m, const char* typestr)
@@ -65,7 +67,7 @@ void exportReal(py::module& m, const char* typestr)
         return repr(self);
     };
 
-    py::class_<Real<N, T>>(m, typestr)
+    auto cls = py::class_<Real<N, T>>(m, typestr)
         .def(py::init<>())
         .def(py::init<const T&>())
         .def(py::init<const std::array<T, N + 1>&>())
@@ -124,7 +126,17 @@ void exportReal(py::module& m, const char* typestr)
         .def(T() >= py::self)
         ;
 
+    if constexpr (!isSame<T, int>) cls.def(py::init<int>());
+    if constexpr (!isSame<T, long>) cls.def(py::init<long>());
+    if constexpr (!isSame<T, float>) cls.def(py::init<float>());
+    if constexpr (!isSame<T, double>) cls.def(py::init<double>());
+
     py::implicitly_convertible<T, Real<N, T>>();
+
+    if constexpr (!isSame<T, int>) py::implicitly_convertible<int, Real<N, T>>();
+    if constexpr (!isSame<T, long>) py::implicitly_convertible<long, Real<N, T>>();
+    if constexpr (!isSame<T, float>) py::implicitly_convertible<float, Real<N, T>>();
+    if constexpr (!isSame<T, double>) py::implicitly_convertible<double, Real<N, T>>();
 }
 
 void export_real1st(py::module& m) { exportReal<1, double>(m, "real1st"); }
