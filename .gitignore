@@ -1,4 +1,5 @@
 # Build files
+build/
 .build/
 
 # conda
