@@ -919,6 +919,22 @@ template<typename R, EnableIf<isExpr<R>>...> constexpr auto real(R&& r) { return
 template<typename R, EnableIf<isExpr<R>>...> constexpr auto imag(R&&) { return 0.0; }
 template<typename R, EnableIf<isExpr<R>>...> constexpr auto erf(R&& r) -> ErfExpr<R> { return { r }; }
 
+template<typename L, typename R, EnableIf<isOperable<L, R>>...>
+constexpr auto min(L&& l, R&& r)
+{
+    const auto x = eval(l);
+    const auto y = eval(r);
+    return (x <= y) ? x : y;
+}
+
+template<typename L, typename R, EnableIf<isOperable<L, R>>...>
+constexpr auto max(L&& l, R&& r)
+{
+    const auto x = eval(l);
+    const auto y = eval(r);
+    return (x >= y) ? x : y;
+}
+
 //=====================================================================================================================
 //
 // COMPARISON OPERATORS OVERLOADING
