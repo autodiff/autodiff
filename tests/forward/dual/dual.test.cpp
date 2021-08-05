@@ -537,6 +537,33 @@ TEST_CASE("testing autodiff::dual", "[forward][dual]")
             16.*z/std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z)));
     }
 
+    SECTION("testing min and max functions")
+    {
+        x = 0.5;
+        y = 0.8;
+
+        CHECK( min(x, y) == x );
+        CHECK( min(y, x) == x );
+        CHECK( max(x, y) == y );
+        CHECK( max(y, x) == y );
+
+        x = 1.1;
+        y = 1.1;
+
+        CHECK( min(x, y) == x );
+        CHECK( min(y, x) == x );
+        CHECK( max(x, y) == x );
+        CHECK( max(y, x) == x );
+
+        x = -7.1;
+        y = -9.1;
+
+        CHECK( min(x, y) == y );
+        CHECK( min(y, x) == y );
+        CHECK( max(x, y) == x );
+        CHECK( max(y, x) == x );
+    }
+
     SECTION("testing complex expressions")
     {
         x = 0.5;
