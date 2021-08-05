@@ -137,6 +137,52 @@ void exportReal(py::module& m, const char* typestr)
     if constexpr (!isSame<T, long>) py::implicitly_convertible<long, Real<N, T>>();
     if constexpr (!isSame<T, float>) py::implicitly_convertible<float, Real<N, T>>();
     if constexpr (!isSame<T, double>) py::implicitly_convertible<double, Real<N, T>>();
+
+
+    m.def("abs"  , [](const Real<N, T>& x) { return abs(x); });
+
+    m.def("sin"  , [](const Real<N, T>& x) { return sin(x); });
+    m.def("cos"  , [](const Real<N, T>& x) { return cos(x); });
+    m.def("tan"  , [](const Real<N, T>& x) { return tan(x); });
+
+    m.def("asin" , [](const Real<N, T>& x) { return asin(x); });
+    m.def("acos" , [](const Real<N, T>& x) { return acos(x); });
+    m.def("atan" , [](const Real<N, T>& x) { return atan(x); });
+
+    m.def("asinh", [](const Real<N, T>& x) { return asinh(x); });
+    m.def("acosh", [](const Real<N, T>& x) { return acosh(x); });
+    m.def("atanh", [](const Real<N, T>& x) { return atanh(x); });
+
+    m.def("sinh" , [](const Real<N, T>& x) { return sinh(x); });
+    m.def("cosh" , [](const Real<N, T>& x) { return cosh(x); });
+    m.def("tanh" , [](const Real<N, T>& x) { return tanh(x); });
+
+    m.def("arcsin" , [](const Real<N, T>& x) { return asin(x); });
+    m.def("arccos" , [](const Real<N, T>& x) { return acos(x); });
+    m.def("arctan" , [](const Real<N, T>& x) { return atan(x); });
+
+    m.def("arcsinh", [](const Real<N, T>& x) { return asinh(x); });
+    m.def("arccosh", [](const Real<N, T>& x) { return acosh(x); });
+    m.def("arctanh", [](const Real<N, T>& x) { return atanh(x); });
+
+    m.def("sqrt" , [](const Real<N, T>& x) { return sqrt(x); });
+    m.def("cbrt" , [](const Real<N, T>& x) { return cbrt(x); });
+
+    m.def("exp"  , [](const Real<N, T>& x) { return exp(x);   });
+    m.def("log"  , [](const Real<N, T>& x) { return log(x);   });
+    m.def("log10", [](const Real<N, T>& x) { return log10(x); });
+
+    m.def("pow"  , [](const Real<N, T>& x, const Real<N, T>& y) { return pow(x, y); });
+    m.def("pow"  , [](const Real<N, T>& x, const T& y)          { return pow(x, y); });
+    m.def("pow"  , [](const T& x, const Real<N, T>& y)          { return pow(x, y); });
+
+    m.def("max"  , [](const Real<N, T>& x, const Real<N, T>& y) { return max(x, y); });
+    m.def("max"  , [](const Real<N, T>& x, const T& y)          { return max(x, y); });
+    m.def("max"  , [](const T& x, const Real<N, T>& y)          { return max(x, y); });
+
+    m.def("min"  , [](const Real<N, T>& x, const Real<N, T>& y) { return min(x, y); });
+    m.def("min"  , [](const Real<N, T>& x, const T& y)          { return min(x, y); });
+    m.def("min"  , [](const T& x, const Real<N, T>& y)          { return min(x, y); });
 }
 
 void export_real1st(py::module& m) { exportReal<1, double>(m, "real1st"); }
