@@ -125,6 +125,57 @@ void exportDual(py::module& m, const char* typestr)
     if constexpr (!isSame<T, long>) py::implicitly_convertible<long, Dual<T, G>>();
     if constexpr (!isSame<T, float>) py::implicitly_convertible<float, Dual<T, G>>();
     if constexpr (!isSame<T, double>) py::implicitly_convertible<double, Dual<T, G>>();
+
+    m.def("abs"  , [](const Dual<T, G>& x) { return abs(x); });
+
+    m.def("sin"  , [](const Dual<T, G>& x) { return sin(x); });
+    m.def("cos"  , [](const Dual<T, G>& x) { return cos(x); });
+    m.def("tan"  , [](const Dual<T, G>& x) { return tan(x); });
+
+    m.def("asin" , [](const Dual<T, G>& x) { return asin(x); });
+    m.def("acos" , [](const Dual<T, G>& x) { return acos(x); });
+    m.def("atan" , [](const Dual<T, G>& x) { return atan(x); });
+
+    // m.def("asinh", [](const Dual<T, G>& x) { return asinh(x); });
+    // m.def("acosh", [](const Dual<T, G>& x) { return acosh(x); });
+    // m.def("atanh", [](const Dual<T, G>& x) { return atanh(x); });
+
+    m.def("sinh" , [](const Dual<T, G>& x) { return sinh(x); });
+    m.def("cosh" , [](const Dual<T, G>& x) { return cosh(x); });
+    m.def("tanh" , [](const Dual<T, G>& x) { return tanh(x); });
+
+    m.def("arcsin" , [](const Dual<T, G>& x) { return asin(x); });
+    m.def("arccos" , [](const Dual<T, G>& x) { return acos(x); });
+    m.def("arctan" , [](const Dual<T, G>& x) { return atan(x); });
+
+    // m.def("arcsinh", [](const Dual<T, G>& x) { return asinh(x); });
+    // m.def("arccosh", [](const Dual<T, G>& x) { return acosh(x); });
+    // m.def("arctanh", [](const Dual<T, G>& x) { return atanh(x); });
+
+    m.def("sqrt" , [](const Dual<T, G>& x) { return sqrt(x); });
+    // m.def("cbrt" , [](const Dual<T, G>& x) { return cbrt(x); });
+
+    m.def("exp"  , [](const Dual<T, G>& x) { return exp(x);   });
+    m.def("log"  , [](const Dual<T, G>& x) { return log(x);   });
+    m.def("log10", [](const Dual<T, G>& x) { return log10(x); });
+
+    m.def("pow"  , [](const Dual<T, G>& x, const Dual<T, G>& y) { return pow(x, y); });
+    m.def("pow"  , [](const Dual<T, G>& x, const U& y)          { return pow(x, y); });
+    m.def("pow"  , [](const U& x, const Dual<T, G>& y)          { return pow(x, y); });
+
+    m.def("max"  , [](const Dual<T, G>& x, const Dual<T, G>& y) { return max(x, y); });
+    m.def("max"  , [](const Dual<T, G>& x, const U& y)          { return max(x, y); });
+    m.def("max"  , [](const U& x, const Dual<T, G>& y)          { return max(x, y); });
+
+    m.def("min"  , [](const Dual<T, G>& x, const Dual<T, G>& y) { return min(x, y); });
+    m.def("min"  , [](const Dual<T, G>& x, const U& y)          { return min(x, y); });
+    m.def("min"  , [](const U& x, const Dual<T, G>& y)          { return min(x, y); });
+
+    m.def("hypot"  , [](const Dual<T, G>& x, const Dual<T, G>& y) { return hypot(x, y); });
+    m.def("hypot"  , [](const Dual<T, G>& x, const U& y)          { return hypot(x, y); });
+    m.def("hypot"  , [](const U& x, const Dual<T, G>& y)          { return hypot(x, y); });
+
+    m.def("erf"  , [](const Dual<T, G>& x) { return erf(x); });
 }
 
 void export_dual1st(py::module& m) { exportDual<dual0th, dual0th>(m, "dual1st"); }
