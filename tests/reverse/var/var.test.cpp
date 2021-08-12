@@ -101,14 +101,6 @@ TEST_CASE("testing autodiff::var", "[reverse][var]")
     REQUIRE( grad(c, x) == 2*val(a) * grad(a, x) + 1 );
 
     //------------------------------------------------------------------------------
-    // TEST DERIVATIVES COMPUTATION AFTER CHANGING VAR VALUE
-    //------------------------------------------------------------------------------
-    a = 20.0; // a is now a new independent variable
-
-    REQUIRE( grad(c, a) == approx(0.0) );
-    REQUIRE( grad(c, x) == 2*val(x) + 1 );
-
-    //------------------------------------------------------------------------------
     // TEST MULTIPLICATION OPERATOR (USING CONSTANT FACTOR)
     //------------------------------------------------------------------------------
     c = -2*a;
@@ -460,6 +452,43 @@ TEST_CASE("testing autodiff::var", "[reverse][var]")
     REQUIRE( grad(hypot(2.0*x, 3.0*y, 4.0*z), y) == approx(9.0*y / std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z))) );
     REQUIRE( grad(hypot(2.0*x, 3.0*y, 4.0*z), z) == approx(16.*z / std::hypot(2.0*val(x), 3.0*val(y), 4.0*val(z))) );
 
+
+    //--------------------------------------------------------------------------
+    // TEST CONDITION FUNCTIONS
+    //--------------------------------------------------------------------------
+
+    // Single condition
+    x = 2.0;
+    REQUIRE( condition(x > 0, x * x, x * x * x) == 4 );
+    REQUIRE( grad(condition(x > 0, x * x, x * x * x), x) == approx(2 * val(x)) );
+
+    x = -2.0;
+    var conditional = condition(x > 0, x * x, x * x * x);
+    REQUIRE( conditional == -8 );
+    REQUIRE( grad(conditional, x) == approx(3 * val(x) * val(x)) );
+
+    x = 3.0;
+    conditional.update();
+    REQUIRE( x == 3.0 );
+    REQUIRE( conditional == 9 );
+    REQUIRE( grad(conditional, x) == approx(2 * val(x)) );
+
+    // Conjunction of conditions
+    var square = condition(0 <= x && x <= 1, 1.0, 0.0);
+    REQUIRE( square == 0.0 );
+    x = 0.5;
+    square.update();
+    REQUIRE( square == 1.0 );
+    x = -1.0;
+    square.update();
+    REQUIRE( square == 0.0 );
+
+    bool arbitraryCondition = true;
+    conditional = condition(autodiff::boolref(arbitraryCondition), 1.0, 0.0);
+    REQUIRE( conditional == 1.0 );
+    arbitraryCondition = false;
+    conditional.update();
+    REQUIRE( conditional == 0.0 );
 
     //--------------------------------------------------------------------------
     // TEST OTHER FUNCTIONS
