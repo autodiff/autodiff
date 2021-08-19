@@ -35,7 +35,6 @@
 #include <cmath>
 #include <cstddef>
 #include <memory>
-#include <unordered_map>
 
 // autodiff includes
 #include <autodiff/common/meta.hpp>
@@ -255,7 +254,9 @@ struct Expr
     /// Destructor (to avoid warning)
     virtual ~Expr() {}
 
+    /// Bind a value pointer for writing the derivative during propagation
     virtual void bind_value(T* /* grad */) {}
+    /// Bind an expression pointer for writing the derivative expression during propagation
     virtual void bind_expr(ExprPtr<T>* /* gradx */) {}
 
     /// Update the contribution of this expression in the derivative of the root node of the expression tree.
@@ -271,10 +272,10 @@ struct Expr
 template<typename T>
 struct VariableExpr : Expr<T>
 {
-    /// The derivative of the root expression node with respect to this variable.
+    /// The derivative value of the root expression node w.r.t. this variable.
     T* gradPtr = {};
 
-    /// The derivative of the root expression node with respect to this variable (as an expression for higher-order derivatives).
+    /// The derivative expression of the root expression node w.r.t. this variable (reusable for higher-order derivatives).
     ExprPtr<T>* gradxPtr = {};
 
     /// Construct a VariableExpr object with given value.
