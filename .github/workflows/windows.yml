@@ -64,4 +64,4 @@ jobs:
         shell: powershell
         run: |
           conda activate autodiff
-          cmake --build .build --config ${{ env.configuration }} --target tests
+          cmake --build .build --config ${{ env.configuration }} --target test

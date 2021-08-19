@@ -68,4 +68,4 @@ jobs:
         run: |
           source activate autodiff
           cmake -S . -B .build -DCMAKE_BUILD_TYPE=Debug
-          cmake --build .build --target tests --parallel 3
+          cmake --build .build --target test --parallel 3
