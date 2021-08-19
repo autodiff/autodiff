@@ -103,54 +103,71 @@ auto gradient(const Variable<T>& y, Eigen::DenseBase<X>& x)
     constexpr auto MaxRows = X::MaxRowsAtCompileTime;
 
     const auto n = x.size();
+    using Gradient = Vec<U, Rows, MaxRows>;
+    Gradient g = Gradient::Zero(n);
+
     for(auto i = 0; i < n; ++i)
-        x[i].seed();
+        x[i].expr->bind_value(&g[i]);
 
     y.expr->propagate(1.0);
 
-    Vec<U, Rows, MaxRows> g(n);
     for(auto i = 0; i < n; ++i)
-        g[i] = val(x[i].grad());
+        x[i].expr->bind_value(nullptr);
 
     return g;
 }
 
 /// Return the Hessian matrix of variable y with respect to variables x.
-template<typename T, typename X, typename Vec>
-auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, Vec& g)
+template<typename T, typename X, typename GradientVec>
+auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, GradientVec& g)
 {
     using U = VariableValueType<T>;
 
     using ScalarX = typename X::Scalar;
     static_assert(isVariable<ScalarX>, "Argument x is not a vector with Variable<T> (aka var) objects.");
 
-    using ScalarG = typename Vec::Scalar;
+    using ScalarG = typename GradientVec::Scalar;
     static_assert(std::is_same_v<U, ScalarG>, "Argument g does not have the same arithmetic type as y.");
 
     constexpr auto Rows = X::RowsAtCompileTime;
     constexpr auto MaxRows = X::MaxRowsAtCompileTime;
 
     const auto n = x.size();
-    for(auto k = 0; k < n; ++k)
-        x[k].seedx();
 
+    // Form a vector containing gradient expressions for each variable
+    using ExpressionGradient = Vec<ScalarX, Rows, MaxRows>;
+    ExpressionGradient G(n);
+
+    for(auto k = 0; k < n; ++k)
+        x[k].expr->bind_expr(&G(k).expr);
+
+    /* Build a full gradient expression in DFS tree traversal, updating
+     * gradient expressions when encountering variables
+     */
     y.expr->propagatex(constant<T>(1.0));
 
+    for(auto k = 0; k < n; ++k) {
+      x[k].expr->bind_expr(nullptr);
+    }
+
+    // Read the gradient value from gradient expressions' cached values
     g.resize(n);
     for(auto i = 0; i < n; ++i)
-        g[i] = val(x[i].gradx());
+        g[i] = val(G[i]);
 
-    Mat<U, Rows, Rows, MaxRows, MaxRows> H(n, n);
+    // Form a numeric hessian using the gradient expressions
+    using Hessian = Mat<U, Rows, Rows, MaxRows, MaxRows>;
+    Hessian H = Hessian::Zero(n, n);
     for(auto i = 0; i < n; ++i)
     {
         for(auto k = 0; k < n; ++k)
-            x[k].seed();
+            x[k].expr->bind_value(&H(i, k));
 
-        auto dydxi = x[i].gradx();
-        dydxi->propagate(1.0);
+        // Propagate a second derivative value calculation down the gradient expression tree for variable i
+        G[i].expr->propagate(1.0);
 
-        for(auto j = i; j < n; ++j)
-            H(i, j) = H(j, i) = val(x[j].grad());
+        for(auto k = 0; k < n; ++k)
+            x[k].expr->bind_value(nullptr);
     }
 
     return H;
