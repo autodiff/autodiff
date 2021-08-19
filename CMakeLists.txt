@@ -1,8 +1,8 @@
 # The minimum required cmake version
 cmake_minimum_required(VERSION 3.0)
 
-# Set the cmake module path of the project
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+# Add cmake modules of this project to the module path
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Use ccache to speed up repeated compilations
 include(CCache)
@@ -38,6 +38,7 @@ add_subdirectory(autodiff)
 
 # Build the tests
 if(AUTODIFF_BUILD_TESTS)
+    enable_testing()
     add_subdirectory(tests)
 endif()
 
@@ -58,5 +59,5 @@ if(AUTODIFF_BUILD_DOCS)
     add_subdirectory(docs)
 endif()
 
-# Install the cmake config files that permit users to use find_package(Reaktoro)
+# Install the cmake config files that permit users to use find_package(autodiff)
 include(autodiffInstallCMakeConfigFiles)
