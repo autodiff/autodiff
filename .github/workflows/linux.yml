@@ -36,7 +36,7 @@ jobs:
           conda install conda-devenv
           conda devenv
           source activate autodiff
-          cmake -S . -B .build
+          cmake -S . -B .build -DCMAKE_BUILD_TYPE=${{ env.configuration }}
       - name: Cache
         id: cache
         uses: actions/cache@v2
@@ -50,17 +50,18 @@ jobs:
           source activate autodiff
           ccache -s
           ccache -z
-          cmake --build .build --config ${{ env.configuration }} --parallel 3
+          cmake --build .build --parallel 3
           ccache -s
       - name: Install
         shell: bash -l {0}
         run: |
           source activate autodiff
-          cmake --build .build --config ${{ env.configuration }} --target install
+          cmake --build .build --target install
       - name: Tests
         shell: bash -l {0}
         run: |
           source activate autodiff
-          cmake --build .build --config ${{ env.configuration }} --target tests
+          cmake -S . -B .build -DCMAKE_BUILD_TYPE=Debug
+          cmake --build .build --target tests --parallel 3
           valgrind --tool=memcheck --leak-check=full --error-exitcode=99 .build/tests/autodiff-cpptests
 
