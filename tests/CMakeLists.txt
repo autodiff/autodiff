@@ -11,3 +11,12 @@ add_custom_target(tests
     COMMENT "Running C++ tests..."
     COMMAND $<TARGET_FILE:autodiff-cpptests>
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+if(AUTODIFF_TEST_SANITIZE)
+  include(CheckCXXCompilerFlag)
+  check_cxx_compiler_flag(-fsanitize=address HAVE_ASAN)
+  if(HAVE_ASAN)
+    target_compile_options(tests PRIVATE "-fsanitize=address")
+    target_link_options(tests PRIVATE "-fsanitize=address")
+  endif()
+endif()

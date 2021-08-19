@@ -54,7 +54,7 @@ jobs:
         shell: powershell
         run: |
           conda activate autodiff
-          cmake --build .build --config ${{ env.configuration }}
+          cmake --build .build --config ${{ env.configuration }} -DAUTODIFF_TEST_SANITIZE=ON
       - name: Install
         shell: powershell
         run: |
