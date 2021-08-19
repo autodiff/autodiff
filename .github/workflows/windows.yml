@@ -49,12 +49,12 @@ jobs:
         shell: powershell
         run: |
           conda activate autodiff
-          cmake -S . -B .build
+          cmake -S . -B .build --config ${{ env.configuration }} -DAUTODIFF_TEST_SANITIZE=ON
       - name: Build
         shell: powershell
         run: |
           conda activate autodiff
-          cmake --build .build --config ${{ env.configuration }} -DAUTODIFF_TEST_SANITIZE=ON
+          cmake --build .build --config ${{ env.configuration }}
       - name: Install
         shell: powershell
         run: |

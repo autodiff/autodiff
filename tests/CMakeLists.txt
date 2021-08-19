@@ -14,7 +14,9 @@ add_custom_target(tests
 
 if(AUTODIFF_TEST_SANITIZE)
   include(CheckCXXCompilerFlag)
+  set(CMAKE_REQUIRED_FLAGS "-fsanitize=address")  # Also needs to be a link flag for test to work
   check_cxx_compiler_flag(-fsanitize=address HAVE_ASAN)
+  unset(CMAKE_REQUIRED_FLAGS)
   if(HAVE_ASAN)
     target_compile_options(tests PRIVATE "-fsanitize=address")
     target_link_options(tests PRIVATE "-fsanitize=address")
