@@ -68,3 +68,4 @@ jobs:
         run: |
           source activate autodiff
           cmake --build .build --config ${{ env.configuration }} --target tests
+          valgrind --tool=memcheck --leak-check=full --error-exitcode=99 .build/tests/autodiff-cpptests
