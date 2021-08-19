@@ -49,7 +49,7 @@ jobs:
         shell: bash -l {0}
         run: |
           source activate autodiff
-          cmake -S . -B .build -DCMAKE_BUILD_TYPE=${{ env.configuration }}
+          cmake -S . -B .build -DCMAKE_BUILD_TYPE=${{ env.configuration }} -DAUTODIFF_TEST_SANITIZE=ON
       - name: Build
         shell: bash -l {0}
         run: |
@@ -69,4 +69,3 @@ jobs:
           source activate autodiff
           cmake -S . -B .build -DCMAKE_BUILD_TYPE=Debug
           cmake --build .build --target tests --parallel 3
-          valgrind --tool=memcheck --leak-check=full --error-exitcode=99 .build/tests/autodiff-cpptests
