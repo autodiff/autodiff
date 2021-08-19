@@ -25,4 +25,5 @@ dependencies:
   - shellcheck
   - ccache                         # [unix]
   - clcache                        # [win]
+  - valgrind                       # [unix]
   - catch2
