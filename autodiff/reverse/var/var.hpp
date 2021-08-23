@@ -749,9 +749,9 @@ struct PowExpr : BinaryExpr<T>
     {
         const auto lval = l->val;
         const auto rval = r->val;
-        const auto aux = wprime * val;
-        l->propagate(aux * rval / lval);
-        r->propagate(aux * log(lval));
+        const auto aux = wprime * pow(lval, rval - 1);
+        l->propagate(aux * rval);
+        r->propagate(aux * lval * log(lval));
     }
 
     virtual void propagatex(const ExprPtr<T>& wprime)
@@ -795,7 +795,7 @@ struct PowConstantRightExpr : BinaryExpr<T>
 
     virtual void propagate(const T& wprime)
     {
-        l->propagate(wprime * val * r->val / l->val);
+        l->propagate(wprime * pow(l->val, r->val - 1) * r->val);
     }
 
     virtual void propagatex(const ExprPtr<T>& wprime)
