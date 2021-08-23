@@ -111,4 +111,51 @@ TEST_CASE("testing autodiff::var (with eigen)", "[reverse][var][eigen]")
             else
                 CHECK( H(i, j) == Approx(val(g[j] / tan(x[i]))) );
     }
+
+    //--------------------------------------------------------------------------
+    // TESTING GRADIENT AND HESSIAN WHEN y = sum(diff(x).^2)
+    //--------------------------------------------------------------------------
+    x << 1, 1, 1, 1, 1;
+    y = (x.head(4) - x.tail(4)).array().pow(2).sum();
+    g = gradient(y, x);
+
+    CHECK( val(y) == approx(0.0) );
+    CHECK( val(g[0]) == approx( 2*x[0] - 2*x[1]) );
+    CHECK( val(g[1]) == approx(-2*x[0] + 4*x[1] - 2*x[2]) );
+    CHECK( val(g[2]) == approx(-2*x[1] + 4*x[2] - 2*x[3]) );
+    CHECK( val(g[3]) == approx(-2*x[2] + 4*x[3] - 2*x[4]) );
+    CHECK( val(g[4]) == approx(-2*x[3] + 2*x[4]) );
+
+    H = hessian(y, x, g);
+    CHECK( val(g[0]) == approx( 2*x[0] - 2*x[1]) );
+    CHECK( val(g[1]) == approx(-2*x[0] + 4*x[1] - 2*x[2]) );
+    CHECK( val(g[2]) == approx(-2*x[1] + 4*x[2] - 2*x[3]) );
+    CHECK( val(g[3]) == approx(-2*x[2] + 4*x[3] - 2*x[4]) );
+    CHECK( val(g[4]) == approx(-2*x[3] + 2*x[4]) );
+
+    CHECK( H(0, 0) == approx( 2.0) );
+    CHECK( H(0, 1) == approx(-2.0) );
+    CHECK( H(0, 2) == approx( 0.0) );
+    CHECK( H(0, 3) == approx( 0.0) );
+    CHECK( H(0, 4) == approx( 0.0) );
+    CHECK( H(1, 0) == approx(-2.0) );
+    CHECK( H(1, 1) == approx( 4.0) );
+    CHECK( H(1, 2) == approx(-2.0) );
+    CHECK( H(1, 3) == approx( 0.0) );
+    CHECK( H(1, 4) == approx( 0.0) );
+    CHECK( H(2, 0) == approx( 0.0) );
+    CHECK( H(2, 1) == approx(-2.0) );
+    CHECK( H(2, 2) == approx( 4.0) );
+    CHECK( H(2, 3) == approx(-2.0) );
+    CHECK( H(2, 4) == approx( 0.0) );
+    CHECK( H(3, 0) == approx( 0.0) );
+    CHECK( H(3, 1) == approx( 0.0) );
+    CHECK( H(3, 2) == approx(-2.0) );
+    CHECK( H(3, 3) == approx( 4.0) );
+    CHECK( H(3, 4) == approx(-2.0) );
+    CHECK( H(4, 0) == approx( 0.0) );
+    CHECK( H(4, 1) == approx( 0.0) );
+    CHECK( H(4, 2) == approx( 0.0) );
+    CHECK( H(4, 3) == approx(-2.0) );
+    CHECK( H(4, 4) == approx( 2.0) );
 }
