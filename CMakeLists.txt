@@ -38,7 +38,6 @@ add_subdirectory(autodiff)
 
 # Build the tests
 if(AUTODIFF_BUILD_TESTS)
-    enable_testing()
     add_subdirectory(tests)
 endif()
 
