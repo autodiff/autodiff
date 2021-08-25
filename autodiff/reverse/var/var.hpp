@@ -255,7 +255,6 @@ struct Expr
     virtual ~Expr() {}
 
     /// Bind a value pointer for writing the derivative during propagation
-    virtual void bind_value(T* /* grad */) {}
     /// Bind an expression pointer for writing the derivative expression during propagation
     virtual void bind_expr(ExprPtr<T>* /* gradx */) {}
 
@@ -273,15 +272,13 @@ template<typename T>
 struct VariableExpr : Expr<T>
 {
     /// The derivative value of the root expression node w.r.t. this variable.
-    T* gradPtr = {};
+    T grad = {};
 
     /// The derivative expression of the root expression node w.r.t. this variable (reusable for higher-order derivatives).
     ExprPtr<T>* gradxPtr = {};
 
     /// Construct a VariableExpr object with given value.
     VariableExpr(const T& v) : Expr<T>(v) {}
-
-    virtual void bind_value(T* grad) { gradPtr = grad; }
     virtual void bind_expr(ExprPtr<T>* gradx) { gradxPtr = gradx; }
 };
 
@@ -289,14 +286,15 @@ struct VariableExpr : Expr<T>
 template<typename T>
 struct IndependentVariableExpr : VariableExpr<T>
 {
-    using VariableExpr<T>::gradPtr;
     using VariableExpr<T>::gradxPtr;
+    using VariableExpr<T>::grad;
 
     /// Construct an IndependentVariableExpr object with given value.
     IndependentVariableExpr(const T& v) : VariableExpr<T>(v) {}
 
-    virtual void propagate(const T& wprime) {
-        if(gradPtr) { *gradPtr += wprime; }
+    virtual void propagate(const T& wprime)
+    {
+        grad += wprime;
     }
 
     virtual void propagatex(const ExprPtr<T>& wprime)
@@ -309,8 +307,8 @@ struct IndependentVariableExpr : VariableExpr<T>
 template<typename T>
 struct DependentVariableExpr : VariableExpr<T>
 {
-    using VariableExpr<T>::gradPtr;
     using VariableExpr<T>::gradxPtr;
+    using VariableExpr<T>::grad;
 
     /// The expression tree that defines how the dependent variable is calculated.
     ExprPtr<T> expr;
@@ -320,7 +318,7 @@ struct DependentVariableExpr : VariableExpr<T>
 
     virtual void propagate(const T& wprime)
     {
-        if(gradPtr) { *gradPtr += wprime; }
+        grad += wprime;
         expr->propagate(wprime);
     }
 
@@ -1064,6 +1062,16 @@ struct Variable
     /// Default copy assignment
     Variable &operator=(const Variable &) = default;
 
+    /// Return a pointer to the underlying VariableExpr object in this variable.
+    auto __variableExpr() const { return static_cast<VariableExpr<T>*>(expr.get()); }
+
+    /// Return the derivative value stored in this variable.
+    auto grad() const { return __variableExpr()->grad; }
+
+
+    /// Reeet the derivative value stored in this variable to zero.
+    auto seed() { __variableExpr()->grad = 0; }
+
     /// Implicitly convert this Variable object into an expression pointer.
     operator ExprPtr<T>() const { return expr; }
 
@@ -1272,22 +1280,26 @@ auto wrt(Args&&... args)
     return Wrt<Args&&...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
 }
 
+/// Seed each variable in the **wrt** list.
+template<typename... Vars>
+auto seed(const Wrt<Vars...>& wrt)
+{
+    constexpr static auto N = sizeof...(Vars);
+    For<N>([&](auto i) constexpr {
+        std::get<i>(wrt.args).seed();
+    });
+}
 /// Return the derivatives of a dependent variable y with respect given independent variables.
 template<typename T, typename... Vars>
 auto derivatives(const Variable<T>& y, const Wrt<Vars...>& wrt)
 {
-    constexpr auto N = sizeof...(Vars);
-    std::array<T, N> values;
-    values.fill(0.0);
-
-    For<N>([&](auto i) constexpr {
-        std::get<i>(wrt.args).expr->bind_value(&values.at(i));
-    });
-
+    seed(wrt);
     y.expr->propagate(1.0);
 
+    constexpr static auto N = sizeof...(Vars);
+    std::array<T, N> values;
     For<N>([&](auto i) constexpr {
-        std::get<i>(wrt.args).expr->bind_value(nullptr);
+        values[i.index] = std::get<i>(wrt.args).grad();
     });
 
     return values;
