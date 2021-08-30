@@ -103,16 +103,14 @@ auto gradient(const Variable<T>& y, Eigen::DenseBase<X>& x)
     constexpr auto MaxRows = X::MaxRowsAtCompileTime;
 
     const auto n = x.size();
-    using Gradient = Vec<U, Rows, MaxRows>;
-    Gradient g = Gradient::Zero(n);
-
     for(auto i = 0; i < n; ++i)
-        x[i].expr->bind_value(&g[i]);
+        x[i].seed();
 
     y.expr->propagate(1.0);
 
+    Vec<U, Rows, MaxRows> g(n);
     for(auto i = 0; i < n; ++i)
-        x[i].expr->bind_value(nullptr);
+        g[i] = val(x[i].grad());
 
     return g;
 }
@@ -161,13 +159,13 @@ auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, GradientVec& g)
     for(auto i = 0; i < n; ++i)
     {
         for(auto k = 0; k < n; ++k)
-            x[k].expr->bind_value(&H(i, k));
+            x[k].seed();
 
         // Propagate a second derivative value calculation down the gradient expression tree for variable i
         G[i].expr->propagate(1.0);
 
-        for(auto k = 0; k < n; ++k)
-            x[k].expr->bind_value(nullptr);
+        for(auto j = i; j < n; ++j)
+            H(i, j) = H(j, i) = val(x[j].grad());
     }
 
     return H;
