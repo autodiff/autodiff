@@ -36,6 +36,7 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
+#include <stdexcept>
 
 // autodiff includes
 #include <autodiff/common/meta.hpp>
@@ -134,7 +135,6 @@ struct isVariable { constexpr static bool value = false; };
 
 template<typename T>
 struct isVariable<Variable<T>> { constexpr static bool value = true; };
-
 } // namespace traits
 
 template<typename T>
@@ -1187,9 +1187,11 @@ struct ConditionalExpr : Expr<T>
     using Expr<T>::val;
     ExprPtr<T> l, r;
 
+    ConditionalExpr(const std::shared_ptr<BooleanExpr>& wrappedPred, const ExprPtr<T>& ll, const ExprPtr<T>& rr) : Expr<T>(*wrappedPred ? ll->val : rr->val), predicate(wrappedPred), l(ll), r(rr) {}
+
     template<typename Derived, EnableIf<std::is_base_of_v<BooleanExpr, Derived>>...>
-    ConditionalExpr(const Derived& pred, const ExprPtr<T>& ll, const ExprPtr<T>& rr)
-        : Expr<T>(pred ? ll->val : rr->val), predicate(pred.wrap()), l(ll), r(rr) {}
+    ConditionalExpr(const Derived& pred, const ExprPtr<T>& left, const ExprPtr<T>& right)
+        : ConditionalExpr(pred.wrap(), left, right) {}
 
     void propagate(const T& wprime) override
     {
@@ -1199,8 +1201,8 @@ struct ConditionalExpr : Expr<T>
 
     void propagatex(const ExprPtr<T>& wprime) override
     {
-        if(predicate->val) l->propagatex(wprime);
-        else r->propagatex(wprime);
+        l->propagatex(derive(wprime, constant<T>(0.0)));
+        r->propagatex(derive(constant<T>(0.0), wprime));
     }
 
     void update() override
@@ -1213,6 +1215,10 @@ struct ConditionalExpr : Expr<T>
             r->update();
             this->val = r->val;
         }
+    }
+
+    ExprPtr<T> derive(const ExprPtr<T>& left, const ExprPtr<T>& right) const {
+      return std::make_shared<ConditionalExpr>(*predicate, left, right);
     }
 };
 
@@ -1332,35 +1338,24 @@ struct Variable
     /// Update the value of this variable with changes in its expression tree
     void update() { expr->update(); }
 
+    void update(T value) {
+      if(auto independentExpr = std::dynamic_pointer_cast<IndependentVariableExpr<T>>(expr)) {
+        independentExpr->val = value;
+        independentExpr->update();
+      } else {
+        throw std::logic_error("Cannot update the value of a dependent expression stored in a variable");
+      }
+    }
+
     /// Implicitly convert this Variable object into an expression pointer.
     operator const ExprPtr<T>&() const { return expr; }
 
     /// Explicitly convert this Variable object into its underlying arithmetic type.
     explicit operator T() const { return expr->val; }
 
-    struct Overwrite { T operator()(const T& /* ignore */, const T& val) { return val; } };
-
-    template<typename U, class Op, EnableIf<isArithmetic<U>>...>
-    bool tryIndependentUpdate(const U& val, Op&& op = Op{})
-    {
-        if(auto independentExpr = std::dynamic_pointer_cast<IndependentVariableExpr<T>>(expr)) {
-            independentExpr->val = op(independentExpr->val, val);
-            independentExpr->update();
-            return true;
-        }
-
-        return false;
-    }
-
     /// Assign an arithmetic value to this variable.
     template<typename U, EnableIf<isArithmetic<U>>...>
-    auto operator=(const U& val) -> Variable&
-    {
-        if(!tryIndependentUpdate(val, Overwrite{})) {
-            *this = Variable(val);
-        }
-        return *this;
-    }
+    auto operator=(const U& val) -> Variable& { *this = Variable(val); return *this; }
 
     /// Assign an expression to this variable.
     auto operator=(const ExprPtr<T>& x) -> Variable& { *this = Variable(x); return *this; }
@@ -1371,19 +1366,11 @@ struct Variable
     Variable& operator*=(const ExprPtr<T>& x) { *this = Variable(expr * x); return *this; }
     Variable& operator/=(const ExprPtr<T>& x) { *this = Variable(expr / x); return *this; }
 
-    // Assignment operators with arithmetic values
-    template<typename U, class Op>
-    Variable& arithmeticAlteration(const U& x, Op&& op)
-    {
-        if(!tryIndependentUpdate(x, op)) {
-            *this = Variable(op(expr, x));
-        }
-        return *this;
-    }
-    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator+=(const U& x) { return arithmeticAlteration(x, std::plus<>{}); }
-    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator-=(const U& x) { return arithmeticAlteration(x, std::minus<>{}); }
-    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator*=(const U& x) { return arithmeticAlteration(x, std::multiplies<>{}); }
-    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator/=(const U& x) { return arithmeticAlteration(x, std::divides<>{}); }
+	// Assignment operators with arithmetic values
+    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator+=(const U& x) { *this = Variable(expr + x); return *this; }
+    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator-=(const U& x) { *this = Variable(expr - x); return *this; }
+    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator*=(const U& x) { *this = Variable(expr * x); return *this; }
+    template<typename U, EnableIf<isArithmetic<U>>...> Variable& operator/=(const U& x) { *this = Variable(expr / x); return *this; }
 };
 
 //------------------------------------------------------------------------------
