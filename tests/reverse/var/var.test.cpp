@@ -101,6 +101,14 @@ TEST_CASE("testing autodiff::var", "[reverse][var]")
     REQUIRE( grad(c, x) == 2*val(a) * grad(a, x) + 1 );
 
     //------------------------------------------------------------------------------
+    // TEST DERIVATIVES COMPUTATION AFTER CHANGING VAR VALUE
+    //------------------------------------------------------------------------------
+    a = 20.0; // a is now a new independent variable
+
+    REQUIRE( grad(c, a) == approx(0.0) );
+    REQUIRE( grad(c, x) == 2*val(x) + 1 );
+
+    //------------------------------------------------------------------------------
     // TEST MULTIPLICATION OPERATOR (USING CONSTANT FACTOR)
     //------------------------------------------------------------------------------
     c = -2*a;
@@ -462,12 +470,12 @@ TEST_CASE("testing autodiff::var", "[reverse][var]")
     REQUIRE( condition(x > 0, x * x, x * x * x) == 4 );
     REQUIRE( grad(condition(x > 0, x * x, x * x * x), x) == approx(2 * val(x)) );
 
-    x = -2.0;
+    x.update(-2.0);
     var conditional = condition(x > 0, x * x, x * x * x);
     REQUIRE( conditional == -8 );
     REQUIRE( grad(conditional, x) == approx(3 * val(x) * val(x)) );
 
-    x = 3.0;
+    x.update(3.0);
     conditional.update();
     REQUIRE( x == 3.0 );
     REQUIRE( conditional == 9 );
@@ -476,10 +484,10 @@ TEST_CASE("testing autodiff::var", "[reverse][var]")
     // Conjunction of conditions
     var square = condition(0 <= x && x <= 1, 1.0, 0.0);
     REQUIRE( square == 0.0 );
-    x = 0.5;
+    x.update(0.5);
     square.update();
     REQUIRE( square == 1.0 );
-    x = -1.0;
+    x.update(-1.0);
     square.update();
     REQUIRE( square == 0.0 );
 
