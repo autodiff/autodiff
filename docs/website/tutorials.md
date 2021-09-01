@@ -39,6 +39,10 @@ suggestions on how to better demonstrate the capabilities of {{autodiff}}.
 
 {{ inputcpp('examples/forward/example-forward-jacobian-derivatives-using-eigen-with-parameters.cpp') }}
 
+### Jacobian matrix of a vector function using memory maps
+
+{{ inputcpp('examples/forward/example-forward-jacobian-derivatives-using-eigen-map.cpp') }}
+
 ### Higher-order cross derivatives of a scalar function
 
 {{ inputcpp('examples/forward/example-forward-higher-order-cross-derivatives.cpp') }}

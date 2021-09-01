@@ -27,6 +27,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <exception>
+
 // autodiff includes
 #include <autodiff/forward/dual.hpp>
 #include <autodiff/forward/dual/eigen.hpp>
@@ -35,10 +37,10 @@
 #include <tests/utils/catch.hpp>
 using namespace autodiff;
 
-
 #define CHECK_GRADIENT(type, expr) \
 { \
-    /* Define vector x */ \
+    /* Define vector x and y */ \
+    double y[5]; \
     ArrayX##type x(5); \
     x << 2.0, 3.0, 5.0, 7.0, 9.0; \
     /* Define functions f(x) = expr/expr - 1 == 0 and g(x) = expr */ \
@@ -47,12 +49,21 @@ using namespace autodiff;
     g = [](const ArrayX##type& x) -> type { return expr; }; \
     /* Auxiliary vectors dfdx, dgdx, dgdw where w is a vector with a combination of x entries */ \
     Eigen::VectorXd dfdx, dgdx, dgdw; \
+    Eigen::Map<Eigen::VectorXd> map_5(y, 5); \
     /* Compute dfdx which is identical to zero by construction */ \
     dfdx = gradient(f, wrt(x), at(x)); \
     CHECK( dfdx.size() == 5 ); \
     CHECK( dfdx.squaredNorm() == approx(0.0) ); \
     /* Compute dgdx to be used as reference when checking againts dgdw below for different orderings of x entries in w */ \
     dgdx = gradient(g, wrt(x), at(x)); \
+    /* Compute gradient using pre-allocated storage. */ \
+    type u; \
+    gradient(g, wrt(x), at(x), u, map_5); \
+    CHECK( y[0] == approx(dgdx[0]) ); \
+    CHECK( y[1] == approx(dgdx[1]) ); \
+    CHECK( y[2] == approx(dgdx[2]) ); \
+    CHECK( y[3] == approx(dgdx[3]) ); \
+    CHECK( y[4] == approx(dgdx[4]) ); \
     /* Compute dgdw where w = (x1, x2, x3, x4, x0) */ \
     dgdw = gradient(g, wrt(x.tail(4), x[0]), at(x)); \
     CHECK( dgdw.size() == 5 ); \
@@ -88,7 +99,8 @@ using namespace autodiff;
 
 #define CHECK_HESSIAN(type, expr) \
 { \
-    /* Define vector x */ \
+    /* Define vector x and matrix y */ \
+    double y[25]; \
     ArrayX##type x(5); \
     x << 2.0, 3.0, 5.0, 7.0, 9.0; \
     /* Define functions f(x) = expr/expr - 1 == 0 and g(x) = expr */ \
@@ -97,6 +109,7 @@ using namespace autodiff;
     g = [](const ArrayX##type& x) -> type { return expr; }; \
     /* Auxiliary matrices fxx, gxx, gww where w is a vector with a combination of x entries */ \
     Eigen::MatrixXd fxx, gxx, gww; \
+    Eigen::Map<Eigen::MatrixXd> map_5x5(y, 5, 5); \
     /* The indices of the x variables in the w vector */ \
     std::vector<size_t> iw; \
     /* Compute fxx which is identical to zero by construction */ \
@@ -106,6 +119,13 @@ using namespace autodiff;
     CHECK( fxx.squaredNorm() == approx(0.0) ); \
     /* Compute gxx to be used as reference when checking againts gww below for different orderings of x entries in w */ \
     gxx = hessian(g, wrt(x), at(x)); \
+    /* Compute hessian using pre-allocated storage */ \
+    type u; \
+    VectorXd grad; \
+    hessian(g, wrt(x), at(x), u, grad, map_5x5); \
+    for(size_t i = 0; i < gxx.rows(); ++i) \
+        for(size_t j = 0; j < gxx.cols(); ++j) \
+            CHECK( gxx(i, j) == approx(map_5x5(i, j)) ); \
     /* Compute gww where w = (x1, x2, x3, x4, x0) */ \
     gww = hessian(g, wrt(x.tail(4), x[0]), at(x)); \
     iw = {1, 2, 3, 4, 0}; \
@@ -142,7 +162,8 @@ using namespace autodiff;
 
 #define CHECK_JACOBIAN(type, expr) \
 { \
-    /* Define vector x */ \
+    /* Define vector x and matrix y */ \
+    double y[25]; \
     ArrayX##type x(5); \
     x << 2.0, 3.0, 5.0, 7.0, 9.0; \
     /* Define functions f(x) = expr/expr - 1 == 0 and g(x) = expr */ \
@@ -151,6 +172,8 @@ using namespace autodiff;
     g = [](const ArrayX##type& x) -> ArrayX##type { return expr; }; \
     /* Auxiliary matrices dfdx, dgdx, dgdw where w is a vector with a combination of x entries */ \
     Eigen::MatrixXd dfdx, dgdx, dgdw; \
+    Eigen::Map<Eigen::MatrixXd> map_5x5(y, 5, 5); \
+    Eigen::Map<Eigen::MatrixXd> map_5x3(y, 5, 3); \
     /* Compute dfdx which is identical to zero by construction */ \
     dfdx = jacobian(f, wrt(x), at(x)); \
     CHECK( dfdx.rows() == 5 ); \
@@ -158,6 +181,19 @@ using namespace autodiff;
     CHECK( dfdx.squaredNorm() == approx(0.0) ); \
     /* Compute dgdx to be used as reference when checking againts dgdw below for different orderings of x entries in w */ \
     dgdx = jacobian(g, wrt(x), at(x)); \
+    /* Compute square jacobian using pre-allocated storage */ \
+    VectorX##type Gval; \
+    jacobian(g, wrt(x), at(x), Gval, map_5x5); \
+    CHECK( dgdx.col(0).isApprox(map_5x5.col(0)) ); \
+    CHECK( dgdx.col(1).isApprox(map_5x5.col(1)) ); \
+    CHECK( dgdx.col(2).isApprox(map_5x5.col(2)) ); \
+    CHECK( dgdx.col(3).isApprox(map_5x5.col(3)) ); \
+    CHECK( dgdx.col(4).isApprox(map_5x5.col(4)) ); \
+    /* Compute rectangular jacobian using pre-allocated storage */ \
+    jacobian(g, wrt(x[0], x[1], x[2]), at(x), Gval, map_5x3); \
+    CHECK( dgdx.col(0).isApprox(map_5x3.col(0)) ); \
+    CHECK( dgdx.col(1).isApprox(map_5x3.col(1)) ); \
+    CHECK( dgdx.col(2).isApprox(map_5x3.col(2)) ); \
     /* Compute dgdw where w = (x1, x2, x3, x4, x0) */ \
     dgdw = jacobian(g, wrt(x.tail(4), x[0]), at(x)); \
     CHECK( dgdw.rows() == 5 ); \
