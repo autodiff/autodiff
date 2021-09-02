@@ -1084,118 +1084,52 @@ struct Hypot3Expr : TernaryExpr<T>
 // Any expression yielding a boolean depending on arithmetic subexpressions
 struct BooleanExpr
 {
-    template<typename Comparator>
-    struct Negate {
-      template<typename T>
-      bool operator () (const T& a, const T& b) const {
-        return !(Comparator {}(a, b));
-      }
-    };
-
+    std::function<bool()> expr;
     bool val = {};
 
-    explicit BooleanExpr(bool v) : val(v) {}
+    explicit BooleanExpr(std::function<bool()> expression) : expr(std::move(expression)) { update(); }
     operator bool() const { return val; }
 
-    virtual void update() = 0;
-    virtual std::shared_ptr<BooleanExpr> clone() const = 0;
+    void update() { val = expr(); }
+
+    auto operator! () const { return BooleanExpr([=]() { return !(expr()); }); }
 };
 
 /// Capture numeric comparison between two expression trees
 template<typename T, typename Comparator>
-struct ExpressionComparison : public BooleanExpr
-{
-    ExprPtr<T> l;
-    ExprPtr<T> r;
-    Comparator comparator;
-
-    explicit ExpressionComparison(const ExprPtr<T>& ll, const ExprPtr<T>& rr, Comparator&& compare)
-        : BooleanExpr(compare(ll->val, rr->val)), l(ll), r(rr), comparator(compare) {}
-
-    void update() override
-    {
+auto expr_comparison(const ExprPtr<T>& l, const ExprPtr<T>& r, Comparator&& compare) {
+    return BooleanExpr([=]() mutable -> bool {
         l->update();
         r->update();
-        val = comparator(l->val, r->val);
-    }
+        return compare(l->val, r->val);
+    });
+}
 
-    std::shared_ptr<BooleanExpr> clone() const override { return std::make_shared<ExpressionComparison>(*this); }
+template<typename Op> auto bool_expr_op(BooleanExpr& l, BooleanExpr& r, Op op) {
+    return BooleanExpr([=]() mutable -> bool {
+        l.update();
+        r.update();
+        return op(l, r);
+    });
+}
 
-    auto operator! () const { return ExpressionComparison<T, Negate<Comparator>>(l, r, Negate<Comparator> {}); }
-};
-
-// CTAD for ExpressionComparison
-template<typename T, typename Comparator>
-ExpressionComparison(const ExprPtr<T>&, const ExprPtr<T>&, Comparator&&) -> ExpressionComparison<T, Comparator>;
-
-/// Capture boolean operations between boolean expressions
-template<typename Operation>
-struct BooleanOperation : public BooleanExpr
-{
-    std::shared_ptr<BooleanExpr> l;
-    std::shared_ptr<BooleanExpr> r;
-    Operation op;
-
-    template<typename Left, typename Right>
-    explicit BooleanOperation(const Left& left, const Right& right, Operation operation)
-      : BooleanExpr(operation(left.val, right.val)), l(left.clone()), r(right.clone()), op(operation)
-    {
-        static_assert(std::is_base_of_v<BooleanExpr, Left>, "Left hand of boolean operation is not a boolean expression");
-        static_assert(std::is_base_of_v<BooleanExpr, Right>, "Right hand of boolean operation is not a boolean expression");
-    }
-
-    void update() override
-    {
-        l->update();
-        r->update();
-        val = op(l->val, r->val);
-    }
-
-    std::shared_ptr<BooleanExpr> clone() const override { return std::make_shared<BooleanOperation>(*this); }
-
-    auto operator! () const { return BooleanOperation<Negate<Operation>>(*l, *r, Negate<Operation> {}); }
-};
-
-/// Capture a reference to an expression-external boolean
-struct BooleanReference : public BooleanExpr
-{
-  const bool& ref;
-
-  explicit BooleanReference(const bool& value) : BooleanExpr(value), ref(value) {}
-
-  void update() override { val = ref; }
-
-  std::shared_ptr<BooleanExpr> clone() const override { return std::make_shared<BooleanReference>(*this); }
-};
-
-// CTAD for BooleanOperation
-template<typename Left, typename Right, typename Operation>
-BooleanOperation(Left, Right, Operation) -> BooleanOperation<Operation>;
-
-// Operators for boolean expressions
-template<typename Left, typename Right, EnableIf<std::is_base_of_v<BooleanExpr, Left> && std::is_base_of_v<BooleanExpr, Right>>...>
-auto operator && (const Left& l, const Right& r) { return BooleanOperation(l, r, std::logical_and<> {}); }
-template<typename Left, typename Right, EnableIf<std::is_base_of_v<BooleanExpr, Left> && std::is_base_of_v<BooleanExpr, Right>>...>
-auto operator || (const Left& l, const Right& r) { return BooleanOperation(l, r, std::logical_or<> {}); }
+inline auto operator && (BooleanExpr&& l, BooleanExpr&& r) { return bool_expr_op(l, r, std::logical_and<> {}); }
+inline auto operator || (BooleanExpr&& l, BooleanExpr&& r) { return bool_expr_op(l, r, std::logical_or<> {}); }
 
 /// Select between expression branches depending on a boolean expression
 template<typename T>
 struct ConditionalExpr : Expr<T>
 {
     // Using declarations for data members of base class
-    std::shared_ptr<BooleanExpr> predicate;
+    BooleanExpr predicate;
     using Expr<T>::val;
     ExprPtr<T> l, r;
 
-    ConditionalExpr(const std::shared_ptr<BooleanExpr>& wrappedPred, const ExprPtr<T>& ll, const ExprPtr<T>& rr) : Expr<T>(*wrappedPred ? ll->val : rr->val), predicate(wrappedPred), l(ll), r(rr) {}
-
-    template<typename Derived, EnableIf<std::is_base_of_v<BooleanExpr, Derived>>...>
-    ConditionalExpr(const Derived& pred, const ExprPtr<T>& left, const ExprPtr<T>& right)
-        : ConditionalExpr(pred.clone(), left, right) {}
+    ConditionalExpr(const BooleanExpr& wrappedPred, const ExprPtr<T>& ll, const ExprPtr<T>& rr) : Expr<T>(wrappedPred ? ll->val : rr->val), predicate(wrappedPred), l(ll), r(rr) {}
 
     void propagate(const T& wprime) override
     {
-        if(predicate->val) l->propagate(wprime);
+        if(predicate.val) l->propagate(wprime);
         else r->propagate(wprime);
     }
 
@@ -1207,8 +1141,8 @@ struct ConditionalExpr : Expr<T>
 
     void update() override
     {
-        predicate->update();
-        if(predicate->val) {
+        predicate.update();
+        if(predicate.val) {
             l->update();
             this->val = l->val;
         } else {
@@ -1218,7 +1152,7 @@ struct ConditionalExpr : Expr<T>
     }
 
     ExprPtr<T> derive(const ExprPtr<T>& left, const ExprPtr<T>& right) const {
-      return std::make_shared<ConditionalExpr>(*predicate, left, right);
+      return std::make_shared<ConditionalExpr>(predicate, left, right);
     }
 };
 
@@ -1404,8 +1338,8 @@ template<typename T, typename U> constexpr bool is_binary_expr_v = is_binary_exp
 
 template<typename Comparator, typename T, typename U>
 auto comparison_operator(const T& t, const U& u) {
-  using C = expr_common_t<T, U>;
-  return ExpressionComparison(coerce_expr<C>(t), coerce_expr<C>(u), Comparator {});
+    using C = expr_common_t<T, U>;
+    return expr_comparison(coerce_expr<C>(t), coerce_expr<C>(u), Comparator {});
 }
 
 template<typename T, typename U, EnableIf<is_binary_expr_v<T, U>>...>
@@ -1425,10 +1359,10 @@ auto operator > (const T& t, const U& u) { return comparison_operator<std::great
 // CONDITION
 //------------------------------------------------------------------------------
 
-template<typename MaybeBooleanExpr, typename T, typename U, EnableIf<std::is_base_of_v<BooleanExpr, MaybeBooleanExpr> && is_expr_v<T> && is_expr_v<U>>...>
-auto condition(const MaybeBooleanExpr& p, const T& t, const U& u) {
+template<typename T, typename U, EnableIf<is_expr_v<T> && is_expr_v<U>>...>
+auto condition(BooleanExpr&& p, const T& t, const U& u) {
   using C = expr_common_t<T, U>;
-  ExprPtr<C> expr = std::make_shared<ConditionalExpr<C>>(p, coerce_expr<C>(t), coerce_expr<C>(u));
+  ExprPtr<C> expr = std::make_shared<ConditionalExpr<C>>(std::forward<BooleanExpr>(p), coerce_expr<C>(t), coerce_expr<C>(u));
   return expr;
 }
 
@@ -1654,6 +1588,6 @@ using detail::val;
 
 using var = Variable<double>;
 
-inline detail::BooleanReference boolref(const bool& v) { return detail::BooleanReference(v); }
+inline detail::BooleanExpr boolref(const bool& v) { return detail::BooleanExpr([&]() { return v; }); }
 
 } // namespace autodiff
