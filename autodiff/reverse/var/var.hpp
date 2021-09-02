@@ -1098,7 +1098,7 @@ struct BooleanExpr
     operator bool() const { return val; }
 
     virtual void update() = 0;
-    virtual std::shared_ptr<BooleanExpr> wrap() const = 0;
+    virtual std::shared_ptr<BooleanExpr> clone() const = 0;
 };
 
 /// Capture numeric comparison between two expression trees
@@ -1119,7 +1119,7 @@ struct ExpressionComparison : public BooleanExpr
         val = comparator(l->val, r->val);
     }
 
-    std::shared_ptr<BooleanExpr> wrap() const override { return std::make_shared<ExpressionComparison>(*this); }
+    std::shared_ptr<BooleanExpr> clone() const override { return std::make_shared<ExpressionComparison>(*this); }
 
     auto operator! () const { return ExpressionComparison<T, Negate<Comparator>>(l, r, Negate<Comparator> {}); }
 };
@@ -1138,7 +1138,7 @@ struct BooleanOperation : public BooleanExpr
 
     template<typename Left, typename Right>
     explicit BooleanOperation(const Left& left, const Right& right, Operation operation)
-      : BooleanExpr(operation(left.val, right.val)), l(left.wrap()), r(right.wrap()), op(operation)
+      : BooleanExpr(operation(left.val, right.val)), l(left.clone()), r(right.clone()), op(operation)
     {
         static_assert(std::is_base_of_v<BooleanExpr, Left>, "Left hand of boolean operation is not a boolean expression");
         static_assert(std::is_base_of_v<BooleanExpr, Right>, "Right hand of boolean operation is not a boolean expression");
@@ -1151,7 +1151,7 @@ struct BooleanOperation : public BooleanExpr
         val = op(l->val, r->val);
     }
 
-    std::shared_ptr<BooleanExpr> wrap() const override { return std::make_shared<BooleanOperation>(*this); }
+    std::shared_ptr<BooleanExpr> clone() const override { return std::make_shared<BooleanOperation>(*this); }
 
     auto operator! () const { return BooleanOperation<Negate<Operation>>(*l, *r, Negate<Operation> {}); }
 };
@@ -1165,7 +1165,7 @@ struct BooleanReference : public BooleanExpr
 
   void update() override { val = ref; }
 
-  std::shared_ptr<BooleanExpr> wrap() const override { return std::make_shared<BooleanReference>(*this); }
+  std::shared_ptr<BooleanExpr> clone() const override { return std::make_shared<BooleanReference>(*this); }
 };
 
 // CTAD for BooleanOperation
@@ -1191,7 +1191,7 @@ struct ConditionalExpr : Expr<T>
 
     template<typename Derived, EnableIf<std::is_base_of_v<BooleanExpr, Derived>>...>
     ConditionalExpr(const Derived& pred, const ExprPtr<T>& left, const ExprPtr<T>& right)
-        : ConditionalExpr(pred.wrap(), left, right) {}
+        : ConditionalExpr(pred.clone(), left, right) {}
 
     void propagate(const T& wprime) override
     {
@@ -1377,27 +1377,25 @@ struct Variable
 // EXPRESSION TRAITS
 //------------------------------------------------------------------------------
 
-struct ExprValue {
-  template<typename T, EnableIf<isArithmetic<T>>...> static auto value(const T& t) { return t; }
-  template<typename T> static auto value(const ExprPtr<T>& t) { return t->val; }
-  template<typename T> static auto value(const Variable<T>& t) { return t.expr->val; }
-};
+template<typename T, EnableIf<isArithmetic<T>>...> T expr_value(const T& t) { return t; }
+template<typename T> T expr_value(const ExprPtr<T>& t) { return t->val; }
+template<typename T> T expr_value(const Variable<T>& t) { return t.expr->val; }
 
 template<typename T, typename U>
-using expr_common_t = std::common_type_t<decltype(ExprValue::value(std::declval<T>())), decltype(ExprValue::value(std::declval<U>()))>;
+using expr_common_t = std::common_type_t<decltype(expr_value(std::declval<T>())), decltype(expr_value(std::declval<U>()))>;
 
 template<class> struct sfinae_true : std::true_type {};
-template<typename T> static auto is_expr_test(int) -> sfinae_true<decltype(ExprValue::value(std::declval<T>()))>;
+template<typename T> static auto is_expr_test(int) -> sfinae_true<decltype(expr_value(std::declval<T>()))>;
 template<typename T> static auto is_expr_test(long) -> std::false_type;
 template<typename T> struct is_expr : decltype(is_expr_test<T>(0)) {};
 template<typename T> constexpr bool is_expr_v = is_expr<T>::value;
 
-template<typename T>
-struct CoerceExpr {
-  template<typename U, EnableIf<isArithmetic<U>>...> static ExprPtr<T> coerce(const U& u) { return constant<T>(u); }
-  static ExprPtr<T> coerce(const ExprPtr<T>& t) { return t; }
-  static ExprPtr<T> coerce(const Variable<T>& t) { return t.expr; }
-};
+template<typename T, typename U, EnableIf<isArithmetic<U>>...> ExprPtr<T> coerce_expr(const U& u) { return constant<T>(u); }
+template<typename T> ExprPtr<T> coerce_expr(const ExprPtr<T>& t) { return t; }
+template<typename T> ExprPtr<T> coerce_expr(const Variable<T>& t) { return t.expr; }
+
+template<typename T, typename U> struct is_binary_expr : std::conditional_t<!(isArithmetic<T> && isArithmetic<U>) && is_expr_v<T> && is_expr_v<U>, std::true_type, std::false_type> {};
+template<typename T, typename U> constexpr bool is_binary_expr_v = is_binary_expr<T, U>::value;
 
 
 //------------------------------------------------------------------------------
@@ -1407,20 +1405,20 @@ struct CoerceExpr {
 template<typename Comparator, typename T, typename U>
 auto comparison_operator(const T& t, const U& u) {
   using C = expr_common_t<T, U>;
-  return ExpressionComparison(CoerceExpr<C>::coerce(t), CoerceExpr<C>::coerce(u), Comparator {});
+  return ExpressionComparison(coerce_expr<C>(t), coerce_expr<C>(u), Comparator {});
 }
 
-template<typename T, typename U, EnableIf<!(isArithmetic<T> && isArithmetic<U>) && is_expr_v<T> && is_expr_v<U>>...>
+template<typename T, typename U, EnableIf<is_binary_expr_v<T, U>>...>
 auto operator == (const T& t, const U& u) { return comparison_operator<std::equal_to<>>(t, u); }
-template<typename T, typename U, EnableIf<!(isArithmetic<T> && isArithmetic<U>) && is_expr_v<T> && is_expr_v<U>>...>
+template<typename T, typename U, EnableIf<is_binary_expr_v<T, U>>...>
 auto operator != (const T& t, const U& u) { return comparison_operator<std::not_equal_to<>>(t, u); }
-template<typename T, typename U, EnableIf<!(isArithmetic<T> && isArithmetic<U>) && is_expr_v<T> && is_expr_v<U>>...>
+template<typename T, typename U, EnableIf<is_binary_expr_v<T, U>>...>
 auto operator <= (const T& t, const U& u) { return comparison_operator<std::less_equal<>>(t, u); }
-template<typename T, typename U, EnableIf<!(isArithmetic<T> && isArithmetic<U>) && is_expr_v<T> && is_expr_v<U>>...>
+template<typename T, typename U, EnableIf<is_binary_expr_v<T, U>>...>
 auto operator >= (const T& t, const U& u) { return comparison_operator<std::greater_equal<>>(t, u); }
-template<typename T, typename U, EnableIf<!(isArithmetic<T> && isArithmetic<U>) && is_expr_v<T> && is_expr_v<U>>...>
+template<typename T, typename U, EnableIf<is_binary_expr_v<T, U>>...>
 auto operator < (const T& t, const U& u) { return comparison_operator<std::less<>>(t, u); }
-template<typename T, typename U, EnableIf<!(isArithmetic<T> && isArithmetic<U>) && is_expr_v<T> && is_expr_v<U>>...>
+template<typename T, typename U, EnableIf<is_binary_expr_v<T, U>>...>
 auto operator > (const T& t, const U& u) { return comparison_operator<std::greater<>>(t, u); }
 
 //------------------------------------------------------------------------------
@@ -1430,22 +1428,15 @@ auto operator > (const T& t, const U& u) { return comparison_operator<std::great
 template<typename MaybeBooleanExpr, typename T, typename U, EnableIf<std::is_base_of_v<BooleanExpr, MaybeBooleanExpr> && is_expr_v<T> && is_expr_v<U>>...>
 auto condition(const MaybeBooleanExpr& p, const T& t, const U& u) {
   using C = expr_common_t<T, U>;
-  ExprPtr<C> expr = std::make_shared<ConditionalExpr<C>>(p, CoerceExpr<C>::coerce(t), CoerceExpr<C>::coerce(u));
+  ExprPtr<C> expr = std::make_shared<ConditionalExpr<C>>(p, coerce_expr<C>(t), coerce_expr<C>(u));
   return expr;
 }
 
 //------------------------------------------------------------------------------
 // MIN/MAX
 //------------------------------------------------------------------------------
-template<typename T, typename U, EnableIf<!(isArithmetic<T> && isArithmetic<U>) && is_expr_v<T> && is_expr_v<U>>...>
-auto min(const T& x, const U& y) {
-  return condition(x < y, x, y);
-}
-
-template<typename T, typename U, EnableIf<!(isArithmetic<T> && isArithmetic<U>) && is_expr_v<T> && is_expr_v<U>>...>
-auto max(const T& x, const U& y) {
-  return condition(x > y, x, y);
-}
+template<typename T, typename U, EnableIf<is_binary_expr_v<T, U>>...> auto min(const T& x, const U& y) { return condition(x < y, x, y); }
+template<typename T, typename U, EnableIf<is_binary_expr_v<T, U>>...> auto max(const T& x, const U& y) { return condition(x > y, x, y); }
 
 //------------------------------------------------------------------------------
 // ARITHMETIC OPERATORS (DEFINED FOR ARGUMENTS OF TYPE Variable)
@@ -1542,7 +1533,7 @@ template<typename T> ExprPtr<T> imag(const Variable<T>& x) { return imag(x.expr)
 template<typename T> ExprPtr<T> erf(const Variable<T>& x) { return erf(x.expr); }
 
 template<typename T, EnableIf<is_expr_v<T>>...>
-auto val(const T& t) { return ExprValue::value(t); }
+auto val(const T& t) { return expr_value(t); }
 
 /// Return the derivatives of a variable y with respect to all independent variables.
 template<typename T>
