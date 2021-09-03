@@ -275,7 +275,7 @@ struct IndependentVariableExpr : VariableExpr<T>
     /// Construct an IndependentVariableExpr object with given value.
     IndependentVariableExpr(const T& v) : VariableExpr<T>(v) {}
 
-    virtual void propagate(const T& wprime) {
+    void propagate(const T& wprime) override {
         if(gradPtr) { *gradPtr += wprime; }
     }
 
@@ -1356,7 +1356,7 @@ template<typename T, typename U, EnableIf<is_binary_expr_v<T, U>>...>
 auto operator > (const T& t, const U& u) { return comparison_operator<std::greater<>>(t, u); }
 
 //------------------------------------------------------------------------------
-// CONDITION
+// CONDITION AND RELATED FUNCTIONS
 //------------------------------------------------------------------------------
 
 template<typename T, typename U, EnableIf<is_expr_v<T> && is_expr_v<U>>...>
@@ -1366,11 +1366,10 @@ auto condition(BooleanExpr&& p, const T& t, const U& u) {
   return expr;
 }
 
-//------------------------------------------------------------------------------
-// MIN/MAX
-//------------------------------------------------------------------------------
 template<typename T, typename U, EnableIf<is_binary_expr_v<T, U>>...> auto min(const T& x, const U& y) { return condition(x < y, x, y); }
 template<typename T, typename U, EnableIf<is_binary_expr_v<T, U>>...> auto max(const T& x, const U& y) { return condition(x > y, x, y); }
+template<typename T> ExprPtr<T> sgn(const ExprPtr<T>& x) { return condition(x < 0, -1.0, condition(x > 0, 1.0, 0.0)); }
+template<typename T> ExprPtr<T> sgn(const Variable<T>& x) { return condition(x.expr < 0, -1.0, condition(x.expr > 0, 1.0, 0.0)); }
 
 //------------------------------------------------------------------------------
 // ARITHMETIC OPERATORS (DEFINED FOR ARGUMENTS OF TYPE Variable)

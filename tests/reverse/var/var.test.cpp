@@ -491,12 +491,42 @@ TEST_CASE("testing autodiff::var", "[reverse][var]")
     square.update();
     REQUIRE( square == 0.0 );
 
+    // boolref
     bool arbitraryCondition = true;
     conditional = condition(autodiff::boolref(arbitraryCondition), 1.0, 0.0);
     REQUIRE( conditional == 1.0 );
     arbitraryCondition = false;
     conditional.update();
     REQUIRE( conditional == 0.0 );
+
+    // min/max/sgn
+    x = 1.0;
+    y = 2.0;
+    conditional = min(x, y);
+    REQUIRE(conditional == 1.0);
+    conditional = max(x, y);
+    REQUIRE(conditional == 2.0);
+    conditional = sgn(x);
+    REQUIRE(conditional == 1.0);
+
+    x.update(-1);
+    conditional.update();
+    REQUIRE(conditional == -1.0);
+
+    x.update(0);
+    conditional.update();
+    REQUIRE(conditional == 0.0);
+
+    // Gradients of conditional functions with updating
+    x = 1;
+    y = 2;
+    conditional = condition(x < y, x * y, x * x);
+    REQUIRE(grad(conditional, x) == approx(val(y)));
+    REQUIRE(grad(conditional, y) == approx(val(x)));
+    x.update(3.0);
+    conditional.update();
+    REQUIRE(grad(conditional, x) == approx(2 * val(x)));
+    REQUIRE(grad(conditional, y) == approx(0.0));
 
     //--------------------------------------------------------------------------
     // TEST OTHER FUNCTIONS

@@ -69,6 +69,10 @@ suggestions on how to better demonstrate the capabilities of {{autodiff}}.
 
 {{ inputcpp('examples/reverse/example-reverse-multi-variable-function.cpp') }}
 
+### Multi-variable function with conditional
+
+{{ inputcpp('examples/reverse/example-reverse-conditional.cpp') }}
+
 ### Multi-variable function with parameters
 
 {{ inputcpp('examples/reverse/example-reverse-multi-variable-function-with-parameters.cpp') }}
