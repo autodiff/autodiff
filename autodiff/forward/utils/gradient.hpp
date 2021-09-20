@@ -127,7 +127,7 @@ void jacobian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Y& F
 
     ForEachWrtVar(wrt, [&](auto&& i, auto&& xi) constexpr {
         F = eval(f, at, detail::wrt(xi)); // evaluate F with xi seeded so that dF/dxi is also computed
-        if(m == 0) { m = F.rows(); J.resize(m, n); };
+        if(m == 0) { m = F.size(); J.resize(m, n); };
         for(size_t row = 0; row < m; ++row)
             J(row, i) = derivative<1>(F[row]);
     });
