@@ -47,7 +47,7 @@ template<typename V>
 struct VectorReplaceValueTypeNotSupportedFor {};
 
 /// A vector traits to be defined for each autodiff number.
-template<typename V>
+template<typename V, class Enable = void>
 struct VectorTraits
 {
     /// The value type of each entry in the vector.
