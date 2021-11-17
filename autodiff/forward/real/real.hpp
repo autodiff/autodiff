@@ -95,6 +95,11 @@ public:
         return m_data[0];
     }
 
+    operator T() const
+    {
+        return (T)m_data[0];
+    }
+
     constexpr auto operator[](size_t i) -> T&
     {
         return m_data[i];
