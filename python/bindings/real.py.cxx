@@ -67,6 +67,11 @@ void exportReal(py::module& m, const char* typestr)
         return repr(self);
     };
 
+    auto __float__ = [](const Real<N, T>& self)
+    {
+        return self[0];
+    };
+
     auto cls = py::class_<Real<N, T>>(m, typestr)
         .def(py::init<>())
         .def(py::init<const T&>())
@@ -76,6 +81,7 @@ void exportReal(py::module& m, const char* typestr)
         .def("__setitem__", __setitem__)
         .def("__str__", __str__)
         .def("__repr__", __repr__)
+        .def("__float__", __float__)
 
         .def(-py::self)
 

@@ -56,6 +56,11 @@ void exportDual(py::module& m, const char* typestr)
         return repr(self);
     };
 
+    auto __float__ = [](const Dual<T, G>& self)
+    {
+        return autodiff::val(self);
+    };
+
     using U = autodiff::detail::NumericType<T>;
 
     auto cls = py::class_<Dual<T, G>>(m, typestr)
@@ -64,6 +69,7 @@ void exportDual(py::module& m, const char* typestr)
         .def(py::init<const Dual<T, G>&>())
         .def("__str__", __str__)
         .def("__repr__", __repr__)
+        .def("__float__", __float__)
 
         .def(-py::self)
 
