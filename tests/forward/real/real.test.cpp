@@ -267,8 +267,16 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
 
     CHECK_4TH_ORDER_REAL_NUMBERS(y, z);
 
+    //=====================================================================================================================
+    //
+    // TESTING INVERSE TRIGONOMETRIC FUNCTIONS
+    //
+    //=====================================================================================================================
+
+    real4th xprime = {{ x[1], x[2], x[3], x[4] }};
+
     y = asin(x);
-    z = 1/sqrt(1 - x*x);
+    z = xprime/sqrt(1 - x*x);
 
     CHECK_APPROX( y[0], asin(x[0]) );
     CHECK_APPROX( y[1], z[0] );
@@ -277,7 +285,7 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_APPROX( y[4], z[3] );
 
     y = acos(x);
-    z = -1/sqrt(1 - x*x);
+    z = -xprime/sqrt(1 - x*x);
 
     CHECK_APPROX( y[0], acos(x[0]) );
     CHECK_APPROX( y[1], z[0] );
@@ -286,7 +294,7 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_APPROX( y[4], z[3] );
 
     y = atan(x);
-    z = 1/(1 + x*x);
+    z = xprime/(1 + x*x);
 
     CHECK_APPROX( y[0], atan(x[0]) );
     CHECK_APPROX( y[1], z[0] );
