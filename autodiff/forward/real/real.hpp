@@ -602,8 +602,12 @@ constexpr auto asin(const Real<N, T>& x)
     if constexpr (N > 0)
     {
         assert(x[0] < 1.0 && "autodiff::asin(x) has undefined derivative when |x| >= 1");
+        Real<N - 1, T> xprime;
+        For<1, N + 1>([&](auto i) constexpr {
+            xprime[i - 1] = x[i];
+        });
         Real<N - 1, T> aux(x);
-        aux = 1/sqrt(1 - aux*aux);
+        aux = xprime/sqrt(1 - aux*aux);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
         });
@@ -619,8 +623,12 @@ constexpr auto acos(const Real<N, T>& x)
     if constexpr (N > 0)
     {
         assert(x[0] < 1.0 && "autodiff::acos(x) has undefined derivative when |x| >= 1");
+        Real<N - 1, T> xprime;
+        For<1, N + 1>([&](auto i) constexpr {
+            xprime[i - 1] = x[i];
+        });
         Real<N - 1, T> aux(x);
-        aux = -1/sqrt(1 - aux*aux);
+        aux = -xprime/sqrt(1 - aux*aux);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
         });
@@ -635,8 +643,12 @@ constexpr auto atan(const Real<N, T>& x)
     res[0] = atan(x[0]);
     if constexpr (N > 0)
     {
+        Real<N - 1, T> xprime;
+        For<1, N + 1>([&](auto i) constexpr {
+            xprime[i - 1] = x[i];
+        });
         Real<N - 1, T> aux(x);
-        aux = 1/(1 + aux*aux);
+        aux = xprime/(1 + aux*aux);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
         });
