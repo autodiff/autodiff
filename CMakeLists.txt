@@ -54,6 +54,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)       # avoid compile flags of the type -std=gnu++
 
 # Build the library (actually, just provide details about the library target, specify required compile options, etc. because autodiff is header-only)
 FetchContent_MakeAvailable(eigen)
+if (NOT TARGET eigen)
+    message( FATAL_ERROR "eigen requirement could not be found.")
+endif()
 add_subdirectory(autodiff)
 
 # Build the tests
