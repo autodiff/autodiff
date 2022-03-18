@@ -8,11 +8,11 @@ channels:
 dependencies:
   - catch2
   - ccache  # [unix]
-  - clangxx_osx-64=11.1.0  # [osx]
+  - clangxx_osx-64=12.0.1  # [osx]
   - cmake
   - eigen
   - git
-  - gxx_linux-64=9.4.0  # [linux]
+  - gxx_linux-64=10.3.0  # [linux]
   - ninja
   - pip
   - pybind11
