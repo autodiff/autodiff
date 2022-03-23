@@ -95,7 +95,7 @@ auto seed(const Wrt<Var&, Vars&...>& wrt, T&& seedval)
     constexpr static auto size = 1 + sizeof...(Vars);
     static_assert(size <= N, "It is not possible to compute higher-order derivatives with order greater than that of the autodiff number (e.g., using wrt(x, x, y, z) will fail if the autodiff numbers in use have order below 4).");
     For<N>([&](auto i) constexpr {
-        if constexpr (i < size)
+        if constexpr (i.index < size)
             seed<i.index + 1>(std::get<i>(wrt.args), seedval);
         else
             seed<i.index + 1>(std::get<size - 1>(wrt.args), seedval); // use the last variable in the wrt list as the variable for which the remaining higher-order derivatives are calculated (e.g., derivatives(f, wrt(x), at(x)) will produce [f0, fx, fxx, fxxx, fxxxx] when x is a 4th order dual number).
