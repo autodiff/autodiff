@@ -62,13 +62,12 @@ auto wrt_total_length(const Wrt<Vars...>& wrt) -> size_t
 template<typename Function, typename... Vars>
 constexpr auto ForEachWrtVar(const Wrt<Vars...>& wrt, Function&& f)
 {
-    const auto n = wrt_total_length(wrt); // the sum of lengths of all items in the wrt list
     auto i = 0; // the current index of the variable in the wrt list
     ForEach(wrt.args, [&](auto& item) constexpr
     {
         if constexpr (isVector<decltype(item)>) {
             for(auto j = 0; j < item.size(); ++j)
-                f(i++, item[j]); // call given f with current index and variable from item (a vector)
+                f(i++, item(j)); // call given f with current index and variable from item (a vector)
         }
         else f(i++, item); // call given f with current index and variable from item (a number, not a vector)
     });
