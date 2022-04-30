@@ -3,7 +3,7 @@ name: website
 on:
   push:
     branches:
-      - master
+      - main
 
   schedule:
     - cron: "0 5 * * 1"  # runs at 05:00 UTC on Mondays

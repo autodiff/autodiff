@@ -1,28 +1,33 @@
 name: autodiff
 
+{% set python_version = os.environ.get("PYTHON_VERSION", "3.9") %}
+
 channels:
   - conda-forge
 
 dependencies:
-  - gxx_linux-64=7.3.0  # [linux]
-  - clangxx=9.0.0  # [osx]
-  - cmake>=3.13
-  - ninja>=1.9.0
-  - git>=2.28
-  - eigen
-  - python
   - catch2
   - ccache  # [unix]
-  - pybind11 >=2.5.0
+  - clangxx_osx-64=12.0.1  # [osx]
+  - cmake
+  - eigen
+  - git
+  - gxx_linux-64=10.3.0  # [linux]
+  - ninja
   - pip
+  - pybind11
+  - pybind11-abi
+  - pybind11-stubgen
+  - python={{ python_version }}
+  - doxygen=1.9.1  # [linux]
+  - graphviz  # [linux]
+  - pre-commit
+  - shellcheck
+  - ccache  # [unix]
+  - clcache  # [win]
+  - catch2
+  - vs2019_win-64  # [win]
   - pip:
     - mkdocs
     - mkdocs-material
     - mkdocs-macros-plugin
-  - doxygen=1.8.20                 # [linux]
-  - graphviz                       # [linux]
-  - pre-commit
-  - shellcheck
-  - ccache                         # [unix]
-  - clcache                        # [win]
-  - catch2

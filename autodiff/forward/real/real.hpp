@@ -207,6 +207,7 @@ using std::acos;
 using std::acosh;
 using std::asin;
 using std::asinh;
+using std::atan2;
 using std::atan;
 using std::atanh;
 using std::cbrt;
@@ -651,6 +652,60 @@ constexpr auto atan(const Real<N, T>& x)
         aux = xprime/(1 + aux*aux);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
+        });
+    }
+    return res;
+}
+
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
+constexpr auto atan2(const U& c, const Real<N, T>& x)
+{    
+    // d[atan2(c,x)]/dx = -c / (c^2 + x^2)
+    Real<N, T> res;
+    res[0] = atan2(c, x[0]);
+    if constexpr(N > 0) {
+        Real<N - 1, T> xprime;
+        For<1, N + 1>([&](auto i) constexpr {
+            xprime[i - 1] = x[i];
+        });
+        Real<N - 1, T> aux(x);
+        aux = xprime * (-c / (c * c + aux * aux));
+        For<1, N + 1>([&](auto i) constexpr {
+            res[i] = aux[i - 1];
+        });
+    }
+    return res;
+}
+
+template<size_t N, typename T, typename U, EnableIf<isArithmetic<U>>...>
+constexpr auto atan2(const Real<N, T>& y, const U& c)
+{
+    // d[atan2(y,c)]/dy = c / (c^2 + y^2)
+    Real<N, T> res;
+    res[0] = atan2(y[0], c);
+    if constexpr(N > 0) {
+        Real<N - 1, T> yprime;
+        For<1, N + 1>([&](auto i) constexpr {
+            yprime[i - 1] = y[i];
+        });
+        Real<N - 1, T> aux(y);
+        aux = yprime * (c / (c * c + aux * aux));
+        For<1, N + 1>([&](auto i) constexpr {
+            res[i] = aux[i - 1];
+        });
+    }
+    return res;
+}
+
+template<size_t N, typename T>
+constexpr auto atan2(const Real<N, T>& y, const Real<N, T>& x)
+{
+    Real<N, T> res;
+    res[0] = atan2(y[0], x[0]);
+    if constexpr(N > 0) {
+        const T denom = x[0] * x[0] + y[0] * y[0];
+        For<1, N + 1>([&](auto i) constexpr {
+            res[i] = (x[0] * y[i] - x[i] * y[0]) / denom;
         });
     }
     return res;
