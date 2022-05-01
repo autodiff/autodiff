@@ -34,18 +34,6 @@ FetchContent_Declare(
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
-FetchContent_Declare(
-        Catch2
-        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG        v2.13.8
-)
-FetchContent_Declare(
-        pybind11
-        GIT_REPOSITORY https://github.com/pybind/pybind11.git
-        GIT_TAG        v2.7.1
-        GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE
-)
 
 # autodiff requires a c++17 enabled compiler
 set(CMAKE_CXX_STANDARD 17)          # ensure cmake instructs compiler to use C++17
@@ -61,6 +49,11 @@ add_subdirectory(autodiff)
 
 # Build the tests
 if(AUTODIFF_BUILD_TESTS)
+    FetchContent_Declare(
+            Catch2
+            GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+            GIT_TAG        v2.13.8
+    )
     FetchContent_MakeAvailable(Catch2)
     add_subdirectory(tests)
 endif()
@@ -68,6 +61,13 @@ endif()
 # Build the python wrappers
 if(AUTODIFF_BUILD_PYTHON)
     set(PYBIND11_CPP_STANDARD -std=c++17)  # Ensure pybind11 uses C++17 standard
+    FetchContent_Declare(
+            pybind11
+            GIT_REPOSITORY https://github.com/pybind/pybind11.git
+            GIT_TAG        v2.7.1
+            GIT_SHALLOW TRUE
+            GIT_PROGRESS TRUE
+    )
     FetchContent_MakeAvailable(pybind11)
     add_subdirectory(python)
 endif()
