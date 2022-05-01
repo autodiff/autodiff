@@ -11,7 +11,7 @@ target_link_libraries(autodiff-cpptests autodiff::autodiff eigen Catch2::Catch2)
 set_target_properties(autodiff-cpptests PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
 
 # Add target tests that performs all C++ and Python tests
-add_custom_target(tests
+add_custom_target(autodiff-tests
     COMMENT "Running C++ tests..."
     COMMAND $<TARGET_FILE:autodiff-cpptests>
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
