@@ -20,11 +20,10 @@ include(GNUInstallDirs)
 include(CondaAware)
 
 # Define build options
-option(AUTODIFF_BUILD_TESTS "Enable the compilation of the test files." ON)
-option(AUTODIFF_BUILD_PYTHON "Enable the compilation of the python bindings." ON)
-option(AUTODIFF_BUILD_EXAMPLES "Enable the compilation of the example files." ON)
-option(AUTODIFF_BUILD_DOCS "Enable the build of the documentation and website." ON)
-option(AUTODIFF_INSTALL_BINARIES "# Install the cmake config files that permit users to use find_package(autodiff)" ON)
+option(AUTODIFF_BUILD_TESTS "Enable the compilation of the test files." OFF)
+option(AUTODIFF_BUILD_PYTHON "Enable the compilation of the python bindings." OFF)
+option(AUTODIFF_BUILD_EXAMPLES "Enable the compilation of the example files." OFF)
+option(AUTODIFF_BUILD_DOCS "Enable the build of the documentation and website." OFF)
 
 # External libraries
 include(FetchContent)
@@ -84,6 +83,4 @@ if(AUTODIFF_BUILD_DOCS)
 endif()
 
 # Install the cmake config files that permit users to use find_package(autodiff)
-if(AUTODIFF_INSTALL_BINARIES)
-    include(autodiffInstallCMakeConfigFiles)
-endif()
+include(autodiffInstallCMakeConfigFiles)
