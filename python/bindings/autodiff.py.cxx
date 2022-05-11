@@ -40,11 +40,29 @@ void export_real2nd(py::module& m);
 void export_real3rd(py::module& m);
 void export_real4th(py::module& m);
 
-void exportArrayXreal(py::module& m);
-void exportVectorXreal(py::module& m);
+void exportVectorXdual0th(py::module& m);
+void exportVectorXdual1st(py::module& m);
+void exportVectorXdual2nd(py::module& m);
+void exportVectorXdual3rd(py::module& m);
+void exportVectorXdual4th(py::module& m);
 
-void exportArrayXdual(py::module& m);
-void exportVectorXdual(py::module& m);
+void exportVectorXreal0th(py::module& m);
+void exportVectorXreal1st(py::module& m);
+void exportVectorXreal2nd(py::module& m);
+void exportVectorXreal3rd(py::module& m);
+void exportVectorXreal4th(py::module& m);
+
+void exportArrayXdual0th(py::module& m);
+void exportArrayXdual1st(py::module& m);
+void exportArrayXdual2nd(py::module& m);
+void exportArrayXdual3rd(py::module& m);
+void exportArrayXdual4th(py::module& m);
+
+void exportArrayXreal0th(py::module& m);
+void exportArrayXreal1st(py::module& m);
+void exportArrayXreal2nd(py::module& m);
+void exportArrayXreal3rd(py::module& m);
+void exportArrayXreal4th(py::module& m);
 
 PYBIND11_MODULE(autodiff4py, m)
 {
@@ -62,9 +80,35 @@ PYBIND11_MODULE(autodiff4py, m)
 
     m.attr("real") = m.attr("real1st");
 
-    exportArrayXdual(m);
-    exportVectorXdual(m);
+    exportVectorXdual0th(m);
+    exportVectorXdual1st(m);
+    exportVectorXdual2nd(m);
+    exportVectorXdual3rd(m);
+    exportVectorXdual4th(m);
 
-    exportArrayXreal(m);
-    exportVectorXreal(m);
+    m.attr("VectorXdual") = m.attr("VectorXdual1st");
+
+    exportVectorXreal0th(m);
+    exportVectorXreal1st(m);
+    exportVectorXreal2nd(m);
+    exportVectorXreal3rd(m);
+    exportVectorXreal4th(m);
+
+    m.attr("VectorXreal") = m.attr("VectorXreal1st");
+
+    exportArrayXdual0th(m);
+    exportArrayXdual1st(m);
+    exportArrayXdual2nd(m);
+    exportArrayXdual3rd(m);
+    exportArrayXdual4th(m);
+
+    m.attr("ArrayXdual") = m.attr("ArrayXdual1st");
+
+    exportArrayXreal0th(m);
+    exportArrayXreal1st(m);
+    exportArrayXreal2nd(m);
+    exportArrayXreal3rd(m);
+    exportArrayXreal4th(m);
+
+    m.attr("ArrayXreal") = m.attr("ArrayXreal1st");
 }
