@@ -31,10 +31,7 @@
 #include <Eigen/Core>
 
 // pybind11 includes
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
-#include <pybind11/operators.h>
-namespace py = pybind11;
+#include "pybind11.hxx"
 
 template<typename Vec, typename T, bool isarray, bool isconst, bool isview>
 void exportVector(py::module& m, const char* typestr)

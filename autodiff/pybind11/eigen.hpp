@@ -30,7 +30,7 @@
 #pragma once
 
 // pybind11 includes
-#include <pybind11/pybind11.h>
+#include "pybind11.hxx"
 
 // autodiff includes
 #include <autodiff/forward/dual.hpp>
