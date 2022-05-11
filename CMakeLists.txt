@@ -8,7 +8,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(CCache)
 
 # Name and details of the project
-project(autodiff VERSION 0.6.7 LANGUAGES CXX)
+project(autodiff VERSION 0.6.8 LANGUAGES CXX)
 
 # Enable parallel build if MSVC is used
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
