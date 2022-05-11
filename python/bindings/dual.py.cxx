@@ -27,13 +27,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// pybind11 includes
+#include "pybind11.hxx"
+
 // C++ includes
 #include <sstream>
-
-// pybind11 includes
-#include <pybind11/pybind11.h>
-#include <pybind11/operators.h>
-namespace py = pybind11;
 
 // autodiff includes
 #include <autodiff/common/meta.hpp>

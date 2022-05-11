@@ -30,41 +30,15 @@
 // pybind11 includes
 #include "pybind11.hxx"
 
-void export_dual1st(py::module& m);
-void export_dual2nd(py::module& m);
-void export_dual3rd(py::module& m);
-void export_dual4th(py::module& m);
+// autodiff includes
+#include <autodiff/forward/dual/dual.hpp>
+#include <autodiff/forward/dual/eigen.hpp>
+#include "eigen.hxx"
+using namespace autodiff;
 
-void export_real1st(py::module& m);
-void export_real2nd(py::module& m);
-void export_real3rd(py::module& m);
-void export_real4th(py::module& m);
-
-void exportArrayXreal(py::module& m);
-void exportVectorXreal(py::module& m);
-
-void exportArrayXdual(py::module& m);
-void exportVectorXdual(py::module& m);
-
-PYBIND11_MODULE(autodiff4py, m)
+void exportArrayXdual4th(py::module& m)
 {
-    export_dual1st(m);
-    export_dual2nd(m);
-    export_dual3rd(m);
-    export_dual4th(m);
-
-    m.attr("dual") = m.attr("dual1st");
-
-    export_real1st(m);
-    export_real2nd(m);
-    export_real3rd(m);
-    export_real4th(m);
-
-    m.attr("real") = m.attr("real1st");
-
-    exportArrayXdual(m);
-    exportVectorXdual(m);
-
-    exportArrayXreal(m);
-    exportVectorXreal(m);
+    exportVector<ArrayXdual4th, dual4th, isarray(true), isconst(false), isview(false)>(m, "ArrayXdual4th");
+    exportVector<Eigen::Ref<ArrayXdual4th>, dual4th, isarray(true), isconst(false), isview(true)>(m, "ArrayXdual4thRef");
+    exportVector<Eigen::Ref<const ArrayXdual4th>, dual4th, isarray(true), isconst(true), isview(true)>(m, "ArrayXdual4thConstRef");
 }
