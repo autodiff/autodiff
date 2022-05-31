@@ -6,7 +6,7 @@ channels:
   - conda-forge
 
 dependencies:
-  - catch2
+  - catch2=2
   - ccache  # [unix]
   - clangxx_osx-64  # [osx]
   - cmake
