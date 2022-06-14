@@ -849,19 +849,23 @@ struct PowExpr : BinaryExpr<T>
 
     void propagate(const T& wprime) override
     {
+        using U = VariableValueType<T>;
+        constexpr auto zero = U(0.0);
         const auto lval = l->val;
         const auto rval = r->val;
         const auto aux = wprime * pow(lval, rval - 1);
         l->propagate(aux * rval);
-        const auto auxr = lval == 0.0 ? 0.0 : lval * log(lval); // since x*log(x) -> 0 as x -> 0
+        const auto auxr = lval == zero ? 0.0 : lval * log(lval); // since x*log(x) -> 0 as x -> 0
         r->propagate(aux * auxr);
     }
 
     void propagatex(const ExprPtr<T>& wprime) override
     {
+        using U = VariableValueType<T>;
+        constexpr auto zero = U(0.0);
         const auto aux = wprime * pow(l, r - 1);
         l->propagatex(aux * r);
-        const auto auxr = l == 0.0 ? 0.0*l : l * log(l); // since x*log(x) -> 0 as x -> 0
+        const auto auxr = l == zero ? 0.0*l : l * log(l); // since x*log(x) -> 0 as x -> 0
         r->propagatex(aux * auxr);
     }
 
