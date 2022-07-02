@@ -95,5 +95,12 @@ CREATE_MEMBER_CHECK(size);
 template<typename T>
 constexpr bool hasSize = has_member_size<PlainType<T>>::value;
 
+// Create type trait struct `has_operator_bracket`.
+template<class, typename T> struct has_operator_bracket_impl : std::false_type {};
+template<typename T> struct has_operator_bracket_impl<decltype( void(std::declval<T>().operator [](0)) ), T> : std::true_type {};
+
+/// Boolean type that is true if type T implements `operator[](int)` method.
+template<typename T> struct has_operator_bracket : has_operator_bracket_impl<void, T> {};
+
 } // namespace detail
 } // namespace autodiff

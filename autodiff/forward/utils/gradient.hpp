@@ -32,6 +32,7 @@
 // autodiff includes
 #include <autodiff/common/eigen.hpp>
 #include <autodiff/common/meta.hpp>
+#include <autodiff/common/classtraits.hpp>
 #include <autodiff/forward/utils/derivative.hpp>
 
 namespace autodiff {
@@ -67,7 +68,12 @@ constexpr auto ForEachWrtVar(const Wrt<Vars...>& wrt, Function&& f)
     {
         if constexpr (isVector<decltype(item)>) {
             for(auto j = 0; j < item.size(); ++j)
-                f(i++, item(j)); // call given f with current index and variable from item (a vector)
+                // call given f with current index and variable from item (a vector)
+                if constexpr (detail::has_operator_bracket<decltype(item)>()) {
+                    f(i++, item[j]);
+                } else {
+                    f(i++, item(j));
+                }
         }
         else f(i++, item); // call given f with current index and variable from item (a number, not a vector)
     });
