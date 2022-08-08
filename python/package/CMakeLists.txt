@@ -7,7 +7,7 @@ add_custom_target(autodiff-setuptools ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/autodiff ${CMAKE_CURRENT_BINARY_DIR}/autodiff
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:autodiff4py> ${CMAKE_CURRENT_BINARY_DIR}/autodiff
     COMMAND ${PYTHON_EXECUTABLE} setup.py --quiet build --force
-    COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_CURRENT_BINARY_DIR}/autodiff/$<TARGET_FILE_NAME:autodiff4py>
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/autodiff/$<TARGET_FILE_NAME:autodiff4py>
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 # Ensure the path where the python package is installed is not empty
