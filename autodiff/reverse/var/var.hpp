@@ -427,8 +427,8 @@ struct SubExpr : BinaryExpr<T>
 
     void propagatex(const ExprPtr<T>& wprime) override
     {
-        l->propagatex(wprime);
-        r->propagatex(-wprime);
+        l->propagatex(wprime);  // (l - r)'l =  l'
+        r->propagatex(-wprime); // (l - r)'r = -r'
     }
 
     void update() override
@@ -449,8 +449,8 @@ struct MulExpr : BinaryExpr<T>
 
     void propagate(const T& wprime) override
     {
-        l->propagate(wprime * r->val);
-        r->propagate(wprime * l->val);
+        l->propagate(wprime * r->val); // (l * r)'l = w' * r
+        r->propagate(wprime * l->val); // (l * r)'r = l * w'
     }
 
     void propagatex(const ExprPtr<T>& wprime) override
@@ -769,7 +769,7 @@ struct ExpExpr : UnaryExpr<T>
 
     void propagate(const T& wprime) override
     {
-        x->propagate(wprime * val);
+        x->propagate(wprime * val); // exp(x)' = exp(x) * x'
     }
 
     void propagatex(const ExprPtr<T>& wprime) override
@@ -793,7 +793,7 @@ struct LogExpr : UnaryExpr<T>
 
     void propagate(const T& wprime) override
     {
-        x->propagate(wprime / x->val);
+        x->propagate(wprime / x->val); // log(x)' = x'/x
     }
 
     void propagatex(const ExprPtr<T>& wprime) override
@@ -922,7 +922,7 @@ struct PowConstantRightExpr : BinaryExpr<T>
 
     void propagate(const T& wprime) override
     {
-        l->propagate(wprime * pow(l->val, r->val - 1) * r->val);
+        l->propagate(wprime * pow(l->val, r->val - 1) * r->val); // pow(l, r)'l = r * pow(l, r - 1) * l'
     }
 
     void propagatex(const ExprPtr<T>& wprime) override
@@ -947,7 +947,7 @@ struct SqrtExpr : UnaryExpr<T>
 
     void propagate(const T& wprime) override
     {
-        x->propagate(wprime / (2.0 * sqrt(x->val)));
+        x->propagate(wprime / (2.0 * sqrt(x->val))); // sqrt(x)' = 1/2 * 1/sqrt(x) * x'
     }
 
     void propagatex(const ExprPtr<T>& wprime) override
@@ -1004,7 +1004,7 @@ struct ErfExpr : UnaryExpr<T>
 
     void propagate(const T& wprime) override
     {
-        const auto aux = 2.0 / sqrt_pi * exp(-(x->val) * (x->val));
+        const auto aux = 2.0 / sqrt_pi * exp(-(x->val) * (x->val)); // erf(x)' = 2/sqrt(pi) * exp(-x * x) * x'
         x->propagate(wprime * aux);
     }
 
