@@ -30,13 +30,13 @@
 #pragma once
 
 // Catch includes
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 template<typename T>
-auto approx(T&& number) -> Approx
+auto approx(T&& number) -> Catch::Approx
 {
     const double val = static_cast<double>(number);
-    return Approx(val).margin(1e-12);
+    return Catch::Approx(val).margin(1e-12);
 }
 
 #define CHECK_APPROX(a, b) CHECK(a == approx(b))

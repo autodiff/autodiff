@@ -28,7 +28,7 @@
 // SOFTWARE.
 
 // Catch includes
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 // autodiff includes
 #include <autodiff/forward/dual.hpp>
@@ -36,10 +36,10 @@
 using namespace autodiff;
 
 template<typename T>
-auto approx(T&& expr) -> Approx
+auto approx(T&& expr) -> Catch::Approx
 {
     const double zero = std::numeric_limits<double>::epsilon();
-    return Approx(val(std::forward<T>(expr))).margin(zero);
+    return Catch::Approx(val(std::forward<T>(expr))).margin(zero);
 }
 
 TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")

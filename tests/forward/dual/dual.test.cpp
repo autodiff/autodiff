@@ -28,16 +28,16 @@
 // SOFTWARE.
 
 // Catch includes
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 // autodiff includes
 #include <autodiff/forward/dual.hpp>
 using namespace autodiff;
 
 template<typename T>
-auto approx(T&& expr) -> Approx
+auto approx(T&& expr) -> Catch::Approx
 {
-    return Approx(val(std::forward<T>(expr))).margin(1e-12);
+    return Catch::Approx(val(std::forward<T>(expr))).margin(1e-12);
 }
 
 #define CHECK_DERIVATIVES_FX(expr, u, ux)         \
