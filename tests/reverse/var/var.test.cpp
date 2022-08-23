@@ -28,12 +28,13 @@
 // SOFTWARE.
 
 // Catch includes
-#include <catch2/catch_all.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 // autodiff includes
 #include <autodiff/reverse/var.hpp>
 
-using autodiff::derivatives;
+    using autodiff::derivatives;
 using autodiff::val;
 using autodiff::var;
 using autodiff::wrt;
