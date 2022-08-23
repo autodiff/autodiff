@@ -545,6 +545,10 @@ TEST_CASE("testing autodiff::var", "[reverse][var]")
     //--------------------------------------------------------------------------
     // TEST HIGHER ORDER DERIVATIVES (2nd order)
     //--------------------------------------------------------------------------
+    x = 0.5;
+    y = 0.7;
+    z = 0.3;
+
     REQUIRE( val(gradx(gradx(x * x, x), x)) == Approx(2.0) );
     REQUIRE( val(gradx(gradx(1.0/x, x), x)) == Approx(val(2.0/(x * x * x))) );
     REQUIRE( val(gradx(gradx(sin(x), x), x)) == Approx(val(-sin(x))) );
@@ -555,6 +559,21 @@ TEST_CASE("testing autodiff::var", "[reverse][var]")
     REQUIRE( val(gradx(gradx(pow(2.0, x), x), x)) == Approx(val(std::log(2.0) * std::log(2.0) * pow(2.0, x))) );
     REQUIRE( val(gradx(gradx(pow(x, x), x), x)) == Approx(val(((log(x) + 1) * (log(x) + 1) + 1.0/x) * pow(x, x))) );
     REQUIRE( val(gradx(gradx(sqrt(x), x), x)) == Approx(val(-0.25 / (x * sqrt(x)))) );
+
+    REQUIRE( val(gradx(gradx(hypot(x, y), x), x)) == Approx(val(grad(x / hypot(x, y), x))) ); // hypot(x, y)'x = 1/2 * 1/hypot(x, y) * (2*x) = x/hypot(x, y)
+    REQUIRE( val(gradx(gradx(hypot(x, y), x), y)) == Approx(val(grad(x / hypot(x, y), y))) ); // hypot(x, y)'y = 1/2 * 1/hypot(x, y) * (2*y) = y/hypot(x, y)
+    REQUIRE( val(gradx(gradx(hypot(x, y), y), x)) == Approx(val(grad(y / hypot(x, y), x))) );
+    REQUIRE( val(gradx(gradx(hypot(x, y), y), y)) == Approx(val(grad(y / hypot(x, y), y))) );
+
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), x), x)) == Approx(val(grad(x / hypot(x, y, z), x))) ); // hypot(x, y, z)'x = 1/2 * 1/hypot(x, y, z) * (2*x) = x/hypot(x, y, z)
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), x), y)) == Approx(val(grad(x / hypot(x, y, z), y))) ); // hypot(x, y, z)'y = 1/2 * 1/hypot(x, y, z) * (2*y) = y/hypot(x, y, z)
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), x), z)) == Approx(val(grad(x / hypot(x, y, z), z))) ); // hypot(x, y, z)'z = 1/2 * 1/hypot(x, y, z) * (2*z) = z/hypot(x, y, z)
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), y), x)) == Approx(val(grad(y / hypot(x, y, z), x))) );
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), y), y)) == Approx(val(grad(y / hypot(x, y, z), y))) );
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), y), z)) == Approx(val(grad(y / hypot(x, y, z), z))) );
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), z), x)) == Approx(val(grad(z / hypot(x, y, z), x))) );
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), z), y)) == Approx(val(grad(z / hypot(x, y, z), y))) );
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), z), z)) == Approx(val(grad(z / hypot(x, y, z), z))) );
 
     //--------------------------------------------------------------------------
     // TEST HIGHER ORDER DERIVATIVES (3rd order)
