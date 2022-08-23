@@ -28,7 +28,7 @@
 // SOFTWARE.
 
 // Catch includes
-#include <catch2/catch_all.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 // autodiff includes
 #include <autodiff/common/meta.hpp>
