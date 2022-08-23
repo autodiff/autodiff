@@ -30,12 +30,14 @@
 // C++ includes
 #include <vector>
 
+// Catch includes
+#include <catch2/catch_test_macros.hpp>
+
 // autodiff includes
 #include <autodiff/forward/dual.hpp>
 #include <autodiff/forward/dual/eigen.hpp>
 #include <autodiff/forward/real.hpp>
 #include <autodiff/forward/real/eigen.hpp>
-#include <tests/utils/catch.hpp>
 using namespace autodiff;
 
 
