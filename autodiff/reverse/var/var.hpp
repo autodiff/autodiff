@@ -1033,14 +1033,14 @@ struct Hypot2Expr : BinaryExpr<T>
 
     void propagate(const T& wprime) override
     {
-        l->propagate(wprime * l->val / val);
-        r->propagate(wprime * r->val / val);
+        l->propagate(wprime * l->val / val); // sqrt(l*l + r*r)'l = 1/2 * 1/sqrt(l*l + r*r) * (2*l*l') = (l*l')/sqrt(l*l + r*r)
+        r->propagate(wprime * r->val / val); // sqrt(l*l + r*r)'r = 1/2 * 1/sqrt(l*l + r*r) * (2*r*r') = (r*r')/sqrt(l*l + r*r)
     }
 
     void propagatex(const ExprPtr<T>& wprime) override
     {
-        l->propagatex(wprime * l / val);
-        r->propagatex(wprime * r / val);
+        l->propagatex(wprime * l / hypot(l, r));
+        r->propagatex(wprime * r / hypot(l, r));
     }
 
     void update() override
@@ -1071,9 +1071,9 @@ struct Hypot3Expr : TernaryExpr<T>
 
     void propagatex(const ExprPtr<T>& wprime) override
     {
-        l->propagatex(wprime * l / val);
-        c->propagatex(wprime * c / val);
-        r->propagatex(wprime * r / val);
+        l->propagatex(wprime * l / hypot(l, c, r));
+        c->propagatex(wprime * c / hypot(l, c, r));
+        r->propagatex(wprime * r / hypot(l, c, r));
     }
 
     void update() override
