@@ -15,6 +15,22 @@ conda install conda-forge::autodiff
 This will install {{autodiff}} in the conda environment that is active at the
 moment (e.g., the default conda environment is named `base`).
 
+### Developement Environment
+
+[Anaconda] or [Miniconda] can be used to create a full development environment using [conda-devenv].
+
+You can install [conda-devenv] and build the development environment defined in `environment.devenv.yml` as follows:
+~~~
+conda install conda-devenv
+conda devenv
+~~~
+
+The above commands will produce a {{conda}} environment called {{autodiff}} with all the dependencies installed. You can activate the development environment with
+~~~
+conda activate autodiff
+~~~
+and follow the instructions below to build {{autodiff}} from source.
+
 ## Installation using CMake
 
 If you have `cmake` installed in your system, you can then not only install
@@ -77,3 +93,4 @@ installation improvements in the Gitter channel.
 [github]: https://github.com/autodiff/autodiff
 [zip]: https://github.com/autodiff/autodiff/archive/master.zip
 [issues]: https://github.com/autodiff/autodiff/issues/new
+[conda-devenv]: https://conda-devenv.readthedocs.io/en/latest/
