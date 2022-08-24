@@ -15,7 +15,7 @@ conda install conda-forge::autodiff
 This will install {{autodiff}} in the conda environment that is active at the
 moment (e.g., the default conda environment is named `base`).
 
-### Developement Environment
+### Development Environment
 
 [Anaconda] or [Miniconda] can be used to create a full development environment using [conda-devenv].
 
