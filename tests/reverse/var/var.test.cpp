@@ -34,7 +34,7 @@
 // autodiff includes
 #include <autodiff/reverse/var.hpp>
 
-    using autodiff::derivatives;
+using autodiff::derivatives;
 using autodiff::val;
 using autodiff::var;
 using autodiff::wrt;
