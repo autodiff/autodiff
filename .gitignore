@@ -65,3 +65,6 @@ CMakeLists.txt.user
 
 # Files that contain DO-NOT-COMMIT
 *DO-NOT-COMMIT*
+
+# macOS
+.DS_Store
