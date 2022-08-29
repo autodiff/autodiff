@@ -1,4 +1,11 @@
 cc_test(
+    name = "example-reverse-conditional",
+    srcs=["example-reverse-conditional.cpp"],
+    deps = ["//:autodiff"],
+    copts = ["-I./"]
+)
+
+cc_test(
     name = "example-reverse-gradient-derivatives-using-eigen",
     srcs=["example-reverse-gradient-derivatives-using-eigen.cpp"],
     deps = ["//:autodiff"],
