@@ -68,6 +68,34 @@ systems. To install {{autodiff}} locally, use:
 cmake .. -DCMAKE_INSTALL_PREFIX=/some/local/dir
 ~~~
 
+## Build Using Bazel
+
+[bazel](https://bazel.build/) can be used as build system.
+
+!!! attention
+
+    [bazel](https://bazel.build/) support is part of the community effort. Therefore, it
+    is not officially supported.
+
+    Currently, running the unit tests and installing the library using
+    [bazel](https://bazel.build/) is not supported.
+
+### Build and Run Examples
+
+Build all examples using [bazel](https://bazel.build/):
+
+~~~
+bazel build //examples/forward:all
+bazel build //examples/reverse:all
+~~~
+
+Run all examples using [bazel](https://bazel.build/) and display their output:
+
+~~~
+bazel test //examples/forward:all
+bazel test //examples/reverse:all
+~~~
+
 ## Installation by copying
 
 Assuming the git cloned repository or the extracted source code resides in a
