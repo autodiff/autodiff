@@ -1,0 +1,54 @@
+name: bazel
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+  schedule:
+    - cron: "0 5 * * 1"  # runs at 05:00 UTC on Mondays
+
+jobs:
+  bazel:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+      fail-fast: true
+      max-parallel: 4
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: conda-incubator/setup-miniconda@v2.1.1
+      with:
+        mamba-version: "*"
+        channels: conda-forge
+        channel-priority: true
+        activate-environment: autodiff
+        auto-update-conda: true
+        auto-activate-base: false
+        show-channel-urls: true
+
+    - name: Configure
+      shell: bash -l {0}
+      run: |
+        conda config --set always_yes yes --set changeps1 no
+        conda install conda-devenv bazel
+        conda devenv
+        source activate autodiff
+
+    - name: Build
+      shell: bash -l {0}
+      run: |
+        bazel build //examples/forward:all
+        bazel build //examples/reverse:all
+
+    - name: Test
+      shell: bash -l {0}
+      run: |
+        bazel test //examples/forward:all --test_output=all
+        bazel test //examples/reverse:all --test_output=all
