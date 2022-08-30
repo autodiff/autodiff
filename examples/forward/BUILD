@@ -1,13 +1,13 @@
 cc_test(
     name = "example-forward-directional-taylor-series-using-eigen",
-    srcs=["example-forward-directional-taylor-series-using-eigen.cpp"],
+    srcs = ["example-forward-directional-taylor-series-using-eigen.cpp"],
     deps = ["//:autodiff"],
     copts = ["-I./"]
 )
 
 cc_test(
     name = "example-forward-directional-taylor-series",
-    srcs=["example-forward-directional-taylor-series.cpp"],
+    srcs = ["example-forward-directional-taylor-series.cpp"],
     deps = ["//:autodiff"],
     copts = ["-I./"]
 )
@@ -98,7 +98,7 @@ cc_test(
 
 cc_test(
     name = "example-forward-multi-variable-function",
-    srcs=["example-forward-multi-variable-function.cpp"],
+    srcs = ["example-forward-multi-variable-function.cpp"],
     deps = ["//:autodiff"],
     copts = ["-I./"]
 )
@@ -112,7 +112,7 @@ cc_test(
 
 cc_test(
     name = "example-forward-single-variable-function",
-    srcs=["example-forward-single-variable-function.cpp"],
+    srcs = ["example-forward-single-variable-function.cpp"],
     deps = ["//:autodiff"],
     copts = ["-I./"]
 )
