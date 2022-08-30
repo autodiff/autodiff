@@ -92,8 +92,8 @@ bazel build //examples/reverse:all
 Run all examples using [bazel](https://bazel.build/) and display their output:
 
 ~~~
-bazel test //examples/forward:all
-bazel test //examples/reverse:all
+bazel test //examples/forward:all --test_output=all
+bazel test //examples/reverse:all --test_output=all
 ~~~
 
 ## Installation by copying
