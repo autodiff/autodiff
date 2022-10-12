@@ -53,8 +53,8 @@ struct sig_check : std::true_type {};
 
 template<typename Alias, typename AmbiguitySeed>
 struct has_member {
-    template<typename C> static char ((&f(decltype(&C::value))))[1];
-    template<typename C> static char ((&f(...)))[2];
+    template<typename C> static char (&f(decltype(&C::value)))[1];
+    template<typename C> static char (&f(...))[2];
 
     //Make sure the member name is consistently spelled the same.
     static_assert(
