@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2020 Allan Leal
+// Copyright (c) 2018-2022 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,14 +27,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// pybind11 includes
+#include "pybind11.hxx"
+
 // C++ includes
 #include <sstream>
-
-// pybind11 includes
-#include <pybind11/pybind11.h>
-#include <pybind11/operators.h>
-#include <pybind11/stl.h>
-namespace py = pybind11;
 
 // autodiff includes
 #include <autodiff/common/meta.hpp>
@@ -82,6 +79,9 @@ void exportReal(py::module& m, const char* typestr)
         .def("__str__", __str__)
         .def("__repr__", __repr__)
         .def("__float__", __float__)
+
+        .def("val", [](const Real<N, T>& self) { return self.val(); })
+        .def("val", [](Real<N, T>& self) { return self.val(); })
 
         .def(-py::self)
 

@@ -15,6 +15,22 @@ conda install conda-forge::autodiff
 This will install {{autodiff}} in the conda environment that is active at the
 moment (e.g., the default conda environment is named `base`).
 
+### Development Environment
+
+[Anaconda] or [Miniconda] can be used to create a full development environment using [conda-devenv].
+
+You can install [conda-devenv] and build the development environment defined in `environment.devenv.yml` as follows:
+~~~
+conda install conda-devenv
+conda devenv
+~~~
+
+The above commands will produce a {{conda}} environment called {{autodiff}} with all the dependencies installed. You can activate the development environment with
+~~~
+conda activate autodiff
+~~~
+and follow the instructions below to build {{autodiff}} from source.
+
 ## Installation using CMake
 
 If you have `cmake` installed in your system, you can then not only install
@@ -52,6 +68,34 @@ systems. To install {{autodiff}} locally, use:
 cmake .. -DCMAKE_INSTALL_PREFIX=/some/local/dir
 ~~~
 
+## Build Using Bazel
+
+[bazel](https://bazel.build/) can be used as build system.
+
+!!! attention
+
+    [bazel](https://bazel.build/) support is part of the community effort. Therefore, it
+    is not officially supported.
+
+    Currently, running the unit tests and installing the library using
+    [bazel](https://bazel.build/) is not supported.
+
+### Build and Run Examples
+
+Build all examples using [bazel](https://bazel.build/):
+
+~~~
+bazel build //examples/forward:all
+bazel build //examples/reverse:all
+~~~
+
+Run all examples using [bazel](https://bazel.build/) and display their output:
+
+~~~
+bazel test //examples/forward:all --test_output=all
+bazel test //examples/reverse:all --test_output=all
+~~~
+
 ## Installation by copying
 
 Assuming the git cloned repository or the extracted source code resides in a
@@ -77,3 +121,4 @@ installation improvements in the Gitter channel.
 [github]: https://github.com/autodiff/autodiff
 [zip]: https://github.com/autodiff/autodiff/archive/master.zip
 [issues]: https://github.com/autodiff/autodiff/issues/new
+[conda-devenv]: https://conda-devenv.readthedocs.io/en/latest/

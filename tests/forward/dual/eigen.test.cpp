@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2020 Allan Leal
+// Copyright (c) 2018-2022 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,8 @@
 // SOFTWARE.
 
 // Catch includes
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 // autodiff includes
 #include <autodiff/forward/dual.hpp>
@@ -36,10 +37,10 @@
 using namespace autodiff;
 
 template<typename T>
-auto approx(T&& expr) -> Approx
+auto approx(T&& expr) -> Catch::Approx
 {
     const double zero = std::numeric_limits<double>::epsilon();
-    return Approx(val(std::forward<T>(expr))).margin(zero);
+    return Catch::Approx(val(std::forward<T>(expr))).margin(zero);
 }
 
 TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")

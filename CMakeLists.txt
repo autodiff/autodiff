@@ -1,5 +1,5 @@
 # The minimum required cmake version
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 # Add cmake modules of this project to the module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -8,7 +8,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(CCache)
 
 # Name and details of the project
-project(autodiff VERSION 0.6.7 LANGUAGES CXX)
+project(autodiff VERSION 0.6.8 LANGUAGES CXX)
 
 # Enable parallel build if MSVC is used
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)

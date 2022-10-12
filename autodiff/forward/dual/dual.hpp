@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2020 Allan Leal
+// Copyright (c) 2018-2022 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -508,30 +508,20 @@ struct AuxCommonDualType { using type = decltype(auxCommonDualType<L, R>()); };
 template<typename T, typename G>
 struct Dual
 {
-    T val;
+    T val = {};
 
-    G grad;
+    G grad = {};
 
-    Dual() : Dual(0.0) {}
+    Dual()
+    {}
 
-    template<typename U, EnableIf<isConvertible<U, T> && !isExpr<U>>...>
-    Dual(U&& v)
-    : val(std::forward<U>(v)), grad(0)
-    {
-    }
-
-    Dual(const NumericType<T>& val)
-    : val(val), grad(0)
-    {
-    }
-
-    template<typename U, EnableIf<isExpr<U> && !isDual<U>>...>
+    template<typename U, EnableIf<isExpr<U> || isArithmetic<U>>...>
     Dual(U&& other)
     {
         assign(*this, std::forward<U>(other));
     }
 
-    template<typename U, EnableIf<isExpr<U> && !isDual<U>>...>
+    template<typename U, EnableIf<isExpr<U> || isArithmetic<U>>...>
     Dual& operator=(U&& other)
     {
         Dual tmp;
@@ -540,7 +530,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, EnableIf<isArithmetic<U> || isExpr<U>>...>
+    template<typename U, EnableIf<isExpr<U> || isArithmetic<U>>...>
     Dual& operator+=(U&& other)
     {
         Dual tmp;
@@ -549,7 +539,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, EnableIf<isArithmetic<U> || isExpr<U>>...>
+    template<typename U, EnableIf<isExpr<U> || isArithmetic<U>>...>
     Dual& operator-=(U&& other)
     {
         Dual tmp;
@@ -558,7 +548,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, EnableIf<isArithmetic<U> || isExpr<U>>...>
+    template<typename U, EnableIf<isExpr<U> || isArithmetic<U>>...>
     Dual& operator*=(U&& other)
     {
         Dual tmp;
@@ -567,7 +557,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, EnableIf<isArithmetic<U> || isExpr<U>>...>
+    template<typename U, EnableIf<isExpr<U> || isArithmetic<U>>...>
     Dual& operator/=(U&& other)
     {
         Dual tmp;

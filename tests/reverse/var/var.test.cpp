@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2020 Allan Leal
+// Copyright (c) 2018-2022 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,8 @@
 // SOFTWARE.
 
 // Catch includes
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 // autodiff includes
 #include <autodiff/reverse/var.hpp>
@@ -52,9 +53,9 @@ inline auto gradx(const var& y, var& x)
 }
 
 template<typename Var>
-auto approx(const Var& x) -> Approx
+auto approx(const Var& x) -> Catch::Approx
 {
-    return Approx(val(x));
+    return Catch::Approx(val(x));
 }
 
 TEST_CASE("testing autodiff::var", "[reverse][var]")
@@ -311,27 +312,27 @@ TEST_CASE("testing autodiff::var", "[reverse][var]")
     //--------------------------------------------------------------------------
     // TEST POWER FUNCTIONS
     //--------------------------------------------------------------------------
-    REQUIRE( val(sqrt(x)) == Approx(std::sqrt(val(x))) );
-    REQUIRE( grad(sqrt(x), x) == Approx(0.5 / std::sqrt(val(x))) );
+    REQUIRE( val(sqrt(x)) == Catch::Approx(std::sqrt(val(x))) );
+    REQUIRE( grad(sqrt(x), x) == Catch::Approx(0.5 / std::sqrt(val(x))) );
 
-    REQUIRE( val(pow(x, 2.0)) == Approx(std::pow(val(x), 2.0)) );
-    REQUIRE( grad(pow(x, 2.0), x) == Approx(2.0 * val(x)) );
+    REQUIRE( val(pow(x, 2.0)) == Catch::Approx(std::pow(val(x), 2.0)) );
+    REQUIRE( grad(pow(x, 2.0), x) == Catch::Approx(2.0 * val(x)) );
 
-    REQUIRE( val(pow(2.0, x)) == Approx(std::pow(2.0, val(x))) );
-    REQUIRE( grad(pow(2.0, x), x) == Approx(std::log(2.0) * std::pow(2.0, val(x))) );
+    REQUIRE( val(pow(2.0, x)) == Catch::Approx(std::pow(2.0, val(x))) );
+    REQUIRE( grad(pow(2.0, x), x) == Catch::Approx(std::log(2.0) * std::pow(2.0, val(x))) );
 
-    REQUIRE( val(pow(x, x)) == Approx(std::pow(val(x), val(x))) );
-    REQUIRE( grad(pow(x, x), x) == Approx(val((log(x) + 1) * pow(x, x))) );
+    REQUIRE( val(pow(x, x)) == Catch::Approx(std::pow(val(x), val(x))) );
+    REQUIRE( grad(pow(x, x), x) == Catch::Approx(val((log(x) + 1) * pow(x, x))) );
 
     y = 2 * a;
 
-    REQUIRE( y == Approx( 2 * val(a) ) );
-    REQUIRE( grad(y, a) == Approx( 2.0 ) );
+    REQUIRE( y == Catch::Approx( 2 * val(a) ) );
+    REQUIRE( grad(y, a) == Catch::Approx( 2.0 ) );
 
-    REQUIRE( val(pow(x, y)) == Approx(std::pow(val(x), val(y))) );
-    REQUIRE( grad(pow(x, y), x) == Approx( val(y)/val(x) * std::pow(val(x), val(y)) ) );
-    REQUIRE( grad(pow(x, y), a) == Approx( std::pow(val(x), val(y)) * (val(y)/val(x) * grad(x, a) + std::log(val(x)) * grad(y, a)) ) );
-    REQUIRE( grad(pow(x, y), y) == Approx( std::log(val(x)) * std::pow(val(x), val(y)) ) );
+    REQUIRE( val(pow(x, y)) == Catch::Approx(std::pow(val(x), val(y))) );
+    REQUIRE( grad(pow(x, y), x) == Catch::Approx( val(y)/val(x) * std::pow(val(x), val(y)) ) );
+    REQUIRE( grad(pow(x, y), a) == Catch::Approx( std::pow(val(x), val(y)) * (val(y)/val(x) * grad(x, a) + std::log(val(x)) * grad(y, a)) ) );
+    REQUIRE( grad(pow(x, y), y) == Catch::Approx( std::log(val(x)) * std::pow(val(x), val(y)) ) );
 
 
     //--------------------------------------------------------------------------
@@ -534,8 +535,8 @@ TEST_CASE("testing autodiff::var", "[reverse][var]")
     x = 3.0;
     y = x;
 
-    REQUIRE( val(abs(x)) == Approx(std::abs(val(x))) );
-    REQUIRE( grad(x, x) == Approx(1.0) );
+    REQUIRE( val(abs(x)) == Catch::Approx(std::abs(val(x))) );
+    REQUIRE( grad(x, x) == Catch::Approx(1.0) );
 
     x = 0.5;
     constexpr double pi = 3.141592653589793238462643383279502884197169399375105820974;
@@ -545,16 +546,35 @@ TEST_CASE("testing autodiff::var", "[reverse][var]")
     //--------------------------------------------------------------------------
     // TEST HIGHER ORDER DERIVATIVES (2nd order)
     //--------------------------------------------------------------------------
-    REQUIRE( val(gradx(gradx(x * x, x), x)) == Approx(2.0) );
-    REQUIRE( val(gradx(gradx(1.0/x, x), x)) == Approx(val(2.0/(x * x * x))) );
-    REQUIRE( val(gradx(gradx(sin(x), x), x)) == Approx(val(-sin(x))) );
-    REQUIRE( val(gradx(gradx(cos(x), x), x)) == Approx(val(-cos(x))) );
-    REQUIRE( val(gradx(gradx(log(x), x), x)) == Approx(val(-1.0/(x * x))) );
-    REQUIRE( val(gradx(gradx(exp(x), x), x)) == Approx(val(exp(x))) );
-    REQUIRE( val(gradx(gradx(pow(x, 2.0), x), x)) == Approx(2.0) );
-    REQUIRE( val(gradx(gradx(pow(2.0, x), x), x)) == Approx(val(std::log(2.0) * std::log(2.0) * pow(2.0, x))) );
-    REQUIRE( val(gradx(gradx(pow(x, x), x), x)) == Approx(val(((log(x) + 1) * (log(x) + 1) + 1.0/x) * pow(x, x))) );
-    REQUIRE( val(gradx(gradx(sqrt(x), x), x)) == Approx(val(-0.25 / (x * sqrt(x)))) );
+    x = 0.5;
+    y = 0.7;
+    z = 0.3;
+
+    REQUIRE( val(gradx(gradx(x * x, x), x)) == Catch::Approx(2.0) );
+    REQUIRE( val(gradx(gradx(1.0/x, x), x)) == Catch::Approx(val(2.0/(x * x * x))) );
+    REQUIRE( val(gradx(gradx(sin(x), x), x)) == Catch::Approx(val(-sin(x))) );
+    REQUIRE( val(gradx(gradx(cos(x), x), x)) == Catch::Approx(val(-cos(x))) );
+    REQUIRE( val(gradx(gradx(log(x), x), x)) == Catch::Approx(val(-1.0/(x * x))) );
+    REQUIRE( val(gradx(gradx(exp(x), x), x)) == Catch::Approx(val(exp(x))) );
+    REQUIRE( val(gradx(gradx(pow(x, 2.0), x), x)) == Catch::Approx(2.0) );
+    REQUIRE( val(gradx(gradx(pow(2.0, x), x), x)) == Catch::Approx(val(std::log(2.0) * std::log(2.0) * pow(2.0, x))) );
+    REQUIRE( val(gradx(gradx(pow(x, x), x), x)) == Catch::Approx(val(((log(x) + 1) * (log(x) + 1) + 1.0/x) * pow(x, x))) );
+    REQUIRE( val(gradx(gradx(sqrt(x), x), x)) == Catch::Approx(val(-0.25 / (x * sqrt(x)))) );
+
+    REQUIRE( val(gradx(gradx(hypot(x, y), x), x)) == Catch::Approx(val(grad(x / hypot(x, y), x))) ); // hypot(x, y)'x = 1/2 * 1/hypot(x, y) * (2*x) = x/hypot(x, y)
+    REQUIRE( val(gradx(gradx(hypot(x, y), x), y)) == Catch::Approx(val(grad(x / hypot(x, y), y))) ); // hypot(x, y)'y = 1/2 * 1/hypot(x, y) * (2*y) = y/hypot(x, y)
+    REQUIRE( val(gradx(gradx(hypot(x, y), y), x)) == Catch::Approx(val(grad(y / hypot(x, y), x))) );
+    REQUIRE( val(gradx(gradx(hypot(x, y), y), y)) == Catch::Approx(val(grad(y / hypot(x, y), y))) );
+
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), x), x)) == Catch::Approx(val(grad(x / hypot(x, y, z), x))) ); // hypot(x, y, z)'x = 1/2 * 1/hypot(x, y, z) * (2*x) = x/hypot(x, y, z)
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), x), y)) == Catch::Approx(val(grad(x / hypot(x, y, z), y))) ); // hypot(x, y, z)'y = 1/2 * 1/hypot(x, y, z) * (2*y) = y/hypot(x, y, z)
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), x), z)) == Catch::Approx(val(grad(x / hypot(x, y, z), z))) ); // hypot(x, y, z)'z = 1/2 * 1/hypot(x, y, z) * (2*z) = z/hypot(x, y, z)
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), y), x)) == Catch::Approx(val(grad(y / hypot(x, y, z), x))) );
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), y), y)) == Catch::Approx(val(grad(y / hypot(x, y, z), y))) );
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), y), z)) == Catch::Approx(val(grad(y / hypot(x, y, z), z))) );
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), z), x)) == Catch::Approx(val(grad(z / hypot(x, y, z), x))) );
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), z), y)) == Catch::Approx(val(grad(z / hypot(x, y, z), y))) );
+    REQUIRE( val(gradx(gradx(hypot(x, y, z), z), z)) == Catch::Approx(val(grad(z / hypot(x, y, z), z))) );
 
     //--------------------------------------------------------------------------
     // TEST HIGHER ORDER DERIVATIVES (3rd order)

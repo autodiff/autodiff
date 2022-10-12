@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2020 Allan Leal
+// Copyright (c) 2018-2022 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -94,6 +94,13 @@ CREATE_MEMBER_CHECK(size);
 /// Boolean constant that is true if type T implements `size` method.
 template<typename T>
 constexpr bool hasSize = has_member_size<PlainType<T>>::value;
+
+// Create type trait struct `has_operator_bracket`.
+template<class, typename T> struct has_operator_bracket_impl : std::false_type {};
+template<typename T> struct has_operator_bracket_impl<decltype( void(std::declval<T>().operator [](0)) ), T> : std::true_type {};
+
+/// Boolean type that is true if type T implements `operator[](int)` method.
+template<typename T> struct has_operator_bracket : has_operator_bracket_impl<void, T> {};
 
 } // namespace detail
 } // namespace autodiff

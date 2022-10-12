@@ -6,13 +6,13 @@ channels:
   - conda-forge
 
 dependencies:
-  - catch2
+  - catch2>=3
   - ccache  # [unix]
-  - clangxx_osx-64=12.0.1  # [osx]
+  - clangxx_osx-64  # [osx]
   - cmake
   - eigen
   - git
-  - gxx_linux-64=10.3.0  # [linux]
+  - gxx_linux-64  # [linux]
   - ninja
   - pip
   - pybind11
