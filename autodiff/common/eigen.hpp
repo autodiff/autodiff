@@ -130,6 +130,15 @@ struct VectorTraits<Eigen::Ref<MatrixType>>
     using ReplaceValueType = VectorReplaceValueType<MatrixType, NewValueType>;
 };
 
+template<typename VectorType, int MapOptions, typename StrideType>
+struct VectorTraits<Eigen::Map<VectorType, MapOptions, StrideType>>
+{
+    using ValueType = VectorValueType<VectorType>;
+
+    template<typename NewValueType>
+    using ReplaceValueType = Eigen::Map<VectorReplaceValueType<VectorType, NewValueType>, MapOptions, StrideType>;
+};
+
 //=====================================================================================================================
 //
 // AUXILIARY TEMPLATE TYPE ALIASES
