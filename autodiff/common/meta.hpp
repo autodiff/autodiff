@@ -52,6 +52,9 @@ using CommonType = typename std::common_type<A, B>::type;
 template<typename Fun, typename... Args>
 using ReturnType = std::invoke_result_t<Fun, Args...>;
 
+template<typename T>
+constexpr bool isConst = std::is_const_v<std::remove_reference_t<T>>;
+
 template<typename T, typename U>
 constexpr bool isConvertible = std::is_convertible<PlainType<T>, U>::value;
 
