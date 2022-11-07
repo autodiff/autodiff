@@ -147,78 +147,6 @@ constexpr auto VariableOrder = traits::VariableOrder<T>::value;
 template<typename T>
 constexpr auto isVariable = traits::isVariable<T>::value;
 
-//------------------------------------------------------------------------------
-// CONVENIENT FUNCTIONS (DECLARATION ONLY)
-//------------------------------------------------------------------------------
-template<typename T>
-ExprPtr<T> constant(const T& val);
-
-//------------------------------------------------------------------------------
-// ARITHMETIC OPERATORS (DECLARATION ONLY)
-//------------------------------------------------------------------------------
-template<typename T> ExprPtr<T> operator+(const ExprPtr<T>& r);
-template<typename T> ExprPtr<T> operator-(const ExprPtr<T>& r);
-
-template<typename T> ExprPtr<T> operator+(const ExprPtr<T>& l, const ExprPtr<T>& r);
-template<typename T> ExprPtr<T> operator-(const ExprPtr<T>& l, const ExprPtr<T>& r);
-template<typename T> ExprPtr<T> operator*(const ExprPtr<T>& l, const ExprPtr<T>& r);
-template<typename T> ExprPtr<T> operator/(const ExprPtr<T>& l, const ExprPtr<T>& r);
-
-template<typename T, typename U, Requires<isArithmetic<U>>> ExprPtr<T> operator+(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, Requires<isArithmetic<U>>> ExprPtr<T> operator-(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, Requires<isArithmetic<U>>> ExprPtr<T> operator*(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, Requires<isArithmetic<U>>> ExprPtr<T> operator/(const U& l, const ExprPtr<T>& r);
-
-template<typename T, typename U, Requires<isArithmetic<U>>> ExprPtr<T> operator+(const ExprPtr<T>& l, const U& r);
-template<typename T, typename U, Requires<isArithmetic<U>>> ExprPtr<T> operator-(const ExprPtr<T>& l, const U& r);
-template<typename T, typename U, Requires<isArithmetic<U>>> ExprPtr<T> operator*(const ExprPtr<T>& l, const U& r);
-template<typename T, typename U, Requires<isArithmetic<U>>> ExprPtr<T> operator/(const ExprPtr<T>& l, const U& r);
-
-//------------------------------------------------------------------------------
-// TRIGONOMETRIC FUNCTIONS (DECLARATION ONLY)
-//------------------------------------------------------------------------------
-template<typename T> ExprPtr<T> sin(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> cos(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> tan(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> asin(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> acos(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> atan(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> atan2(const ExprPtr<T>& l, const ExprPtr<T>& r);
-template<typename T, typename U, Requires<isArithmetic<U>>> ExprPtr<T> atan2(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, Requires<isArithmetic<U>>> ExprPtr<T> atan2(const ExprPtr<T>& l, const U& r);
-
-//------------------------------------------------------------------------------
-// HYPERBOLIC FUNCTIONS (DECLARATION ONLY)
-//------------------------------------------------------------------------------
-template<typename T> ExprPtr<T> sinh(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> cosh(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> tanh(const ExprPtr<T>& x);
-
-//------------------------------------------------------------------------------
-// EXPONENTIAL AND LOGARITHMIC FUNCTIONS (DECLARATION ONLY)
-//------------------------------------------------------------------------------
-template<typename T> ExprPtr<T> exp(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> log(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> log10(const ExprPtr<T>& x);
-
-//------------------------------------------------------------------------------
-// POWER FUNCTIONS (DECLARATION ONLY)
-//------------------------------------------------------------------------------
-template<typename T> ExprPtr<T> sqrt(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> pow(const ExprPtr<T>& l, const ExprPtr<T>& r);
-template<typename T, typename U, Requires<isArithmetic<U>>> ExprPtr<T> pow(const U& l, const ExprPtr<T>& r);
-template<typename T, typename U, Requires<isArithmetic<U>>> ExprPtr<T> pow(const ExprPtr<T>& l, const U& r);
-
-//------------------------------------------------------------------------------
-// OTHER FUNCTIONS (DECLARATION ONLY)
-//------------------------------------------------------------------------------
-template<typename T> ExprPtr<T> abs(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> abs2(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> conj(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> real(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> imag(const ExprPtr<T>& x);
-template<typename T> ExprPtr<T> erf(const ExprPtr<T>& x);
-
 /// The abstract type of any node type in the expression tree.
 template<typename T>
 struct Expr
@@ -334,6 +262,8 @@ struct ConstantExpr : Expr<T>
 
     void update() override {}
 };
+
+template<typename T> ExprPtr<T> constant(const T& val) { return std::make_shared<ConstantExpr<T>>(val); }
 
 template<typename T>
 struct UnaryExpr : Expr<T>
@@ -1165,7 +1095,6 @@ struct ConditionalExpr : Expr<T>
 //------------------------------------------------------------------------------
 // CONVENIENT FUNCTIONS
 //------------------------------------------------------------------------------
-template<typename T> ExprPtr<T> constant(const T& val) { return std::make_shared<ConstantExpr<T>>(val); }
 
 //------------------------------------------------------------------------------
 // ARITHMETIC OPERATORS
