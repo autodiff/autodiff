@@ -142,13 +142,13 @@ auto unseed(const At<Args...>& at)
     });
 }
 
-template<size_t order = 1, typename T, EnableIf<Order<T>>...>
+template<size_t order = 1, typename T, Requires<Order<T>> = true>
 auto seed(T& x)
 {
     seed<order>(x, 1.0);
 }
 
-template<size_t order = 1, typename T, EnableIf<Order<T>>...>
+template<size_t order = 1, typename T, Requires<Order<T>> = true>
 auto unseed(T& x)
 {
     seed<order>(x, 0.0);
@@ -173,7 +173,7 @@ auto eval(const Fun& f, const At<Args...>& at, const Along<Vecs...>& along)
 }
 
 /// Extract the derivative of given order from a vector of dual/real numbers.
-template<size_t order = 1, typename Vec, EnableIf<isVector<Vec>>...>
+template<size_t order = 1, typename Vec, Requires<isVector<Vec>> = true>
 auto derivative(const Vec& u)
 {
     size_t len = u.size(); // the length of the vector containing dual/real numbers
