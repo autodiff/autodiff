@@ -135,6 +135,7 @@ struct isVariable { constexpr static bool value = false; };
 
 template<typename T>
 struct isVariable<Variable<T>> { constexpr static bool value = true; };
+
 } // namespace traits
 
 template<typename T>
@@ -233,6 +234,7 @@ struct Expr
 
     /// Bind a value pointer for writing the derivative during propagation
     virtual void bind_value(T* /* grad */) {}
+
     /// Bind an expression pointer for writing the derivative expression during propagation
     virtual void bind_expr(ExprPtr<T>* /* gradx */) {}
 
