@@ -38,7 +38,9 @@ namespace autodiff {
 namespace detail {
 
 template<bool value>
-using EnableIf = typename std::enable_if<value>::type;
+
+template<bool value>
+using Requires = std::enable_if_t<value, bool>;
 
 template<typename T>
 using PlainType = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
