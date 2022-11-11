@@ -23,6 +23,10 @@ suggestions on how to better demonstrate the capabilities of {{autodiff}}.
 
 {{ inputcpp('examples/forward/example-forward-multi-variable-function-with-parameters.cpp') }}
 
+### Derivatives of a multi-variable function that also relies on analytical derivatives
+
+{{ inputcpp('examples/forward/example-forward-multi-variable-combine-analytical-derivative.cpp') }}
+
 ### Gradient vector of a scalar function
 
 {{ inputcpp('examples/forward/example-forward-gradient-derivatives-using-eigen.cpp') }}
