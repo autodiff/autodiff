@@ -6,17 +6,17 @@
 using namespace autodiff;
 
 // Define functions A, Ax, Ay using double; analytical derivatives are available.
-auto  A(double x, double y) -> double { return x*y; }
-auto Ax(double x, double y) -> double { return x; }
-auto Ay(double x, double y) -> double { return y; }
+double  A(double x, double y) { return x*y; }
+double Ax(double x, double y) { return x; }
+double Ay(double x, double y) { return y; }
 
 // Define functions B, Bx, By using double; analytical derivatives are available.
-auto  B(double x, double y) -> double { return x + y; }
-auto Bx(double x, double y) -> double { return 1.0; }
-auto By(double x, double y) -> double { return 1.0; }
+double  B(double x, double y) { return x + y; }
+double Bx(double x, double y) { return 1.0; }
+double By(double x, double y) { return 1.0; }
 
 // Wrap A into Adual function so that it can be used within autodiff-enabled codes.
-auto Adual(dual const& x, dual const& y) -> dual
+dual Adual(dual const& x, dual const& y)
 {
     dual res = A(x.val, y.val);
 
@@ -30,7 +30,7 @@ auto Adual(dual const& x, dual const& y) -> dual
 }
 
 // Wrap B into Bdual function so that it can be used within autodiff-enabled codes.
-auto Bdual(dual const& x, dual const& y) -> dual
+dual Bdual(dual const& x, dual const& y)
 {
     dual res = B(x.val, y.val);
 
@@ -44,7 +44,7 @@ auto Bdual(dual const& x, dual const& y) -> dual
 }
 
 // Define autodiff-enabled C function that relies on Adual and Bdual
-auto C(dual const& x, dual const& y) -> dual
+dual C(dual const& x, dual const& y)
 {
     const auto A = Adual(x, y);
     const auto B = Bdual(x, y);
