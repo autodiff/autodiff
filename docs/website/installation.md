@@ -34,13 +34,8 @@ and follow the instructions below to build {{autodiff}} from source.
 ## Installation using CMake
 
 If you have `cmake` installed in your system, you can then not only install
-{{autodiff}} but also build its examples and tests.
-
-First, you'll need to make sure that the following dependencies are met:
-* [Catch2] in version 3, currently on the `devel` branch of the Catch2 repository
-* [pybind11]
-
-Then, you can start to download {{autodiff}} by either git cloning its [GitHub repository][github]:
+{{autodiff}} but also build its examples and tests. First, you'll need to
+download it by either git cloning its [GitHub repository][github]:
 
 ~~~
 git clone https://github.com/autodiff/autodiff
@@ -49,7 +44,7 @@ git clone https://github.com/autodiff/autodiff
 or by [clicking here][zip] to start the download of a zip file, which you
 should extract to a directory of your choice.
 
-Next, execute the following steps (assuming you are in the root of the source code directory of {{autodiff}}!):
+Then, execute the following steps (assuming you are in the root of the source code directory of {{autodiff}}!):
 
 ~~~
 mkdir .build && cd .build
@@ -127,5 +122,3 @@ installation improvements in the Gitter channel.
 [zip]: https://github.com/autodiff/autodiff/archive/master.zip
 [issues]: https://github.com/autodiff/autodiff/issues/new
 [conda-devenv]: https://conda-devenv.readthedocs.io/en/latest/
-[Catch2]: https://github.com/catchorg/Catch2
-[pybind11]: https://github.com/pybind/pybind11
