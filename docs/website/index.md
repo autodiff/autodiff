@@ -141,11 +141,7 @@ auto [ux, uy, uz] = derivatives(u, wrt(x, y, z));
 
 The function `autodiff::derivatives` will traverse the expression tree stored
 in variable `u` and compute all its derivatives with respect to the input
-variables *(x, y, z)*, which are then stored in the object `dud`. The
-derivative of `u` with respect to input variable `x` (i.e., *∂u/∂x*) can then
-be extracted from `dud` using `dud(x)`. The operations `dud(x)`, `dud(y)`,
-`dud(z)` involve no computations! Just extraction of derivatives previously
-computed with a call to function `autodiff::derivatives`.
+variables *(x, y, z)*.
 
 ## Get in touch!
 
