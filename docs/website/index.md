@@ -13,8 +13,8 @@
 techniques to enable automatic computation of derivatives in an efficient, easy,
 and intuitive way.
 
-We welcome you to use {{autodiff}} and recommend us any improvements you think
-it is necessary. You may want to do so by chatting with us on our [Gitter
+We welcome you to use {{autodiff}} and recommend to us any improvements you think
+are necessary. You may want to do so by chatting with us on our [Gitter
 Community Channel][gitter] and/or by making proposals by creating a [GitHub
 issue][issues].
 
