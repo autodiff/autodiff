@@ -34,8 +34,7 @@
 #include <tuple>
 #include <type_traits>
 
-namespace autodiff {
-namespace detail {
+namespace autodiff::detail {
 
 template<bool value>
 using Requires = std::enable_if_t<value, bool>;
@@ -161,5 +160,4 @@ constexpr auto Reduce(Tuple&& tuple, Function&& f)
     return res;
 }
 
-} // namespace detail
-} // namespace autodiff
+} // namespace autodiff::detail
