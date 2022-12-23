@@ -38,9 +38,6 @@ namespace autodiff {
 namespace detail {
 
 template<bool value>
-using EnableIf = std::enable_if_t<value>;
-
-template<bool value>
 using Requires = std::enable_if_t<value, bool>;
 
 template<typename T>
@@ -58,29 +55,11 @@ using ReturnType = std::invoke_result_t<Fun, Args...>;
 template<typename T>
 constexpr bool isConst = std::is_const_v<std::remove_reference_t<T>>;
 
-template<typename T, typename U>
-constexpr bool isConvertible = std::is_convertible<PlainType<T>, U>::value;
-
 template<typename A, typename B>
 constexpr bool isSame = std::is_same_v<A, B>;
 
 template<typename Tuple>
 constexpr auto TupleSize = std::tuple_size_v<std::decay_t<Tuple>>;
-
-template<typename Tuple>
-constexpr auto TupleHead(Tuple&& tuple)
-{
-    return std::get<0>(std::forward<Tuple>(tuple));
-}
-
-template<typename Tuple>
-constexpr auto TupleTail(Tuple&& tuple)
-{
-    auto g = [&](auto&&, auto&&... args) constexpr {
-        return std::forward_as_tuple(args...);
-    };
-    return std::apply(g, std::forward<Tuple>(tuple));
-}
 
 template<size_t i>
 struct Index
