@@ -28,8 +28,12 @@
 // SOFTWARE.
 
 // autodiff includes
+#include <array>
 #include <autodiff/forward/real.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <cmath>
 #include <tests/utils/catch.hpp>
+
 using namespace autodiff;
 
 #define CHECK_4TH_ORDER_REAL_NUMBERS(a, b) \
@@ -38,6 +42,14 @@ using namespace autodiff;
     CHECK_APPROX(a[2], b[2]);              \
     CHECK_APPROX(a[3], b[3]);              \
     CHECK_APPROX(a[4], b[4]);
+
+constexpr bool equalWithinAbs(real4th&& a, real4th&& b, const double tol = 1e-15)
+{
+    for(int i = 0; i < 5; ++i)
+        if(std::abs(a[i] - b[i]) > tol)
+            return false;
+    return true;
+}
 
 #define CHECK_DERIVATIVES_REAL4TH_WRT(expr)                                          \
     {                                                                                \
@@ -58,140 +70,130 @@ using namespace autodiff;
     }
 
 // Auxiliary constants
-const auto ln10 = 2.302585092994046;
-const auto pi = 3.14159265359;
+constexpr auto ln10 = 2.302585092994046;
+constexpr auto pi = 3.14159265359;
 
 TEST_CASE("testing autodiff::real", "[forward][real]")
 {
+    SECTION("Constructors")
+    {
+        constexpr auto x = real4th(2);
+        CHECK(x[0] == 2);
+        CHECK(x[1] == 0);
+        CHECK(x[2] == 0);
+        CHECK(x[3] == 0);
+        CHECK(x[4] == 0);
+
+        constexpr auto y = real4th({1, -3, 5, -7, 11});
+
+        CHECK(y[0] == 1);
+        CHECK(y[1] == -3);
+        CHECK(y[2] == 5);
+        CHECK(y[3] == -7);
+        CHECK(y[4] == 11);
+    }
+
+    SECTION("Equality Comparison")
+    {
+        constexpr auto x = real4th({1, -3, 5, -7, 11});
+        CHECK(x == x);
+
+        for(int i = 0; i < 5; ++i) {
+            auto y = x;
+            y[i] += 1e-12;
+            CHECK_FALSE(x == y);
+        }
+    }
+
+    SECTION("Assignments")
+    {
+        real4th x, y;
+
+        x = 1;
+        CHECK(x == real4th({1, 0, 0, 0, 0}));
+
+        x = {0.5, 3.0, -5.0, -15.0, 11.0};
+        CHECK(x == real4th({0.5, 3.0, -5.0, -15.0, 11.0}));
+
+        y = +x;
+        CHECK(y == x);
+
+        y = -x;
+        CHECK(y == -x);
+    }
+
+    SECTION("Addition")
+    {
+        constexpr auto x = real4th({1, -3, 5, -7, 11});
+        constexpr auto y = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+
+        CHECK(x + y == real4th({1.5, 0.0, 0.0, -22.0, 22.0}));
+        CHECK(x + 1 == real4th({2, -3, 5, -7, 11}));
+        CHECK(1 + x == x + 1);
+    }
+
+    SECTION("Subtraction")
+    {
+        constexpr auto x = real4th({1, -3, 5, -7, 11});
+        constexpr auto y = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+
+        CHECK(x - y == real4th({0.5, -6.0, 10.0, 8.0, 0.0}));
+        CHECK(x - 1 == real4th({0, -3, 5, -7, 11}));
+        CHECK(1 - x == -(x - 1));
+    }
+
+    SECTION("Multiplication")
+    {
+        using Catch::Matchers::WithinAbs;
+
+        constexpr auto x = real4th({1, -3, 5, -7, 11});
+        constexpr auto y = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+
+        constexpr auto z = x * y;
+        CHECK_THAT(z[0], WithinAbs(x[0] * y[0], 1e-15));
+        CHECK_THAT(z[1], WithinAbs(x[1] * y[0] + x[0] * y[1], 1e-15));
+        CHECK_THAT(z[2], WithinAbs(x[2] * y[0] + 2 * x[1] * y[1] + x[0] * y[2], 1e-15));
+        CHECK_THAT(z[3], WithinAbs(x[3] * y[0] + 3 * x[2] * y[1] + 3 * x[1] * y[2] + x[0] * y[3], 1e-15));
+        CHECK_THAT(z[4], WithinAbs(x[4] * y[0] + 4 * x[3] * y[1] + 6 * x[2] * y[2] + 4 * x[1] * y[3] + x[0] * y[4], 1e-15));
+
+        CHECK(x * 3 == real4th({3, -9, 15, -21, 33}));
+        CHECK(5 * x == real4th({5, -15, 25, -35, 55}));
+    }
+
+    SECTION("Division")
+    {
+        using Catch::Matchers::WithinAbs;
+
+        constexpr auto x = real4th({1, -3, 5, -7, 11});
+        constexpr auto y = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+
+        // real / real
+        real4th z;
+        z[0] = x[0] / y[0];
+        z[1] = (x[1] - y[1] * z[0]) / y[0];
+        z[2] = (x[2] - y[2] * z[0] - 2 * y[1] * z[1]) / y[0];
+        z[3] = (x[3] - y[3] * z[0] - 3 * y[2] * z[1] - 3 * y[1] * z[2]) / y[0];
+        z[4] = (x[4] - y[4] * z[0] - 4 * y[3] * z[1] - 6 * y[2] * z[2] - 4 * y[1] * z[3]) / y[0];
+        CHECK(equalWithinAbs(x / y, std::move(z)));
+
+        // number / real
+        real4th a;
+        a[0] = 3.0 / y[0];
+        a[1] = -(y[1] * a[0]) / y[0];
+        a[2] = -(y[2] * a[0] + 2 * y[1] * a[1]) / y[0];
+        a[3] = -(y[3] * a[0] + 3 * y[2] * a[1] + 3 * y[1] * a[2]) / y[0];
+        a[4] = -(y[4] * a[0] + 4 * y[3] * a[1] + 6 * y[2] * a[2] + 4 * y[1] * a[3]) / y[0];
+        CHECK(equalWithinAbs(3 / y, std::move(a)));
+
+        // real / number
+        CHECK(equalWithinAbs(y / 5, real4th({0.1, 0.6, -1.0, -3.0, 2.2})));
+    }
+
     real4th x, y, z, u, v, w;
 
-    x = 1.0;
-
-    CHECK_APPROX(x[0], 1.0);
-    CHECK_APPROX(x[1], 0.0);
-    CHECK_APPROX(x[2], 0.0);
-    CHECK_APPROX(x[3], 0.0);
-    CHECK_APPROX(x[4], 0.0);
-
     x = {0.5, 3.0, -5.0, -15.0, 11.0};
-
-    CHECK_APPROX(x[0], 0.5);
-    CHECK_APPROX(x[1], 3.0);
-    CHECK_APPROX(x[2], -5.0);
-    CHECK_APPROX(x[3], -15.0);
-    CHECK_APPROX(x[4], 11.0);
-
-    y = +x;
-
-    CHECK_APPROX(y[0], x[0]);
-    CHECK_APPROX(y[1], x[1]);
-    CHECK_APPROX(y[2], x[2]);
-    CHECK_APPROX(y[3], x[3]);
-    CHECK_APPROX(y[4], x[4]);
-
     y = -x;
-
-    CHECK_APPROX(y[0], -x[0]);
-    CHECK_APPROX(y[1], -x[1]);
-    CHECK_APPROX(y[2], -x[2]);
-    CHECK_APPROX(y[3], -x[3]);
-    CHECK_APPROX(y[4], -x[4]);
-
-    z = x + y;
-
-    CHECK_APPROX(z[0], x[0] + y[0]);
-    CHECK_APPROX(z[1], x[1] + y[1]);
-    CHECK_APPROX(z[2], x[2] + y[2]);
-    CHECK_APPROX(z[3], x[3] + y[3]);
-    CHECK_APPROX(z[4], x[4] + y[4]);
-
-    z = x + 1.0;
-
-    CHECK_APPROX(z[0], x[0] + 1.0);
-    CHECK_APPROX(z[1], x[1]);
-    CHECK_APPROX(z[2], x[2]);
-    CHECK_APPROX(z[3], x[3]);
-    CHECK_APPROX(z[4], x[4]);
-
-    z = 1.0 + x;
-
-    CHECK_APPROX(z[0], x[0] + 1.0);
-    CHECK_APPROX(z[1], x[1]);
-    CHECK_APPROX(z[2], x[2]);
-    CHECK_APPROX(z[3], x[3]);
-    CHECK_APPROX(z[4], x[4]);
-
-    z = x - y;
-
-    CHECK_APPROX(z[0], x[0] - y[0]);
-    CHECK_APPROX(z[1], x[1] - y[1]);
-    CHECK_APPROX(z[2], x[2] - y[2]);
-    CHECK_APPROX(z[3], x[3] - y[3]);
-    CHECK_APPROX(z[4], x[4] - y[4]);
-
-    z = x - 1.0;
-
-    CHECK_APPROX(z[0], x[0] - 1.0);
-    CHECK_APPROX(z[1], x[1]);
-    CHECK_APPROX(z[2], x[2]);
-    CHECK_APPROX(z[3], x[3]);
-    CHECK_APPROX(z[4], x[4]);
-
-    z = 1.0 - x;
-
-    CHECK_APPROX(z[0], 1.0 - x[0]);
-    CHECK_APPROX(z[1], -x[1]);
-    CHECK_APPROX(z[2], -x[2]);
-    CHECK_APPROX(z[3], -x[3]);
-    CHECK_APPROX(z[4], -x[4]);
-
-    z = x * y;
-
-    CHECK_APPROX(z[0], x[0] * y[0]);
-    CHECK_APPROX(z[1], x[1] * y[0] + x[0] * y[1]);
-    CHECK_APPROX(z[2], x[2] * y[0] + 2 * x[1] * y[1] + x[0] * y[2]);
-    CHECK_APPROX(z[3], x[3] * y[0] + 3 * x[2] * y[1] + 3 * x[1] * y[2] + x[0] * y[3]);
-    CHECK_APPROX(z[4], x[4] * y[0] + 4 * x[3] * y[1] + 6 * x[2] * y[2] + 4 * x[1] * y[3] + x[0] * y[4]);
-
-    z = x * 3.0;
-
-    CHECK_APPROX(z[0], x[0] * 3.0);
-    CHECK_APPROX(z[1], x[1] * 3.0);
-    CHECK_APPROX(z[2], x[2] * 3.0);
-    CHECK_APPROX(z[3], x[3] * 3.0);
-    CHECK_APPROX(z[4], x[4] * 3.0);
-
-    z = 5.0 * x;
-
-    CHECK_APPROX(z[0], 5.0 * x[0]);
-    CHECK_APPROX(z[1], 5.0 * x[1]);
-    CHECK_APPROX(z[2], 5.0 * x[2]);
-    CHECK_APPROX(z[3], 5.0 * x[3]);
-    CHECK_APPROX(z[4], 5.0 * x[4]);
-
-    z = x / y;
-
-    CHECK_APPROX(z[0], (x[0]) / y[0]);
-    CHECK_APPROX(z[1], (x[1] - y[1] * z[0]) / y[0]);
-    CHECK_APPROX(z[2], (x[2] - y[2] * z[0] - 2 * y[1] * z[1]) / y[0]);
-    CHECK_APPROX(z[3], (x[3] - y[3] * z[0] - 3 * y[2] * z[1] - 3 * y[1] * z[2]) / y[0]);
-    CHECK_APPROX(z[4], (x[4] - y[4] * z[0] - 4 * y[3] * z[1] - 6 * y[2] * z[2] - 4 * y[1] * z[3]) / y[0]);
-
-    z = 3.0 / y;
-
-    CHECK_APPROX(z[0], 3.0 / y[0]);
-    CHECK_APPROX(z[1], -(y[1] * z[0]) / y[0]);
-    CHECK_APPROX(z[2], -(y[2] * z[0] + 2 * y[1] * z[1]) / y[0]);
-    CHECK_APPROX(z[3], -(y[3] * z[0] + 3 * y[2] * z[1] + 3 * y[1] * z[2]) / y[0]);
-    CHECK_APPROX(z[4], -(y[4] * z[0] + 4 * y[3] * z[1] + 6 * y[2] * z[2] + 4 * y[1] * z[3]) / y[0]);
-
     z = y / 5.0;
-
-    CHECK_APPROX(z[0], y[0] / 5.0);
-    CHECK_APPROX(z[1], y[1] / 5.0);
-    CHECK_APPROX(z[2], y[2] / 5.0);
-    CHECK_APPROX(z[3], y[3] / 5.0);
-    CHECK_APPROX(z[4], y[4] / 5.0);
 
     //=====================================================================================================================
     //
