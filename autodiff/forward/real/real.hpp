@@ -267,13 +267,13 @@ constexpr bool areReal = (... && isReal<Args>);
 //=====================================================================================================================
 
 template<size_t N, typename T>
-auto operator+(const Real<N, T>& x)
+constexpr auto operator+(const Real<N, T>& x)
 {
     return x;
 }
 
 template<size_t N, typename T>
-auto operator-(const Real<N, T>& x)
+constexpr auto operator-(const Real<N, T>& x)
 {
     Real<N, T> res;
     For<0, N + 1>([&](auto i) constexpr { res[i] = -x[i]; });
@@ -287,19 +287,19 @@ auto operator-(const Real<N, T>& x)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-auto operator+(Real<N, T> x, const Real<N, T>& y)
+constexpr auto operator+(Real<N, T> x, const Real<N, T>& y)
 {
     return x += y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator+(Real<N, T> x, const U& y)
+constexpr auto operator+(Real<N, T> x, const U& y)
 {
     return x += y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator+(const U& x, Real<N, T> y)
+constexpr auto operator+(const U& x, Real<N, T> y)
 {
     return y += x;
 }
@@ -310,19 +310,19 @@ auto operator+(const U& x, Real<N, T> y)
 //
 //=====================================================================================================================
 template<size_t N, typename T>
-auto operator-(Real<N, T> x, const Real<N, T>& y)
+constexpr auto operator-(Real<N, T> x, const Real<N, T>& y)
 {
     return x -= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator-(Real<N, T> x, const U& y)
+constexpr auto operator-(Real<N, T> x, const U& y)
 {
     return x -= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator-(const U& x, Real<N, T> y)
+constexpr auto operator-(const U& x, Real<N, T> y)
 {
     y -= x;
     y *= -static_cast<T>(1.0);
@@ -336,19 +336,19 @@ auto operator-(const U& x, Real<N, T> y)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-auto operator*(Real<N, T> x, const Real<N, T>& y)
+constexpr auto operator*(Real<N, T> x, const Real<N, T>& y)
 {
     return x *= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator*(Real<N, T> x, const U& y)
+constexpr auto operator*(Real<N, T> x, const U& y)
 {
     return x *= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator*(const U& x, Real<N, T> y)
+constexpr auto operator*(const U& x, Real<N, T> y)
 {
     return y *= x;
 }
@@ -360,19 +360,19 @@ auto operator*(const U& x, Real<N, T> y)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-auto operator/(Real<N, T> x, const Real<N, T>& y)
+constexpr auto operator/(Real<N, T> x, const Real<N, T>& y)
 {
     return x /= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator/(Real<N, T> x, const U& y)
+constexpr auto operator/(Real<N, T> x, const U& y)
 {
     return x /= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator/(const U& x, Real<N, T> y)
+constexpr auto operator/(const U& x, Real<N, T> y)
 {
     Real<N, T> z = x;
     return z /= y;
