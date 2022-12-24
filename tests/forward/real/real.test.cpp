@@ -149,12 +149,12 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         constexpr auto x = real4th({1, -3, 5, -7, 11});
         constexpr auto y = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
 
-        constexpr auto z = x * y;
-        CHECK_THAT(z[0], WithinAbs(x[0] * y[0], 1e-15));
-        CHECK_THAT(z[1], WithinAbs(x[1] * y[0] + x[0] * y[1], 1e-15));
-        CHECK_THAT(z[2], WithinAbs(x[2] * y[0] + 2 * x[1] * y[1] + x[0] * y[2], 1e-15));
-        CHECK_THAT(z[3], WithinAbs(x[3] * y[0] + 3 * x[2] * y[1] + 3 * x[1] * y[2] + x[0] * y[3], 1e-15));
-        CHECK_THAT(z[4], WithinAbs(x[4] * y[0] + 4 * x[3] * y[1] + 6 * x[2] * y[2] + 4 * x[1] * y[3] + x[0] * y[4], 1e-15));
+        constexpr auto z0 = x[0] * y[0];
+        constexpr auto z1 = x[1] * y[0] + x[0] * y[1];
+        constexpr auto z2 = x[2] * y[0] + 2 * x[1] * y[1] + x[0] * y[2];
+        constexpr auto z3 = x[3] * y[0] + 3 * x[2] * y[1] + 3 * x[1] * y[2] + x[0] * y[3];
+        constexpr auto z4 = x[4] * y[0] + 4 * x[3] * y[1] + 6 * x[2] * y[2] + 4 * x[1] * y[3] + x[0] * y[4];
+        CHECK(equalWithinAbs(x * y, real4th({z0, z1, z2, z3, z4})));
 
         CHECK(x * 3 == real4th({3, -9, 15, -21, 33}));
         CHECK(5 * x == real4th({5, -15, 25, -35, 55}));
@@ -168,22 +168,20 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         constexpr auto y = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
 
         // real / real
-        real4th z;
-        z[0] = x[0] / y[0];
-        z[1] = (x[1] - y[1] * z[0]) / y[0];
-        z[2] = (x[2] - y[2] * z[0] - 2 * y[1] * z[1]) / y[0];
-        z[3] = (x[3] - y[3] * z[0] - 3 * y[2] * z[1] - 3 * y[1] * z[2]) / y[0];
-        z[4] = (x[4] - y[4] * z[0] - 4 * y[3] * z[1] - 6 * y[2] * z[2] - 4 * y[1] * z[3]) / y[0];
-        CHECK(equalWithinAbs(x / y, std::move(z)));
+        constexpr auto z0 = x[0] / y[0];
+        constexpr auto z1 = (x[1] - y[1] * z0) / y[0];
+        constexpr auto z2 = (x[2] - y[2] * z0 - 2 * y[1] * z1) / y[0];
+        constexpr auto z3 = (x[3] - y[3] * z0 - 3 * y[2] * z1 - 3 * y[1] * z2) / y[0];
+        constexpr auto z4 = (x[4] - y[4] * z0 - 4 * y[3] * z1 - 6 * y[2] * z2 - 4 * y[1] * z3) / y[0];
+        CHECK(equalWithinAbs(x / y, real4th({z0, z1, z2, z3, z4})));
 
         // number / real
-        real4th a;
-        a[0] = 3.0 / y[0];
-        a[1] = -(y[1] * a[0]) / y[0];
-        a[2] = -(y[2] * a[0] + 2 * y[1] * a[1]) / y[0];
-        a[3] = -(y[3] * a[0] + 3 * y[2] * a[1] + 3 * y[1] * a[2]) / y[0];
-        a[4] = -(y[4] * a[0] + 4 * y[3] * a[1] + 6 * y[2] * a[2] + 4 * y[1] * a[3]) / y[0];
-        CHECK(equalWithinAbs(3 / y, std::move(a)));
+        constexpr auto a0 = 3.0 / y[0];
+        constexpr auto a1 = -(y[1] * a0) / y[0];
+        constexpr auto a2 = -(y[2] * a0 + 2 * y[1] * a1) / y[0];
+        constexpr auto a3 = -(y[3] * a0 + 3 * y[2] * a1 + 3 * y[1] * a2) / y[0];
+        constexpr auto a4 = -(y[4] * a0 + 4 * y[3] * a1 + 6 * y[2] * a2 + 4 * y[1] * a3) / y[0];
+        CHECK(equalWithinAbs(3 / y, real4th({a0, a1, a2, a3, a4})));
 
         // real / number
         CHECK(equalWithinAbs(y / 5, real4th({0.1, 0.6, -1.0, -3.0, 2.2})));
