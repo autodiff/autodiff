@@ -202,6 +202,9 @@ class Real
         return static_cast<U>(m_data[0]);
     }
 #endif
+
+    template<size_t M, typename U>
+    friend bool operator==(const Real<M, U>& x, const Real<M, U>& y);
 };
 
 //=====================================================================================================================
@@ -929,11 +932,7 @@ auto repr(const Real<N, T>& x)
 template<size_t N, typename T>
 bool operator==(const Real<N, T>& x, const Real<N, T>& y)
 {
-    bool res = true;
-    For<0, N + 1>([&](auto i) constexpr {
-        res = res && x[i] == y[i];
-    });
-    return res;
+    return std::equal(x.m_data.begin(), x.m_data.end(), y.m_data.begin(), y.m_data.end());
 }
 
 template<size_t N, typename T>
