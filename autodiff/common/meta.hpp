@@ -71,7 +71,7 @@ struct Index
 template<size_t i, size_t ibegin, size_t iend, typename Function>
 constexpr auto AuxFor(Function&& f)
 {
-    if constexpr (i < iend) {
+    if constexpr(i < iend) {
         f(Index<i>{});
         AuxFor<i + 1, ibegin, iend>(std::forward<Function>(f));
     }
@@ -92,8 +92,7 @@ constexpr auto For(Function&& f)
 template<size_t i, size_t ibegin, size_t iend, typename Function>
 constexpr auto AuxReverseFor(Function&& f)
 {
-    if constexpr (i < iend)
-    {
+    if constexpr(i < iend) {
         AuxReverseFor<i + 1, ibegin, iend>(std::forward<Function>(f));
         f(Index<i>{});
     }
@@ -154,9 +153,10 @@ constexpr auto Reduce(Tuple&& tuple, Function&& f)
 {
     using ResultType = std::invoke_result_t<Function, decltype(std::get<0>(tuple))>;
     ResultType res = {};
-    ForEach(tuple, [&](auto&& item) constexpr {
-        res += f(item);
-    });
+    ForEach(
+        tuple, [&](auto&& item) constexpr {
+            res += f(item);
+        });
     return res;
 }
 
