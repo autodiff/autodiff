@@ -140,9 +140,14 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         constexpr auto x = real4th({1, -3, 5, -7, 11});
         constexpr auto y = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
 
-        CHECK(x + y == real4th({1.5, 0.0, 0.0, -22.0, 22.0}));
-        CHECK(x + 1 == real4th({2, -3, 5, -7, 11}));
-        CHECK(1 + x == x + 1);
+        constexpr auto realAddReal = x + y;
+        CHECK(realAddReal == real4th({1.5, 0.0, 0.0, -22.0, 22.0}));
+
+        constexpr auto realAddNum = x + 1;
+        CHECK(realAddNum == real4th({2, -3, 5, -7, 11}));
+
+        constexpr auto numAddReal = 1 + x;
+        CHECK(numAddReal == x + 1);
     }
 
     SECTION("Subtraction")
