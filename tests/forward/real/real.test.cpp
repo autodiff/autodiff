@@ -295,36 +295,44 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     //
     //=====================================================================================================================
 
-    real4th x, y, z, u, v, w;
+    SECTION("sin/cos functions")
+    {
+        CHECK(sin(real4th(1.234)) == real4th(std::sin(1.234)));
+        CHECK(cos(real4th(1.234)) == real4th(std::cos(1.234)));
 
-    x = {0.5, 3.0, -5.0, -15.0, 11.0};
-    y = -x;
-    z = y / 5.0;
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        const auto y0 = sin(x[0]);
+        const auto z0 = cos(x[0]);
+        const auto y1 = x[1] * z0;
+        const auto z1 = -x[1] * y0;
+        const auto y2 = x[2] * z0 + x[1] * z1;
+        const auto z2 = -x[2] * y0 - x[1] * y1;
+        const auto y3 = x[3] * z0 + 2 * x[2] * z1 + x[1] * z2;
+        const auto z3 = -x[3] * y0 - 2 * x[2] * y1 - x[1] * y2;
+        const auto y4 = x[4] * z0 + 3 * x[3] * z1 + 3 * x[2] * z2 + x[1] * z3;
+        const auto z4 = -x[4] * y0 - 3 * x[3] * y1 - 3 * x[2] * y2 - x[1] * y3;
+        CHECK(equalWithinAbs(sin(x), real4th({y0, y1, y2, y3, y4})));
+        CHECK(equalWithinAbs(cos(x), real4th({z0, z1, z2, z3, z4})));
+    }
 
-    y = sin(x);
-    z = cos(x);
-
-    CHECK_APPROX(y[0], sin(x[0]));
-    CHECK_APPROX(z[0], cos(x[0]));
-    CHECK_APPROX(y[1], x[1] * z[0]);
-    CHECK_APPROX(z[1], -x[1] * y[0]);
-    CHECK_APPROX(y[2], x[2] * z[0] + x[1] * z[1]);
-    CHECK_APPROX(z[2], -x[2] * y[0] - x[1] * y[1]);
-    CHECK_APPROX(y[3], x[3] * z[0] + 2 * x[2] * z[1] + x[1] * z[2]);
-    CHECK_APPROX(z[3], -x[3] * y[0] - 2 * x[2] * y[1] - x[1] * y[2]);
-    CHECK_APPROX(y[4], x[4] * z[0] + 3 * x[3] * z[1] + 3 * x[2] * z[2] + x[1] * z[3]);
-    CHECK_APPROX(z[4], -x[4] * y[0] - 3 * x[3] * y[1] - 3 * x[2] * y[2] - x[1] * y[3]);
-
-    y = tan(x);
-    z = sin(x) / cos(x);
-
-    CHECK_4TH_ORDER_REAL_NUMBERS(y, z);
+    SECTION("tan function")
+    {
+        CHECK(tan(real4th(1.234)) == real4th(std::tan(1.234)));
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        CHECK(equalWithinAbs(tan(x), sin(x) / cos(x), 1e-13));
+    }
 
     //=====================================================================================================================
     //
     // TESTING INVERSE TRIGONOMETRIC FUNCTIONS
     //
     //=====================================================================================================================
+
+    real4th x, y, z, u, v, w;
+
+    x = {0.5, 3.0, -5.0, -15.0, 11.0};
+    y = -x;
+    z = y / 5.0;
 
     real4th xprime = {{x[1], x[2], x[3], x[4]}};
 
