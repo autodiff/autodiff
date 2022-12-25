@@ -77,6 +77,8 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
 {
     SECTION("Constructors")
     {
+        constexpr auto tmp = real4th();
+
         constexpr auto x = real4th(2);
         CHECK(x[0] == 2);
         CHECK(x[1] == 0);
@@ -85,12 +87,17 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         CHECK(x[4] == 0);
 
         constexpr auto y = real4th({1, -3, 5, -7, 11});
-
         CHECK(y[0] == 1);
         CHECK(y[1] == -3);
         CHECK(y[2] == 5);
         CHECK(y[3] == -7);
         CHECK(y[4] == 11);
+
+        constexpr auto z = real3rd(Real<4, float>({1, -3, 5, -7, 11}));
+        CHECK(z[0] == 1);
+        CHECK(z[1] == -3);
+        CHECK(z[2] == 5);
+        CHECK(z[3] == -7);
     }
 
     SECTION("Equality Comparison")

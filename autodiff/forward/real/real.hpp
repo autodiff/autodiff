@@ -55,18 +55,23 @@ class Real
     static_assert(isArithmetic<T>);
 
     /// The value and derivatives of the number up to order *N*.
-    std::array<T, N + 1> m_data = {};
+    std::array<T, N + 1> m_data;
 
   public:
     /// Construct a default Real number of order *N* and type *T*.
     constexpr Real()
+        : m_data{}
     {
     }
 
     /// Construct a Real number with given data.
-    constexpr Real(const T& value)
+    constexpr Real(const T value)
+        : m_data{}
     {
         m_data[0] = value;
+        For<1, N + 1>([&](auto i) constexpr {
+            m_data[i] = T{0};
+        });
     }
 
     /// Construct a Real number with given data.
@@ -78,6 +83,7 @@ class Real
     /// Construct a Real number with given data.
     template<size_t M, typename U, Requires<isArithmetic<U>> = true>
     constexpr explicit Real(const Real<M, U>& other)
+        : m_data{}
     {
         static_assert(N <= M);
         For<0, N + 1>([&](auto i) constexpr {
@@ -108,10 +114,10 @@ class Real
     }
 
     template<typename U, Requires<isArithmetic<U>> = true>
-    constexpr auto operator=(const U& value) -> Real&
+    constexpr auto operator=(const U value) -> Real&
     {
-        m_data[0] = value;
-        For<1, N + 1>([&](auto i) constexpr { m_data[i] = T{}; });
+        m_data[0] = static_cast<T>(value);
+        For<1, N + 1>([&](auto i) constexpr { m_data[i] = T{0}; });
         return *this;
     }
 
@@ -122,28 +128,28 @@ class Real
     }
 
     template<typename U, Requires<isArithmetic<U>> = true>
-    constexpr auto operator+=(const U& value) -> Real&
+    constexpr auto operator+=(const U value) -> Real&
     {
         m_data[0] += static_cast<T>(value);
         return *this;
     }
 
     template<typename U, Requires<isArithmetic<U>> = true>
-    constexpr auto operator-=(const U& value) -> Real&
+    constexpr auto operator-=(const U value) -> Real&
     {
         m_data[0] -= static_cast<T>(value);
         return *this;
     }
 
     template<typename U, Requires<isArithmetic<U>> = true>
-    constexpr auto operator*=(const U& value) -> Real&
+    constexpr auto operator*=(const U value) -> Real&
     {
         For<0, N + 1>([&](auto i) constexpr { m_data[i] *= static_cast<T>(value); });
         return *this;
     }
 
     template<typename U, Requires<isArithmetic<U>> = true>
-    constexpr auto operator/=(const U& value) -> Real&
+    constexpr auto operator/=(const U value) -> Real&
     {
         For<0, N + 1>([&](auto i) constexpr { m_data[i] /= static_cast<T>(value); });
         return *this;
