@@ -187,69 +187,85 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         CHECK(equalWithinAbs(y / 5, real4th({0.1, 0.6, -1.0, -3.0, 2.2})));
     }
 
-    real4th x, y, z, u, v, w;
-
-    x = {0.5, 3.0, -5.0, -15.0, 11.0};
-    y = -x;
-    z = y / 5.0;
-
     //=====================================================================================================================
     //
     // TESTING EXPONENTIAL AND LOGARITHMIC FUNCTIONS
     //
     //=====================================================================================================================
 
-    y = exp(x);
+    SECTION("exp function")
+    {
+        CHECK(exp(real4th(1.234)) == real4th(std::exp(1.234)));
 
-    CHECK_APPROX(y[0], exp(x[0]));
-    CHECK_APPROX(y[1], x[1] * y[0]);
-    CHECK_APPROX(y[2], x[2] * y[0] + x[1] * y[1]);
-    CHECK_APPROX(y[3], x[3] * y[0] + 2 * x[2] * y[1] + x[1] * y[2]);
-    CHECK_APPROX(y[4], x[4] * y[0] + 3 * x[3] * y[1] + 3 * x[2] * y[2] + x[1] * y[3]);
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        const auto z0 = exp(x[0]); // not constexpr
+        const auto z1 = x[1] * z0;
+        const auto z2 = x[2] * z0 + x[1] * z1;
+        const auto z3 = x[3] * z0 + 2 * x[2] * z1 + x[1] * z2;
+        const auto z4 = x[4] * z0 + 3 * x[3] * z1 + 3 * x[2] * z2 + x[1] * z3;
+        CHECK(equalWithinAbs(exp(x), real4th({z0, z1, z2, z3, z4})));
+    }
 
-    y = log(x);
+    SECTION("log, log10 functions")
+    {
+        CHECK(log(real4th(1.234)) == real4th(std::log(1.234)));
 
-    CHECK_APPROX(y[0], log(x[0]));
-    CHECK_APPROX(y[1], (x[1]) / x[0]);
-    CHECK_APPROX(y[2], (x[2] - x[1] * y[1]) / x[0]);
-    CHECK_APPROX(y[3], (x[3] - x[2] * y[1] - 2 * x[1] * y[2]) / x[0]);
-    CHECK_APPROX(y[4], (x[4] - x[3] * y[1] - 3 * x[2] * y[2] - 3 * x[1] * y[3]) / x[0]);
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        const auto z0 = log(x[0]); // not constexpr
+        const auto z1 = x[1] / x[0];
+        const auto z2 = (x[2] - x[1] * z1) / x[0];
+        const auto z3 = (x[3] - x[2] * z1 - 2 * x[1] * z2) / x[0];
+        const auto z4 = (x[4] - x[3] * z1 - 3 * x[2] * z2 - 3 * x[1] * z3) / x[0];
+        CHECK(equalWithinAbs(log(x), real4th({z0, z1, z2, z3, z4})));
 
-    y = log10(x);
-    z = log(x) / ln10;
+        CHECK(equalWithinAbs(log10(real4th(1.234)), real4th(std::log10(1.234)), 5e-16));
+        CHECK(equalWithinAbs(log10(x), log(x) / ln10));
+    }
 
-    CHECK_4TH_ORDER_REAL_NUMBERS(y, z);
+    SECTION("sqrt function")
+    {
+        CHECK(sqrt(real4th(1.234)) == real4th(std::sqrt(1.234)));
 
-    y = sqrt(x);
-    z = exp(0.5 * log(x));
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        CHECK(equalWithinAbs(sqrt(x), exp(0.5 * log(x))));
+    }
 
-    CHECK_4TH_ORDER_REAL_NUMBERS(y, z);
+    SECTION("cbrt function")
+    {
+        CHECK(equalWithinAbs(cbrt(real4th(1.234)), real4th(std::cbrt(1.234)), 5e-16));
 
-    y = cbrt(x);
-    z = exp(1.0 / 3.0 * log(x));
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        CHECK(equalWithinAbs(cbrt(x), exp(1.0 / 3.0 * log(x))));
+    }
 
-    CHECK_4TH_ORDER_REAL_NUMBERS(y, z);
+    SECTION("pow functions")
+    {
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
 
-    y = pow(x, x);
-    z = exp(x * log(x));
+        // real^real
+        CHECK(equalWithinAbs(pow(real4th(1.234), real4th(1.234)), real4th(std::pow(1.234, 1.234)), 5e-16));
+        CHECK(equalWithinAbs(pow(x, x), exp(x * log(x))));
 
-    CHECK_4TH_ORDER_REAL_NUMBERS(y, z);
+        // real^number
+        CHECK(equalWithinAbs(pow(real4th(1.234), 1.234), real4th(std::pow(1.234, 1.234)), 5e-16));
+        CHECK(equalWithinAbs(pow(x, pi), exp(pi * log(x)), 1e-12));
 
-    y = pow(x, pi);
-    z = exp(pi * log(x));
-
-    CHECK_4TH_ORDER_REAL_NUMBERS(y, z);
-
-    y = pow(pi, x);
-    z = exp(x * log(pi));
-
-    CHECK_4TH_ORDER_REAL_NUMBERS(y, z);
+        // number^real
+        CHECK(equalWithinAbs(pow(1.234, real4th(1.234)), real4th(std::pow(1.234, 1.234)), 5e-16));
+        CHECK(equalWithinAbs(pow(pi, x), exp(x * log(pi)), 1e-12));
+    }
 
     //=====================================================================================================================
     //
     // TESTING TRIGONOMETRIC FUNCTIONS
     //
     //=====================================================================================================================
+
+    real4th x, y, z, u, v, w;
+
+    x = {0.5, 3.0, -5.0, -15.0, 11.0};
+    y = -x;
+    z = y / 5.0;
 
     y = sin(x);
     z = cos(x);

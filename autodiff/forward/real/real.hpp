@@ -385,49 +385,45 @@ constexpr auto operator/(const U& x, Real<N, T> y)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-constexpr auto exp(const Real<N, T>& x)
+auto exp(const Real<N, T>& x)
 {
-    Real<N, T> expx;
-    expx[0] = exp(x[0]);
+    Real<N, T> res = exp(x[0]); // std::exp is not constexpr
     For<1, N + 1>([&](auto i) constexpr {
-        expx[i] = Sum<0, i>([&](auto j) constexpr {
+        res[i] = Sum<0, i>([&](auto j) constexpr {
             constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-            return c * x[i - j] * expx[j];
+            return c * x[i - j] * res[j];
         });
     });
-    return expx;
+    return res;
 }
 
 template<size_t N, typename T>
-constexpr auto log(const Real<N, T>& x)
+auto log(const Real<N, T>& x)
 {
     assert(x[0] != 0 && "autodiff::log(x) has undefined value and derivatives when x = 0");
-    Real<N, T> logx;
-    logx[0] = log(x[0]);
+    Real<N, T> res = log(x[0]); // std::log is not constexpr
     For<1, N + 1>([&](auto i) constexpr {
-        logx[i] = x[i] - Sum<1, i>([&](auto j) constexpr {
-                      constexpr auto c = BinomialCoefficient<i.index - 1, j.index - 1>;
-                      return c * x[i - j] * logx[j];
-                  });
-        logx[i] /= x[0];
+        res[i] = x[i] - Sum<1, i>([&](auto j) constexpr {
+                     constexpr auto c = BinomialCoefficient<i.index - 1, j.index - 1>;
+                     return c * x[i - j] * res[j];
+                 });
+        res[i] /= x[0];
     });
-    return logx;
+    return res;
 }
 
 template<size_t N, typename T>
-constexpr auto log10(const Real<N, T>& x)
+auto log10(const Real<N, T>& x)
 {
     assert(x[0] != 0 && "autodiff::log10(x) has undefined value and derivatives when x = 0");
-    const auto ln10 = 2.302585092994046;
-    Real<N, T> res = log(x);
-    return res /= ln10;
+    constexpr auto ln10 = 2.302585092994046;
+    return log(x) / ln10;
 }
 
 template<size_t N, typename T>
-constexpr auto sqrt(const Real<N, T>& x)
+auto sqrt(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = sqrt(x[0]);
+    Real<N, T> res = sqrt(x[0]); // std::sqrt is not constexpr
 
     if constexpr(N > 0) {
         // assert(x[0] != 0 && "autodiff::sqrt(x) has undefined derivatives when x = 0");
@@ -451,10 +447,9 @@ constexpr auto sqrt(const Real<N, T>& x)
 }
 
 template<size_t N, typename T>
-constexpr auto cbrt(const Real<N, T>& x)
+auto cbrt(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = cbrt(x[0]);
+    Real<N, T> res = cbrt(x[0]); // std::cbrt is not constexpr
 
     if constexpr(N > 0) {
         // assert(x[0] != 0 && "autodiff::cbrt(x) has undefined derivatives when x = 0");
@@ -478,15 +473,15 @@ constexpr auto cbrt(const Real<N, T>& x)
 }
 
 template<size_t N, typename T>
-constexpr auto pow(const Real<N, T>& x, const Real<N, T>& y)
+auto pow(const Real<N, T>& x, const Real<N, T>& y)
 {
-    Real<N, T> res;
-    res[0] = pow(x[0], y[0]);
+    Real<N, T> res = pow(x[0], y[0]); // std::pow is not constexpr
+
     if constexpr(N > 0) {
         // assert(x[0] != 0 && "autodiff::pow(x, y) has undefined derivatives when x = 0");
         if(x[0] == 0)
             return res;
-        Real<N, T> lnx = log(x);
+        const auto lnx = log(x);
         Real<N, T> a;
         For<1, N + 1>([&](auto i) constexpr {
             a[i] = Sum<0, i + 1>([&](auto j) constexpr {
@@ -504,15 +499,15 @@ constexpr auto pow(const Real<N, T>& x, const Real<N, T>& y)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto pow(const Real<N, T>& x, const U& c)
+auto pow(const Real<N, T>& x, const U u)
 {
-    Real<N, T> res;
-    res[0] = pow(x[0], static_cast<T>(c));
+    Real<N, T> res = pow(x[0], static_cast<T>(u)); // std::pow is not constexpr
+
     if constexpr(N > 0) {
         // assert(x[0] != 0 && "autodiff::pow(x, y) has undefined derivatives when x = 0");
         if(x[0] == 0)
             return res;
-        Real<N, T> a = c * log(x);
+        const auto a = u * log(x);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
@@ -524,15 +519,15 @@ constexpr auto pow(const Real<N, T>& x, const U& c)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto pow(const U& c, const Real<N, T>& y)
+auto pow(const U u, const Real<N, T>& y)
 {
-    Real<N, T> res;
-    res[0] = pow(static_cast<T>(c), y[0]);
+    Real<N, T> res = pow(static_cast<T>(u), y[0]); // std::pow is not constexpr
+
     if constexpr(N > 0) {
-        // assert(c != 0 && "autodiff::pow(x, y) has undefined derivatives when x = 0");
-        if(c == 0)
+        // assert(u != 0 && "autodiff::pow(x, y) has undefined derivatives when x = 0");
+        if(u == 0)
             return res;
-        Real<N, T> a = y * log(c);
+        const auto a = y * log(u);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
