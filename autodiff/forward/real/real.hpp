@@ -273,11 +273,9 @@ constexpr auto operator+(const Real<N, T>& x)
 }
 
 template<size_t N, typename T>
-constexpr auto operator-(const Real<N, T>& x)
+constexpr auto operator-(Real<N, T> x)
 {
-    Real<N, T> res;
-    For<0, N + 1>([&](auto i) constexpr { res[i] = -x[i]; });
-    return res;
+    return x *= -1;
 }
 
 //=====================================================================================================================

@@ -105,6 +105,8 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         }
     }
 
+    // explicitly tested ctor + equality comparison -> now we can trust checks by equality comparisons of temporaries
+
     SECTION("Assignments")
     {
         real4th x, y;
@@ -120,6 +122,17 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
 
         y = -x;
         CHECK(y == -x);
+    }
+
+    SECTION("Unary plus/minus")
+    {
+        constexpr auto x = real4th({1, -3, 5, -7, 11});
+
+        constexpr auto plusX = +x;
+        CHECK(plusX == x);
+
+        constexpr auto minusX = -x;
+        CHECK(minusX == real4th({-1, 3, -5, 7, -11}));
     }
 
     SECTION("Addition")
