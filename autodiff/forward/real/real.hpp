@@ -546,13 +546,10 @@ auto pow(const U u, const Real<N, T>& y)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-auto sincos(const Real<N, T>& x) -> std::tuple<Real<N, T>, Real<N, T>>
+auto sincos(const Real<N, T>& x) -> std::array<Real<N, T>, 2>
 {
-    Real<N, T> sinx;
-    Real<N, T> cosx;
-
-    cosx[0] = cos(x[0]);
-    sinx[0] = sin(x[0]);
+    Real<N, T> sinx = sin(x[0]); // std::sin is not constexpr
+    Real<N, T> cosx = cos(x[0]); // std::cos is not constexpr
 
     For<1, N + 1>([&](auto i) constexpr {
         cosx[i] = -Sum<0, i>([&](auto j) constexpr {
@@ -572,24 +569,22 @@ auto sincos(const Real<N, T>& x) -> std::tuple<Real<N, T>, Real<N, T>>
 template<size_t N, typename T>
 auto sin(const Real<N, T>& x)
 {
-    return std::get<0>(sincos(x));
+    return sincos(x)[0];
 }
 
 template<size_t N, typename T>
 auto cos(const Real<N, T>& x)
 {
-    return std::get<1>(sincos(x));
+    return sincos(x)[1];
 }
 
 template<size_t N, typename T>
 auto tan(const Real<N, T>& x)
 {
-    Real<N, T> tanx;
-    tanx[0] = tan(x[0]);
+    Real<N, T> tanx = tan(x[0]); // std::tan is not constexpr
 
     if constexpr(N > 0) {
-        Real<N, T> aux;
-        aux[0] = 1 + tanx[0] * tanx[0];
+        Real<N, T> aux = 1 + tanx[0] * tanx[0];
 
         For<1, N + 1>([&](auto i) constexpr {
             tanx[i] = Sum<0, i>([&](auto j) constexpr {
@@ -608,12 +603,12 @@ auto tan(const Real<N, T>& x)
 }
 
 template<size_t N, typename T>
-constexpr auto asin(const Real<N, T>& x)
+auto asin(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = asin(x[0]);
+    Real<N, T> res = asin(x[0]); // std::asin is not constexpr
+
     if constexpr(N > 0) {
-        assert(x[0] < 1.0 && "autodiff::asin(x) has undefined derivative when |x| >= 1");
+        assert(abs(x[0]) < 1.0 && "autodiff::asin(x) has undefined derivative when |x| >= 1");
         Real<N - 1, T> xprime;
         For<1, N + 1>([&](auto i) constexpr {
             xprime[i - 1] = x[i];
@@ -628,12 +623,12 @@ constexpr auto asin(const Real<N, T>& x)
 }
 
 template<size_t N, typename T>
-constexpr auto acos(const Real<N, T>& x)
+auto acos(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = acos(x[0]);
+    Real<N, T> res = acos(x[0]); // std::acos is not constexpr
+
     if constexpr(N > 0) {
-        assert(x[0] < 1.0 && "autodiff::acos(x) has undefined derivative when |x| >= 1");
+        assert(abs(x[0] < 1.0) && "autodiff::acos(x) has undefined derivative when |x| >= 1");
         Real<N - 1, T> xprime;
         For<1, N + 1>([&](auto i) constexpr {
             xprime[i - 1] = x[i];
@@ -648,10 +643,10 @@ constexpr auto acos(const Real<N, T>& x)
 }
 
 template<size_t N, typename T>
-constexpr auto atan(const Real<N, T>& x)
+auto atan(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = atan(x[0]);
+    Real<N, T> res = atan(x[0]); // std::atan is not constexpr
+
     if constexpr(N > 0) {
         Real<N - 1, T> xprime;
         For<1, N + 1>([&](auto i) constexpr {
@@ -667,11 +662,11 @@ constexpr auto atan(const Real<N, T>& x)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto atan2(const U& c, const Real<N, T>& x)
+auto atan2(const U c, const Real<N, T>& x)
 {
     // d[atan2(c,x)]/dx = -c / (c^2 + x^2)
-    Real<N, T> res;
-    res[0] = atan2(c, x[0]);
+    Real<N, T> res = atan2(c, x[0]); // std::atan2 is not constexpr
+
     if constexpr(N > 0) {
         Real<N - 1, T> xprime;
         For<1, N + 1>([&](auto i) constexpr {
@@ -687,11 +682,11 @@ constexpr auto atan2(const U& c, const Real<N, T>& x)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto atan2(const Real<N, T>& y, const U& c)
+auto atan2(const Real<N, T>& y, const U c)
 {
     // d[atan2(y,c)]/dy = c / (c^2 + y^2)
-    Real<N, T> res;
-    res[0] = atan2(y[0], c);
+    Real<N, T> res = atan2(y[0], c); // std::atan2 is not constexpr
+
     if constexpr(N > 0) {
         Real<N - 1, T> yprime;
         For<1, N + 1>([&](auto i) constexpr {
@@ -707,12 +702,12 @@ constexpr auto atan2(const Real<N, T>& y, const U& c)
 }
 
 template<size_t N, typename T>
-constexpr auto atan2(const Real<N, T>& y, const Real<N, T>& x)
+auto atan2(const Real<N, T>& y, const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = atan2(y[0], x[0]);
+    Real<N, T> res = atan2(y[0], x[0]); // std::atan2 is not constexpr
+
     if constexpr(N > 0) {
-        const T denom = x[0] * x[0] + y[0] * y[0];
+        const auto denom = x[0] * x[0] + y[0] * y[0];
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = (x[0] * y[i] - x[i] * y[0]) / denom;
         });
