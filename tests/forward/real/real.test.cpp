@@ -194,24 +194,24 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         constexpr auto x = real4th({1, -3, 5, -7, 11});
         constexpr auto y = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
 
-        // real / real
+        constexpr auto realDivReal = x / y;
         constexpr auto z0 = x[0] / y[0];
         constexpr auto z1 = (x[1] - y[1] * z0) / y[0];
         constexpr auto z2 = (x[2] - y[2] * z0 - 2 * y[1] * z1) / y[0];
         constexpr auto z3 = (x[3] - y[3] * z0 - 3 * y[2] * z1 - 3 * y[1] * z2) / y[0];
         constexpr auto z4 = (x[4] - y[4] * z0 - 4 * y[3] * z1 - 6 * y[2] * z2 - 4 * y[1] * z3) / y[0];
-        CHECK(equalWithinAbs(x / y, real4th({z0, z1, z2, z3, z4})));
+        CHECK(equalWithinAbs(realDivReal, real4th({z0, z1, z2, z3, z4})));
 
-        // number / real
+        constexpr auto numDivReal = 3 / y;
         constexpr auto a0 = 3.0 / y[0];
         constexpr auto a1 = -(y[1] * a0) / y[0];
         constexpr auto a2 = -(y[2] * a0 + 2 * y[1] * a1) / y[0];
         constexpr auto a3 = -(y[3] * a0 + 3 * y[2] * a1 + 3 * y[1] * a2) / y[0];
         constexpr auto a4 = -(y[4] * a0 + 4 * y[3] * a1 + 6 * y[2] * a2 + 4 * y[1] * a3) / y[0];
-        CHECK(equalWithinAbs(3 / y, real4th({a0, a1, a2, a3, a4})));
+        CHECK(equalWithinAbs(numDivReal, real4th({a0, a1, a2, a3, a4})));
 
-        // real / number
-        CHECK(equalWithinAbs(y / 5, real4th({0.1, 0.6, -1.0, -3.0, 2.2})));
+        constexpr auto realDivNum = y / 5;
+        CHECK(equalWithinAbs(realDivNum, real4th({0.1, 0.6, -1.0, -3.0, 2.2})));
     }
 
     //=====================================================================================================================

@@ -338,13 +338,13 @@ constexpr auto operator*(Real<N, T> x, const Real<N, T>& y)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto operator*(Real<N, T> x, const U& y)
+constexpr auto operator*(Real<N, T> x, const U y)
 {
     return x *= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto operator*(const U& x, Real<N, T> y)
+constexpr auto operator*(const U x, Real<N, T> y)
 {
     return y *= x;
 }
@@ -362,16 +362,15 @@ constexpr auto operator/(Real<N, T> x, const Real<N, T>& y)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto operator/(Real<N, T> x, const U& y)
+constexpr auto operator/(Real<N, T> x, const U y)
 {
     return x /= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto operator/(const U& x, Real<N, T> y)
+constexpr auto operator/(const U x, const Real<N, T>& y)
 {
-    Real<N, T> z = x;
-    return z /= y;
+    return Real<N, T>(x) / y;
 }
 
 //=====================================================================================================================
