@@ -43,7 +43,7 @@ using namespace autodiff;
     CHECK_APPROX(a[3], b[3]);              \
     CHECK_APPROX(a[4], b[4]);
 
-constexpr bool equalWithinAbs(real4th&& a, real4th&& b, const double tol = 1e-15)
+constexpr bool equalWithinAbs(const real4th a, const real4th b, const double tol = 1e-15)
 {
     for(int i = 0; i < 5; ++i)
         if(std::abs(a[i] - b[i]) > tol)
@@ -172,15 +172,19 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         constexpr auto x = real4th({1, -3, 5, -7, 11});
         constexpr auto y = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
 
+        constexpr auto realMulReal = x * y;
         constexpr auto z0 = x[0] * y[0];
         constexpr auto z1 = x[1] * y[0] + x[0] * y[1];
         constexpr auto z2 = x[2] * y[0] + 2 * x[1] * y[1] + x[0] * y[2];
         constexpr auto z3 = x[3] * y[0] + 3 * x[2] * y[1] + 3 * x[1] * y[2] + x[0] * y[3];
         constexpr auto z4 = x[4] * y[0] + 4 * x[3] * y[1] + 6 * x[2] * y[2] + 4 * x[1] * y[3] + x[0] * y[4];
-        CHECK(equalWithinAbs(x * y, real4th({z0, z1, z2, z3, z4})));
+        CHECK(equalWithinAbs(realMulReal, real4th({z0, z1, z2, z3, z4})));
 
-        CHECK(x * 3 == real4th({3, -9, 15, -21, 33}));
-        CHECK(5 * x == real4th({5, -15, 25, -35, 55}));
+        constexpr auto realMulNum = x * 3;
+        CHECK(realMulNum == real4th({3, -9, 15, -21, 33}));
+
+        constexpr auto numMulReal = 5 * x;
+        CHECK(numMulReal == real4th({5, -15, 25, -35, 55}));
     }
 
     SECTION("Division")
