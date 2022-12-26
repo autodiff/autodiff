@@ -295,7 +295,7 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     //
     //=====================================================================================================================
 
-    SECTION("sin/cos functions")
+    SECTION("sin, cos functions")
     {
         CHECK(sin(real4th(1.234)) == real4th(std::sin(1.234)));
         CHECK(cos(real4th(1.234)) == real4th(std::cos(1.234)));
@@ -322,85 +322,100 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
         CHECK(equalWithinAbs(tan(x), sin(x) / cos(x), 1e-13));
     }
 
-    //=====================================================================================================================
-    //
-    // TESTING INVERSE TRIGONOMETRIC FUNCTIONS
-    //
-    //=====================================================================================================================
+    SECTION("asin function")
+    {
+        CHECK(asin(real4th(0.1234)) == real4th(std::asin(0.1234)));
 
-    real4th x, y, z, u, v, w;
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        constexpr auto xPrime = real3rd({x[1], x[2], x[3], x[4]});
+        const auto asinPrime = xPrime / sqrt(1 - real3rd(x) * real3rd(x));
+        real4th expected = asin(x[0]);
+        for(int i = 1; i < 5; ++i)
+            expected[i] = asinPrime[i - 1];
+        CHECK(equalWithinAbs(asin(x), expected, 1e-12));
+    }
 
-    x = {0.5, 3.0, -5.0, -15.0, 11.0};
-    y = -x;
-    z = y / 5.0;
+    SECTION("acos function")
+    {
+        CHECK(acos(real4th(0.1234)) == real4th(std::acos(0.1234)));
 
-    real4th xprime = {{x[1], x[2], x[3], x[4]}};
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        constexpr auto xPrime = real3rd({x[1], x[2], x[3], x[4]});
+        const auto acosPrime = -xPrime / sqrt(1 - real3rd(x) * real3rd(x));
+        real4th expected = acos(x[0]);
+        for(int i = 1; i < 5; ++i)
+            expected[i] = acosPrime[i - 1];
+        CHECK(equalWithinAbs(acos(x), expected, 1e-12));
+    }
 
-    y = asin(x);
-    z = xprime / sqrt(1 - x * x);
+    SECTION("atan function")
+    {
+        CHECK(atan(real4th(1.234)) == real4th(std::atan(1.234)));
 
-    CHECK_APPROX(y[0], asin(x[0]));
-    CHECK_APPROX(y[1], z[0]);
-    CHECK_APPROX(y[2], z[1]);
-    CHECK_APPROX(y[3], z[2]);
-    CHECK_APPROX(y[4], z[3]);
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        constexpr auto xPrime = real3rd({x[1], x[2], x[3], x[4]});
+        const auto atanPrime = xPrime / (1 + real3rd(x) * real3rd(x));
+        real4th expected = atan(x[0]);
+        for(int i = 1; i < 5; ++i)
+            expected[i] = atanPrime[i - 1];
+        CHECK(equalWithinAbs(atan(x), expected, 1e-12));
+    }
 
-    y = acos(x);
-    z = -xprime / sqrt(1 - x * x);
+    SECTION("atan2 functions")
+    {
+        CHECK(atan2(real4th(1.234), real4th(5.678)) == real4th(std::atan2(1.234, 5.678)));
 
-    CHECK_APPROX(y[0], acos(x[0]));
-    CHECK_APPROX(y[1], z[0]);
-    CHECK_APPROX(y[2], z[1]);
-    CHECK_APPROX(y[3], z[2]);
-    CHECK_APPROX(y[4], z[3]);
+        constexpr auto c = 2.0;
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        constexpr auto xPrime = real3rd({x[1], x[2], x[3], x[4]});
 
-    y = atan(x);
-    z = xprime / (1 + x * x);
+        // atan2(double, real4th)
+        {
+            real4th expected = atan2(c, x[0]);
+            constexpr auto atan2Prime = xPrime * (-c / (c * c + real3rd(x) * real3rd(x)));
+            for(int i = 1; i < 5; ++i)
+                expected[i] = atan2Prime[i - 1];
+            CHECK(equalWithinAbs(atan2(c, x), expected, 1e-12));
+        }
 
-    CHECK_APPROX(y[0], atan(x[0]));
-    CHECK_APPROX(y[1], z[0]);
-    CHECK_APPROX(y[2], z[1]);
-    CHECK_APPROX(y[3], z[2]);
-    CHECK_APPROX(y[4], z[3]);
+        // atan2(real4th, double)
+        {
+            real4th expected = atan2(x[0], c);
+            constexpr auto atan2Prime = xPrime * (c / (c * c + real3rd(x) * real3rd(x)));
+            for(int i = 1; i < 5; ++i)
+                expected[i] = atan2Prime[i - 1];
+            CHECK(equalWithinAbs(atan2(x, c), expected, 1e-12));
+        }
 
-    // atan2(double, real4th)
-    constexpr double c = 2.0;
-    y = atan2(c, x);
-    z = xprime * (-c / (c * c + x * x));
+        // atan2(real4th, real4th)
+        {
+            constexpr auto y = real4th({1, -3, 5, -7, 11});
+            constexpr auto yPrime = real3rd({y[1], y[2], y[3], y[4]});
 
-    CHECK_APPROX(y[0], atan2(c, x[0]));
-    CHECK_APPROX(y[1], z[0]);
-    CHECK_APPROX(y[2], z[1]);
-    CHECK_APPROX(y[3], z[2]);
-    CHECK_APPROX(y[4], z[3]);
-
-    // atan2(real4th, double)
-    y = atan2(x, c);
-    z = xprime * (c / (c * c + x * x));
-
-    CHECK_APPROX(y[0], atan2(x[0], c));
-    CHECK_APPROX(y[1], z[0]);
-    CHECK_APPROX(y[2], z[1]);
-    CHECK_APPROX(y[3], z[2]);
-    CHECK_APPROX(y[4], z[3]);
-
-    // atan2(real4th, real4th)
-    real4th yprime = {{y[1], y[2], y[3], y[4]}};
-
-    const real4th s = atan2(y, x);
-    z = (x[0] * yprime - y[0] * xprime) / (x[0] * x[0] + y[0] * y[0]);
-
-    CHECK_APPROX(s[0], atan2(y[0], x[0]));
-    CHECK_APPROX(s[1], z[0]);
-    CHECK_APPROX(s[2], z[1]);
-    CHECK_APPROX(s[3], z[2]);
-    CHECK_APPROX(s[4], z[3]);
+            real4th expected = atan2(y[0], x[0]);
+            constexpr auto atan2Prime = (x[0] * yPrime - y[0] * xPrime) / (x[0] * x[0] + y[0] * y[0]);
+            for(int i = 1; i < 5; ++i)
+                expected[i] = atan2Prime[i - 1];
+            CHECK(equalWithinAbs(atan2(y, x), expected, 1e-12));
+        }
+    }
 
     //=====================================================================================================================
     //
     // TESTING HYPERBOLIC FUNCTIONS
     //
     //=====================================================================================================================
+
+    // const auto a = acos(x);
+    // const auto b = ;
+    // for(int i = 0; i < 5; ++i)
+    //     std::cout << a[i] << ' ' << b[i] << ' ' << a[i] - b[i] << '\n';
+    real4th x, y, z, u, v, w;
+
+    x = {0.5, 3.0, -5.0, -15.0, 11.0};
+    y = -x;
+    z = y / 5.0;
+
     y = sinh(x);
     z = cosh(x);
 
