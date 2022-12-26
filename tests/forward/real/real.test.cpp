@@ -406,6 +406,67 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     //
     //=====================================================================================================================
 
+    SECTION("sinh, cosh functions")
+    {
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+
+        const auto y0 = sinh(x[0]);
+        const auto z0 = cosh(x[0]);
+        const auto y1 = x[1] * z0;
+        const auto z1 = x[1] * y0;
+        const auto y2 = x[2] * z0 + x[1] * z1;
+        const auto z2 = x[2] * y0 + x[1] * y1;
+        const auto y3 = x[3] * z0 + 2 * x[2] * z1 + x[1] * z2;
+        const auto z3 = x[3] * y0 + 2 * x[2] * y1 + x[1] * y2;
+        const auto y4 = x[4] * z0 + 3 * x[3] * z1 + 3 * x[2] * z2 + x[1] * z3;
+        const auto z4 = x[4] * y0 + 3 * x[3] * y1 + 3 * x[2] * y2 + x[1] * y3;
+
+        CHECK(equalWithinAbs(sinh(x), real4th({y0, y1, y2, y3, y4})));
+        CHECK(equalWithinAbs(cosh(x), real4th({z0, z1, z2, z3, z4})));
+    }
+
+    SECTION("tanh function")
+    {
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        CHECK(equalWithinAbs(tanh(x), sinh(x) / cosh(x), 1e-12));
+    }
+
+    SECTION("asinh function")
+    {
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        const auto asinhPrime = 1 / sqrt(x * x + 1);
+        real4th expected = asinh(x[0]);
+        for(int i = 1; i < 5; ++i)
+            expected[i] = asinhPrime[i - 1];
+        CHECK(equalWithinAbs(asinh(x), expected, 1e-12));
+    }
+
+    SECTION("acosh function")
+    {
+        constexpr auto x = real4th({1.5, 3.0, +5.0, +15.0, 11.0}); // acosh requires x > 1
+        const auto acoshPrime = 1 / sqrt(x * x - 1);
+        real4th expected = acosh(x[0]);
+        for(int i = 1; i < 5; ++i)
+            expected[i] = acoshPrime[i - 1];
+        CHECK(equalWithinAbs(acosh(x), expected, 1e-12));
+    }
+
+    SECTION("atanh function")
+    {
+        constexpr auto x = real4th({0.5, 0.3, -0.5, -0.15, 0.11}); // atanh requires |x| < 1
+        const auto atanhPrime = 1 / (1 - x * x);
+        real4th expected = atanh(x[0]);
+        for(int i = 1; i < 5; ++i)
+            expected[i] = atanhPrime[i - 1];
+        CHECK(equalWithinAbs(atanh(x), expected, 1e-12));
+    }
+
+    //=====================================================================================================================
+    //
+    // TESTING OTHER FUNCTIONS
+    //
+    //=====================================================================================================================
+
     // const auto a = acos(x);
     // const auto b = ;
     // for(int i = 0; i < 5; ++i)
@@ -415,58 +476,6 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     x = {0.5, 3.0, -5.0, -15.0, 11.0};
     y = -x;
     z = y / 5.0;
-
-    y = sinh(x);
-    z = cosh(x);
-
-    CHECK_APPROX(y[0], sinh(x[0]));
-    CHECK_APPROX(z[0], cosh(x[0]));
-    CHECK_APPROX(y[1], x[1] * z[0]);
-    CHECK_APPROX(z[1], x[1] * y[0]);
-    CHECK_APPROX(y[2], x[2] * z[0] + x[1] * z[1]);
-    CHECK_APPROX(z[2], x[2] * y[0] + x[1] * y[1]);
-    CHECK_APPROX(y[3], x[3] * z[0] + 2 * x[2] * z[1] + x[1] * z[2]);
-    CHECK_APPROX(z[3], x[3] * y[0] + 2 * x[2] * y[1] + x[1] * y[2]);
-    CHECK_APPROX(y[4], x[4] * z[0] + 3 * x[3] * z[1] + 3 * x[2] * z[2] + x[1] * z[3]);
-    CHECK_APPROX(z[4], x[4] * y[0] + 3 * x[3] * y[1] + 3 * x[2] * y[2] + x[1] * y[3]);
-
-    y = tanh(x);
-    z = sinh(x) / cosh(x);
-
-    CHECK_4TH_ORDER_REAL_NUMBERS(y, z);
-
-    y = asinh(x);
-    z = 1 / sqrt(x * x + 1);
-
-    CHECK_APPROX(y[0], asinh(x[0]));
-    CHECK_APPROX(y[1], z[0]);
-    CHECK_APPROX(y[2], z[1]);
-    CHECK_APPROX(y[3], z[2]);
-    CHECK_APPROX(y[4], z[3]);
-
-    y = acosh(10 * x); // acosh requires x > 1
-    z = 1 / sqrt(100 * x * x - 1);
-
-    CHECK_APPROX(y[0], acosh(10 * x[0]));
-    CHECK_APPROX(y[1], z[0]);
-    CHECK_APPROX(y[2], z[1]);
-    CHECK_APPROX(y[3], z[2]);
-    CHECK_APPROX(y[4], z[3]);
-
-    y = atanh(x);
-    z = 1 / (1 - x * x);
-
-    CHECK_APPROX(y[0], atanh(x[0]));
-    CHECK_APPROX(y[1], z[0]);
-    CHECK_APPROX(y[2], z[1]);
-    CHECK_APPROX(y[3], z[2]);
-    CHECK_APPROX(y[4], z[3]);
-
-    //=====================================================================================================================
-    //
-    // TESTING OTHER FUNCTIONS
-    //
-    //=====================================================================================================================
 
     y = abs(x);
 
