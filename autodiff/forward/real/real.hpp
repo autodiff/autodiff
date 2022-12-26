@@ -31,11 +31,11 @@
 
 // C++ includes
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <iostream>
 #include <sstream>
-#include <tuple>
 #include <utility>
 
 // autodiff includes
@@ -722,13 +722,10 @@ auto atan2(const Real<N, T>& y, const Real<N, T>& x)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-auto sinhcosh(const Real<N, T>& x) -> std::tuple<Real<N, T>, Real<N, T>>
+auto sinhcosh(const Real<N, T>& x) -> std::array<Real<N, T>, 2>
 {
-    Real<N, T> sinhx;
-    Real<N, T> coshx;
-
-    coshx[0] = cosh(x[0]);
-    sinhx[0] = sinh(x[0]);
+    Real<N, T> sinhx = sinh(x[0]); // std::sinh is not constexpr
+    Real<N, T> coshx = cosh(x[0]); // std::cosh is not constexpr
 
     For<1, N + 1>([&](auto i) constexpr {
         coshx[i] = Sum<0, i>([&](auto j) constexpr {
@@ -741,57 +738,54 @@ auto sinhcosh(const Real<N, T>& x) -> std::tuple<Real<N, T>, Real<N, T>>
             return c * x[i - j] * coshx[j];
         });
     });
-
     return {sinhx, coshx};
 }
 
 template<size_t N, typename T>
 auto sinh(const Real<N, T>& x)
 {
-    return std::get<0>(sinhcosh(x));
+    return sinhcosh(x)[0];
 }
 
 template<size_t N, typename T>
 auto cosh(const Real<N, T>& x)
 {
-    return std::get<1>(sinhcosh(x));
+    return sinhcosh(x)[1];
 }
 
 template<size_t N, typename T>
 auto tanh(const Real<N, T>& x)
 {
-    Real<N, T> tanhx;
-    tanhx[0] = tanh(x[0]);
+    Real<N, T> res = tanh(x[0]); // std::tanh is not constexpr
 
     if constexpr(N > 0) {
-        Real<N, T> aux;
-
-        aux[0] = 1 - tanhx[0] * tanhx[0];
+        Real<N, T> aux = 1 - res[0] * res[0];
 
         For<1, N + 1>([&](auto i) constexpr {
-            tanhx[i] = Sum<0, i>([&](auto j) constexpr {
+            res[i] = Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
                 return c * x[i - j] * aux[j];
             });
+            if constexpr(i == N)
+                return;
 
             aux[i] = -2 * Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-                return c * tanhx[i - j] * tanhx[j];
+                return c * res[i - j] * res[j];
             });
         });
     }
-
-    return tanhx;
+    return res;
 }
 
 template<size_t N, typename T>
-constexpr auto asinh(const Real<N, T>& x)
+auto asinh(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = asinh(x[0]);
+    Real<N, T> res = asinh(x[0]); // std::asinh is not constexpr
+
     if constexpr(N > 0) {
-        Real<N - 1, T> aux(x);
-        aux = 1 / sqrt(aux * aux + 1);
+        const Real<N - 1, T> x_(x);
+        const auto aux = 1 / sqrt(x_ * x_ + 1);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
         });
@@ -802,12 +796,12 @@ constexpr auto asinh(const Real<N, T>& x)
 template<size_t N, typename T>
 constexpr auto acosh(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = acosh(x[0]);
+    Real<N, T> res = acosh(x[0]); // std::acosh is not constexpr
+
     if constexpr(N > 0) {
-        assert((abs(x[0]) > 1) && "autodiff::acosh(x) has undefined derivative when |x| <= 1");
-        Real<N - 1, T> aux(x);
-        aux = 1 / sqrt(aux * aux - 1);
+        assert((x[0] > 1) && "autodiff::acosh(x) has undefined derivative when x <= 1");
+        const Real<N - 1, T> x_(x);
+        const auto aux = 1 / sqrt(x_ * x_ - 1);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
         });
@@ -818,12 +812,12 @@ constexpr auto acosh(const Real<N, T>& x)
 template<size_t N, typename T>
 constexpr auto atanh(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = atanh(x[0]);
+    Real<N, T> res = atanh(x[0]); // std::atanh is not constexpr
+
     if constexpr(N > 0) {
         assert((abs(x[0]) < 1) && "autodiff::atanh(x) has undefined derivative when |x| >= 1");
-        Real<N - 1, T> aux(x);
-        aux = 1 / (1 - aux * aux);
+        const Real<N - 1, T> x_(x);
+        const auto aux = 1 / (1 - x_ * x_);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
         });
