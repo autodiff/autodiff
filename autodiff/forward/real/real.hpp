@@ -210,7 +210,7 @@ class Real
 #endif
 
     template<size_t M, typename U>
-    friend bool operator==(const Real<M, U>& x, const Real<M, U>& y);
+    friend constexpr bool operator==(const Real<M, U>& x, const Real<M, U>& y);
 };
 
 //=====================================================================================================================
@@ -915,95 +915,98 @@ auto repr(const Real<N, T>& x)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-bool operator==(const Real<N, T>& x, const Real<N, T>& y)
+constexpr bool operator==(const Real<N, T>& x, const Real<N, T>& y)
 {
-    return std::equal(x.m_data.begin(), x.m_data.end(), y.m_data.begin(), y.m_data.end());
+    for(int i = 0; i < N + 1; ++i)
+        if(x[i] != y[i])
+            return false;
+    return true;
 }
 
 template<size_t N, typename T>
-bool operator!=(const Real<N, T>& x, const Real<N, T>& y)
+constexpr bool operator!=(const Real<N, T>& x, const Real<N, T>& y)
 {
     return !(x == y);
 }
 template<size_t N, typename T>
-bool operator<(const Real<N, T>& x, const Real<N, T>& y)
+constexpr bool operator<(const Real<N, T>& x, const Real<N, T>& y)
 {
     return x[0] < y[0];
 }
 template<size_t N, typename T>
-bool operator>(const Real<N, T>& x, const Real<N, T>& y)
+constexpr bool operator>(const Real<N, T>& x, const Real<N, T>& y)
 {
     return x[0] > y[0];
 }
 template<size_t N, typename T>
-bool operator<=(const Real<N, T>& x, const Real<N, T>& y)
+constexpr bool operator<=(const Real<N, T>& x, const Real<N, T>& y)
 {
     return x[0] <= y[0];
 }
 template<size_t N, typename T>
-bool operator>=(const Real<N, T>& x, const Real<N, T>& y)
+constexpr bool operator>=(const Real<N, T>& x, const Real<N, T>& y)
 {
     return x[0] >= y[0];
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-bool operator==(const Real<N, T>& x, const U y)
+constexpr bool operator==(const Real<N, T>& x, const U y)
 {
     return x[0] == y;
 }
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-bool operator!=(const Real<N, T>& x, const U y)
+constexpr bool operator!=(const Real<N, T>& x, const U y)
 {
     return x[0] != y;
 }
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-bool operator<(const Real<N, T>& x, const U y)
+constexpr bool operator<(const Real<N, T>& x, const U y)
 {
     return x[0] < y;
 }
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-bool operator>(const Real<N, T>& x, const U y)
+constexpr bool operator>(const Real<N, T>& x, const U y)
 {
     return x[0] > y;
 }
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-bool operator<=(const Real<N, T>& x, const U y)
+constexpr bool operator<=(const Real<N, T>& x, const U y)
 {
     return x[0] <= y;
 }
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-bool operator>=(const Real<N, T>& x, const U y)
+constexpr bool operator>=(const Real<N, T>& x, const U y)
 {
     return x[0] >= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-bool operator==(const U x, const Real<N, T>& y)
+constexpr bool operator==(const U x, const Real<N, T>& y)
 {
     return x == y[0];
 }
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-bool operator!=(const U x, const Real<N, T>& y)
+constexpr bool operator!=(const U x, const Real<N, T>& y)
 {
     return x != y[0];
 }
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-bool operator<(const U x, const Real<N, T>& y)
+constexpr bool operator<(const U x, const Real<N, T>& y)
 {
     return x < y[0];
 }
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-bool operator>(const U x, const Real<N, T>& y)
+constexpr bool operator>(const U x, const Real<N, T>& y)
 {
     return x > y[0];
 }
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-bool operator<=(const U x, const Real<N, T>& y)
+constexpr bool operator<=(const U x, const Real<N, T>& y)
 {
     return x <= y[0];
 }
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-bool operator>=(const U x, const Real<N, T>& y)
+constexpr bool operator>=(const U x, const Real<N, T>& y)
 {
     return x >= y[0];
 }
