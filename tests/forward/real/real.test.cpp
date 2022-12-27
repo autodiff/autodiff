@@ -464,6 +464,99 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     //=====================================================================================================================
     //
     // TESTING OTHER FUNCTIONS
+    //      abs, min, max
+    //=====================================================================================================================
+
+    SECTION("abs function")
+    {
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+        CHECK(abs(x) == x);
+        CHECK(abs(-x) == x);
+    }
+
+    SECTION("min function")
+    {
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+
+        // (real, real)
+        {
+            constexpr auto y = real4th({4.5, 3.0, -5.0, -15.0, 11.0});
+            constexpr auto a = min(x, y);
+            constexpr auto b = min(y, x);
+            CHECK(a == x);
+            CHECK(b == x);
+        }
+
+        // (real, smaller scalar)
+        {
+            constexpr auto y = real4th(0.2);
+            constexpr auto a = min(x, y);
+            constexpr auto b = min(y, x);
+            CHECK(a == y);
+            CHECK(b == y);
+        }
+
+        // (real, same scalar)
+        {
+            constexpr auto x0 = real4th(x[0]);
+            constexpr auto a = min(x, x0);
+            constexpr auto b = min(x0, x);
+            CHECK(a == x);
+            CHECK(b == x0);
+        }
+
+        // (real, larger scalar)
+        {
+            constexpr auto a = min(x, 3.5);
+            constexpr auto b = min(3.5, x);
+            CHECK(a == x);
+            CHECK(b == x);
+        }
+    }
+
+    SECTION("max function")
+    {
+        constexpr auto x = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
+
+        // (real, real)
+        {
+            constexpr auto y = real4th({4.5, 3.0, -5.0, -15.0, 11.0});
+            constexpr auto a = max(x, y);
+            constexpr auto b = max(y, x);
+            CHECK(a == y);
+            CHECK(b == y);
+        }
+
+        // (real, smaller scalar)
+        {
+            constexpr auto a = max(x, 0.2);
+            constexpr auto b = max(0.2, x);
+            CHECK(a == x);
+            CHECK(b == x);
+        }
+
+        // (real, same scalar)
+        {
+            constexpr auto x0 = real4th(x[0]);
+            constexpr auto a = max(x, x0);
+            constexpr auto b = max(x0, x);
+            CHECK(a == x);
+            CHECK(b == x0);
+        }
+
+        // (real, larger scalar)
+        {
+            constexpr auto y = real4th(3.5);
+            constexpr auto a = max(x, y);
+            constexpr auto b = max(y, x);
+            CHECK(a == y);
+            CHECK(b == y);
+        }
+    }
+
+    //=====================================================================================================================
+    //
+    // TESTING COMPARISON OPERATORS
     //
     //=====================================================================================================================
 
@@ -476,71 +569,6 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     x = {0.5, 3.0, -5.0, -15.0, 11.0};
     y = -x;
     z = y / 5.0;
-
-    y = abs(x);
-
-    CHECK_APPROX(y[0], std::abs(x[0]));
-    CHECK_APPROX(y[1], std::abs(x[0]) / x[0] * x[1]);
-    CHECK_APPROX(y[2], std::abs(x[0]) / x[0] * x[2]);
-    CHECK_APPROX(y[3], std::abs(x[0]) / x[0] * x[3]);
-    CHECK_APPROX(y[4], std::abs(x[0]) / x[0] * x[4]);
-
-    y = -x;
-    z = abs(y);
-
-    CHECK_APPROX(z[0], std::abs(y[0]));
-    CHECK_APPROX(z[1], std::abs(y[0]) / (y[0]) * y[1]);
-    CHECK_APPROX(z[2], std::abs(y[0]) / (y[0]) * y[2]);
-    CHECK_APPROX(z[3], std::abs(y[0]) / (y[0]) * y[3]);
-    CHECK_APPROX(z[4], std::abs(y[0]) / (y[0]) * y[4]);
-
-    //=====================================================================================================================
-    //
-    // TESTING MIN/MAX FUNCTIONS
-    //
-    //=====================================================================================================================
-
-    x = {0.5, 3.0, -5.0, -15.0, 11.0};
-    y = {4.5, 3.0, -5.0, -15.0, 11.0};
-
-    z = min(x, y);
-    CHECK(z == x);
-    z = min(y, x);
-    CHECK(z == x);
-    z = min(x, 0.1);
-    CHECK(z == real4th(0.1));
-    z = min(0.2, x);
-    CHECK(z == real4th(0.2));
-    z = min(0.5, x);
-    CHECK(z == x);
-    z = min(x, 0.5);
-    CHECK(z == x);
-    z = min(3.5, x);
-    CHECK(z == x);
-    z = min(x, 3.5);
-    CHECK(z == x);
-    z = max(x, y);
-    CHECK(z == y);
-    z = max(y, x);
-    CHECK(z == y);
-    z = max(x, 0.1);
-    CHECK(z == x);
-    z = max(0.2, x);
-    CHECK(z == x);
-    z = max(0.5, x);
-    CHECK(z == x);
-    z = max(x, 0.5);
-    CHECK(z == x);
-    z = max(8.5, x);
-    CHECK(z == real4th(8.5));
-    z = max(x, 8.5);
-    CHECK(z == real4th(8.5));
-
-    //=====================================================================================================================
-    //
-    // TESTING COMPARISON OPERATORS
-    //
-    //=====================================================================================================================
 
     x = {0.5, 3.0, -5.0, -15.0, 11.0};
 
