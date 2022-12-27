@@ -828,14 +828,14 @@ constexpr auto atanh(const Real<N, T>& x)
 //=====================================================================================================================
 //
 // OTHER FUNCTIONS
-//
+//      abs, min, max
 //=====================================================================================================================
 
 template<size_t N, typename T>
-constexpr auto abs(const Real<N, T>& x)
+auto abs(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = std::abs(x[0]);
+    Real<N, T> res = abs(x[0]); // std::abs is not constexpr
+
     if constexpr(N > 0) {
         // assert((x[0] != 0) && "autodiff::abs(x) has undefined derivatives when x = 0");
         if(x[0] == 0)
@@ -855,13 +855,13 @@ constexpr auto min(const Real<N, T>& x, const Real<N, T>& y)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto min(const Real<N, T>& x, const U& y)
+constexpr auto min(const Real<N, T>& x, const U y)
 {
     return (x[0] <= y) ? x : y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto min(const U& x, const Real<N, T>& y)
+constexpr auto min(const U x, const Real<N, T>& y)
 {
     return (x < y[0]) ? x : y;
 }
@@ -873,13 +873,13 @@ constexpr auto max(const Real<N, T>& x, const Real<N, T>& y)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto max(const Real<N, T>& x, const U& y)
+constexpr auto max(const Real<N, T>& x, const U y)
 {
     return (x[0] >= y) ? x : y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto max(const U& x, const Real<N, T>& y)
+constexpr auto max(const U x, const Real<N, T>& y)
 {
     return (x > y[0]) ? x : y;
 }
