@@ -62,3 +62,9 @@ CMakeLists.txt.user
 
 # Bazel
 /bazel-**
+
+# Files that contain DO-NOT-COMMIT
+*DO-NOT-COMMIT*
+
+# macOS
+.DS_Store

@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2020 Allan Leal
+// Copyright (c) 2018-2022 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,8 @@
 // SOFTWARE.
 
 // Catch includes
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 // autodiff includes
 #include <autodiff/reverse/var.hpp>
@@ -44,9 +45,9 @@ using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
 template<typename Var>
-auto approx(const Var& x) -> Approx
+auto approx(const Var& x) -> Catch::Approx
 {
-    return Approx(val(x));
+    return Catch::Approx(val(x));
 }
 
 TEST_CASE("testing autodiff::var (with eigen)", "[reverse][var][eigen]")
@@ -108,9 +109,9 @@ TEST_CASE("testing autodiff::var (with eigen)", "[reverse][var][eigen]")
         CHECK( val(g[i]) == approx(y / tan(x[i])) );
         for(auto j = 0; j < x.size(); ++j)
             if(i == j)
-                CHECK( H(i, j) == Approx(val(g[i] / tan(x[i]) * (1.0 - 1.0/(cos(x[i]) * cos(x[i]))))) );
+                CHECK( H(i, j) == Catch::Approx(val(g[i] / tan(x[i]) * (1.0 - 1.0/(cos(x[i]) * cos(x[i]))))) );
             else
-                CHECK( H(i, j) == Approx(val(g[j] / tan(x[i]))) );
+                CHECK( H(i, j) == Catch::Approx(val(g[j] / tan(x[i]))) );
     }
 
     //--------------------------------------------------------------------------

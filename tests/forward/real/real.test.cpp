@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2020 Allan Leal
+// Copyright (c) 2018-2022 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -267,8 +267,16 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
 
     CHECK_4TH_ORDER_REAL_NUMBERS(y, z);
 
+    //=====================================================================================================================
+    //
+    // TESTING INVERSE TRIGONOMETRIC FUNCTIONS
+    //
+    //=====================================================================================================================
+
+    real4th xprime = {{ x[1], x[2], x[3], x[4] }};
+
     y = asin(x);
-    z = 1/sqrt(1 - x*x);
+    z = xprime/sqrt(1 - x*x);
 
     CHECK_APPROX( y[0], asin(x[0]) );
     CHECK_APPROX( y[1], z[0] );
@@ -277,7 +285,7 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_APPROX( y[4], z[3] );
 
     y = acos(x);
-    z = -1/sqrt(1 - x*x);
+    z = -xprime/sqrt(1 - x*x);
 
     CHECK_APPROX( y[0], acos(x[0]) );
     CHECK_APPROX( y[1], z[0] );
@@ -286,13 +294,46 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_APPROX( y[4], z[3] );
 
     y = atan(x);
-    z = 1/(1 + x*x);
+    z = xprime/(1 + x*x);
 
     CHECK_APPROX( y[0], atan(x[0]) );
     CHECK_APPROX( y[1], z[0] );
     CHECK_APPROX( y[2], z[1] );
     CHECK_APPROX( y[3], z[2] );
     CHECK_APPROX( y[4], z[3] );
+
+    // atan2(double, real4th)
+    constexpr double c = 2.0;
+    y = atan2(c, x);
+    z = xprime * (-c / (c * c + x * x));
+
+    CHECK_APPROX(y[0], atan2(c, x[0]));
+    CHECK_APPROX(y[1], z[0]);
+    CHECK_APPROX(y[2], z[1]);
+    CHECK_APPROX(y[3], z[2]);
+    CHECK_APPROX(y[4], z[3]);
+
+    // atan2(real4th, double)
+    y = atan2(x, c);
+    z = xprime * (c / (c * c + x * x));
+
+    CHECK_APPROX(y[0], atan2(x[0], c));
+    CHECK_APPROX(y[1], z[0]);
+    CHECK_APPROX(y[2], z[1]);
+    CHECK_APPROX(y[3], z[2]);
+    CHECK_APPROX(y[4], z[3]);
+
+    // atan2(real4th, real4th)
+    real4th yprime = {{ y[1], y[2], y[3], y[4] }};
+
+    const real4th s = atan2(y,x);
+    z = (x[0] * yprime - y[0] * xprime) / (x[0] * x[0] + y[0] * y[0]);
+
+    CHECK_APPROX(s[0], atan2(y[0], x[0]));
+    CHECK_APPROX(s[1], z[0]);
+    CHECK_APPROX(s[2], z[1]);
+    CHECK_APPROX(s[3], z[2]);
+    CHECK_APPROX(s[4], z[3]);
 
     //=====================================================================================================================
     //

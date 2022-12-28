@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2020 Allan Leal
+// Copyright (c) 2018-2022 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,7 @@
 // autodiff includes
 #include <autodiff/common/eigen.hpp>
 #include <autodiff/common/meta.hpp>
+#include <autodiff/common/classtraits.hpp>
 #include <autodiff/forward/utils/derivative.hpp>
 
 namespace autodiff {
@@ -62,13 +63,19 @@ auto wrt_total_length(const Wrt<Vars...>& wrt) -> size_t
 template<typename Function, typename... Vars>
 constexpr auto ForEachWrtVar(const Wrt<Vars...>& wrt, Function&& f)
 {
-    const auto n = wrt_total_length(wrt); // the sum of lengths of all items in the wrt list
     auto i = 0; // the current index of the variable in the wrt list
     ForEach(wrt.args, [&](auto& item) constexpr
     {
-        if constexpr (isVector<decltype(item)>) {
+        using T = decltype(item);
+        static_assert(isVector<T> || Order<T> > 0, "Expecting a wrt list with either vectors or individual autodiff numbers.");
+        if constexpr (isVector<T>) {
             for(auto j = 0; j < item.size(); ++j)
-                f(i++, item[j]); // call given f with current index and variable from item (a vector)
+                // call given f with current index and variable from item (a vector)
+                if constexpr (detail::has_operator_bracket<T>()) {
+                    f(i++, item[j]);
+                } else {
+                    f(i++, item(j));
+                }
         }
         else f(i++, item); // call given f with current index and variable from item (a number, not a vector)
     });
@@ -89,6 +96,7 @@ void gradient(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Y& u
 
     ForEachWrtVar(wrt, [&](auto&& i, auto&& xi) constexpr
     {
+        static_assert(!isConst<decltype(xi)>, "Expecting non-const autodiff numbers in wrt list because these need to be seeded, and thus altered!");
         u = eval(f, at, detail::wrt(xi)); // evaluate u with xi seeded so that du/dxi is also computed
         g[i] = derivative<1>(u);
     });
@@ -126,6 +134,7 @@ void jacobian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Y& F
     size_t m = 0;
 
     ForEachWrtVar(wrt, [&](auto&& i, auto&& xi) constexpr {
+        static_assert(!isConst<decltype(xi)>, "Expecting non-const autodiff numbers in wrt list because these need to be seeded, and thus altered!");
         F = eval(f, at, detail::wrt(xi)); // evaluate F with xi seeded so that dF/dxi is also computed
         if(m == 0) { m = F.size(); J.resize(m, n); };
         for(size_t row = 0; row < m; ++row)
@@ -175,6 +184,7 @@ void hessian(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, U& u,
     ForEachWrtVar(wrt, [&](auto&& i, auto&& xi) constexpr {
         ForEachWrtVar(wrt, [&](auto&& j, auto&& xj) constexpr
         {
+            static_assert(!isConst<decltype(xi)> && !isConst<decltype(xj)>, "Expecting non-const autodiff numbers in wrt list because these need to be seeded, and thus altered!");
             if(j >= i) { // this take advantage of the fact the Hessian matrix is symmetric
                 u = eval(f, at, detail::wrt(xi, xj)); // evaluate u with xi and xj seeded to produce u0, du/dxi, d2u/dxidxj
                 g[i] = derivative<1>(u);              // get du/dxi from u
