@@ -39,13 +39,6 @@
 
 using namespace autodiff;
 
-#define CHECK_4TH_ORDER_REAL_NUMBERS(a, b) \
-    CHECK_APPROX(a[0], b[0]);              \
-    CHECK_APPROX(a[1], b[1]);              \
-    CHECK_APPROX(a[2], b[2]);              \
-    CHECK_APPROX(a[3], b[3]);              \
-    CHECK_APPROX(a[4], b[4]);
-
 constexpr bool equalWithinAbs(const real4th a, const real4th b, const double tol = 1e-15)
 {
     for(int i = 0; i < 5; ++i)
@@ -60,6 +53,8 @@ constexpr auto pi = 3.14159265359;
 
 TEST_CASE("testing autodiff::real", "[forward][real]")
 {
+    // test ctor + equality comparison first -> then we can trust checks by equality comparisons of temporaries
+
     SECTION("Constructors")
     {
         constexpr auto tmp = real4th();
@@ -96,8 +91,6 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
             CHECK_FALSE(x == y);
         }
     }
-
-    // explicitly tested ctor + equality comparison -> now we can trust checks by equality comparisons of temporaries
 
     SECTION("Assignments")
     {
@@ -159,8 +152,6 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
 
     SECTION("Multiplication")
     {
-        using Catch::Matchers::WithinAbs;
-
         constexpr auto x = real4th({1, -3, 5, -7, 11});
         constexpr auto y = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
 
@@ -181,8 +172,6 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
 
     SECTION("Division")
     {
-        using Catch::Matchers::WithinAbs;
-
         constexpr auto x = real4th({1, -3, 5, -7, 11});
         constexpr auto y = real4th({0.5, 3.0, -5.0, -15.0, 11.0});
 
