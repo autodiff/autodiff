@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2020 Allan Leal
+// Copyright (c) 2018-2022 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -162,5 +162,87 @@ TEST_CASE("testing autodiff::real (with eigen)", "[forward][real][eigen]")
 
         CHECK( derivative<1>(b[0]) == approx(18.0) );
         CHECK( derivative<1>(b[1]) == approx(50.0) );
+    }
+
+    SECTION("testing gradient derivatives")
+    {
+        SECTION("using VectorXreal")
+        {
+            auto f = [](const VectorXreal& x) -> real
+            {
+                return 0.5 * ( x.array() * x.array() ).sum();
+            };
+
+            VectorXreal x(3);
+            x << 1.0, 2.0, 3.0;
+
+            VectorXd g = gradient(f, wrt(x), at(x));
+
+            CHECK( g[0] == approx(x[0]) );
+            CHECK( g[1] == approx(x[1]) );
+            CHECK( g[2] == approx(x[2]) );
+        }
+
+        SECTION("using Eigen::Map<VectorXreal>")
+        {
+            auto f = [](const VectorXreal& x) -> real
+            {
+                return 0.5 * ( x.array() * x.array() ).sum();
+            };
+
+            VectorXreal vec(3);
+            vec << 1.0, 2.0, 3.0;
+
+            auto x = Eigen::Map<VectorXreal>(vec.data(), vec.size());
+
+            VectorXd g = gradient(f, wrt(x), at(x));
+
+            CHECK( g[0] == approx(x[0]) );
+            CHECK( g[1] == approx(x[1]) );
+            CHECK( g[2] == approx(x[2]) );
+        }
+    }
+
+    SECTION("testing jacobian derivatives")
+    {
+        SECTION("using VectorXreal")
+        {
+            auto f = [](const VectorXreal& x) -> VectorXreal
+            {
+                return x / x.array().sum();
+            };
+
+            VectorXreal vec(3);
+            vec << 0.5, 0.2, 0.3;
+
+            auto x = Eigen::Map<VectorXreal>(vec.data(), vec.size());
+
+            VectorXreal F;
+
+            const MatrixXd J = jacobian(f, wrt(x), at(x), F);
+
+            for(auto i = 0; i < 3; ++i)
+                for(auto j = 0; j < 3; ++j)
+                    CHECK( J(i, j) == approx(-F[i] + ((i == j) ? 1.0 : 0.0)) );
+        }
+
+        SECTION("using Eigen::Map<VectorXreal>")
+        {
+            auto f = [](const VectorXreal& x) -> VectorXreal
+            {
+                return x / x.array().sum();
+            };
+
+            VectorXreal x(3);
+            x << 0.5, 0.2, 0.3;
+
+            VectorXreal F;
+
+            const MatrixXd J = jacobian(f, wrt(x), at(x), F);
+
+            for(auto i = 0; i < 3; ++i)
+                for(auto j = 0; j < 3; ++j)
+                    CHECK( J(i, j) == approx(-F[i] + ((i == j) ? 1.0 : 0.0)) );
+        }
     }
 }

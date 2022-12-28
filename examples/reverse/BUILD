@@ -1,6 +1,13 @@
 cc_test(
+    name = "example-reverse-conditional",
+    srcs = ["example-reverse-conditional.cpp"],
+    deps = ["//:autodiff"],
+    copts = ["-I./"]
+)
+
+cc_test(
     name = "example-reverse-gradient-derivatives-using-eigen",
-    srcs=["example-reverse-gradient-derivatives-using-eigen.cpp"],
+    srcs = ["example-reverse-gradient-derivatives-using-eigen.cpp"],
     deps = ["//:autodiff"],
     copts = ["-I./"]
 )
@@ -14,7 +21,7 @@ cc_test(
 
 cc_test(
     name = "example-reverse-higher-order-derivatives-multi-variable-function",
-    srcs=["example-reverse-higher-order-derivatives-multi-variable-function.cpp"],
+    srcs = ["example-reverse-higher-order-derivatives-multi-variable-function.cpp"],
     deps = ["//:autodiff"],
     copts = ["-I./"]
 )

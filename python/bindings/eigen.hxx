@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2020 Allan Leal
+// Copyright (c) 2018-2022 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,10 +31,7 @@
 #include <Eigen/Core>
 
 // pybind11 includes
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
-#include <pybind11/operators.h>
-namespace py = pybind11;
+#include "pybind11.hxx"
 
 template<typename Vec, typename T, bool isarray, bool isconst, bool isview>
 void exportVector(py::module& m, const char* typestr)

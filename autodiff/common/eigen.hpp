@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright (c) 2018-2020 Allan Leal
+// Copyright (c) 2018-2022 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -128,6 +128,15 @@ struct VectorTraits<Eigen::Ref<MatrixType>>
 
     template<typename NewValueType>
     using ReplaceValueType = VectorReplaceValueType<MatrixType, NewValueType>;
+};
+
+template<typename VectorType, int MapOptions, typename StrideType>
+struct VectorTraits<Eigen::Map<VectorType, MapOptions, StrideType>>
+{
+    using ValueType = VectorValueType<VectorType>;
+
+    template<typename NewValueType>
+    using ReplaceValueType = Eigen::Map<VectorReplaceValueType<VectorType, NewValueType>, MapOptions, StrideType>;
 };
 
 //=====================================================================================================================

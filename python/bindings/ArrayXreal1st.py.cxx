@@ -1,0 +1,44 @@
+//                  _  _
+//  _   _|_ _  _|o_|__|_
+// (_||_||_(_)(_|| |  |
+//
+// automatic differentiation made easier in C++
+// https://github.com/autodiff/autodiff
+//
+// Licensed under the MIT License <http://opensource.org/licenses/MIT>.
+//
+// Copyright (c) 2018-2022 Allan Leal
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+// pybind11 includes
+#include "pybind11.hxx"
+
+// autodiff includes
+#include <autodiff/forward/real/real.hpp>
+#include <autodiff/forward/real/eigen.hpp>
+#include "eigen.hxx"
+using namespace autodiff;
+
+void exportArrayXreal1st(py::module& m)
+{
+    exportVector<ArrayXreal1st, real1st, isarray(true), isconst(false), isview(false)>(m, "ArrayXreal1st");
+    exportVector<Eigen::Ref<ArrayXreal1st>, real1st, isarray(true), isconst(false), isview(true)>(m, "ArrayXreal1stRef");
+    exportVector<Eigen::Ref<const ArrayXreal1st>, real1st, isarray(true), isconst(true), isview(true)>(m, "ArrayXreal1stConstRef");
+}
