@@ -35,6 +35,7 @@
 #include <cmath>
 #include <functional>
 #include <tests/utils/catch.hpp>
+#include <vector>
 
 using namespace autodiff;
 
@@ -52,24 +53,6 @@ constexpr bool equalWithinAbs(const real4th a, const real4th b, const double tol
             return false;
     return true;
 }
-
-#define CHECK_DERIVATIVES_REAL4TH_WRT(expr)                                          \
-    {                                                                                \
-        real4th x = 5, y = 7;                                                        \
-        auto f = [](const real4th& x, const real4th& y) -> real4th { return expr; }; \
-        /* Check directional derivatives of f(x,y) along direction (3, 5) */         \
-        auto dfdv = derivatives(f, along(3, 5), at(x, y));                           \
-        x[1] = 3.0;                                                                  \
-        y[1] = 5.0;                                                                  \
-        u = expr;                                                                    \
-        x[1] = 0.0;                                                                  \
-        y[1] = 0.0;                                                                  \
-        CHECK_APPROX(dfdv[0], u[0]);                                                 \
-        CHECK_APPROX(dfdv[1], u[1]);                                                 \
-        CHECK_APPROX(dfdv[2], u[2]);                                                 \
-        CHECK_APPROX(dfdv[3], u[3]);                                                 \
-        CHECK_APPROX(dfdv[4], u[4]);                                                 \
-    }
 
 // Auxiliary constants
 constexpr auto ln10 = 2.302585092994046;
@@ -716,57 +699,55 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     //
     //=====================================================================================================================
 
-    // const auto a = acos(x);
-    // const auto b = ;
-    // for(int i = 0; i < 5; ++i)
-    //     std::cout << a[i] << ' ' << b[i] << ' ' << a[i] - b[i] << '\n';
-    real4th x, y, z, u, v, w;
-
-    x = {0.5, 3.0, -5.0, -15.0, 11.0};
-    y = -x;
-    z = y / 5.0;
-
-    CHECK_DERIVATIVES_REAL4TH_WRT(exp(log(2 * x + 3 * y)));
-    CHECK_DERIVATIVES_REAL4TH_WRT(sin(2 * x + 3 * y));
-    CHECK_DERIVATIVES_REAL4TH_WRT(exp(2 * x + 3 * y) * log(x / y));
-
-    // Testing array-unpacking of derivatives for real number
+    SECTION("directional derivative of f(x,y)=exp(log(2*x+3*y))")
     {
-        real4th x = {{2.0, 3.0, 4.0, 5.0, 6.0}};
+        constexpr auto x0 = 5, y0 = 7, x1 = 3, y1 = 5;
+        const auto f = [](const real4th& x, const real4th& y) -> real4th { return exp(log(2 * x + 3 * y)); };
 
-        auto [x0, x1, x2, x3, x4] = derivatives(x);
-
-        CHECK_APPROX(x0, x[0]);
-        CHECK_APPROX(x1, x[1]);
-        CHECK_APPROX(x2, x[2]);
-        CHECK_APPROX(x3, x[3]);
-        CHECK_APPROX(x4, x[4]);
+        const auto dfdv = derivatives(f, along(x1, y1), at(real4th(x0), real4th(y0)));
+        const auto u = f(real4th({x0, x1, 0, 0, 0}), real4th({y0, y1, 0, 0, 0}));
+        CHECK(equalWithinAbs(u, dfdv, 1e-12));
     }
 
-    // Testing array-unpacking of derivatives for vector of real numbers
+    SECTION("directional derivative of f(x,y)=sin(2*x+3*y)")
     {
-        real4th x = {{2.0, 3.0, 4.0, 5.0, 6.0}};
-        real4th y = {{3.0, 4.0, 5.0, 6.0, 7.0}};
-        real4th z = {{4.0, 5.0, 6.0, 7.0, 8.0}};
+        constexpr auto x0 = 5, y0 = 7, x1 = 3, y1 = 5;
+        const auto f = [](const real4th& x, const real4th& y) -> real4th { return sin(2 * x + 3 * y); };
 
-        std::vector<real4th> u = {x, y, z};
+        const auto dfdv = derivatives(f, along(x1, y1), at(real4th(x0), real4th(y0)));
+        const auto u = f(real4th({x0, x1, 0, 0, 0}), real4th({y0, y1, 0, 0, 0}));
+        CHECK(equalWithinAbs(u, dfdv, 1e-12));
+    }
 
-        auto [u0, u1, u2, u3, u4] = derivatives(u);
+    SECTION("directional derivative of f(x,y)=exp(2*x+3*y)*log(x/y)")
+    {
+        constexpr auto x0 = 5, y0 = 7, x1 = 3, y1 = 5;
+        const auto f = [](const real4th& x, const real4th& y) -> real4th { return exp(2 * x + 3 * y) * log(x / y); };
 
-        CHECK_APPROX(u0[0], x[0]);
-        CHECK_APPROX(u1[0], x[1]);
-        CHECK_APPROX(u2[0], x[2]);
-        CHECK_APPROX(u3[0], x[3]);
-        CHECK_APPROX(u4[0], x[4]);
-        CHECK_APPROX(u0[1], y[0]);
-        CHECK_APPROX(u1[1], y[1]);
-        CHECK_APPROX(u2[1], y[2]);
-        CHECK_APPROX(u3[1], y[3]);
-        CHECK_APPROX(u4[1], y[4]);
-        CHECK_APPROX(u0[2], z[0]);
-        CHECK_APPROX(u1[2], z[1]);
-        CHECK_APPROX(u2[2], z[2]);
-        CHECK_APPROX(u3[2], z[3]);
-        CHECK_APPROX(u4[2], z[4]);
+        const auto dfdv = derivatives(f, along(x1, y1), at(real4th(x0), real4th(y0)));
+        const auto u = f(real4th({x0, x1, 0, 0, 0}), real4th({y0, y1, 0, 0, 0}));
+        CHECK(equalWithinAbs(u, dfdv, 1e-12));
+    }
+
+    SECTION("Testing array-unpacking of derivatives for real number")
+    {
+        constexpr auto x = real4th({2.0, 3.0, 4.0, 5.0, 6.0});
+
+        const auto [x0, x1, x2, x3, x4] = derivatives(x);
+        CHECK(x == real4th({x0, x1, x2, x3, x4}));
+    }
+
+    SECTION("Testing array-unpacking of derivatives for vector of real numbers")
+    {
+        constexpr auto x = real4th({2.0, 3.0, 4.0, 5.0, 6.0});
+        constexpr auto y = real4th({3.0, 4.0, 5.0, 6.0, 7.0});
+        constexpr auto z = real4th({4.0, 5.0, 6.0, 7.0, 8.0});
+
+        const auto u = std::vector{x, y, z};
+
+        const auto [u0, u1, u2, u3, u4] = derivatives(u);
+
+        for(int i = 0; i < 3; ++i)
+            CHECK(u[i] == real4th({u0[i], u1[i], u2[i], u3[i], u4[i]}));
     }
 }
