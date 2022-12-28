@@ -29,9 +29,11 @@
 
 // autodiff includes
 #include <array>
+#include <autodiff/common/meta.hpp>
 #include <autodiff/forward/real.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <cmath>
+#include <functional>
 #include <tests/utils/catch.hpp>
 
 using namespace autodiff;
@@ -560,6 +562,160 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     //
     //=====================================================================================================================
 
+    SECTION("(Non-)Equality comparisons: {real, real}")
+    {
+        constexpr auto x = real4th({1, -3, 5, -7, 11});
+
+        // compare: x == x
+        {
+            constexpr auto eq = x == x;
+            constexpr auto neq = x != x;
+            CHECK(eq);
+            CHECK_FALSE(neq);
+        }
+
+        const auto unitDeriv = [](int i) constexpr
+        {
+            real4th unit = 0;
+            unit[i] = 1;
+            return unit;
+        };
+
+        // compare: x == x + unitDeriv(i)*1e-12
+        detail::For<5>(
+            [&x, unitDeriv](auto i) {
+                constexpr auto y = x + unitDeriv(i) * 1e-12;
+                constexpr auto eq = x == y;
+                constexpr auto neq = x != y;
+                CHECK_FALSE(eq);
+                CHECK(neq);
+            });
+    }
+
+    SECTION("(Non-)Equality comparisons: {real, number}")
+    {
+        constexpr auto x = real4th({1, -3, 5, -7, 11});
+
+        // equal values
+        {
+            constexpr auto eqRealNum = x == x[0];
+            constexpr auto eqNumReal = x[0] == x;
+            CHECK(eqRealNum);
+            CHECK(eqNumReal);
+
+            constexpr auto neqRealNum = x != x[0];
+            constexpr auto neqNumReal = x[0] != x;
+            CHECK_FALSE(neqRealNum);
+            CHECK_FALSE(neqNumReal);
+        }
+
+        // non-equal values
+        {
+            constexpr auto y0 = x[0] + 1;
+
+            constexpr auto eqRealNum = x == y0;
+            constexpr auto eqNumReal = y0 == x;
+            CHECK_FALSE(eqRealNum);
+            CHECK_FALSE(eqNumReal);
+
+            constexpr auto neqRealNum = x != y0;
+            constexpr auto neqNumReal = y0 != x;
+            CHECK(neqRealNum);
+            CHECK(neqNumReal);
+        }
+    }
+
+    SECTION("Inequality comparisons: {real, real}")
+    {
+        constexpr auto x = real4th({1, -3, 5, -7, 11});
+
+        const auto unitDeriv = [](int i) constexpr
+        {
+            real4th unit = 0;
+            unit[i] = 1;
+            return unit;
+        };
+
+        // idea: perturb "x" in each component and then check all inequalities.
+        // all combined in nested loops. a bit complex but results in shorter code ;)
+        detail::For<3>(
+            [&](auto i_dx0) {
+                // y: perturb x just in 0th component. only component important for comparison
+                constexpr auto dx0 = static_cast<int>(i_dx0) - 1;
+                constexpr auto y = x + unitDeriv(0) * dx0;
+
+                constexpr auto less = x < y;
+                CHECK(less == (dx0 > 0));
+
+                constexpr auto greater = x > y;
+                CHECK(greater == (dx0 < 0));
+
+                constexpr auto lessEqual = x <= y;
+                CHECK(lessEqual == (dx0 >= 0));
+
+                constexpr auto greaterEqual = x >= y;
+                CHECK(greaterEqual == (dx0 <= 0));
+
+                // z: perturb y in 1st-4th component. should not change comparison
+                detail::For<1, 5>(
+                    [&x, &y, unitDeriv](auto i) {
+                        detail::For<3>(
+                            [&x, &y, i, unitDeriv](auto i_dxi) {
+                                constexpr auto dxi = static_cast<int>(i_dxi) - 1; // dxi: -1, 0, +1
+                                constexpr auto z = y + unitDeriv(i) * dxi;
+                                CHECK((x < y) == (x < z));
+                                CHECK((x > y) == (x > z));
+                                CHECK((x <= y) == (x <= z));
+                                CHECK((x >= y) == (x >= z));
+                            });
+                    });
+            });
+    }
+
+    SECTION("Inequality comparisons: {real, number}")
+    {
+        constexpr auto x = real4th({1, -3, 5, -7, 11});
+
+        const auto unitDeriv = [](int i) constexpr
+        {
+            real4th unit = 0;
+            unit[i] = 1;
+            return unit;
+        };
+
+        detail::For<3>(
+            [&](auto i_dx0) {
+                constexpr auto dx0 = static_cast<int>(i_dx0) - 1;
+                constexpr auto y0 = x[0] + dx0;
+
+                constexpr auto realLessNum = x < y0;
+                constexpr auto numLessReal = y0 < x;
+                CHECK(realLessNum == (dx0 > 0));
+                CHECK(numLessReal == (dx0 < 0));
+
+                constexpr auto realGreaterNum = x > y0;
+                constexpr auto numGreaterReal = y0 > x;
+                CHECK(realGreaterNum == dx0 < 0);
+                CHECK(numGreaterReal == dx0 > 0);
+
+                constexpr auto realLessEqualNum = x <= y0;
+                constexpr auto numLessEqualReal = y0 <= x;
+                CHECK(realLessEqualNum == (dx0 >= 0));
+                CHECK(numLessEqualReal == (dx0 <= 0));
+
+                constexpr auto realGreaterEqualNum = x >= y0;
+                constexpr auto numGreaterEqualReal = y0 >= x;
+                CHECK(realGreaterEqualNum == dx0 <= 0);
+                CHECK(numGreaterEqualReal == dx0 >= 0);
+            });
+    }
+
+    //=====================================================================================================================
+    //
+    // TESTING DERIVATIVE CALCULATIONS
+    //
+    //=====================================================================================================================
+
     // const auto a = acos(x);
     // const auto b = ;
     // for(int i = 0; i < 5; ++i)
@@ -569,32 +725,6 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     x = {0.5, 3.0, -5.0, -15.0, 11.0};
     y = -x;
     z = y / 5.0;
-
-    x = {0.5, 3.0, -5.0, -15.0, 11.0};
-
-    // Check equality not only on value but also on the derivatives
-    CHECK(x == real4th({0.5, 3.0, -5.0, -15.0, 11.0}));
-
-    // Check equality against plain numeric types (double) do not require check against derivatives
-    CHECK_FALSE(x == 0.6);
-    CHECK(x == 0.5);
-
-    // Check inequalities
-    CHECK_FALSE(x == real4th({0.5, 3.1, -5.0, -15.0, 11.0}));
-    CHECK(x != real4th({0.5, 3.1, -5.0, -15.0, 11.0}));
-    CHECK(x != 1.0);
-    CHECK(x < 1.0);
-    CHECK(x > 0.1);
-    CHECK(x <= 1.0);
-    CHECK(x >= 0.1);
-    CHECK(x <= 0.5);
-    CHECK(x >= 0.5);
-
-    //=====================================================================================================================
-    //
-    // TESTING DERIVATIVE CALCULATIONS
-    //
-    //=====================================================================================================================
 
     CHECK_DERIVATIVES_REAL4TH_WRT(exp(log(2 * x + 3 * y)));
     CHECK_DERIVATIVES_REAL4TH_WRT(sin(2 * x + 3 * y));
