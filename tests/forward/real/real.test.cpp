@@ -381,16 +381,16 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     z = min(y, x);    CHECK( z == x );
     z = min(x, 0.1);  CHECK( z == real4th(0.1) );
     z = min(0.2, x);  CHECK( z == real4th(0.2) );
-    z = min(0.5, x);  CHECK( z == x[0] );
-    z = min(x, 0.5);  CHECK( z == x[0] );
-    z = min(3.5, x);  CHECK( z == x[0] );
-    z = min(x, 3.5);  CHECK( z == x[0] );
+    z = min(0.5, x);  CHECK( z == x );
+    z = min(x, 0.5);  CHECK( z == x );
+    z = min(3.5, x);  CHECK( z == x );
+    z = min(x, 3.5);  CHECK( z == x );
     z = max(x, y);    CHECK( z == y );
     z = max(y, x);    CHECK( z == y );
-    z = max(x, 0.1);  CHECK( z == x[0] );
-    z = max(0.2, x);  CHECK( z == x[0] );
-    z = max(0.5, x);  CHECK( z == x[0] );
-    z = max(x, 0.5);  CHECK( z == x[0] );
+    z = max(x, 0.1);  CHECK( z == x );
+    z = max(0.2, x);  CHECK( z == x );
+    z = max(0.5, x);  CHECK( z == x );
+    z = max(x, 0.5);  CHECK( z == x );
     z = max(8.5, x);  CHECK( z == real4th(8.5) );
     z = max(x, 8.5);  CHECK( z == real4th(8.5) );
 
