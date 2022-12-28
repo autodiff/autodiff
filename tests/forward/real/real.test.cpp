@@ -409,6 +409,8 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_APPROX( z[3], std::abs(y[0])/(y[0]) * y[3] );
     CHECK_APPROX( z[4], std::abs(y[0])/(y[0]) * y[4] );
 
+    CHECK(std::isfinite(y[0]) == std::isfinite(y));
+
     //=====================================================================================================================
     //
     // TESTING MIN/MAX FUNCTIONS

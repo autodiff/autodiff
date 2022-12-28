@@ -97,7 +97,7 @@ public:
 
     operator T() const
     {
-        return (T)m_data[0];
+        return static_cast<T>(m_data[0]);
     }
 
     constexpr auto operator[](size_t i) -> T&
@@ -869,13 +869,13 @@ constexpr auto min(const Real<N, T>& x, const Real<N, T>& y)
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
 constexpr auto min(const Real<N, T>& x, const U& y)
 {
-    return (x[0] <= y) ? x : y;
+    return (x[0] <= y) ? x : Real<N, T>(y);
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
 constexpr auto min(const U& x, const Real<N, T>& y)
 {
-    return (x < y[0]) ? x : y;
+    return min(y, x);
 }
 
 template<size_t N, typename T>
@@ -887,13 +887,13 @@ constexpr auto max(const Real<N, T>& x, const Real<N, T>& y)
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
 constexpr auto max(const Real<N, T>& x, const U& y)
 {
-    return (x[0] >= y) ? x : y;
+    return (x[0] >= y) ? x : Real<N, T>(y);
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
 constexpr auto max(const U& x, const Real<N, T>& y)
 {
-    return (x > y[0]) ? x : y;
+    return max(y, x);
 }
 
 //=====================================================================================================================
