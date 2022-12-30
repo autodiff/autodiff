@@ -409,7 +409,23 @@ TEST_CASE("testing autodiff::real", "[forward][real]")
     CHECK_APPROX( z[3], std::abs(y[0])/(y[0]) * y[3] );
     CHECK_APPROX( z[4], std::abs(y[0])/(y[0]) * y[4] );
 
-    CHECK(std::isfinite(y[0]) == std::isfinite(y));
+    //=====================================================================================================================
+    //
+    // TESTING THE CAST OPERATOR
+    //
+    //=====================================================================================================================
+
+    Real<2, float> floatReal;
+    floatReal = {0.1f, 1.0f};
+    CHECK( static_cast<float>(floatReal) == 0.1f );
+
+    Real<2, double> doubleReal;
+    doubleReal = {0.1, 1.0};
+    CHECK( static_cast<double>(doubleReal) == 0.1 );
+
+    // If the cast operator is working correctly, we should be able to use std::isfinite on Real
+    CHECK( std::isfinite(floatReal[0]) == std::isfinite(floatReal) );
+    CHECK( std::isfinite(doubleReal[0]) == std::isfinite(doubleReal) );
 
     //=====================================================================================================================
     //

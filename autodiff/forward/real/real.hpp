@@ -95,9 +95,9 @@ public:
         return m_data[0];
     }
 
-    operator T() const
+    constexpr operator T() const
     {
-        return static_cast<T>(m_data[0]);
+        return m_data[0];
     }
 
     constexpr auto operator[](size_t i) -> T&
