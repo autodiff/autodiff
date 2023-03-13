@@ -24,9 +24,9 @@ dependencies:
   - pre-commit
   - shellcheck
   - ccache  # [unix]
-  - clcache  # [win]
+  # - clcache  # [win]
   - catch2
-  # - vs2019_win-64  # [win]
+  - vs2019_win-64  # [win]
   - pip:
     - mkdocs
     - mkdocs-material
