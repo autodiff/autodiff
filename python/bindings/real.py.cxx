@@ -36,6 +36,7 @@
 // autodiff includes
 #include <autodiff/common/meta.hpp>
 #include <autodiff/forward/real/real.hpp>
+#include <autodiff/forward/utils/derivative.hpp>
 using namespace autodiff;
 using autodiff::detail::isSame;
 
@@ -172,6 +173,8 @@ void exportReal(py::module& m, const char* typestr)
     if constexpr (!isSame<T, float>) py::implicitly_convertible<float, Real<N, T>>();
     if constexpr (!isSame<T, double>) py::implicitly_convertible<double, Real<N, T>>();
 
+    m.def("seed", [](Real<N, T>& x) { x[1] = 1.0; });
+    m.def("unseed", [](Real<N, T>& x) { x[1] = 1.0; });
 
     m.def("abs"  , [](const Real<N, T>& x) { return abs(x); });
 
