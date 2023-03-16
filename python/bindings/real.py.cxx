@@ -70,6 +70,11 @@ void exportReal(py::module& m, const char* typestr)
         return self[0];
     };
 
+    auto __deepcopy__ = [](const Real<N, T>& self, py::object memo) -> Real<N, T>
+    {
+        return self;
+    };
+
     auto cls = py::class_<Real<N, T>>(m, typestr)
         .def(py::init<>())
         .def(py::init<const T&>())
@@ -80,6 +85,7 @@ void exportReal(py::module& m, const char* typestr)
         .def("__str__", __str__)
         .def("__repr__", __repr__)
         .def("__float__", __float__)
+        .def("__deepcopy__", __deepcopy__)  // needed when using autodiff::real types with plotly
 
         .def("exp", &autodiff::detail::exp<N, T>)
         .def("log", &autodiff::detail::log<N, T>)
