@@ -19,6 +19,26 @@ def _autodiff_number_format(self, spec):
 for numbertype in _autodiff_number_types:
     numbertype.__format__ = _autodiff_number_format
 
+# -------------------------------------------------------------------------------------
+# The code below is needed so that autodiff numbers can be used in plotly figures.
+# It teaches PlotlyJSONEncoder on how to encode an autodiff number to JSON.
+try:
+    from plotly.utils import PlotlyJSONEncoder
+    plotly_default = PlotlyJSONEncoder.default
+
+    def is_autodiff_number_type(o):
+        return any (t for t in _autodiff_number_types if isinstance(o, t))
+
+    def plotly_default_new(self, o):
+        if is_autodiff_number_type(o):
+            return o.val()
+        else:
+            return plotly_default(self, o)
+
+    PlotlyJSONEncoder.default = plotly_default_new
+except:
+    pass
+# -------------------------------------------------------------------------------------
 
 from autodiff.autodiff4py import *
 # from autodiff._extensions.some_module import *
