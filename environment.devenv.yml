@@ -1,6 +1,6 @@
 name: autodiff
 
-{% set python_version = os.environ.get("PYTHON_VERSION", "3.9") %}
+{% set python_version = os.environ.get("PYTHON_VERSION", "3.10") %}
 
 channels:
   - conda-forge
@@ -24,7 +24,7 @@ dependencies:
   - pre-commit
   - shellcheck
   - ccache  # [unix]
-  - clcache  # [win]
+  # - clcache  # [win]
   - catch2
   - vs2019_win-64  # [win]
   - pip:
