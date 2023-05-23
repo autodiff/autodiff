@@ -1,4 +1,4 @@
-from autodiff import autodiff4py
+from . import autodiff4py
 
 # List of all autodiff C++ number types exported to Python. Extend this as other
 # number types are exported!
@@ -40,5 +40,5 @@ except:
     pass
 # -------------------------------------------------------------------------------------
 
-from autodiff.autodiff4py import *
-# from autodiff._extensions.some_module import *
+from .autodiff4py import *
+# from ._extensions.some_module import *
