@@ -186,11 +186,14 @@ public:
         return *this;
     }
 
-    /// Convert this Real number into a value of type @p U.
 #if defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION_REAL) || defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION)
+    constexpr operator T() const { return static_cast<T>(m_data[0]); }
+
     template<typename U, Requires<isArithmetic<U>> = true>
     constexpr operator U() const { return static_cast<U>(m_data[0]); }
 #else
+    constexpr explicit operator T() const { return static_cast<T>(m_data[0]); }
+
     template<typename U, Requires<isArithmetic<U>> = true>
     constexpr explicit operator U() const { return static_cast<U>(m_data[0]); }
 #endif
@@ -864,13 +867,13 @@ constexpr auto min(const Real<N, T>& x, const Real<N, T>& y)
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
 constexpr auto min(const Real<N, T>& x, const U& y)
 {
-    return (x[0] <= y) ? x : y;
+    return (x[0] <= y) ? x : Real<N, T>{y};
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
 constexpr auto min(const U& x, const Real<N, T>& y)
 {
-    return (x < y[0]) ? x : y;
+    return (x < y[0]) ? Real<N, T>{x} : y;
 }
 
 template<size_t N, typename T>
@@ -882,13 +885,13 @@ constexpr auto max(const Real<N, T>& x, const Real<N, T>& y)
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
 constexpr auto max(const Real<N, T>& x, const U& y)
 {
-    return (x[0] >= y) ? x : y;
+    return (x[0] >= y) ? x : Real<N, T>{y};
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
 constexpr auto max(const U& x, const Real<N, T>& y)
 {
-    return (x > y[0]) ? x : y;
+    return (x > y[0]) ? Real<N, T>{x} : y;
 }
 
 //=====================================================================================================================

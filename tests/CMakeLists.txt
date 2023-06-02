@@ -6,10 +6,16 @@ add_executable(autodiff-cpptests main.cpp ${TEST_FILES})
 target_link_libraries(autodiff-cpptests autodiff::autodiff Eigen3::Eigen Catch2::Catch2WithMain)
 set_target_properties(autodiff-cpptests PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
 
+add_executable(autodiff-cpptests-implicit-conversion main.cpp ${TEST_FILES})
+target_compile_definitions(autodiff-cpptests-implicit-conversion PUBLIC AUTODIFF_ENABLE_IMPLICIT_CONVERSION=1)
+target_link_libraries(autodiff-cpptests-implicit-conversion autodiff::autodiff Eigen3::Eigen Catch2::Catch2WithMain)
+set_target_properties(autodiff-cpptests-implicit-conversion PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
+
 # Add target tests that performs all C++ and Python tests
 add_custom_target(tests
     COMMENT "Running C++ tests..."
     COMMAND $<TARGET_FILE:autodiff-cpptests>
+    COMMAND $<TARGET_FILE:autodiff-cpptests-implicit-conversion>
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(AUTODIFF_TEST_SANITIZE)
@@ -19,6 +25,8 @@ if(AUTODIFF_TEST_SANITIZE)
     unset(CMAKE_REQUIRED_FLAGS)
     if(HAVE_ASAN)
         target_compile_options(autodiff-cpptests PRIVATE "-fsanitize=address")
+        target_compile_options(autodiff-cpptests-implicit-conversion PRIVATE "-fsanitize=address")
         target_link_options(autodiff-cpptests PRIVATE "-fsanitize=address")
+        target_link_options(autodiff-cpptests-implicit-conversion PRIVATE "-fsanitize=address")
     endif()
 endif()
