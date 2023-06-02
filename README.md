@@ -143,16 +143,6 @@ be extracted from `dud` using `dud(x)`. The operations `dud(x)`, `dud(y)`,
 `dud(z)` involve no computations! Just extraction of derivatives previously
 computed with a call to function `autodiff::derivatives`.
 
-## Development status
-
-**autodiff** is planned to be a long-term maintained automatic differentiation
-C++ project. This means that more algorithms and number types will still be
-implemented and that the currently existing ones will be further enhanced.
-Please have in mind, however, that **autodiff** is still in a relatively early
-stage of development, which implies that minor breaking changes in API may be
-introduced to simplify its use and make it more intuitive and consistent with
-new library additions.
-
 ## Documentation
 
 Check the documentation website for more details:
@@ -165,7 +155,7 @@ Check the documentation website for more details:
 
 MIT License
 
-Copyright (c) 2018–2021 Allan Leal
+Copyright (c) 2018–2023 Allan Leal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
