@@ -326,7 +326,7 @@ TEST_CASE("testing autodiff::var", "[reverse][var]")
 
     y = 2 * a;
 
-    REQUIRE( y == Catch::Approx( 2 * val(a) ) );
+    REQUIRE( val(y) == Catch::Approx( 2 * val(a) ) );
     REQUIRE( grad(y, a) == Catch::Approx( 2.0 ) );
 
     REQUIRE( val(pow(x, y)) == Catch::Approx(std::pow(val(x), val(y))) );

@@ -159,33 +159,43 @@ TEST_CASE("testing autodiff::dual", "[forward][dual]")
 
     SECTION("trivial tests")
     {
-        CHECK( x == approx(100) );
+        CHECK( val(x) == approx(100) );
+        CHECK( grad(x) == 0.0 );
         x += 1;
-        CHECK( x == approx(101) );
+        CHECK( val(x) == approx(101) );
+        CHECK( grad(x) == 0.0 );
         x -= 1;
-        CHECK( x == approx(100) );
+        CHECK( val(x) == approx(100) );
+        CHECK( grad(x) == 0.0 );
         x *= 2;
-        CHECK( x == approx(200) );
+        CHECK( val(x) == approx(200) );
+        CHECK( grad(x) == 0.0 );
         x /= 20;
-        CHECK( x == approx(10) );
+        CHECK( val(x) == approx(10) );
+        CHECK( grad(x) == 0.0 );
     }
 
     SECTION("aliasing tests")
     {
         x = 1; x = x + 3*x - 2*x + x;
-        CHECK( x == approx(3) );
+        CHECK( val(x) == approx(3) );
+        CHECK( grad(x) == 0.0 );
 
         x = 1; x += x + 3*x - 2*x + x;
-        CHECK( x == approx(4) );
+        CHECK( val(x) == approx(4) );
+        CHECK( grad(x) == 0.0 );
 
         x = 1; x -= x + 3*x - 2*x + x;
-        CHECK( x == approx(-2) );
+        CHECK( val(x) == approx(-2) );
+        CHECK( grad(x) == 0.0 );
 
         x = 1; x *= x + 3*x - 2*x + x;
-        CHECK( x == approx(3) );
+        CHECK( val(x) == approx(3) );
+        CHECK( grad(x) == 0.0 );
 
         x = 1; x /= x + x;
-        CHECK( x == approx(0.5) );
+        CHECK( val(x) == approx(0.5) );
+        CHECK( grad(x) == 0.0 );
     }
 
     SECTION("testing comparison operators")
