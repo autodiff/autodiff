@@ -1219,9 +1219,6 @@ struct Variable
     /// Implicitly convert this Variable object into an expression pointer.
     operator const ExprPtr<T>&() const { return expr; }
 
-    /// Explicitly convert this Variable object into its underlying arithmetic type.
-    explicit operator T() const { return expr->val; }
-
     /// Assign an arithmetic value to this variable.
     template<typename U, Requires<isArithmetic<U>> = true>
     auto operator=(const U& val) -> Variable& { *this = Variable(val); return *this; }
@@ -1240,6 +1237,18 @@ struct Variable
     template<typename U, Requires<isArithmetic<U>> = true> Variable& operator-=(const U& x) { *this = Variable(expr - x); return *this; }
     template<typename U, Requires<isArithmetic<U>> = true> Variable& operator*=(const U& x) { *this = Variable(expr * x); return *this; }
     template<typename U, Requires<isArithmetic<U>> = true> Variable& operator/=(const U& x) { *this = Variable(expr / x); return *this; }
+
+#if defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION_VAR) || defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION)
+    operator T() const { return expr->val; }
+
+    template<typename U>
+    operator U() const { return static_cast<U>(expr->val); }
+#else
+    explicit operator T() const { return expr->val; }
+
+    template<typename U>
+    explicit operator U() const { return static_cast<U>(expr->val); }
+#endif
 };
 
 //------------------------------------------------------------------------------

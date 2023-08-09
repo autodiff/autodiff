@@ -43,6 +43,8 @@ auto approx(T&& expr) -> Catch::Approx
     return Catch::Approx(val(std::forward<T>(expr))).margin(zero);
 }
 
+#define CHECK_APPROX(a, b) CHECK( abs(a - b) < abs(b) * std::numeric_limits<double>::epsilon() * 100 );
+
 TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")
 {
     using Eigen::MatrixXd;
@@ -106,7 +108,7 @@ TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")
         VectorXd y = x.cast<double>();
 
         for(auto i = 0; i < 3; ++i)
-            CHECK( x[i] == approx(y(i)) );
+            CHECK_APPROX( x[i], y(i) );
     }
 
     SECTION("testing casting to MatriXd")
@@ -118,7 +120,7 @@ TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")
 
         for(auto i = 0; i < 2; ++i)
             for(auto j = 0; j < 2; ++j)
-                CHECK(x(i, j) == approx(y(i, j)));
+                CHECK_APPROX( x(i, j), y(i, j) );
     }
 
     SECTION("testing multiplication of VectorXdual by MatrixXd")
@@ -248,7 +250,7 @@ TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")
             VectorXd y = x.cast<double>();
 
             for(auto i = 0; i < 3; ++i)
-                CHECK( x(i) == approx(y(i)) );
+                CHECK_APPROX( x(i), y(i) );
         }
 
         SECTION("testing casting to VectorXf")
@@ -258,7 +260,7 @@ TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")
             MatrixXd y = x.cast<double>();
             for(auto i = 0; i < 2; ++i)
                 for(auto j = 0; j < 2; ++j)
-                    CHECK( x(i, j) == approx(y(i, j)) );
+                    CHECK_APPROX( x(i, j), y(i, j) );
         }
 
         SECTION("test gradient size with respect to few arguments")
@@ -385,7 +387,7 @@ TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")
             VectorXd y = x.template cast<double>();
 
             for(auto i = 0; i < 3; ++i)
-                CHECK( x(i) == approx(y(i)) );
+                CHECK_APPROX( x(i), y(i) );
         }
 
         using dual2nd = HigherOrderDual<2, double>;
@@ -457,7 +459,7 @@ TEST_CASE("testing autodiff::dual (with eigen)", "[forward][dual][eigen]")
             VectorXd y = x.template cast<double>();
 
             for(auto i = 0; i < 3; ++i)
-                CHECK( x(i) == approx(y(i)) );
+                CHECK_APPROX( x(i), y(i) );
         }
 
         SECTION("testing gradient derivatives")

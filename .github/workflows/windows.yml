@@ -13,7 +13,8 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
+    # runs-on: windows-latest  # Getting "fatal error C1001: Internal compiler error." for some examples in windows with MSVC 2022 
+    runs-on: windows-2019
 
     env:
       configuration: Release
