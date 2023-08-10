@@ -684,7 +684,7 @@ auto& gradnode(Dual<T, G>& dual)
 template<size_t order, typename T, typename G, typename U>
 auto seed(Dual<T, G>& dual, U&& seedval)
 {
-    gradnode<order>(dual) = seedval;
+    gradnode<order>(dual) = static_cast<NumericType<decltype(gradnode<order>(dual))>>(seedval);
 }
 
 //=====================================================================================================================
