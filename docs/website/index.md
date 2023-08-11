@@ -13,8 +13,8 @@
 techniques to enable automatic computation of derivatives in an efficient, easy,
 and intuitive way.
 
-We welcome you to use {{autodiff}} and recommend us any improvements you think
-it is necessary. You may want to do so by chatting with us on our [Gitter
+We welcome you to use {{autodiff}} and recommend to us any improvements you think
+are necessary. You may want to do so by chatting with us on our [Gitter
 Community Channel][gitter] and/or by making proposals by creating a [GitHub
 issue][issues].
 
@@ -141,11 +141,7 @@ auto [ux, uy, uz] = derivatives(u, wrt(x, y, z));
 
 The function `autodiff::derivatives` will traverse the expression tree stored
 in variable `u` and compute all its derivatives with respect to the input
-variables *(x, y, z)*, which are then stored in the object `dud`. The
-derivative of `u` with respect to input variable `x` (i.e., *∂u/∂x*) can then
-be extracted from `dud` using `dud(x)`. The operations `dud(x)`, `dud(y)`,
-`dud(z)` involve no computations! Just extraction of derivatives previously
-computed with a call to function `autodiff::derivatives`.
+variables *(x, y, z)*.
 
 ## Get in touch!
 
