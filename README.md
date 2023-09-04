@@ -2,7 +2,6 @@
     <img src='art/autodiff-header.svg' width='100%'>
 </a>
 
-[![Gitter chat](https://badges.gitter.im/autodiff/gitter.png)](https://gitter.im/autodiff/community)
 ![Linux build status](https://github.com/autodiff/autodiff/workflows/linux/badge.svg?branch=master)
 ![macOS build status](https://github.com/autodiff/autodiff/workflows/osx/badge.svg?branch=master)
 ![Windows build status](https://github.com/autodiff/autodiff/workflows/windows/badge.svg?branch=master)
@@ -12,11 +11,6 @@
 **autodiff** is a C++17 library that uses modern and advanced programming
 techniques to enable automatic computation of derivatives in an efficient, easy,
 and intuitive way.
-
-We welcome you to use **autodiff** and recommend us any improvements you think
-it is necessary. You may want to do so by chatting with us on our [Gitter
-Community Channel][gitter] and/or by making proposals by creating a [GitHub
-issue][issues].
 
 ## Demonstration
 
@@ -175,5 +169,4 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-[gitter]: https://gitter.im/autodiff/community
 [issues]: https://github.com/autodiff/autodiff/issues/new
