@@ -1,5 +1,9 @@
-find_package(Eigen3 REQUIRED)
-find_package(Catch2 3 REQUIRED)
+if (NOT TARGET Catch2)
+    message( FATAL_ERROR "Catch2 requirement could not be found.")
+endif()
+if (NOT TARGET eigen)
+    message( FATAL_ERROR "eigen requirement could not be found.")
+endif()
 
 file(GLOB_RECURSE TEST_FILES "*.test.cpp")
 add_executable(autodiff-cpptests main.cpp ${TEST_FILES})
@@ -16,7 +20,7 @@ set_target_properties(autodiff-cpptests PROPERTIES CXX_STANDARD 17 CXX_STANDARD_
 # set_target_properties(autodiff-cpptests-implicit-conversion PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
 
 # Add target tests that performs all C++ and Python tests
-add_custom_target(tests
+add_custom_target(autodiff-tests
     COMMENT "Running C++ tests..."
     COMMAND $<TARGET_FILE:autodiff-cpptests>
     # COMMAND $<TARGET_FILE:autodiff-cpptests-implicit-conversion>
