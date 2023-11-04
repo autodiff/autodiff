@@ -1,3 +1,5 @@
+"""autodiff build and test dependencies."""
+
 module(
     name = "autodiff",
     version = "1.0.3",
