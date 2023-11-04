@@ -1,0 +1,7 @@
+module(
+    name = "autodiff",
+    version = "1.0.3",
+    compatibility_level = 1,
+)
+
+bazel_dep(name = "eigen", repo_name = "com_github_eigen_eigen", version = "3.4.0")

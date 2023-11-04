@@ -10,7 +10,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 #)
 
 http_archive(
-    name = "wwwwcom_github_eigen_eigen",
+    name = "com_github_eigen_eigen",
     build_file_content = """
 cc_library(
     name = 'eigen',
