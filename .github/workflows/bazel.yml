@@ -46,9 +46,14 @@ jobs:
       run: |
         bazel build --cxxopt='-std=c++17' //examples/forward:all
         bazel build --cxxopt='-std=c++17' //examples/reverse:all
+        bazel build --enable_bzlmod --cxxopt='-std=c++17' //examples/forward:all
+        bazel build --enable_bzlmod --cxxopt='-std=c++17' //examples/reverse:all
 
     - name: Test
       shell: bash -l {0}
       run: |
+            run: |
         bazel test --cxxopt='-std=c++17' //examples/forward:all --test_output=all
         bazel test --cxxopt='-std=c++17' //examples/reverse:all --test_output=all
+        bazel test --enable_bzlmod --cxxopt='-std=c++17' //examples/forward:all --test_output=all
+        bazel test --enable_bzlmod --cxxopt='-std=c++17' //examples/reverse:all --test_output=all
