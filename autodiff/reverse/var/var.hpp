@@ -39,8 +39,8 @@
 #include <stdexcept>
 
 // autodiff includes
-#include <autodiff/common/meta.hpp>
-#include <autodiff/common/numbertraits.hpp>
+#include "autodiff/common/meta.hpp"
+#include "autodiff/common/numbertraits.hpp"
 
 /// autodiff namespace where @ref Variable and @ref grad are defined.
 namespace autodiff {}

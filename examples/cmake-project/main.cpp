@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <autodiff/forward/dual.hpp>
+#include "autodiff/forward/dual.hpp"
 using namespace autodiff;
 
 dual f(dual x)

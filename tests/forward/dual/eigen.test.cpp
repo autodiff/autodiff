@@ -32,8 +32,8 @@
 #include <catch2/catch_test_macros.hpp>
 
 // autodiff includes
-#include <autodiff/forward/dual.hpp>
-#include <autodiff/forward/dual/eigen.hpp>
+#include "autodiff/forward/dual.hpp"
+#include "autodiff/forward/dual/eigen.hpp"
 using namespace autodiff;
 
 template<typename T>

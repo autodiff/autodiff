@@ -39,8 +39,8 @@
 #include <utility>
 
 // autodiff includes
-#include <autodiff/common/numbertraits.hpp>
-#include <autodiff/common/meta.hpp>
+#include "autodiff/common/numbertraits.hpp"
+#include "autodiff/common/meta.hpp"
 
 namespace autodiff {
 namespace detail {
