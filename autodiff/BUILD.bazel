@@ -2,7 +2,7 @@ cc_library(
     name = "common",
     hdrs = glob(["common/*.hpp"]),
     visibility = ["//visibility:public"],
-    deps = ["@com_github_eigen_eigen//:eigen"],
+    deps = ["@eigen//:eigen"],
 )
 
 cc_library(
@@ -14,7 +14,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":common",
-        "@com_github_eigen_eigen//:eigen",
+        "@eigen//:eigen",
     ],
 )
 
@@ -28,6 +28,6 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":common",
-        "@com_github_eigen_eigen//:eigen",
+        "@eigen//:eigen",
     ],
 )

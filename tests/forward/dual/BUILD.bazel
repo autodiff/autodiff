@@ -6,3 +6,13 @@ cc_test(
         "@catch2//:catch2_main",
     ]
 )
+
+cc_test(
+    name = "eigen.test",
+    srcs = ["eigen.test.cpp"],
+    deps = [
+       "//:autodiff",
+       "@eigen",
+       "@catch2//:catch2_main",
+    ]
+)
