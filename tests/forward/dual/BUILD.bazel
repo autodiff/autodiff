@@ -1,0 +1,8 @@
+cc_test(
+    name = "dual.test",
+    srcs = ["dual.test.cpp"],
+    deps = [
+       "//:autodiff",
+        "@catch2//:catch2_main",
+    ]
+)

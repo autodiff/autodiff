@@ -5,3 +5,5 @@ module(
 )
 
 bazel_dep(name = "eigen", repo_name = "com_github_eigen_eigen", version = "3.4.0")
+
+bazel_dep(name = "catch2", version = "3.4.0", dev_dependency = True)
