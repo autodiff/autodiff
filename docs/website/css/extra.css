@@ -3,7 +3,7 @@
     src: url("../fonts/Comfortaa-Regular.ttf") format("truetype");
 }
 
-.md-header-nav__topic {
+.md-header-nav__topic .md-ellipsis {
     font-family: 'Comfortaa', cursive;
     font-weight: bold;
 }

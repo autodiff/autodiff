@@ -18,6 +18,7 @@ theme:
     primary: 'teal'
     accent: 'pink'
   favicon: 'img/autodiff-logo.svg'
+  logo: 'img/autodiff-logo.svg'
 
 # Path where the markdown files are
 docs_dir: 'website'
