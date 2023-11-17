@@ -114,7 +114,7 @@ issue and keep track of our progress on fixing it. You are also welcome to
 recommend us installation improvements in the Gitter channel.
 
 
-[discussion]: https://github.com/autodiff/autodiff/discussions/new
+[discussion]: https://github.com/autodiff/autodiff/discussions/new?category=q-a
 [Anaconda]: https://www.anaconda.com/distribution/
 [Miniconda]: https://docs.conda.io/en/latest/miniconda.html
 [github]: https://github.com/autodiff/autodiff

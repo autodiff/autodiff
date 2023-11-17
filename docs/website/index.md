@@ -135,5 +135,5 @@ Contact us on our [GitHub Discussion Channel][discussion] if you need support
 and assistance when using {{autodiff}}. If you would like to report a bug, then
 please create a new [GitHub Issue][issues].
 
-[discussion]: https://github.com/autodiff/autodiff/discussions/new
+[discussion]: https://github.com/autodiff/autodiff/discussions/new?category=q-a
 [issues]: https://github.com/autodiff/autodiff/issues/new
