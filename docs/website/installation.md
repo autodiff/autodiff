@@ -106,18 +106,17 @@ directory named `autodiff`, you can now copy the sub-directory
 
 ## Installation failed. What do I do?
 
-Discuss with us first your issue on our [Gitter Community Channel][gitter]. We
-may be able to respond more quickly there on how to sort out your issue. If bug
-fixes are indeed required, we'll kindly ask you to create a [GitHub
-issue][issues], in which you can provide more details about the issue and keep
-track of our progress on fixing it. You are also welcome to recommend us
-installation improvements in the Gitter channel.
+Discuss with us first your question on our [GitHub Discussion
+Channel][discussion]. We may be able to respond more quickly there on how to
+sort out your issue. If bug fixes are indeed required, we'll kindly ask you to
+create a [GitHub Issue][issues], in which you can provide more details about the
+issue and keep track of our progress on fixing it. You are also welcome to
+recommend us installation improvements in the Gitter channel.
 
 
-
+[discussion]: https://github.com/autodiff/autodiff/discussions/new
 [Anaconda]: https://www.anaconda.com/distribution/
 [Miniconda]: https://docs.conda.io/en/latest/miniconda.html
-[gitter]: https://gitter.im/autodiff/community
 [github]: https://github.com/autodiff/autodiff
 [zip]: https://github.com/autodiff/autodiff/archive/master.zip
 [issues]: https://github.com/autodiff/autodiff/issues/new

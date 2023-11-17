@@ -2,29 +2,15 @@
 
 ---
 
-[![Gitter chat](https://badges.gitter.im/autodiff/gitter.png)](https://gitter.im/autodiff/community)
-![Linux build status](https://github.com/autodiff/autodiff/workflows/linux/badge.svg?branch=master)
-![macOS build status](https://github.com/autodiff/autodiff/workflows/osx/badge.svg?branch=master)
-![Windows build status](https://github.com/autodiff/autodiff/workflows/windows/badge.svg?branch=master)
+![Linux build status](https://github.com/autodiff/autodiff/workflows/linux/badge.svg?branch=main)
+![macOS build status](https://github.com/autodiff/autodiff/workflows/osx/badge.svg?branch=main)
+![Windows build status](https://github.com/autodiff/autodiff/workflows/windows/badge.svg?branch=main)
 
 # {{autodiff}}
 
 {{autodiff}} is a C++17 library that uses modern and advanced programming
 techniques to enable automatic computation of derivatives in an efficient, easy,
 and intuitive way.
-
-We welcome you to use {{autodiff}} and recommend to us any improvements you think
-are necessary. You may want to do so by chatting with us on our [Gitter
-Community Channel][gitter] and/or by making proposals by creating a [GitHub
-issue][issues].
-
-!!! attention
-
-    There are breaking changes in {{autodiff}} v0.6! Please check the updated
-    [Tutorials](tutorials.md) page to learn how to correctly include the header
-    files, the slightly changed API, and the new autodiff type `real` designed for
-    efficient **higher-order directional derivatives**. This is in contrast to the
-    `dual` type, which is designed for higher-order cross derivatives.
 
 ## Demonstration
 
@@ -143,12 +129,11 @@ The function `autodiff::derivatives` will traverse the expression tree stored
 in variable `u` and compute all its derivatives with respect to the input
 variables *(x, y, z)*.
 
-## Get in touch!
+## Questions?
 
-Contact us on [Gitter][gitter] or via a [GitHub Discussion][discussion] if you
-need support and assistance when using {{autodiff}}. If you would like to
-report a bug, then please create a new [GitHub Issue][issues].
+Contact us on our [GitHub Discussion Channel][discussion] if you need support
+and assistance when using {{autodiff}}. If you would like to report a bug, then
+please create a new [GitHub Issue][issues].
 
 [discussion]: https://github.com/autodiff/autodiff/discussions/new
-[gitter]: https://gitter.im/autodiff/community
 [issues]: https://github.com/autodiff/autodiff/issues/new
