@@ -10,24 +10,21 @@ dependencies:
   - ccache  # [unix]
   - clangxx_osx-64  # [osx]
   - cmake
+  - doxygen=1.9.1  # [linux]
   - eigen
   - git
+  - graphviz  # [linux]
   - gxx_linux-64  # [linux]
+  - lld  # [linux]
+  - mkdocs
+  - mkdocs-macros-plugin
+  - mkdocs-material
   - ninja
   - pip
+  - pre-commit
   - pybind11
   - pybind11-abi
   - pybind11-stubgen
   - python={{ python_version }}
-  - doxygen=1.9.1  # [linux]
-  - graphviz  # [linux]
-  - pre-commit
   - shellcheck
-  - ccache  # [unix]
-  # - clcache  # [win]
-  - catch2
   - vs2019_win-64  # [win]
-  - pip:
-    - mkdocs
-    - mkdocs-material
-    - mkdocs-macros-plugin
