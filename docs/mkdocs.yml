@@ -9,7 +9,7 @@ repo_name: autodiff/autodiff
 repo_url: https://github.com/autodiff/autodiff/
 
 # Copyright
-copyright: 'Copyright &copy; 2018–2021 Allan Leal'
+copyright: 'Copyright &copy; 2018–2024 Allan Leal'
 
 # Configuration
 theme:

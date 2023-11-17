@@ -149,7 +149,7 @@ Check the documentation website for more details:
 
 MIT License
 
-Copyright (c) 2018–2023 Allan Leal
+Copyright © 2018–2024 Allan Leal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
