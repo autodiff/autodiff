@@ -16,6 +16,7 @@ dependencies:
   - graphviz  # [linux]
   - gxx_linux-64  # [linux]
   - lld  # [linux]
+  - make  # [unix]
   - mkdocs
   - mkdocs-macros-plugin
   - mkdocs-material
