@@ -33,9 +33,9 @@
 #include <Eigen/Core>
 
 // autodiff includes
+#include <autodiff/common/eigen.hpp>
 #include <autodiff/forward/real.hpp>
 #include <autodiff/forward/utils/gradient.hpp>
-#include <autodiff/common/eigen.hpp>
 
 //------------------------------------------------------------------------------
 // SUPPORT FOR EIGEN MATRICES AND VECTORS OF REAL

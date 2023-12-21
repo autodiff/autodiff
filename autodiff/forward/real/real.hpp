@@ -31,17 +31,17 @@
 
 // C++ includes
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <iostream>
 #include <sstream>
-#include <tuple>
 #include <utility>
 
 // autodiff includes
 #include <autodiff/common/binomialcoefficient.hpp>
-#include <autodiff/common/numbertraits.hpp>
 #include <autodiff/common/meta.hpp>
+#include <autodiff/common/numbertraits.hpp>
 
 namespace autodiff {
 namespace detail {
@@ -50,32 +50,40 @@ namespace detail {
 template<size_t N, typename T>
 class Real
 {
-private:
+  private:
     // Ensure type T is a numeric type
     static_assert(isArithmetic<T>);
 
     /// The value and derivatives of the number up to order *N*.
-    std::array<T, N + 1> m_data = {};
+    std::array<T, N + 1> m_data;
 
-public:
+  public:
     /// Construct a default Real number of order *N* and type *T*.
     constexpr Real()
-    {}
+        : m_data{}
+    {
+    }
 
     /// Construct a Real number with given data.
-    constexpr Real(const T& value)
+    constexpr Real(const T value)
+        : m_data{}
     {
         m_data[0] = value;
+        For<1, N + 1>([&](auto i) constexpr {
+            m_data[i] = T{0};
+        });
     }
 
     /// Construct a Real number with given data.
     constexpr Real(const std::array<T, N + 1>& data)
-    : m_data(data)
-    {}
+        : m_data(data)
+    {
+    }
 
     /// Construct a Real number with given data.
     template<size_t M, typename U, Requires<isArithmetic<U>> = true>
     constexpr explicit Real(const Real<M, U>& other)
+        : m_data{}
     {
         static_assert(N <= M);
         For<0, N + 1>([&](auto i) constexpr {
@@ -106,10 +114,10 @@ public:
     }
 
     template<typename U, Requires<isArithmetic<U>> = true>
-    constexpr auto operator=(const U& value) -> Real&
+    constexpr auto operator=(const U value) -> Real&
     {
-        m_data[0] = value;
-        For<1, N + 1>([&](auto i) constexpr { m_data[i] = T{}; });
+        m_data[0] = static_cast<T>(value);
+        For<1, N + 1>([&](auto i) constexpr { m_data[i] = T{0}; });
         return *this;
     }
 
@@ -120,28 +128,28 @@ public:
     }
 
     template<typename U, Requires<isArithmetic<U>> = true>
-    constexpr auto operator+=(const U& value) -> Real&
+    constexpr auto operator+=(const U value) -> Real&
     {
         m_data[0] += static_cast<T>(value);
         return *this;
     }
 
     template<typename U, Requires<isArithmetic<U>> = true>
-    constexpr auto operator-=(const U& value) -> Real&
+    constexpr auto operator-=(const U value) -> Real&
     {
         m_data[0] -= static_cast<T>(value);
         return *this;
     }
 
     template<typename U, Requires<isArithmetic<U>> = true>
-    constexpr auto operator*=(const U& value) -> Real&
+    constexpr auto operator*=(const U value) -> Real&
     {
         For<0, N + 1>([&](auto i) constexpr { m_data[i] *= static_cast<T>(value); });
         return *this;
     }
 
     template<typename U, Requires<isArithmetic<U>> = true>
-    constexpr auto operator/=(const U& value) -> Real&
+    constexpr auto operator/=(const U value) -> Real&
     {
         For<0, N + 1>([&](auto i) constexpr { m_data[i] /= static_cast<T>(value); });
         return *this;
@@ -190,13 +198,22 @@ public:
     constexpr operator T() const { return static_cast<T>(m_data[0]); }
 
     template<typename U, Requires<isArithmetic<U>> = true>
-    constexpr operator U() const { return static_cast<U>(m_data[0]); }
+    constexpr operator U() const
+    {
+        return static_cast<U>(m_data[0]);
+    }
 #else
     constexpr explicit operator T() const { return static_cast<T>(m_data[0]); }
 
     template<typename U, Requires<isArithmetic<U>> = true>
-    constexpr explicit operator U() const { return static_cast<U>(m_data[0]); }
+    constexpr explicit operator U() const
+    {
+        return static_cast<U>(m_data[0]);
+    }
 #endif
+
+    template<size_t M, typename U>
+    friend constexpr bool operator==(const Real<M, U>& x, const Real<M, U>& y);
 };
 
 //=====================================================================================================================
@@ -210,8 +227,8 @@ using std::acos;
 using std::acosh;
 using std::asin;
 using std::asinh;
-using std::atan2;
 using std::atan;
+using std::atan2;
 using std::atanh;
 using std::cbrt;
 using std::cos;
@@ -235,10 +252,16 @@ using std::tanh;
 //=====================================================================================================================
 
 template<typename T>
-struct isRealAux { constexpr static bool value = false; };
+struct isRealAux
+{
+    constexpr static bool value = false;
+};
 
 template<size_t N, typename T>
-struct isRealAux<Real<N, T>> { constexpr static bool value = true; };
+struct isRealAux<Real<N, T>>
+{
+    constexpr static bool value = true;
+};
 
 template<typename T>
 constexpr bool isReal = isRealAux<PlainType<T>>::value;
@@ -253,17 +276,15 @@ constexpr bool areReal = (... && isReal<Args>);
 //=====================================================================================================================
 
 template<size_t N, typename T>
-auto operator+(const Real<N, T>& x)
+constexpr auto operator+(const Real<N, T>& x)
 {
     return x;
 }
 
 template<size_t N, typename T>
-auto operator-(const Real<N, T>& x)
+constexpr auto operator-(Real<N, T> x)
 {
-    Real<N, T> res;
-    For<0, N + 1>([&](auto i) constexpr { res[i] = -x[i]; });
-    return res;
+    return x *= -1;
 }
 
 //=====================================================================================================================
@@ -273,19 +294,19 @@ auto operator-(const Real<N, T>& x)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-auto operator+(Real<N, T> x, const Real<N, T>& y)
+constexpr auto operator+(Real<N, T> x, const Real<N, T>& y)
 {
     return x += y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator+(Real<N, T> x, const U& y)
+constexpr auto operator+(Real<N, T> x, const U y)
 {
     return x += y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator+(const U& x, Real<N, T> y)
+constexpr auto operator+(const U x, Real<N, T> y)
 {
     return y += x;
 }
@@ -296,23 +317,21 @@ auto operator+(const U& x, Real<N, T> y)
 //
 //=====================================================================================================================
 template<size_t N, typename T>
-auto operator-(Real<N, T> x, const Real<N, T>& y)
+constexpr auto operator-(Real<N, T> x, const Real<N, T>& y)
 {
     return x -= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator-(Real<N, T> x, const U& y)
+constexpr auto operator-(Real<N, T> x, const U y)
 {
     return x -= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator-(const U& x, Real<N, T> y)
+constexpr auto operator-(const U x, Real<N, T> y)
 {
-    y -= x;
-    y *= -static_cast<T>(1.0);
-    return y;
+    return -(y - x);
 }
 
 //=====================================================================================================================
@@ -322,19 +341,19 @@ auto operator-(const U& x, Real<N, T> y)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-auto operator*(Real<N, T> x, const Real<N, T>& y)
+constexpr auto operator*(Real<N, T> x, const Real<N, T>& y)
 {
     return x *= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator*(Real<N, T> x, const U& y)
+constexpr auto operator*(Real<N, T> x, const U y)
 {
     return x *= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator*(const U& x, Real<N, T> y)
+constexpr auto operator*(const U x, Real<N, T> y)
 {
     return y *= x;
 }
@@ -346,22 +365,21 @@ auto operator*(const U& x, Real<N, T> y)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-auto operator/(Real<N, T> x, const Real<N, T>& y)
+constexpr auto operator/(Real<N, T> x, const Real<N, T>& y)
 {
     return x /= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator/(Real<N, T> x, const U& y)
+constexpr auto operator/(Real<N, T> x, const U y)
 {
     return x /= y;
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-auto operator/(const U& x, Real<N, T> y)
+constexpr auto operator/(const U x, const Real<N, T>& y)
 {
-    Real<N, T> z = x;
-    return z /= y;
+    return Real<N, T>(x) / y;
 }
 
 //=====================================================================================================================
@@ -371,108 +389,103 @@ auto operator/(const U& x, Real<N, T> y)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-constexpr auto exp(const Real<N, T>& x)
+auto exp(const Real<N, T>& x)
 {
-    Real<N, T> expx;
-    expx[0] = exp(x[0]);
+    Real<N, T> res = exp(x[0]); // std::exp is not constexpr
     For<1, N + 1>([&](auto i) constexpr {
-        expx[i] = Sum<0, i>([&](auto j) constexpr {
+        res[i] = Sum<0, i>([&](auto j) constexpr {
             constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-            return c * x[i - j] * expx[j];
+            return c * x[i - j] * res[j];
         });
     });
-    return expx;
+    return res;
 }
 
 template<size_t N, typename T>
-constexpr auto log(const Real<N, T>& x)
+auto log(const Real<N, T>& x)
 {
-    assert(x[0] != 0 && "autodiff::log(x) has undefined value and derivatives when x = 0");
-    Real<N, T> logx;
-    logx[0] = log(x[0]);
+    assert((x[0] != 0) && "autodiff::log(x) has undefined value and derivatives when x = 0");
+    Real<N, T> res = log(x[0]); // std::log is not constexpr
     For<1, N + 1>([&](auto i) constexpr {
-        logx[i] = x[i] - Sum<1, i>([&](auto j) constexpr {
-            constexpr auto c = BinomialCoefficient<i.index - 1, j.index - 1>;
-            return c * x[i - j] * logx[j];
-        });
-        logx[i] /= x[0];
+        res[i] = x[i] - Sum<1, i>([&](auto j) constexpr {
+                     constexpr auto c = BinomialCoefficient<i.index - 1, j.index - 1>;
+                     return c * x[i - j] * res[j];
+                 });
+        res[i] /= x[0];
     });
-    return logx;
+    return res;
 }
 
 template<size_t N, typename T>
-constexpr auto log10(const Real<N, T>& x)
+auto log10(const Real<N, T>& x)
 {
-    assert(x[0] != 0 && "autodiff::log10(x) has undefined value and derivatives when x = 0");
-    const auto ln10 = 2.302585092994046;
-    Real<N, T> res = log(x);
-    return res /= ln10;
+    assert((x[0] != 0) && "autodiff::log10(x) has undefined value and derivatives when x = 0");
+    constexpr auto ln10 = 2.302585092994046;
+    return log(x) / ln10;
 }
 
 template<size_t N, typename T>
-constexpr auto sqrt(const Real<N, T>& x)
+auto sqrt(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = sqrt(x[0]);
+    Real<N, T> res = sqrt(x[0]); // std::sqrt is not constexpr
 
-    if constexpr (N > 0)
-    {
-        // assert(x[0] != 0 && "autodiff::sqrt(x) has undefined derivatives when x = 0");
-        if(x[0] == 0) return res;
+    if constexpr(N > 0) {
+        // (assert((x[0] != 0) && "autodiff::sqrt(x) has undefined derivatives when x = 0");
+        if(x[0] == 0)
+            return res;
         Real<N, T> a;
         For<1, N + 1>([&](auto i) constexpr {
             a[i] = x[i] - Sum<1, i>([&](auto j) constexpr {
-                constexpr auto c = BinomialCoefficient<i.index - 1, j.index - 1>;
-                return c * x[i - j] * a[j];
-            });
+                       constexpr auto c = BinomialCoefficient<i.index - 1, j.index - 1>;
+                       return c * x[i - j] * a[j];
+                   });
             a[i] /= x[0];
 
             res[i] = 0.5 * Sum<0, i>([&](auto j) constexpr {
-                constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-                return c * a[i - j] * res[j];
-            });
+                         constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+                         return c * a[i - j] * res[j];
+                     });
         });
     }
     return res;
 }
 
 template<size_t N, typename T>
-constexpr auto cbrt(const Real<N, T>& x)
+auto cbrt(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = cbrt(x[0]);
+    Real<N, T> res = cbrt(x[0]); // std::cbrt is not constexpr
 
-    if constexpr (N > 0)
-    {
-        // assert(x[0] != 0 && "autodiff::cbrt(x) has undefined derivatives when x = 0");
-        if(x[0] == 0) return res;
+    if constexpr(N > 0) {
+        // assert((x[0] != 0) && "autodiff::cbrt(x) has undefined derivatives when x = 0");
+        if(x[0] == 0)
+            return res;
         Real<N, T> a;
         For<1, N + 1>([&](auto i) constexpr {
             a[i] = x[i] - Sum<1, i>([&](auto j) constexpr {
-                constexpr auto c = BinomialCoefficient<i.index - 1, j.index - 1>;
-                return c * x[i - j] * a[j];
-            });
+                       constexpr auto c = BinomialCoefficient<i.index - 1, j.index - 1>;
+                       return c * x[i - j] * a[j];
+                   });
             a[i] /= x[0];
 
-            res[i] = (1.0/3.0) * Sum<0, i>([&](auto j) constexpr {
-                constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-                return c * a[i - j] * res[j];
-            });
+            res[i] = (1.0 / 3.0) * Sum<0, i>([&](auto j) constexpr {
+                         constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+                         return c * a[i - j] * res[j];
+                     });
         });
     }
     return res;
 }
 
 template<size_t N, typename T>
-constexpr auto pow(const Real<N, T>& x, const Real<N, T>& y)
+auto pow(const Real<N, T>& x, const Real<N, T>& y)
 {
-    Real<N, T> res;
-    res[0] = pow(x[0], y[0]);
-    if constexpr (N > 0)
-    {
-        // assert(x[0] != 0 && "autodiff::pow(x, y) has undefined derivatives when x = 0");
-        if(x[0] == 0) return res;
-        Real<N, T> lnx = log(x);
+    Real<N, T> res = pow(x[0], y[0]); // std::pow is not constexpr
+
+    if constexpr(N > 0) {
+        // assert((x[0] != 0) && "autodiff::pow(x, y) has undefined derivatives when x = 0");
+        if(x[0] == 0)
+            return res;
+        const auto lnx = log(x);
         Real<N, T> a;
         For<1, N + 1>([&](auto i) constexpr {
             a[i] = Sum<0, i + 1>([&](auto j) constexpr {
@@ -490,15 +503,15 @@ constexpr auto pow(const Real<N, T>& x, const Real<N, T>& y)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto pow(const Real<N, T>& x, const U& c)
+auto pow(const Real<N, T>& x, const U u)
 {
-    Real<N, T> res;
-    res[0] = pow(x[0], static_cast<T>(c));
-    if constexpr (N > 0)
-    {
-        // assert(x[0] != 0 && "autodiff::pow(x, y) has undefined derivatives when x = 0");
-        if(x[0] == 0) return res;
-        Real<N, T> a = c * log(x);
+    Real<N, T> res = pow(x[0], static_cast<T>(u)); // std::pow is not constexpr
+
+    if constexpr(N > 0) {
+        // assert((x[0] != 0) && "autodiff::pow(x, y) has undefined derivatives when x = 0");
+        if(x[0] == 0)
+            return res;
+        const auto a = u * log(x);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
@@ -510,15 +523,15 @@ constexpr auto pow(const Real<N, T>& x, const U& c)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto pow(const U& c, const Real<N, T>& y)
+auto pow(const U u, const Real<N, T>& y)
 {
-    Real<N, T> res;
-    res[0] = pow(static_cast<T>(c), y[0]);
-    if constexpr (N > 0)
-    {
-        // assert(c != 0 && "autodiff::pow(x, y) has undefined derivatives when x = 0");
-        if(c == 0) return res;
-        Real<N, T> a = y * log(c);
+    Real<N, T> res = pow(static_cast<T>(u), y[0]); // std::pow is not constexpr
+
+    if constexpr(N > 0) {
+        // assert((u != 0) && "autodiff::pow(x, y) has undefined derivatives when x = 0");
+        if(u == 0)
+            return res;
+        const auto a = y * log(u);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
@@ -536,13 +549,10 @@ constexpr auto pow(const U& c, const Real<N, T>& y)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-auto sincos(const Real<N, T>& x) -> std::tuple<Real<N, T>, Real<N, T>>
+auto sincos(const Real<N, T>& x) -> std::array<Real<N, T>, 2>
 {
-    Real<N, T> sinx;
-    Real<N, T> cosx;
-
-    cosx[0] = cos(x[0]);
-    sinx[0] = sin(x[0]);
+    Real<N, T> sinx = sin(x[0]); // std::sin is not constexpr
+    Real<N, T> cosx = cos(x[0]); // std::cos is not constexpr
 
     For<1, N + 1>([&](auto i) constexpr {
         cosx[i] = -Sum<0, i>([&](auto j) constexpr {
@@ -562,25 +572,22 @@ auto sincos(const Real<N, T>& x) -> std::tuple<Real<N, T>, Real<N, T>>
 template<size_t N, typename T>
 auto sin(const Real<N, T>& x)
 {
-    return std::get<0>(sincos(x));
+    return sincos(x)[0];
 }
 
 template<size_t N, typename T>
 auto cos(const Real<N, T>& x)
 {
-    return std::get<1>(sincos(x));
+    return sincos(x)[1];
 }
 
 template<size_t N, typename T>
 auto tan(const Real<N, T>& x)
 {
-    Real<N, T> tanx;
-    tanx[0] = tan(x[0]);
+    Real<N, T> tanx = tan(x[0]); // std::tan is not constexpr
 
-    if constexpr (N > 0)
-    {
-        Real<N, T> aux;
-        aux[0] = 1 + tanx[0]*tanx[0];
+    if constexpr(N > 0) {
+        Real<N, T> aux = 1 + tanx[0] * tanx[0];
 
         For<1, N + 1>([&](auto i) constexpr {
             tanx[i] = Sum<0, i>([&](auto j) constexpr {
@@ -588,10 +595,10 @@ auto tan(const Real<N, T>& x)
                 return c * x[i - j] * aux[j];
             });
 
-            aux[i] = 2*Sum<0, i>([&](auto j) constexpr {
-                constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-                return c * tanx[i - j] * tanx[j];
-            });
+            aux[i] = 2 * Sum<0, i>([&](auto j) constexpr {
+                         constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
+                         return c * tanx[i - j] * tanx[j];
+                     });
         });
     }
 
@@ -599,19 +606,18 @@ auto tan(const Real<N, T>& x)
 }
 
 template<size_t N, typename T>
-constexpr auto asin(const Real<N, T>& x)
+auto asin(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = asin(x[0]);
-    if constexpr (N > 0)
-    {
-        assert(x[0] < 1.0 && "autodiff::asin(x) has undefined derivative when |x| >= 1");
+    Real<N, T> res = asin(x[0]); // std::asin is not constexpr
+
+    if constexpr(N > 0) {
+        assert((abs(x[0]) < 1) && "autodiff::asin(x) has undefined derivative when |x| >= 1");
         Real<N - 1, T> xprime;
         For<1, N + 1>([&](auto i) constexpr {
             xprime[i - 1] = x[i];
         });
         Real<N - 1, T> aux(x);
-        aux = xprime/sqrt(1 - aux*aux);
+        aux = xprime / sqrt(1 - aux * aux);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
         });
@@ -620,19 +626,18 @@ constexpr auto asin(const Real<N, T>& x)
 }
 
 template<size_t N, typename T>
-constexpr auto acos(const Real<N, T>& x)
+auto acos(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = acos(x[0]);
-    if constexpr (N > 0)
-    {
-        assert(x[0] < 1.0 && "autodiff::acos(x) has undefined derivative when |x| >= 1");
+    Real<N, T> res = acos(x[0]); // std::acos is not constexpr
+
+    if constexpr(N > 0) {
+        assert((abs(x[0]) < 1) && "autodiff::acos(x) has undefined derivative when |x| >= 1");
         Real<N - 1, T> xprime;
         For<1, N + 1>([&](auto i) constexpr {
             xprime[i - 1] = x[i];
         });
         Real<N - 1, T> aux(x);
-        aux = -xprime/sqrt(1 - aux*aux);
+        aux = -xprime / sqrt(1 - aux * aux);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
         });
@@ -641,18 +646,17 @@ constexpr auto acos(const Real<N, T>& x)
 }
 
 template<size_t N, typename T>
-constexpr auto atan(const Real<N, T>& x)
+auto atan(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = atan(x[0]);
-    if constexpr (N > 0)
-    {
+    Real<N, T> res = atan(x[0]); // std::atan is not constexpr
+
+    if constexpr(N > 0) {
         Real<N - 1, T> xprime;
         For<1, N + 1>([&](auto i) constexpr {
             xprime[i - 1] = x[i];
         });
         Real<N - 1, T> aux(x);
-        aux = xprime/(1 + aux*aux);
+        aux = xprime / (1 + aux * aux);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
         });
@@ -661,11 +665,11 @@ constexpr auto atan(const Real<N, T>& x)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto atan2(const U& c, const Real<N, T>& x)
+auto atan2(const U c, const Real<N, T>& x)
 {
     // d[atan2(c,x)]/dx = -c / (c^2 + x^2)
-    Real<N, T> res;
-    res[0] = atan2(c, x[0]);
+    Real<N, T> res = atan2(c, x[0]); // std::atan2 is not constexpr
+
     if constexpr(N > 0) {
         Real<N - 1, T> xprime;
         For<1, N + 1>([&](auto i) constexpr {
@@ -681,11 +685,11 @@ constexpr auto atan2(const U& c, const Real<N, T>& x)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto atan2(const Real<N, T>& y, const U& c)
+auto atan2(const Real<N, T>& y, const U c)
 {
     // d[atan2(y,c)]/dy = c / (c^2 + y^2)
-    Real<N, T> res;
-    res[0] = atan2(y[0], c);
+    Real<N, T> res = atan2(y[0], c); // std::atan2 is not constexpr
+
     if constexpr(N > 0) {
         Real<N - 1, T> yprime;
         For<1, N + 1>([&](auto i) constexpr {
@@ -701,12 +705,12 @@ constexpr auto atan2(const Real<N, T>& y, const U& c)
 }
 
 template<size_t N, typename T>
-constexpr auto atan2(const Real<N, T>& y, const Real<N, T>& x)
+auto atan2(const Real<N, T>& y, const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = atan2(y[0], x[0]);
+    Real<N, T> res = atan2(y[0], x[0]); // std::atan2 is not constexpr
+
     if constexpr(N > 0) {
-        const T denom = x[0] * x[0] + y[0] * y[0];
+        const auto denom = x[0] * x[0] + y[0] * y[0];
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = (x[0] * y[i] - x[i] * y[0]) / denom;
         });
@@ -721,13 +725,10 @@ constexpr auto atan2(const Real<N, T>& y, const Real<N, T>& x)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-auto sinhcosh(const Real<N, T>& x) -> std::tuple<Real<N, T>, Real<N, T>>
+auto sinhcosh(const Real<N, T>& x) -> std::array<Real<N, T>, 2>
 {
-    Real<N, T> sinhx;
-    Real<N, T> coshx;
-
-    coshx[0] = cosh(x[0]);
-    sinhx[0] = sinh(x[0]);
+    Real<N, T> sinhx = sinh(x[0]); // std::sinh is not constexpr
+    Real<N, T> coshx = cosh(x[0]); // std::cosh is not constexpr
 
     For<1, N + 1>([&](auto i) constexpr {
         coshx[i] = Sum<0, i>([&](auto j) constexpr {
@@ -740,60 +741,54 @@ auto sinhcosh(const Real<N, T>& x) -> std::tuple<Real<N, T>, Real<N, T>>
             return c * x[i - j] * coshx[j];
         });
     });
-
     return {sinhx, coshx};
 }
 
 template<size_t N, typename T>
 auto sinh(const Real<N, T>& x)
 {
-    return std::get<0>(sinhcosh(x));
+    return sinhcosh(x)[0];
 }
 
 template<size_t N, typename T>
 auto cosh(const Real<N, T>& x)
 {
-    return std::get<1>(sinhcosh(x));
+    return sinhcosh(x)[1];
 }
-
 
 template<size_t N, typename T>
 auto tanh(const Real<N, T>& x)
 {
-    Real<N, T> tanhx;
-    tanhx[0] = tanh(x[0]);
+    Real<N, T> res = tanh(x[0]); // std::tanh is not constexpr
 
-    if constexpr (N > 0)
-    {
-        Real<N, T> aux;
-
-        aux[0] = 1 - tanhx[0]*tanhx[0];
+    if constexpr(N > 0) {
+        Real<N, T> aux = 1 - res[0] * res[0];
 
         For<1, N + 1>([&](auto i) constexpr {
-            tanhx[i] = Sum<0, i>([&](auto j) constexpr {
+            res[i] = Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
                 return c * x[i - j] * aux[j];
             });
+            if constexpr(i == N)
+                return;
 
-            aux[i] = -2*Sum<0, i>([&](auto j) constexpr {
+            aux[i] = -2 * Sum<0, i>([&](auto j) constexpr {
                 constexpr auto c = BinomialCoefficient<i.index - 1, j.index>;
-                return c * tanhx[i - j] * tanhx[j];
+                return c * res[i - j] * res[j];
             });
         });
     }
-
-    return tanhx;
+    return res;
 }
 
 template<size_t N, typename T>
-constexpr auto asinh(const Real<N, T>& x)
+auto asinh(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = asinh(x[0]);
-    if constexpr (N > 0)
-    {
-        Real<N - 1, T> aux(x);
-        aux = 1/sqrt(aux*aux + 1);
+    Real<N, T> res = asinh(x[0]); // std::asinh is not constexpr
+
+    if constexpr(N > 0) {
+        const Real<N - 1, T> x_(x);
+        const auto aux = 1 / sqrt(x_ * x_ + 1);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
         });
@@ -804,13 +799,12 @@ constexpr auto asinh(const Real<N, T>& x)
 template<size_t N, typename T>
 constexpr auto acosh(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = acosh(x[0]);
-    if constexpr (N > 0)
-    {
-        assert(x[0] > 1.0 && "autodiff::acosh(x) has undefined derivative when |x| <= 1");
-        Real<N - 1, T> aux(x);
-        aux = 1/sqrt(aux*aux - 1);
+    Real<N, T> res = acosh(x[0]); // std::acosh is not constexpr
+
+    if constexpr(N > 0) {
+        assert((x[0] > 1) && "autodiff::acosh(x) has undefined derivative when x <= 1");
+        const Real<N - 1, T> x_(x);
+        const auto aux = 1 / sqrt(x_ * x_ - 1);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
         });
@@ -821,13 +815,12 @@ constexpr auto acosh(const Real<N, T>& x)
 template<size_t N, typename T>
 constexpr auto atanh(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = atanh(x[0]);
-    if constexpr (N > 0)
-    {
-        assert(x[0] < 1.0 && "autodiff::atanh(x) has undefined derivative when |x| >= 1");
-        Real<N - 1, T> aux(x);
-        aux = 1/(1 - aux*aux);
+    Real<N, T> res = atanh(x[0]); // std::atanh is not constexpr
+
+    if constexpr(N > 0) {
+        assert((abs(x[0]) < 1) && "autodiff::atanh(x) has undefined derivative when |x| >= 1");
+        const Real<N - 1, T> x_(x);
+        const auto aux = 1 / (1 - x_ * x_);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = aux[i - 1];
         });
@@ -838,18 +831,18 @@ constexpr auto atanh(const Real<N, T>& x)
 //=====================================================================================================================
 //
 // OTHER FUNCTIONS
-//
+//      abs, min, max
 //=====================================================================================================================
 
 template<size_t N, typename T>
-constexpr auto abs(const Real<N, T>& x)
+auto abs(const Real<N, T>& x)
 {
-    Real<N, T> res;
-    res[0] = std::abs(x[0]);
-    if constexpr (N > 0)
-    {
-        // assert(x[0] != 0 && "autodiff::abs(x) has undefined derivatives when x = 0");
-        if(x[0] == 0) return res;
+    Real<N, T> res = abs(x[0]); // std::abs is not constexpr
+
+    if constexpr(N > 0) {
+        // assert((x[0] != 0) && "autodiff::abs(x) has undefined derivatives when x = 0");
+        if(x[0] == 0)
+            return res;
         const T s = std::copysign(1.0, x[0]);
         For<1, N + 1>([&](auto i) constexpr {
             res[i] = s * x[i];
@@ -865,13 +858,13 @@ constexpr auto min(const Real<N, T>& x, const Real<N, T>& y)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto min(const Real<N, T>& x, const U& y)
+constexpr auto min(const Real<N, T>& x, const U y)
 {
     return (x[0] <= y) ? x : Real<N, T>{y};
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto min(const U& x, const Real<N, T>& y)
+constexpr auto min(const U x, const Real<N, T>& y)
 {
     return (x < y[0]) ? Real<N, T>{x} : y;
 }
@@ -883,13 +876,13 @@ constexpr auto max(const Real<N, T>& x, const Real<N, T>& y)
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto max(const Real<N, T>& x, const U& y)
+constexpr auto max(const Real<N, T>& x, const U y)
 {
     return (x[0] >= y) ? x : Real<N, T>{y};
 }
 
 template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
-constexpr auto max(const U& x, const Real<N, T>& y)
+constexpr auto max(const U x, const Real<N, T>& y)
 {
     return (x > y[0]) ? Real<N, T>{x} : y;
 }
@@ -925,34 +918,101 @@ auto repr(const Real<N, T>& x)
 //=====================================================================================================================
 
 template<size_t N, typename T>
-bool operator==(const Real<N, T>& x, const Real<N, T>& y)
+constexpr bool operator==(const Real<N, T>& x, const Real<N, T>& y)
 {
-    bool res = true;
-    For<0, N + 1>([&](auto i) constexpr {
-        res = res && x[i] == y[i];
-    });
-    return res;
+    for(int i = 0; i < N + 1; ++i)
+        if(x[i] != y[i])
+            return false;
+    return true;
 }
 
-template<size_t N, typename T> bool operator!=(const Real<N, T>& x, const Real<N, T>& y) { return !(x == y); }
-template<size_t N, typename T> bool operator< (const Real<N, T>& x, const Real<N, T>& y) { return x[0] <  y[0]; }
-template<size_t N, typename T> bool operator> (const Real<N, T>& x, const Real<N, T>& y) { return x[0] >  y[0]; }
-template<size_t N, typename T> bool operator<=(const Real<N, T>& x, const Real<N, T>& y) { return x[0] <= y[0]; }
-template<size_t N, typename T> bool operator>=(const Real<N, T>& x, const Real<N, T>& y) { return x[0] >= y[0]; }
+template<size_t N, typename T>
+constexpr bool operator!=(const Real<N, T>& x, const Real<N, T>& y)
+{
+    return !(x == y);
+}
+template<size_t N, typename T>
+constexpr bool operator<(const Real<N, T>& x, const Real<N, T>& y)
+{
+    return x[0] < y[0];
+}
+template<size_t N, typename T>
+constexpr bool operator>(const Real<N, T>& x, const Real<N, T>& y)
+{
+    return x[0] > y[0];
+}
+template<size_t N, typename T>
+constexpr bool operator<=(const Real<N, T>& x, const Real<N, T>& y)
+{
+    return x[0] <= y[0];
+}
+template<size_t N, typename T>
+constexpr bool operator>=(const Real<N, T>& x, const Real<N, T>& y)
+{
+    return x[0] >= y[0];
+}
 
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator==(const Real<N, T>& x, const U& y) { return x[0] == y; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator!=(const Real<N, T>& x, const U& y) { return x[0] != y; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator< (const Real<N, T>& x, const U& y) { return x[0] <  y; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator> (const Real<N, T>& x, const U& y) { return x[0] >  y; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator<=(const Real<N, T>& x, const U& y) { return x[0] <= y; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator>=(const Real<N, T>& x, const U& y) { return x[0] >= y; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
+constexpr bool operator==(const Real<N, T>& x, const U y)
+{
+    return x[0] == y;
+}
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
+constexpr bool operator!=(const Real<N, T>& x, const U y)
+{
+    return x[0] != y;
+}
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
+constexpr bool operator<(const Real<N, T>& x, const U y)
+{
+    return x[0] < y;
+}
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
+constexpr bool operator>(const Real<N, T>& x, const U y)
+{
+    return x[0] > y;
+}
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
+constexpr bool operator<=(const Real<N, T>& x, const U y)
+{
+    return x[0] <= y;
+}
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
+constexpr bool operator>=(const Real<N, T>& x, const U y)
+{
+    return x[0] >= y;
+}
 
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator==(const U& x, const Real<N, T>& y) { return x == y[0]; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator!=(const U& x, const Real<N, T>& y) { return x != y[0]; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator< (const U& x, const Real<N, T>& y) { return x <  y[0]; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator> (const U& x, const Real<N, T>& y) { return x >  y[0]; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator<=(const U& x, const Real<N, T>& y) { return x <= y[0]; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator>=(const U& x, const Real<N, T>& y) { return x >= y[0]; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
+constexpr bool operator==(const U x, const Real<N, T>& y)
+{
+    return x == y[0];
+}
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
+constexpr bool operator!=(const U x, const Real<N, T>& y)
+{
+    return x != y[0];
+}
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
+constexpr bool operator<(const U x, const Real<N, T>& y)
+{
+    return x < y[0];
+}
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
+constexpr bool operator>(const U x, const Real<N, T>& y)
+{
+    return x > y[0];
+}
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
+constexpr bool operator<=(const U x, const Real<N, T>& y)
+{
+    return x <= y[0];
+}
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true>
+constexpr bool operator>=(const U x, const Real<N, T>& y)
+{
+    return x >= y[0];
+}
 
 //=====================================================================================================================
 //
@@ -964,10 +1024,10 @@ template<size_t order, size_t N, typename T, typename U>
 auto seed(Real<N, T>& real, U&& seedval)
 {
     static_assert(order == 1,
-        "Real<N, T> is optimized for higher-order **directional** derivatives. "
-        "You're possibly trying to use it for computing higher-order **cross** derivatives "
-        "(e.g., `derivative(f, wrt(x, x, y), at(x, y))`) which is not supported by Real<N, T>. "
-        "Use Dual<T, G> instead (e.g., `using dual4th = HigherOrderDual<4>;`)");
+                  "Real<N, T> is optimized for higher-order **directional** derivatives. "
+                  "You're possibly trying to use it for computing higher-order **cross** derivatives "
+                  "(e.g., `derivative(f, wrt(x, x, y), at(x, y))`) which is not supported by Real<N, T>. "
+                  "Use Dual<T, G> instead (e.g., `using dual4th = HigherOrderDual<4>;`)");
     real[order] = static_cast<T>(seedval);
 }
 
@@ -1015,10 +1075,10 @@ struct NumberTraits<Real<N, T>>
 //
 //=====================================================================================================================
 
-using detail::Real;
-using detail::val;
 using detail::derivative;
+using detail::Real;
 using detail::repr;
+using detail::val;
 
 using real0th = Real<0, double>;
 using real1st = Real<1, double>;
