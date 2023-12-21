@@ -34,11 +34,7 @@
 #include <tuple>
 #include <type_traits>
 
-namespace autodiff {
-namespace detail {
-
-template<bool value>
-using EnableIf = std::enable_if_t<value>;
+namespace autodiff::detail {
 
 template<bool value>
 using Requires = std::enable_if_t<value, bool>;
@@ -58,29 +54,11 @@ using ReturnType = std::invoke_result_t<Fun, Args...>;
 template<typename T>
 constexpr bool isConst = std::is_const_v<std::remove_reference_t<T>>;
 
-template<typename T, typename U>
-constexpr bool isConvertible = std::is_convertible<PlainType<T>, U>::value;
-
 template<typename A, typename B>
 constexpr bool isSame = std::is_same_v<A, B>;
 
 template<typename Tuple>
 constexpr auto TupleSize = std::tuple_size_v<std::decay_t<Tuple>>;
-
-template<typename Tuple>
-constexpr auto TupleHead(Tuple&& tuple)
-{
-    return std::get<0>(std::forward<Tuple>(tuple));
-}
-
-template<typename Tuple>
-constexpr auto TupleTail(Tuple&& tuple)
-{
-    auto g = [&](auto&&, auto&&... args) constexpr {
-        return std::forward_as_tuple(args...);
-    };
-    return std::apply(g, std::forward<Tuple>(tuple));
-}
 
 template<size_t i>
 struct Index
@@ -93,7 +71,7 @@ struct Index
 template<size_t i, size_t ibegin, size_t iend, typename Function>
 constexpr auto AuxFor(Function&& f)
 {
-    if constexpr (i < iend) {
+    if constexpr(i < iend) {
         f(Index<i>{});
         AuxFor<i + 1, ibegin, iend>(std::forward<Function>(f));
     }
@@ -114,8 +92,7 @@ constexpr auto For(Function&& f)
 template<size_t i, size_t ibegin, size_t iend, typename Function>
 constexpr auto AuxReverseFor(Function&& f)
 {
-    if constexpr (i < iend)
-    {
+    if constexpr(i < iend) {
         AuxReverseFor<i + 1, ibegin, iend>(std::forward<Function>(f));
         f(Index<i>{});
     }
@@ -176,11 +153,11 @@ constexpr auto Reduce(Tuple&& tuple, Function&& f)
 {
     using ResultType = std::invoke_result_t<Function, decltype(std::get<0>(tuple))>;
     ResultType res = {};
-    ForEach(tuple, [&](auto&& item) constexpr {
-        res += f(item);
-    });
+    ForEach(
+        tuple, [&](auto&& item) constexpr {
+            res += f(item);
+        });
     return res;
 }
 
-} // namespace detail
-} // namespace autodiff
+} // namespace autodiff::detail
