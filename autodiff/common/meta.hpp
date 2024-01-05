@@ -37,13 +37,23 @@
 namespace autodiff {
 namespace detail {
 
-#if defined(SYCL_DEVICE_ONLY)
-#ifndef AUTODIFF_DONT_VECTORIZE
-#define AUTODIFF_DONT_VECTORIZE
+#if defined(__NVCC__) && defined(__HIPCC__)
+#error "NVCC as the target platform for HIPCC is currently not supported."
 #endif
-#define AUTODIFF_DEVICE_FUNC __attribute__((flatten)) __attribute__((always_inline))
-// All functions callable from CUDA/HIP code must be qualified with __device__
-#elif defined(AUTODIFF_GPUCC)
+
+#if defined(__CUDACC__) && !defined(AUTODIFF_NO_CUDA)
+#define AUTODIFF_CUDACC __CUDACC__
+#endif
+
+#if defined(__HIPCC__) && !defined(AUTODIFF_NO_HIP)
+#define AUTODIFF_HIPCC __HIPCC__
+#endif
+
+#if defined(AUTODIFF_CUDACC) || defined(AUTODIFF_HIPCC)
+#define AUTODIFF_GPUCC
+#endif
+
+#if defined(AUTODIFF_GPUCC)
 #define AUTODIFF_DEVICE_FUNC __host__ __device__
 #else
 #define AUTODIFF_DEVICE_FUNC
