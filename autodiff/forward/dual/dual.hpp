@@ -512,17 +512,17 @@ struct Dual
 
     G grad = {};
 
-    Dual()
+    AUTODIFF_DEVICE_FUNC Dual()
     {}
 
     template<typename U, Requires<isExpr<U> || isArithmetic<U>> = true>
-    Dual(U&& other)
+    AUTODIFF_DEVICE_FUNC Dual(U&& other)
     {
         assign(*this, std::forward<U>(other));
     }
 
     template<typename U, Requires<isExpr<U> || isArithmetic<U>> = true>
-    Dual& operator=(U&& other)
+    AUTODIFF_DEVICE_FUNC Dual& operator=(U&& other)
     {
         Dual tmp;
         assign(tmp, std::forward<U>(other));
@@ -531,7 +531,7 @@ struct Dual
     }
 
     template<typename U, Requires<isExpr<U> || isArithmetic<U>> = true>
-    Dual& operator+=(U&& other)
+    AUTODIFF_DEVICE_FUNC Dual& operator+=(U&& other)
     {
         Dual tmp;
         assign(tmp, std::forward<U>(other));
@@ -540,7 +540,7 @@ struct Dual
     }
 
     template<typename U, Requires<isExpr<U> || isArithmetic<U>> = true>
-    Dual& operator-=(U&& other)
+    AUTODIFF_DEVICE_FUNC Dual& operator-=(U&& other)
     {
         Dual tmp;
         assign(tmp, std::forward<U>(other));
@@ -549,7 +549,7 @@ struct Dual
     }
 
     template<typename U, Requires<isExpr<U> || isArithmetic<U>> = true>
-    Dual& operator*=(U&& other)
+    AUTODIFF_DEVICE_FUNC Dual& operator*=(U&& other)
     {
         Dual tmp;
         assign(tmp, std::forward<U>(other));
@@ -558,7 +558,7 @@ struct Dual
     }
 
     template<typename U, Requires<isExpr<U> || isArithmetic<U>> = true>
-    Dual& operator/=(U&& other)
+    AUTODIFF_DEVICE_FUNC Dual& operator/=(U&& other)
     {
         Dual tmp;
         assign(tmp, std::forward<U>(other));
@@ -568,15 +568,15 @@ struct Dual
 
     /// Convert this Dual number into a value of type @p U.
 #if defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION_DUAL) || defined(AUTODIFF_ENABLE_IMPLICIT_CONVERSION)
-    operator T() const { return val; }
+    AUTODIFF_DEVICE_FUNC operator T() const { return val; }
 
     template<typename U>
-    operator U() const { return static_cast<U>(val); }
+    AUTODIFF_DEVICE_FUNC operator U() const { return static_cast<U>(val); }
 #else
-    explicit operator T() const { return val; }
+    AUTODIFF_DEVICE_FUNC explicit operator T() const { return val; }
 
     template<typename U>
-    explicit operator U() const { return static_cast<U>(val); }
+    AUTODIFF_DEVICE_FUNC explicit operator U() const { return static_cast<U>(val); }
 #endif
 };
 
@@ -602,19 +602,19 @@ struct TernaryExpr
 };
 
 template<typename Op, typename R>
-auto inner(const UnaryExpr<Op, R>& expr) -> const R
+AUTODIFF_DEVICE_FUNC auto inner(const UnaryExpr<Op, R>& expr) -> const R
 {
     return expr.r;
 }
 
 template<typename Op, typename L, typename R>
-auto left(const BinaryExpr<Op, L, R>& expr) -> const L
+AUTODIFF_DEVICE_FUNC auto left(const BinaryExpr<Op, L, R>& expr) -> const L
 {
     return expr.l;
 }
 
 template<typename Op, typename L, typename R>
-auto right(const BinaryExpr<Op, L, R>& expr) -> const R
+AUTODIFF_DEVICE_FUNC auto right(const BinaryExpr<Op, L, R>& expr) -> const R
 {
     return expr.r;
 }
@@ -626,7 +626,7 @@ auto right(const BinaryExpr<Op, L, R>& expr) -> const R
 //=====================================================================================================================
 
 template<typename T>
-auto eval(T&& expr)
+AUTODIFF_DEVICE_FUNC auto eval(T&& expr)
 {
     static_assert(isDual<T> || isExpr<T> || isArithmetic<T>);
     if constexpr (isDual<T>)
@@ -637,7 +637,7 @@ auto eval(T&& expr)
 }
 
 template<typename T>
-auto val(T&& expr)
+AUTODIFF_DEVICE_FUNC auto val(T&& expr)
 {
     static_assert(isDual<T> || isExpr<T> || isArithmetic<T>);
     if constexpr (isDual<T>)
@@ -654,7 +654,7 @@ auto val(T&& expr)
 //=====================================================================================================================
 
 template<size_t order = 1, typename T, typename G>
-auto derivative(const Dual<T, G>& dual)
+AUTODIFF_DEVICE_FUNC auto derivative(const Dual<T, G>& dual)
 {
     if constexpr (order == 0)
         return val(dual.val);
@@ -671,7 +671,7 @@ auto derivative(const Dual<T, G>& dual)
 
 /// Traverse down along the `val` branch until depth `order` is reached, then return the `grad` node.
 template<size_t order, typename T, typename G>
-auto& gradnode(Dual<T, G>& dual)
+AUTODIFF_DEVICE_FUNC auto& gradnode(Dual<T, G>& dual)
 {
     constexpr auto N = Order<Dual<T, G>>;
     static_assert(order <= N);
@@ -682,7 +682,7 @@ auto& gradnode(Dual<T, G>& dual)
 
 /// Set the `grad` node of a dual number along the `val` branch at a depth `order`.
 template<size_t order, typename T, typename G, typename U>
-auto seed(Dual<T, G>& dual, U&& seedval)
+AUTODIFF_DEVICE_FUNC auto seed(Dual<T, G>& dual, U&& seedval)
 {
     gradnode<order>(dual) = static_cast<NumericType<decltype(gradnode<order>(dual))>>(seedval);
 }
@@ -705,7 +705,7 @@ using PreventExprRef = ConditionalType<isDual<T>, T, PlainType<T>>;
 // NEGATIVE EXPRESSION GENERATOR FUNCTION
 //-----------------------------------------------------------------------------
 template<typename U>
-constexpr auto negative(U&& expr)
+AUTODIFF_DEVICE_FUNC constexpr auto negative(U&& expr)
 {
     static_assert(isExpr<U> || isArithmetic<U>);
     if constexpr (isNegExpr<U>)
@@ -717,7 +717,7 @@ constexpr auto negative(U&& expr)
 // INVERSE EXPRESSION GENERATOR FUNCTION
 //-----------------------------------------------------------------------------
 template<typename U>
-constexpr auto inverse(U&& expr)
+AUTODIFF_DEVICE_FUNC constexpr auto inverse(U&& expr)
 {
     static_assert(isExpr<U>);
     if constexpr (isInvExpr<U>)
@@ -729,10 +729,10 @@ constexpr auto inverse(U&& expr)
 // AUXILIARY CONSTEXPR CONSTANTS
 //-----------------------------------------------------------------------------
 template<typename U>
-constexpr auto Zero() { return static_cast<NumericType<U>>(0); }
+AUTODIFF_DEVICE_FUNC constexpr auto Zero() { return static_cast<NumericType<U>>(0); }
 
 template<typename U>
-constexpr auto One() { return static_cast<NumericType<U>>(1); }
+AUTODIFF_DEVICE_FUNC constexpr auto One() { return static_cast<NumericType<U>>(1); }
 
 //=====================================================================================================================
 //
@@ -744,7 +744,7 @@ constexpr auto One() { return static_cast<NumericType<U>>(1); }
 // POSITIVE OPERATOR: +x
 //-----------------------------------------------------------------------------
 template<typename R, Requires<isExpr<R>> = true>
-constexpr auto operator+(R&& expr)
+AUTODIFF_DEVICE_FUNC constexpr auto operator+(R&& expr)
 {
     return std::forward<R>(expr); // expression optimization: +(expr) => expr
 }
@@ -756,7 +756,7 @@ constexpr auto operator+(R&& expr)
 //=====================================================================================================================
 
 template<typename R, Requires<isExpr<R>> = true>
-constexpr auto operator-(R&& expr)
+AUTODIFF_DEVICE_FUNC constexpr auto operator-(R&& expr)
 {
     // NEGATIVE EXPRESSION CASE: -(-x) => x when expr is (-x)
     if constexpr (isNegExpr<R>)
@@ -775,7 +775,7 @@ constexpr auto operator-(R&& expr)
 //=====================================================================================================================
 
 template<typename L, typename R, Requires<isOperable<L, R>> = true>
-constexpr auto operator+(L&& l, R&& r)
+AUTODIFF_DEVICE_FUNC constexpr auto operator+(L&& l, R&& r)
 {
     // ADDITION EXPRESSION CASE: (-x) + (-y) => -(x + y)
     if constexpr (isNegExpr<L> && isNegExpr<R>)
@@ -794,7 +794,7 @@ constexpr auto operator+(L&& l, R&& r)
 //=====================================================================================================================
 
 template<typename L, typename R, Requires<isOperable<L, R>> = true>
-constexpr auto operator*(L&& l, R&& r)
+AUTODIFF_DEVICE_FUNC constexpr auto operator*(L&& l, R&& r)
 {
     // MULTIPLICATION EXPRESSION CASE: (-expr) * (-expr) => expr * expr
     if constexpr (isNegExpr<L> && isNegExpr<R>)
@@ -828,7 +828,7 @@ constexpr auto operator*(L&& l, R&& r)
 // SUBTRACTION OPERATOR: expr - expr, scalar - expr, expr - scalar
 //-----------------------------------------------------------------------------
 template<typename L, typename R, Requires<isOperable<L, R>> = true>
-constexpr auto operator-(L&& l, R&& r)
+AUTODIFF_DEVICE_FUNC constexpr auto operator-(L&& l, R&& r)
 {
     return std::forward<L>(l) + ( -std::forward<R>(r) );
 }
@@ -843,7 +843,7 @@ constexpr auto operator-(L&& l, R&& r)
 // DIVISION OPERATOR: expr / expr
 //-----------------------------------------------------------------------------
 template<typename L, typename R, Requires<isOperable<L, R>> = true>
-constexpr auto operator/(L&& l, R&& r)
+AUTODIFF_DEVICE_FUNC constexpr auto operator/(L&& l, R&& r)
 {
     if constexpr (isArithmetic<R>)
         return std::forward<L>(l) * (One<L>() / std::forward<R>(r));
@@ -856,16 +856,16 @@ constexpr auto operator/(L&& l, R&& r)
 //
 //=====================================================================================================================
 
-template<typename R, Requires<isExpr<R>> = true> constexpr auto sin(R&& r) -> SinExpr<R> { return { r }; }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto cos(R&& r) -> CosExpr<R> { return { r }; }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto tan(R&& r) -> TanExpr<R> { return { r }; }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto asin(R&& r) -> ArcSinExpr<R> { return { r }; }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto acos(R&& r) -> ArcCosExpr<R> { return { r }; }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto atan(R&& r) -> ArcTanExpr<R> { return { r }; }
-template<typename L, typename R, Requires<isOperable<L, R>> = true> constexpr auto atan2(L&& l, R&& r) -> ArcTan2Expr<L, R> { return { l, r }; }
-template<typename L, typename R, Requires<isOperable<L, R>> = true> constexpr auto hypot(L&& l, R&& r) -> Hypot2Expr<L, R> { return { l, r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto sin(R&& r) -> SinExpr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto cos(R&& r) -> CosExpr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto tan(R&& r) -> TanExpr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto asin(R&& r) -> ArcSinExpr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto acos(R&& r) -> ArcCosExpr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto atan(R&& r) -> ArcTanExpr<R> { return { r }; }
+template<typename L, typename R, Requires<isOperable<L, R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto atan2(L&& l, R&& r) -> ArcTan2Expr<L, R> { return { l, r }; }
+template<typename L, typename R, Requires<isOperable<L, R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto hypot(L&& l, R&& r) -> Hypot2Expr<L, R> { return { l, r }; }
 template<typename L, typename C, typename R, Requires<isOperable3<L, C, R>> = true>
-    constexpr auto hypot(L&& l, C&& c, R&& r) -> Hypot3Expr<L, C, R> { return { l, c, r }; }
+AUTODIFF_DEVICE_FUNC constexpr auto hypot(L&& l, C&& c, R&& r) -> Hypot3Expr<L, C, R> { return { l, c, r }; }
 
 //=====================================================================================================================
 //
@@ -873,9 +873,9 @@ template<typename L, typename C, typename R, Requires<isOperable3<L, C, R>> = tr
 //
 //=====================================================================================================================
 
-template<typename R, Requires<isExpr<R>> = true> constexpr auto sinh(R&& r) -> SinhExpr<R> { return { r }; }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto cosh(R&& r) -> CoshExpr<R> { return { r }; }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto tanh(R&& r) -> TanhExpr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto sinh(R&& r) -> SinhExpr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto cosh(R&& r) -> CoshExpr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto tanh(R&& r) -> TanhExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -883,9 +883,9 @@ template<typename R, Requires<isExpr<R>> = true> constexpr auto tanh(R&& r) -> T
 //
 //=====================================================================================================================
 
-template<typename R, Requires<isExpr<R>> = true> constexpr auto exp(R&& r) -> ExpExpr<R> { return { r }; }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto log(R&& r) -> LogExpr<R> { return { r }; }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto log10(R&& r) -> Log10Expr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto exp(R&& r) -> ExpExpr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto log(R&& r) -> LogExpr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto log10(R&& r) -> Log10Expr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -893,8 +893,8 @@ template<typename R, Requires<isExpr<R>> = true> constexpr auto log10(R&& r) -> 
 //
 //=====================================================================================================================
 
-template<typename L, typename R, Requires<isOperable<L, R>> = true> constexpr auto pow(L&& l, R&& r) -> PowExpr<L, R> { return { l, r }; }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto sqrt(R&& r) -> SqrtExpr<R> { return { r }; }
+template<typename L, typename R, Requires<isOperable<L, R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto pow(L&& l, R&& r) -> PowExpr<L, R> { return { l, r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto sqrt(R&& r) -> SqrtExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -902,15 +902,15 @@ template<typename R, Requires<isExpr<R>> = true> constexpr auto sqrt(R&& r) -> S
 //
 //=====================================================================================================================
 
-template<typename R, Requires<isExpr<R>> = true> constexpr auto abs(R&& r) -> AbsExpr<R> { return { r }; }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto abs2(R&& r) { return std::forward<R>(r) * std::forward<R>(r); }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto conj(R&& r) { return std::forward<R>(r); }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto real(R&& r) { return std::forward<R>(r); }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto imag(R&&) { return 0.0; }
-template<typename R, Requires<isExpr<R>> = true> constexpr auto erf(R&& r) -> ErfExpr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto abs(R&& r) -> AbsExpr<R> { return { r }; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto abs2(R&& r) { return std::forward<R>(r) * std::forward<R>(r); }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto conj(R&& r) { return std::forward<R>(r); }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto real(R&& r) { return std::forward<R>(r); }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto imag(R&&) { return 0.0; }
+template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto erf(R&& r) -> ErfExpr<R> { return { r }; }
 
 template<typename L, typename R, Requires<isOperable<L, R>> = true>
-constexpr auto min(L&& l, R&& r)
+AUTODIFF_DEVICE_FUNC constexpr auto min(L&& l, R&& r)
 {
     const auto x = eval(l);
     const auto y = eval(r);
@@ -918,7 +918,7 @@ constexpr auto min(L&& l, R&& r)
 }
 
 template<typename L, typename R, Requires<isOperable<L, R>> = true>
-constexpr auto max(L&& l, R&& r)
+AUTODIFF_DEVICE_FUNC constexpr auto max(L&& l, R&& r)
 {
     const auto x = eval(l);
     const auto y = eval(r);
@@ -931,12 +931,12 @@ constexpr auto max(L&& l, R&& r)
 //
 //=====================================================================================================================
 
-template<typename L, typename R, Requires<isOperable<L, R>> = true> bool operator==(L&& l, R&& r) { return val(l) == val(r); }
-template<typename L, typename R, Requires<isOperable<L, R>> = true> bool operator!=(L&& l, R&& r) { return val(l) != val(r); }
-template<typename L, typename R, Requires<isOperable<L, R>> = true> bool operator<=(L&& l, R&& r) { return val(l) <= val(r); }
-template<typename L, typename R, Requires<isOperable<L, R>> = true> bool operator>=(L&& l, R&& r) { return val(l) >= val(r); }
-template<typename L, typename R, Requires<isOperable<L, R>> = true> bool operator<(L&& l, R&& r) { return val(l) < val(r); }
-template<typename L, typename R, Requires<isOperable<L, R>> = true> bool operator>(L&& l, R&& r) { return val(l) > val(r); }
+template<typename L, typename R, Requires<isOperable<L, R>> = true> AUTODIFF_DEVICE_FUNC bool operator==(L&& l, R&& r) { return val(l) == val(r); }
+template<typename L, typename R, Requires<isOperable<L, R>> = true> AUTODIFF_DEVICE_FUNC bool operator!=(L&& l, R&& r) { return val(l) != val(r); }
+template<typename L, typename R, Requires<isOperable<L, R>> = true> AUTODIFF_DEVICE_FUNC bool operator<=(L&& l, R&& r) { return val(l) <= val(r); }
+template<typename L, typename R, Requires<isOperable<L, R>> = true> AUTODIFF_DEVICE_FUNC bool operator>=(L&& l, R&& r) { return val(l) >= val(r); }
+template<typename L, typename R, Requires<isOperable<L, R>> = true> AUTODIFF_DEVICE_FUNC bool operator<(L&& l, R&& r) { return val(l) < val(r); }
+template<typename L, typename R, Requires<isOperable<L, R>> = true> AUTODIFF_DEVICE_FUNC bool operator>(L&& l, R&& r) { return val(l) > val(r); }
 
 //=====================================================================================================================
 //
@@ -944,14 +944,14 @@ template<typename L, typename R, Requires<isOperable<L, R>> = true> bool operato
 //
 //=====================================================================================================================
 template<typename T, typename G>
-constexpr void negate(Dual<T, G>& self)
+AUTODIFF_DEVICE_FUNC constexpr void negate(Dual<T, G>& self)
 {
     self.val = -self.val;
     self.grad = -self.grad;
 }
 
 template<typename T, typename G, typename U>
-constexpr void scale(Dual<T, G>& self, const U& scalar)
+AUTODIFF_DEVICE_FUNC constexpr void scale(Dual<T, G>& self, const U& scalar)
 {
     self.val *= scalar;
     self.grad *= scalar;
@@ -964,7 +964,7 @@ constexpr void scale(Dual<T, G>& self, const U& scalar)
 //=====================================================================================================================
 
 template<typename Op, typename T, typename G>
-constexpr void apply(Dual<T, G>& self);
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self);
 
 //=====================================================================================================================
 //
@@ -973,7 +973,7 @@ constexpr void apply(Dual<T, G>& self);
 //=====================================================================================================================
 
 template<typename T, typename G, typename U>
-constexpr void assign(Dual<T, G>& self, U&& other)
+AUTODIFF_DEVICE_FUNC constexpr void assign(Dual<T, G>& self, U&& other)
 {
     static_assert(isExpr<U> || isArithmetic<U>);
 
@@ -1030,7 +1030,7 @@ constexpr void assign(Dual<T, G>& self, U&& other)
 }
 
 template<typename T, typename G, typename U>
-constexpr void assign(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
+AUTODIFF_DEVICE_FUNC constexpr void assign(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
     static_assert(isExpr<U> || isArithmetic<U>);
 
@@ -1069,7 +1069,7 @@ constexpr void assign(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 //=====================================================================================================================
 
 template<typename T, typename G, typename U>
-constexpr void assignAdd(Dual<T, G>& self, U&& other)
+AUTODIFF_DEVICE_FUNC constexpr void assignAdd(Dual<T, G>& self, U&& other)
 {
     static_assert(isExpr<U> || isArithmetic<U>);
 
@@ -1104,7 +1104,7 @@ constexpr void assignAdd(Dual<T, G>& self, U&& other)
 }
 
 template<typename T, typename G, typename U>
-constexpr void assignAdd(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
+AUTODIFF_DEVICE_FUNC constexpr void assignAdd(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
     static_assert(isExpr<U> || isArithmetic<U>);
 
@@ -1131,7 +1131,7 @@ constexpr void assignAdd(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 //=====================================================================================================================
 
 template<typename T, typename G, typename U>
-constexpr void assignSub(Dual<T, G>& self, U&& other)
+AUTODIFF_DEVICE_FUNC constexpr void assignSub(Dual<T, G>& self, U&& other)
 {
     static_assert(isExpr<U> || isArithmetic<U>);
 
@@ -1166,7 +1166,7 @@ constexpr void assignSub(Dual<T, G>& self, U&& other)
 }
 
 template<typename T, typename G, typename U>
-constexpr void assignSub(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
+AUTODIFF_DEVICE_FUNC constexpr void assignSub(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
     static_assert(isExpr<U> || isArithmetic<U>);
 
@@ -1193,7 +1193,7 @@ constexpr void assignSub(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 //=====================================================================================================================
 
 template<typename T, typename G, typename U>
-constexpr void assignMul(Dual<T, G>& self, U&& other)
+AUTODIFF_DEVICE_FUNC constexpr void assignMul(Dual<T, G>& self, U&& other)
 {
     static_assert(isExpr<U> || isArithmetic<U>);
 
@@ -1232,7 +1232,7 @@ constexpr void assignMul(Dual<T, G>& self, U&& other)
 }
 
 template<typename T, typename G, typename U>
-constexpr void assignMul(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
+AUTODIFF_DEVICE_FUNC constexpr void assignMul(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
     static_assert(isExpr<U> || isArithmetic<U>);
 
@@ -1260,7 +1260,7 @@ constexpr void assignMul(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 //=====================================================================================================================
 
 template<typename T, typename G, typename U>
-constexpr void assignDiv(Dual<T, G>& self, U&& other)
+AUTODIFF_DEVICE_FUNC constexpr void assignDiv(Dual<T, G>& self, U&& other)
 {
     static_assert(isExpr<U> || isArithmetic<U>);
 
@@ -1303,7 +1303,7 @@ constexpr void assignDiv(Dual<T, G>& self, U&& other)
 }
 
 template<typename T, typename G, typename U>
-constexpr void assignDiv(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
+AUTODIFF_DEVICE_FUNC constexpr void assignDiv(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
     static_assert(isExpr<U> || isArithmetic<U>);
 
@@ -1335,7 +1335,7 @@ constexpr void assignDiv(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 //=====================================================================================================================
 
 template<typename T, typename G, typename U>
-constexpr void assignPow(Dual<T, G>& self, U&& other)
+AUTODIFF_DEVICE_FUNC constexpr void assignPow(Dual<T, G>& self, U&& other)
 {
     // ASSIGN-POW A NUMBER: self = pow(self, number)
     if constexpr (isArithmetic<U>) {
@@ -1360,7 +1360,7 @@ constexpr void assignPow(Dual<T, G>& self, U&& other)
 }
 
 template<typename T, typename G, typename U>
-constexpr void assignPow(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
+AUTODIFF_DEVICE_FUNC constexpr void assignPow(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 {
     assign(tmp, other);
     assignPow(self, tmp);
@@ -1373,7 +1373,7 @@ constexpr void assignPow(Dual<T, G>& self, U&& other, Dual<T, G>& tmp)
 //=====================================================================================================================
 
 template<typename T, typename G, typename Y, typename X>
-constexpr void assignArcTan2(Dual<T, G>& self, Y&&y, X&&x)
+AUTODIFF_DEVICE_FUNC constexpr void assignArcTan2(Dual<T, G>& self, Y&&y, X&&x)
 {
     static_assert(isArithmetic<Y> || isExpr<Y>);
     static_assert(isArithmetic<X> || isExpr<X>);
@@ -1418,7 +1418,7 @@ constexpr void assignArcTan2(Dual<T, G>& self, Y&&y, X&&x)
 //=====================================================================================================================
 
 template<typename T, typename G, typename X, typename Y>
-constexpr void assignHypot2(Dual<T, G>& self, X&& x, Y&& y)
+AUTODIFF_DEVICE_FUNC constexpr void assignHypot2(Dual<T, G>& self, X&& x, Y&& y)
 {
     static_assert(isArithmetic<X> || isExpr<X>);
     static_assert(isArithmetic<Y> || isExpr<Y>);
@@ -1457,7 +1457,7 @@ constexpr void assignHypot2(Dual<T, G>& self, X&& x, Y&& y)
 }
 
 template<typename T, typename G, typename X, typename Y, typename Z>
-constexpr void assignHypot3(Dual<T, G>& self, X&& x, Y&& y, Z&& z)
+AUTODIFF_DEVICE_FUNC constexpr void assignHypot3(Dual<T, G>& self, X&& x, Y&& y, Z&& z)
 {
     static_assert(isArithmetic<X> || isExpr<X>);
     static_assert(isArithmetic<Y> || isExpr<Y>);
@@ -1533,35 +1533,35 @@ constexpr void assignHypot3(Dual<T, G>& self, X&& x, Y&& y, Z&& z)
 //
 //=====================================================================================================================
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, NegOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, NegOp)
 {
     self.val = -self.val;
     self.grad = -self.grad;
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, InvOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, InvOp)
 {
     self.val = One<T>() / self.val;
     self.grad *= - self.val * self.val;
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, SinOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, SinOp)
 {
     self.grad *= cos(self.val);
     self.val = sin(self.val);
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, CosOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, CosOp)
 {
     self.grad *= -sin(self.val);
     self.val = cos(self.val);
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, TanOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, TanOp)
 {
     const T aux = One<T>() / cos(self.val);
     self.val = tan(self.val);
@@ -1569,21 +1569,21 @@ constexpr void apply(Dual<T, G>& self, TanOp)
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, SinhOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, SinhOp)
 {
     self.grad *= cosh(self.val);
     self.val = sinh(self.val);
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, CoshOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, CoshOp)
 {
     self.grad *= sinh(self.val);
     self.val = cosh(self.val);
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, TanhOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, TanhOp)
 {
     const T aux = One<T>() / cosh(self.val);
     self.val = tanh(self.val);
@@ -1591,7 +1591,7 @@ constexpr void apply(Dual<T, G>& self, TanhOp)
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, ArcSinOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, ArcSinOp)
 {
     const T aux = One<T>() / sqrt(1.0 - self.val * self.val);
     self.val = asin(self.val);
@@ -1599,7 +1599,7 @@ constexpr void apply(Dual<T, G>& self, ArcSinOp)
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, ArcCosOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, ArcCosOp)
 {
     const T aux = -One<T>() / sqrt(1.0 - self.val * self.val);
     self.val = acos(self.val);
@@ -1607,7 +1607,7 @@ constexpr void apply(Dual<T, G>& self, ArcCosOp)
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, ArcTanOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, ArcTanOp)
 {
     const T aux = One<T>() / (1.0 + self.val * self.val);
     self.val = atan(self.val);
@@ -1615,14 +1615,14 @@ constexpr void apply(Dual<T, G>& self, ArcTanOp)
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, ExpOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, ExpOp)
 {
     self.val = exp(self.val);
     self.grad *= self.val;
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, LogOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, LogOp)
 {
     const T aux = One<T>() / self.val;
     self.val = log(self.val);
@@ -1630,7 +1630,7 @@ constexpr void apply(Dual<T, G>& self, LogOp)
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, Log10Op)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, Log10Op)
 {
     constexpr NumericType<T> ln10 = 2.3025850929940456840179914546843;
     const T aux = One<T>() / (ln10 * self.val);
@@ -1639,21 +1639,21 @@ constexpr void apply(Dual<T, G>& self, Log10Op)
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, SqrtOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, SqrtOp)
 {
     self.val = sqrt(self.val);
     self.grad *= 0.5 / self.val;
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, AbsOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, AbsOp)
 {
     self.grad *= self.val < T(0) ? G(-1) : (self.val > T(0) ? G(1) : G(0));
     self.val = abs(self.val);
 }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, ErfOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, ErfOp)
 {
     constexpr NumericType<T> sqrt_pi = 1.7724538509055160272981674833411451872554456638435;
     const T aux = self.val;
@@ -1662,7 +1662,7 @@ constexpr void apply(Dual<T, G>& self, ErfOp)
 }
 
 template<typename Op, typename T, typename G>
-constexpr void apply(Dual<T, G>& self)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self)
 {
     apply(self, Op{});
 }

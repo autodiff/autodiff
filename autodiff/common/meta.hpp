@@ -37,6 +37,19 @@
 namespace autodiff {
 namespace detail {
 
+#if defined(SYCL_DEVICE_ONLY)
+#ifndef AUTODIFF_DONT_VECTORIZE
+#define AUTODIFF_DONT_VECTORIZE
+#endif
+#define AUTODIFF_DEVICE_FUNC __attribute__((flatten)) __attribute__((always_inline))
+// All functions callable from CUDA/HIP code must be qualified with __device__
+#elif defined(AUTODIFF_GPUCC)
+#define AUTODIFF_DEVICE_FUNC __host__ __device__
+#else
+#define AUTODIFF_DEVICE_FUNC
+#endif
+
+
 template<bool value>
 using EnableIf = std::enable_if_t<value>;
 
