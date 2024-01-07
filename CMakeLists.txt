@@ -33,6 +33,17 @@ set(CMAKE_CXX_STANDARD 17)          # ensure cmake instructs compiler to use C++
 set(CMAKE_CXX_STANDARD_REQUIRED ON) # ensure the C++ standard given before is actually used
 set(CMAKE_CXX_EXTENSIONS OFF)       # avoid compile flags of the type -std=gnu++1z added by cmake
 
+include(CheckLanguage)
+check_language(CUDA)
+if(CMAKE_CUDA_COMPILER)
+    enable_language(CUDA)
+    if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+        set(CMAKE_CUDA_ARCHITECTURES OFF)
+    endif()
+else()
+    message(STATUS "No CUDA compiler found")
+endif()
+
 # Build the library (actually, just provide details about the library target, specify required compile options, etc. because autodiff is header-only)
 add_subdirectory(autodiff)
 

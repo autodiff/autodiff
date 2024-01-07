@@ -60,21 +60,21 @@ struct Along
 
 /// The keyword used to denote the variables *with respect to* the derivative is calculated.
 template<typename... Args>
-auto wrt(Args&&... args)
+AUTODIFF_DEVICE_FUNC auto wrt(Args&&... args)
 {
     return Wrt<Args&&...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
 }
 
 /// The keyword used to denote the variables *at* which the derivatives are calculated.
 template<typename... Args>
-auto at(Args&&... args)
+AUTODIFF_DEVICE_FUNC auto at(Args&&... args)
 {
     return At<Args&&...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
 }
 
 /// The keyword used to denote the direction vector *along* which the derivatives are calculated.
 template<typename... Args>
-auto along(Args&&... args)
+AUTODIFF_DEVICE_FUNC auto along(Args&&... args)
 {
     return Along<Args&&...>{ std::forward_as_tuple(std::forward<Args>(args)...) };
 }
@@ -89,7 +89,7 @@ auto along(Args&&... args)
 /// y, z, z, z)`. This automatic seeding permits derivatives `fx`, `fxy`,
 /// `fxyz`, `fxyzz`, and `fxyzzz` to be computed in a more convenient way.
 template<typename Var, typename... Vars, typename T>
-auto seed(const Wrt<Var&, Vars&...>& wrt, T&& seedval)
+AUTODIFF_DEVICE_FUNC auto seed(const Wrt<Var&, Vars&...>& wrt, T&& seedval)
 {
     constexpr static auto N = Order<Var>;
     constexpr static auto size = 1 + sizeof...(Vars);
@@ -103,19 +103,19 @@ auto seed(const Wrt<Var&, Vars&...>& wrt, T&& seedval)
 }
 
 template<typename... Vars>
-auto seed(const Wrt<Vars...>& wrt)
+AUTODIFF_DEVICE_FUNC auto seed(const Wrt<Vars...>& wrt)
 {
     seed(wrt, 1.0);
 }
 
 template<typename... Vars>
-auto unseed(const Wrt<Vars...>& wrt)
+AUTODIFF_DEVICE_FUNC auto unseed(const Wrt<Vars...>& wrt)
 {
     seed(wrt, 0.0);
 }
 
 template<typename... Args, typename... Vecs>
-auto seed(const At<Args...>& at, const Along<Vecs...>& along)
+AUTODIFF_DEVICE_FUNC auto seed(const At<Args...>& at, const Along<Vecs...>& along)
 {
     static_assert(sizeof...(Args) == sizeof...(Vecs));
 
@@ -131,7 +131,7 @@ auto seed(const At<Args...>& at, const Along<Vecs...>& along)
 }
 
 template<typename... Args>
-auto unseed(const At<Args...>& at)
+AUTODIFF_DEVICE_FUNC auto unseed(const At<Args...>& at)
 {
     ForEach(at.args, [&](auto& arg) constexpr {
         if constexpr (isVector<decltype(arg)>) {
@@ -143,38 +143,62 @@ auto unseed(const At<Args...>& at)
 }
 
 template<size_t order = 1, typename T, Requires<Order<T>> = true>
-auto seed(T& x)
+AUTODIFF_DEVICE_FUNC auto seed(T& x)
 {
     seed<order>(x, 1.0);
 }
 
 template<size_t order = 1, typename T, Requires<Order<T>> = true>
-auto unseed(T& x)
+AUTODIFF_DEVICE_FUNC auto unseed(T& x)
 {
     seed<order>(x, 0.0);
 }
 
+#ifdef __CUDA_ARCH__
+template<typename F, typename Tuple, std::size_t... I>
+AUTODIFF_DEVICE_FUNC constexpr decltype(auto) device_apply_impl(F&& f, Tuple&& t, std::index_sequence<I...>) {
+    return std::forward<F>(f)(std::get<I>(std::forward<Tuple>(t))...);
+}
+
+template<typename F, typename Tuple>
+AUTODIFF_DEVICE_FUNC constexpr decltype(auto) device_apply(F&& f, Tuple&& t) {
+    return device_apply_impl(
+        std::forward<F>(f),
+        std::forward<Tuple>(t),
+        std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{}
+    );
+}
+#endif
+
 template<typename Fun, typename... Args, typename... Vars>
-auto eval(const Fun& f, const At<Args...>& at, const Wrt<Vars...>& wrt)
+AUTODIFF_DEVICE_FUNC auto eval(const Fun& f, const At<Args...>& at, const Wrt<Vars...>& wrt)
 {
     seed(wrt);
+#ifdef __CUDA_ARCH__
+    auto u = device_apply(f, at.args);
+#else
     auto u = std::apply(f, at.args);
+#endif
     unseed(wrt);
     return u;
 }
 
 template<typename Fun, typename... Args, typename... Vecs>
-auto eval(const Fun& f, const At<Args...>& at, const Along<Vecs...>& along)
+AUTODIFF_DEVICE_FUNC auto eval(const Fun& f, const At<Args...>& at, const Along<Vecs...>& along)
 {
     seed(at, along);
+#ifdef __CUDA_ARCH__
+    auto u = device_apply(f, at.args);
+#else
     auto u = std::apply(f, at.args);
+#endif
     unseed(at);
     return u;
 }
 
 /// Extract the derivative of given order from a vector of dual/real numbers.
 template<size_t order = 1, typename Vec, Requires<isVector<Vec>> = true>
-auto derivative(const Vec& u)
+AUTODIFF_DEVICE_FUNC auto derivative(const Vec& u)
 {
     size_t len = u.size(); // the length of the vector containing dual/real numbers
     using NumType = decltype(u[0]); // get the type of the dual/real number
@@ -188,14 +212,14 @@ auto derivative(const Vec& u)
 
 /// Alias method to `derivative<order>(x)` where `x` is either a dual/real number or vector/array of such numbers.
 template<size_t order = 1, typename T>
-auto grad(const T& x)
+AUTODIFF_DEVICE_FUNC auto grad(const T& x)
 {
     return derivative<order>(x);
 }
 
 /// Unpack the derivatives from the result of an @ref eval call into an array.
 template<typename Result>
-auto derivatives(const Result& result)
+AUTODIFF_DEVICE_FUNC auto derivatives(const Result& result)
 {
     if constexpr (isVector<Result>) // check if the argument is a vector container of dual/real numbers
     {
@@ -225,27 +249,27 @@ auto derivatives(const Result& result)
 }
 
 template<typename Fun, typename... Vars, typename... Args>
-auto derivatives(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
+AUTODIFF_DEVICE_FUNC auto derivatives(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
 {
     return derivatives(eval(f, at, wrt));
 }
 
 template<size_t order=1, typename Fun, typename... Vars, typename... Args, typename Result>
-auto derivative(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Result& u)
+AUTODIFF_DEVICE_FUNC auto derivative(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at, Result& u)
 {
     u = derivatives(f, wrt, at);
     return derivative<order>(u);
 }
 
 template<size_t order=1, typename Fun, typename... Vars, typename... Args>
-auto derivative(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
+AUTODIFF_DEVICE_FUNC auto derivative(const Fun& f, const Wrt<Vars...>& wrt, const At<Args...>& at)
 {
     auto u = eval(f, at, wrt);
     return derivative<order>(u);
 }
 
 template<typename Fun, typename... Vecs, typename... Args>
-auto derivatives(const Fun& f, const Along<Vecs...>& along, const At<Args...>& at)
+AUTODIFF_DEVICE_FUNC auto derivatives(const Fun& f, const Along<Vecs...>& along, const At<Args...>& at)
 {
     return derivatives(eval(f, at, along));
 }
