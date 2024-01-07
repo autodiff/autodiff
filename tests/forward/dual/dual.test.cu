@@ -119,7 +119,7 @@ void ternary(const FromA & fromA, const FromB & fromB, const FromC & fromC, To &
     CHECK(cudaFree(fromADevicePtr) == cudaSuccess);
 }
 
-#define CHECK_DERIVATIVES_FX(expr, u, ux)                                 \
+#define CHECK_DERIVATIVES_FX(expr, u, ux)                             \
 {                                                                     \
     auto f = [] __host__ __device__(dual x) -> dual { return expr; }; \
     decltype(derivatives(f, wrt(x), at(x))) dfdx;                     \
@@ -131,7 +131,7 @@ void ternary(const FromA & fromA, const FromB & fromB, const FromC & fromC, To &
     CHECK(dfdx[1] == approx(val(ux)));                                \
 }
 
-#define CHECK_DERIVATIVES_FXY(expr, u, ux, uy)                                    \
+#define CHECK_DERIVATIVES_FXY(expr, u, ux, uy)                                \
 {                                                                             \
     auto f = [] __host__ __device__(dual x, dual y) -> dual { return expr; }; \
     decltype(derivatives(f, wrt(x), at(x, y))) dfdx;                          \
@@ -150,7 +150,7 @@ void ternary(const FromA & fromA, const FromB & fromB, const FromC & fromC, To &
     CHECK(dfdy[1] == approx(val(uy)));                                        \
 }
 
-#define CHECK_DERIVATIVES_FXYZ(expr, u, ux, uy, uz)                                       \
+#define CHECK_DERIVATIVES_FXYZ(expr, u, ux, uy, uz)                                   \
 {                                                                                     \
     auto f = [] __host__ __device__(dual x, dual y, dual z) -> dual { return expr; }; \
     decltype(derivatives(f, wrt(x), at(x, y, z))) dfdx;                               \
@@ -177,136 +177,136 @@ void ternary(const FromA & fromA, const FromB & fromB, const FromC & fromC, To &
 }
 
 #define CHECK_DERIVATIVES_FXY_3RD_ORDER(expr, u, ux, uy, uxx, uxy, uyy, uxxx, uxxy, uxyy, uyyy) \
-{                                                                                           \
-    dual3rd x = 1;                                                                          \
-    dual3rd y = 2;                                                                          \
-    auto f = [] __host__ __device__(dual3rd x, dual3rd y) -> dual3rd { return expr; };      \
-    decltype(derivatives(f, wrt(x), at(x, y))) dfdx;                                        \
-    decltype(derivatives(f, wrt(y), at(x, y))) dfdy;                                        \
-    decltype(derivatives(f, wrt(x, x), at(x, y))) dfdxx;                                    \
-    decltype(derivatives(f, wrt(x, y), at(x, y))) dfdxy;                                    \
-    decltype(derivatives(f, wrt(y, x), at(x, y))) dfdyx;                                    \
-    decltype(derivatives(f, wrt(y, y), at(x, y))) dfdyy;                                    \
-    decltype(derivatives(f, wrt(x, x, x), at(x, y))) dfdxxx;                                \
-    decltype(derivatives(f, wrt(x, y, x), at(x, y))) dfdxyx;                                \
-    decltype(derivatives(f, wrt(x, x, y), at(x, y))) dfdxxy;                                \
-    decltype(derivatives(f, wrt(x, y, y), at(x, y))) dfdxyy;                                \
-    decltype(derivatives(f, wrt(y, x, x), at(x, y))) dfdyxx;                                \
-    decltype(derivatives(f, wrt(y, y, x), at(x, y))) dfdyyx;                                \
-    decltype(derivatives(f, wrt(y, x, y), at(x, y))) dfdyxy;                                \
-    decltype(derivatives(f, wrt(y, y, y), at(x, y))) dfdyyy;                                \
-    binary(x, y, dfdx, [=] __device__(dual3rd x, dual3rd y) {                               \
-        auto d = derivatives(f, wrt(x), at(x, y));                                          \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdx[0] == approx(val(u)));                                                       \
-    CHECK(dfdx[1] == approx(val(ux)));                                                      \
-    CHECK(dfdx[2] == approx(val(uxx)));                                                     \
-    CHECK(dfdx[3] == approx(val(uxxx)));                                                    \
-    binary(x, y, dfdy, [=] __device__(dual3rd x, dual3rd y) {                               \
-        auto d = derivatives(f, wrt(y), at(x, y));                                          \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdy[0] == approx(val(u)));                                                       \
-    CHECK(dfdy[1] == approx(val(uy)));                                                      \
-    CHECK(dfdy[2] == approx(val(uyy)));                                                     \
-    CHECK(dfdy[3] == approx(val(uyyy)));                                                    \
-    binary(x, y, dfdxx, [=] __device__(dual3rd x, dual3rd y) {                              \
-        auto d = derivatives(f, wrt(x, x), at(x, y));                                       \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdxx[0] == approx(val(u)));                                                      \
-    CHECK(dfdxx[1] == approx(val(ux)));                                                     \
-    CHECK(dfdxx[2] == approx(val(uxx)));                                                    \
-    CHECK(dfdxx[3] == approx(val(uxxx)));                                                   \
-    binary(x, y, dfdxy, [=] __device__(dual3rd x, dual3rd y) {                              \
-        auto d = derivatives(f, wrt(x, y), at(x, y));                                       \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdxy[0] == approx(val(u)));                                                      \
-    CHECK(dfdxy[1] == approx(val(ux)));                                                     \
-    CHECK(dfdxy[2] == approx(val(uxy)));                                                    \
-    CHECK(dfdxy[3] == approx(val(uxyy)));                                                   \
-    binary(x, y, dfdyx, [=] __device__(dual3rd x, dual3rd y) {                              \
-        auto d = derivatives(f, wrt(y, x), at(x, y));                                       \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdyx[0] == approx(val(u)));                                                      \
-    CHECK(dfdyx[1] == approx(val(uy)));                                                     \
-    CHECK(dfdyx[2] == approx(val(uxy)));                                                    \
-    CHECK(dfdyx[3] == approx(val(uxyy)));                                                   \
-    binary(x, y, dfdyy, [=] __device__(dual3rd x, dual3rd y) {                              \
-        auto d = derivatives(f, wrt(y, y), at(x, y));                                       \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdyy[0] == approx(val(u)));                                                      \
-    CHECK(dfdyy[1] == approx(val(uy)));                                                     \
-    CHECK(dfdyy[2] == approx(val(uyy)));                                                    \
-    CHECK(dfdyy[3] == approx(val(uyyy)));                                                   \
-    binary(x, y, dfdxxx, [=] __device__(dual3rd x, dual3rd y) {                             \
-        auto d = derivatives(f, wrt(x, x, x), at(x, y));                                    \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdxxx[0] == approx(val(u)));                                                     \
-    CHECK(dfdxxx[1] == approx(val(ux)));                                                    \
-    CHECK(dfdxxx[2] == approx(val(uxx)));                                                   \
-    CHECK(dfdxxx[3] == approx(val(uxxx)));                                                  \
-    binary(x, y, dfdxyx, [=] __device__(dual3rd x, dual3rd y) {                             \
-        auto d = derivatives(f, wrt(x, y, x), at(x, y));                                    \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdxyx[0] == approx(val(u)));                                                     \
-    CHECK(dfdxyx[1] == approx(val(ux)));                                                    \
-    CHECK(dfdxyx[2] == approx(val(uxy)));                                                   \
-    CHECK(dfdxyx[3] == approx(val(uxxy)));                                                  \
-    binary(x, y, dfdxxy, [=] __device__(dual3rd x, dual3rd y) {                             \
-        auto d = derivatives(f, wrt(x, x, y), at(x, y));                                    \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdxxy[0] == approx(val(u)));                                                     \
-    CHECK(dfdxxy[1] == approx(val(ux)));                                                    \
-    CHECK(dfdxxy[2] == approx(val(uxx)));                                                   \
-    CHECK(dfdxxy[3] == approx(val(uxxy)));                                                  \
-    binary(x, y, dfdxyy, [=] __device__(dual3rd x, dual3rd y) {                             \
-        auto d = derivatives(f, wrt(x, y, y), at(x, y));                                    \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdxyy[0] == approx(val(u)));                                                     \
-    CHECK(dfdxyy[1] == approx(val(ux)));                                                    \
-    CHECK(dfdxyy[2] == approx(val(uxy)));                                                   \
-    CHECK(dfdxyy[3] == approx(val(uxyy)));                                                  \
-    binary(x, y, dfdyxx, [=] __device__(dual3rd x, dual3rd y) {                             \
-        auto d = derivatives(f, wrt(y, x, x), at(x, y));                                    \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdyxx[0] == approx(val(u)));                                                     \
-    CHECK(dfdyxx[1] == approx(val(uy)));                                                    \
-    CHECK(dfdyxx[2] == approx(val(uxy)));                                                   \
-    CHECK(dfdyxx[3] == approx(val(uxxy)));                                                  \
-    binary(x, y, dfdyyx, [=] __device__(dual3rd x, dual3rd y) {                             \
-        auto d = derivatives(f, wrt(y, y, x), at(x, y));                                    \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdyyx[0] == approx(val(u)));                                                     \
-    CHECK(dfdyyx[1] == approx(val(uy)));                                                    \
-    CHECK(dfdyyx[2] == approx(val(uyy)));                                                   \
-    CHECK(dfdyyx[3] == approx(val(uxyy)));                                                  \
-    binary(x, y, dfdyxy, [=] __device__(dual3rd x, dual3rd y) {                             \
-        auto d = derivatives(f, wrt(y, x, y), at(x, y));                                    \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdyxy[0] == approx(val(u)));                                                     \
-    CHECK(dfdyxy[1] == approx(val(uy)));                                                    \
-    CHECK(dfdyxy[2] == approx(val(uxy)));                                                   \
-    CHECK(dfdyxy[3] == approx(val(uxyy)));                                                  \
-    binary(x, y, dfdyyy, [=] __device__(dual3rd x, dual3rd y) {                             \
-        auto d = derivatives(f, wrt(y, y, y), at(x, y));                                    \
-        return d;                                                                           \
-    });                                                                                     \
-    CHECK(dfdyyy[0] == approx(val(u)));                                                     \
-    CHECK(dfdyyy[1] == approx(val(uy)));                                                    \
-    CHECK(dfdyyy[2] == approx(val(uyy)));                                                   \
-    CHECK(dfdyyy[3] == approx(val(uyyy)));                                                  \
+{                                                                                               \
+    dual3rd x = 1;                                                                              \
+    dual3rd y = 2;                                                                              \
+    auto f = [] __host__ __device__(dual3rd x, dual3rd y) -> dual3rd { return expr; };          \
+    decltype(derivatives(f, wrt(x), at(x, y))) dfdx;                                            \
+    decltype(derivatives(f, wrt(y), at(x, y))) dfdy;                                            \
+    decltype(derivatives(f, wrt(x, x), at(x, y))) dfdxx;                                        \
+    decltype(derivatives(f, wrt(x, y), at(x, y))) dfdxy;                                        \
+    decltype(derivatives(f, wrt(y, x), at(x, y))) dfdyx;                                        \
+    decltype(derivatives(f, wrt(y, y), at(x, y))) dfdyy;                                        \
+    decltype(derivatives(f, wrt(x, x, x), at(x, y))) dfdxxx;                                    \
+    decltype(derivatives(f, wrt(x, y, x), at(x, y))) dfdxyx;                                    \
+    decltype(derivatives(f, wrt(x, x, y), at(x, y))) dfdxxy;                                    \
+    decltype(derivatives(f, wrt(x, y, y), at(x, y))) dfdxyy;                                    \
+    decltype(derivatives(f, wrt(y, x, x), at(x, y))) dfdyxx;                                    \
+    decltype(derivatives(f, wrt(y, y, x), at(x, y))) dfdyyx;                                    \
+    decltype(derivatives(f, wrt(y, x, y), at(x, y))) dfdyxy;                                    \
+    decltype(derivatives(f, wrt(y, y, y), at(x, y))) dfdyyy;                                    \
+    binary(x, y, dfdx, [=] __device__(dual3rd x, dual3rd y) {                                   \
+        auto d = derivatives(f, wrt(x), at(x, y));                                              \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdx[0] == approx(val(u)));                                                           \
+    CHECK(dfdx[1] == approx(val(ux)));                                                          \
+    CHECK(dfdx[2] == approx(val(uxx)));                                                         \
+    CHECK(dfdx[3] == approx(val(uxxx)));                                                        \
+    binary(x, y, dfdy, [=] __device__(dual3rd x, dual3rd y) {                                   \
+        auto d = derivatives(f, wrt(y), at(x, y));                                              \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdy[0] == approx(val(u)));                                                           \
+    CHECK(dfdy[1] == approx(val(uy)));                                                          \
+    CHECK(dfdy[2] == approx(val(uyy)));                                                         \
+    CHECK(dfdy[3] == approx(val(uyyy)));                                                        \
+    binary(x, y, dfdxx, [=] __device__(dual3rd x, dual3rd y) {                                  \
+        auto d = derivatives(f, wrt(x, x), at(x, y));                                           \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdxx[0] == approx(val(u)));                                                          \
+    CHECK(dfdxx[1] == approx(val(ux)));                                                         \
+    CHECK(dfdxx[2] == approx(val(uxx)));                                                        \
+    CHECK(dfdxx[3] == approx(val(uxxx)));                                                       \
+    binary(x, y, dfdxy, [=] __device__(dual3rd x, dual3rd y) {                                  \
+        auto d = derivatives(f, wrt(x, y), at(x, y));                                           \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdxy[0] == approx(val(u)));                                                          \
+    CHECK(dfdxy[1] == approx(val(ux)));                                                         \
+    CHECK(dfdxy[2] == approx(val(uxy)));                                                        \
+    CHECK(dfdxy[3] == approx(val(uxyy)));                                                       \
+    binary(x, y, dfdyx, [=] __device__(dual3rd x, dual3rd y) {                                  \
+        auto d = derivatives(f, wrt(y, x), at(x, y));                                           \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdyx[0] == approx(val(u)));                                                          \
+    CHECK(dfdyx[1] == approx(val(uy)));                                                         \
+    CHECK(dfdyx[2] == approx(val(uxy)));                                                        \
+    CHECK(dfdyx[3] == approx(val(uxyy)));                                                       \
+    binary(x, y, dfdyy, [=] __device__(dual3rd x, dual3rd y) {                                  \
+        auto d = derivatives(f, wrt(y, y), at(x, y));                                           \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdyy[0] == approx(val(u)));                                                          \
+    CHECK(dfdyy[1] == approx(val(uy)));                                                         \
+    CHECK(dfdyy[2] == approx(val(uyy)));                                                        \
+    CHECK(dfdyy[3] == approx(val(uyyy)));                                                       \
+    binary(x, y, dfdxxx, [=] __device__(dual3rd x, dual3rd y) {                                 \
+        auto d = derivatives(f, wrt(x, x, x), at(x, y));                                        \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdxxx[0] == approx(val(u)));                                                         \
+    CHECK(dfdxxx[1] == approx(val(ux)));                                                        \
+    CHECK(dfdxxx[2] == approx(val(uxx)));                                                       \
+    CHECK(dfdxxx[3] == approx(val(uxxx)));                                                      \
+    binary(x, y, dfdxyx, [=] __device__(dual3rd x, dual3rd y) {                                 \
+        auto d = derivatives(f, wrt(x, y, x), at(x, y));                                        \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdxyx[0] == approx(val(u)));                                                         \
+    CHECK(dfdxyx[1] == approx(val(ux)));                                                        \
+    CHECK(dfdxyx[2] == approx(val(uxy)));                                                       \
+    CHECK(dfdxyx[3] == approx(val(uxxy)));                                                      \
+    binary(x, y, dfdxxy, [=] __device__(dual3rd x, dual3rd y) {                                 \
+        auto d = derivatives(f, wrt(x, x, y), at(x, y));                                        \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdxxy[0] == approx(val(u)));                                                         \
+    CHECK(dfdxxy[1] == approx(val(ux)));                                                        \
+    CHECK(dfdxxy[2] == approx(val(uxx)));                                                       \
+    CHECK(dfdxxy[3] == approx(val(uxxy)));                                                      \
+    binary(x, y, dfdxyy, [=] __device__(dual3rd x, dual3rd y) {                                 \
+        auto d = derivatives(f, wrt(x, y, y), at(x, y));                                        \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdxyy[0] == approx(val(u)));                                                         \
+    CHECK(dfdxyy[1] == approx(val(ux)));                                                        \
+    CHECK(dfdxyy[2] == approx(val(uxy)));                                                       \
+    CHECK(dfdxyy[3] == approx(val(uxyy)));                                                      \
+    binary(x, y, dfdyxx, [=] __device__(dual3rd x, dual3rd y) {                                 \
+        auto d = derivatives(f, wrt(y, x, x), at(x, y));                                        \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdyxx[0] == approx(val(u)));                                                         \
+    CHECK(dfdyxx[1] == approx(val(uy)));                                                        \
+    CHECK(dfdyxx[2] == approx(val(uxy)));                                                       \
+    CHECK(dfdyxx[3] == approx(val(uxxy)));                                                      \
+    binary(x, y, dfdyyx, [=] __device__(dual3rd x, dual3rd y) {                                 \
+        auto d = derivatives(f, wrt(y, y, x), at(x, y));                                        \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdyyx[0] == approx(val(u)));                                                         \
+    CHECK(dfdyyx[1] == approx(val(uy)));                                                        \
+    CHECK(dfdyyx[2] == approx(val(uyy)));                                                       \
+    CHECK(dfdyyx[3] == approx(val(uxyy)));                                                      \
+    binary(x, y, dfdyxy, [=] __device__(dual3rd x, dual3rd y) {                                 \
+        auto d = derivatives(f, wrt(y, x, y), at(x, y));                                        \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdyxy[0] == approx(val(u)));                                                         \
+    CHECK(dfdyxy[1] == approx(val(uy)));                                                        \
+    CHECK(dfdyxy[2] == approx(val(uxy)));                                                       \
+    CHECK(dfdyxy[3] == approx(val(uxyy)));                                                      \
+    binary(x, y, dfdyyy, [=] __device__(dual3rd x, dual3rd y) {                                 \
+        auto d = derivatives(f, wrt(y, y, y), at(x, y));                                        \
+        return d;                                                                               \
+    });                                                                                         \
+    CHECK(dfdyyy[0] == approx(val(u)));                                                         \
+    CHECK(dfdyyy[1] == approx(val(uy)));                                                        \
+    CHECK(dfdyyy[2] == approx(val(uyy)));                                                       \
+    CHECK(dfdyyy[3] == approx(val(uyyy)));                                                      \
 }
 
 TEST_CASE("testing autodiff::dual", "[forward][dual][cuda]")
@@ -364,44 +364,44 @@ TEST_CASE("testing autodiff::dual", "[forward][dual][cuda]")
         x = 6;
         y = 5;
 
-        bool same;
-        unary(x, same, [] __device__ (dual x) { return x == 6; });
-        CHECK(same);
-        unary(x, same, [] __device__ (dual x) { return 6 == x; });
-        CHECK(same);
-        unary(x, same, [] __device__ (dual x) { return x == x; });
-        CHECK(same);
+        bool result;
+        unary(x, result, [] __device__ (dual x) { return x == 6; });
+        CHECK(result);
+        unary(x, result, [] __device__ (dual x) { return 6 == x; });
+        CHECK(result);
+        unary(x, result, [] __device__ (dual x) { return x == x; });
+        CHECK(result);
 
-        unary(x, same, [] __device__ (dual x) { return x != 5; });
-        CHECK(same);
-        unary(x, same, [] __device__ (dual x) { return 5 != x; });
-        CHECK(same);
-        binary(x, y, same, [] __device__ (dual x, dual y) { return x != y; });
-        CHECK(same);
+        unary(x, result, [] __device__ (dual x) { return x != 5; });
+        CHECK(result);
+        unary(x, result, [] __device__ (dual x) { return 5 != x; });
+        CHECK(result);
+        binary(x, y, result, [] __device__ (dual x, dual y) { return x != y; });
+        CHECK(result);
 
-        unary(x, same, [] __device__ (dual x) { return x > 5; });
-        CHECK(same);
-        binary(x, y, same, [] __device__ (dual x, dual y) { return x > y; });
-        CHECK(same);
+        unary(x, result, [] __device__ (dual x) { return x > 5; });
+        CHECK(result);
+        binary(x, y, result, [] __device__ (dual x, dual y) { return x > y; });
+        CHECK(result);
 
-        unary(x, same, [] __device__ (dual x) { return x >= 6; });
-        CHECK(same);
-        unary(x, same, [] __device__ (dual x) { return x >= x; });
-        CHECK(same);
-        binary(x, y, same, [] __device__ (dual x, dual y) { return x >= y; });
-        CHECK(same);
+        unary(x, result, [] __device__ (dual x) { return x >= 6; });
+        CHECK(result);
+        unary(x, result, [] __device__ (dual x) { return x >= x; });
+        CHECK(result);
+        binary(x, y, result, [] __device__ (dual x, dual y) { return x >= y; });
+        CHECK(result);
 
-        unary(x, same, [] __device__ (dual x) { return 5 < x; });
-        CHECK(same);
-        binary(x, y, same, [] __device__ (dual x, dual y) { return y < x; });
-        CHECK(same);
+        unary(x, result, [] __device__ (dual x) { return 5 < x; });
+        CHECK(result);
+        binary(x, y, result, [] __device__ (dual x, dual y) { return y < x; });
+        CHECK(result);
 
-        unary(x, same, [] __device__ (dual x) { return 6 <= x; });
-        CHECK(same);
-        unary(x, same, [] __device__ (dual x) { return x <= x; });
-        CHECK(same);
-        binary(x, y, same, [] __device__ (dual x, dual y) { return y <= x; });
-        CHECK(same);
+        unary(x, result, [] __device__ (dual x) { return 6 <= x; });
+        CHECK(result);
+        unary(x, result, [] __device__ (dual x) { return x <= x; });
+        CHECK(result);
+        binary(x, y, result, [] __device__ (dual x, dual y) { return y <= x; });
+        CHECK(result);
     }
 
     SECTION("testing unary negative operator")
