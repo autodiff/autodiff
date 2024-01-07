@@ -41,6 +41,7 @@ auto approx(T&& expr) -> Catch::Approx
     return Catch::Approx(val(std::forward<T>(expr))).margin(1e-12);
 }
 
+namespace {
 template<typename From, typename To, typename Callable>
 __global__ void unaryKernel(const From *from, std::size_t n, To *to, Callable callee) {
     auto tid = threadIdx.x + blockIdx.x * blockDim.x;
@@ -117,6 +118,7 @@ void ternary(const FromA & fromA, const FromB & fromB, const FromC & fromC, To &
     CHECK(cudaFree(fromCDevicePtr) == cudaSuccess);
     CHECK(cudaFree(fromBDevicePtr) == cudaSuccess);
     CHECK(cudaFree(fromADevicePtr) == cudaSuccess);
+}
 }
 
 #define CHECK_DERIVATIVES_FX(expr, u, ux)                             \
