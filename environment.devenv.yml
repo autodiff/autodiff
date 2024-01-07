@@ -4,6 +4,7 @@ name: autodiff
 
 channels:
   - conda-forge
+  - nvidia
 
 dependencies:
   - catch2>=3
@@ -29,3 +30,4 @@ dependencies:
   - python={{ python_version }}
   - shellcheck
   - vs2019_win-64  # [win]
+  - cuda-toolkit
