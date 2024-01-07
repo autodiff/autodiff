@@ -934,25 +934,25 @@ AUTODIFF_DEVICE_FUNC bool operator==(const Real<N, T>& x, const Real<N, T>& y)
     return res;
 }
 
-template<size_t N, typename T> bool operator!=(const Real<N, T>& x, const Real<N, T>& y) { return !(x == y); }
-template<size_t N, typename T> bool operator< (const Real<N, T>& x, const Real<N, T>& y) { return x[0] <  y[0]; }
-template<size_t N, typename T> bool operator> (const Real<N, T>& x, const Real<N, T>& y) { return x[0] >  y[0]; }
-template<size_t N, typename T> bool operator<=(const Real<N, T>& x, const Real<N, T>& y) { return x[0] <= y[0]; }
-template<size_t N, typename T> bool operator>=(const Real<N, T>& x, const Real<N, T>& y) { return x[0] >= y[0]; }
+template<size_t N, typename T> AUTODIFF_DEVICE_FUNC bool operator!=(const Real<N, T>& x, const Real<N, T>& y) { return !(x == y); }
+template<size_t N, typename T> AUTODIFF_DEVICE_FUNC bool operator< (const Real<N, T>& x, const Real<N, T>& y) { return x[0] <  y[0]; }
+template<size_t N, typename T> AUTODIFF_DEVICE_FUNC bool operator> (const Real<N, T>& x, const Real<N, T>& y) { return x[0] >  y[0]; }
+template<size_t N, typename T> AUTODIFF_DEVICE_FUNC bool operator<=(const Real<N, T>& x, const Real<N, T>& y) { return x[0] <= y[0]; }
+template<size_t N, typename T> AUTODIFF_DEVICE_FUNC bool operator>=(const Real<N, T>& x, const Real<N, T>& y) { return x[0] >= y[0]; }
 
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator==(const Real<N, T>& x, const U& y) { return x[0] == y; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator!=(const Real<N, T>& x, const U& y) { return x[0] != y; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator< (const Real<N, T>& x, const U& y) { return x[0] <  y; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator> (const Real<N, T>& x, const U& y) { return x[0] >  y; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator<=(const Real<N, T>& x, const U& y) { return x[0] <= y; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator>=(const Real<N, T>& x, const U& y) { return x[0] >= y; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> AUTODIFF_DEVICE_FUNC bool operator==(const Real<N, T>& x, const U& y) { return x[0] == y; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> AUTODIFF_DEVICE_FUNC bool operator!=(const Real<N, T>& x, const U& y) { return x[0] != y; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> AUTODIFF_DEVICE_FUNC bool operator< (const Real<N, T>& x, const U& y) { return x[0] <  y; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> AUTODIFF_DEVICE_FUNC bool operator> (const Real<N, T>& x, const U& y) { return x[0] >  y; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> AUTODIFF_DEVICE_FUNC bool operator<=(const Real<N, T>& x, const U& y) { return x[0] <= y; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> AUTODIFF_DEVICE_FUNC bool operator>=(const Real<N, T>& x, const U& y) { return x[0] >= y; }
 
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator==(const U& x, const Real<N, T>& y) { return x == y[0]; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator!=(const U& x, const Real<N, T>& y) { return x != y[0]; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator< (const U& x, const Real<N, T>& y) { return x <  y[0]; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator> (const U& x, const Real<N, T>& y) { return x >  y[0]; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator<=(const U& x, const Real<N, T>& y) { return x <= y[0]; }
-template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> bool operator>=(const U& x, const Real<N, T>& y) { return x >= y[0]; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> AUTODIFF_DEVICE_FUNC bool operator==(const U& x, const Real<N, T>& y) { return x == y[0]; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> AUTODIFF_DEVICE_FUNC bool operator!=(const U& x, const Real<N, T>& y) { return x != y[0]; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> AUTODIFF_DEVICE_FUNC bool operator< (const U& x, const Real<N, T>& y) { return x <  y[0]; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> AUTODIFF_DEVICE_FUNC bool operator> (const U& x, const Real<N, T>& y) { return x >  y[0]; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> AUTODIFF_DEVICE_FUNC bool operator<=(const U& x, const Real<N, T>& y) { return x <= y[0]; }
+template<size_t N, typename T, typename U, Requires<isArithmetic<U>> = true> AUTODIFF_DEVICE_FUNC bool operator>=(const U& x, const Real<N, T>& y) { return x >= y[0]; }
 
 //=====================================================================================================================
 //

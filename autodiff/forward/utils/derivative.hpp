@@ -221,6 +221,7 @@ AUTODIFF_DEVICE_FUNC auto grad(const T& x)
 template<typename Result>
 AUTODIFF_DEVICE_FUNC auto derivatives(const Result& result)
 {
+#ifndef __CUDA_ARCH__
     if constexpr (isVector<Result>) // check if the argument is a vector container of dual/real numbers
     {
         size_t len = result.size(); // the length of the vector containing dual/real numbers
@@ -237,6 +238,7 @@ AUTODIFF_DEVICE_FUNC auto derivatives(const Result& result)
         return values;
     }
     else // result is then just a dual/real number
+#endif
     {
         using T = NumericType<Result>; // get the numeric/floating point type of the dual/real result number
         constexpr auto N = Order<Result>; // the order of the dual/real result number
