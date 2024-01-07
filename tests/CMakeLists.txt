@@ -11,7 +11,6 @@ if(CMAKE_CUDA_COMPILER)
     target_link_libraries(autodiff-cudatests autodiff::autodiff Eigen3::Eigen Catch2::Catch2WithMain)
     set_target_properties(autodiff-cudatests PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
     target_compile_options(autodiff-cudatests PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)
-    target_compile_options(autodiff-cudatests PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>)
 endif()
 # Note: Disabled compilation of implicit conversion tests because they are
 # stressing too much CI compilers in addition to the other tests. 

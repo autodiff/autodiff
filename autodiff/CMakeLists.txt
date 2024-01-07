@@ -14,6 +14,10 @@ target_include_directories(autodiff
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+if(CMAKE_CUDA_COMPILER)
+    target_compile_options(autodiff INTERFACE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>)
+endif()
+
 # Install autodiff interface library
 install(TARGETS autodiff EXPORT autodiffTargets)
 
