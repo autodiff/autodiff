@@ -15,7 +15,7 @@ target_include_directories(autodiff
 )
 
 if(CMAKE_CUDA_COMPILER)
-    target_compile_options(autodiff INTERFACE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>)
+    target_compile_options(autodiff INTERFACE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr --extended-lambda>)
 endif()
 
 # Install autodiff interface library
