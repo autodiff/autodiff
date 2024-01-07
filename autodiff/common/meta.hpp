@@ -31,34 +31,20 @@
 
 // C++ includes
 #include <cstddef>
+#ifdef EIGEN_CORE_MODULE_H
+#include <Eigen/src/Core/util/Macros.h>
+#else
+#define EIGEN_CORE_MODULE_H
+#include <Eigen/src/Core/util/Macros.h>
+#undef EIGEN_CORE_MODULE_H
+#endif
 #include <tuple>
 #include <type_traits>
 
 namespace autodiff {
 namespace detail {
 
-#if defined(__NVCC__) && defined(__HIPCC__)
-#error "NVCC as the target platform for HIPCC is currently not supported."
-#endif
-
-#if defined(__CUDACC__) && !defined(AUTODIFF_NO_CUDA)
-#define AUTODIFF_CUDACC __CUDACC__
-#endif
-
-#if defined(__HIPCC__) && !defined(AUTODIFF_NO_HIP)
-#define AUTODIFF_HIPCC __HIPCC__
-#endif
-
-#if defined(AUTODIFF_CUDACC) || defined(AUTODIFF_HIPCC)
-#define AUTODIFF_GPUCC
-#endif
-
-#if defined(AUTODIFF_GPUCC)
-#define AUTODIFF_DEVICE_FUNC __host__ __device__
-#else
-#define AUTODIFF_DEVICE_FUNC
-#endif
-
+#define AUTODIFF_DEVICE_FUNC EIGEN_DEVICE_FUNC
 
 template<bool value>
 using EnableIf = std::enable_if_t<value>;
@@ -91,13 +77,13 @@ template<typename Tuple>
 constexpr auto TupleSize = std::tuple_size_v<std::decay_t<Tuple>>;
 
 template<typename Tuple>
-constexpr auto TupleHead(Tuple&& tuple)
+AUTODIFF_DEVICE_FUNC constexpr auto TupleHead(Tuple&& tuple)
 {
     return std::get<0>(std::forward<Tuple>(tuple));
 }
 
 template<typename Tuple>
-constexpr auto TupleTail(Tuple&& tuple)
+AUTODIFF_DEVICE_FUNC constexpr auto TupleTail(Tuple&& tuple)
 {
     auto g = [&](auto&&, auto&&... args) constexpr {
         return std::forward_as_tuple(args...);
@@ -114,7 +100,7 @@ struct Index
 };
 
 template<size_t i, size_t ibegin, size_t iend, typename Function>
-constexpr auto AuxFor(Function&& f)
+AUTODIFF_DEVICE_FUNC constexpr auto AuxFor(Function&& f)
 {
     if constexpr (i < iend) {
         f(Index<i>{});
@@ -123,19 +109,19 @@ constexpr auto AuxFor(Function&& f)
 }
 
 template<size_t ibegin, size_t iend, typename Function>
-constexpr auto For(Function&& f)
+AUTODIFF_DEVICE_FUNC constexpr auto For(Function&& f)
 {
     AuxFor<ibegin, ibegin, iend>(std::forward<Function>(f));
 }
 
 template<size_t iend, typename Function>
-constexpr auto For(Function&& f)
+AUTODIFF_DEVICE_FUNC constexpr auto For(Function&& f)
 {
     For<0, iend>(std::forward<Function>(f));
 }
 
 template<size_t i, size_t ibegin, size_t iend, typename Function>
-constexpr auto AuxReverseFor(Function&& f)
+AUTODIFF_DEVICE_FUNC constexpr auto AuxReverseFor(Function&& f)
 {
     if constexpr (i < iend)
     {
@@ -145,19 +131,19 @@ constexpr auto AuxReverseFor(Function&& f)
 }
 
 template<size_t ibegin, size_t iend, typename Function>
-constexpr auto ReverseFor(Function&& f)
+AUTODIFF_DEVICE_FUNC constexpr auto ReverseFor(Function&& f)
 {
     AuxReverseFor<ibegin, ibegin, iend>(std::forward<Function>(f));
 }
 
 template<size_t iend, typename Function>
-constexpr auto ReverseFor(Function&& f)
+AUTODIFF_DEVICE_FUNC constexpr auto ReverseFor(Function&& f)
 {
     ReverseFor<0, iend>(std::forward<Function>(f));
 }
 
 template<typename Tuple, typename Function>
-constexpr auto ForEach(Tuple&& tuple, Function&& f)
+AUTODIFF_DEVICE_FUNC constexpr auto ForEach(Tuple&& tuple, Function&& f)
 {
     constexpr auto N = TupleSize<Tuple>;
     For<N>([&](auto i) constexpr {
@@ -173,7 +159,7 @@ constexpr auto ForEach(Tuple&& tuple, Function&& f)
 }
 
 template<typename Tuple1, typename Tuple2, typename Function>
-constexpr auto ForEach(Tuple1&& tuple1, Tuple2&& tuple2, Function&& f)
+AUTODIFF_DEVICE_FUNC constexpr auto ForEach(Tuple1&& tuple1, Tuple2&& tuple2, Function&& f)
 {
     constexpr auto N1 = TupleSize<Tuple1>;
     constexpr auto N2 = TupleSize<Tuple2>;
@@ -184,7 +170,7 @@ constexpr auto ForEach(Tuple1&& tuple1, Tuple2&& tuple2, Function&& f)
 }
 
 template<size_t ibegin, size_t iend, typename Function>
-constexpr auto Sum(Function&& f)
+AUTODIFF_DEVICE_FUNC constexpr auto Sum(Function&& f)
 {
     using ResultType = std::invoke_result_t<Function, Index<ibegin>>;
     ResultType res = {};
@@ -195,7 +181,7 @@ constexpr auto Sum(Function&& f)
 }
 
 template<typename Tuple, typename Function>
-constexpr auto Reduce(Tuple&& tuple, Function&& f)
+AUTODIFF_DEVICE_FUNC constexpr auto Reduce(Tuple&& tuple, Function&& f)
 {
     using ResultType = std::invoke_result_t<Function, decltype(std::get<0>(tuple))>;
     ResultType res = {};

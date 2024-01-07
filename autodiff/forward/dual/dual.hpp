@@ -479,7 +479,7 @@ template<typename Op, typename L, typename C, typename R>
 struct AuxDualOpType<TernaryExpr<Op, L, C, R>> { using type = Op; };
 
 template<typename L, typename R>
-constexpr auto auxCommonDualType()
+AUTODIFF_DEVICE_FUNC constexpr auto auxCommonDualType()
 {
     if constexpr (isArithmetic<L> && isArithmetic<R>)
         return CommonType<L, R>();
@@ -626,7 +626,7 @@ AUTODIFF_DEVICE_FUNC auto right(const BinaryExpr<Op, L, R>& expr) -> const R
 //=====================================================================================================================
 
 template<typename T>
-AUTODIFF_DEVICE_FUNC auto eval(T&& expr)
+AUTODIFF_DEVICE_FUNC constexpr auto eval(T&& expr)
 {
     static_assert(isDual<T> || isExpr<T> || isArithmetic<T>);
     if constexpr (isDual<T>)
@@ -637,7 +637,7 @@ AUTODIFF_DEVICE_FUNC auto eval(T&& expr)
 }
 
 template<typename T>
-AUTODIFF_DEVICE_FUNC auto val(T&& expr)
+AUTODIFF_DEVICE_FUNC constexpr auto val(T&& expr)
 {
     static_assert(isDual<T> || isExpr<T> || isArithmetic<T>);
     if constexpr (isDual<T>)
@@ -1456,6 +1456,23 @@ AUTODIFF_DEVICE_FUNC constexpr void assignHypot2(Dual<T, G>& self, X&& x, Y&& y)
     }
 }
 
+template<typename T>
+AUTODIFF_DEVICE_FUNC inline T hypot_device_func(T x, T y, T z)
+{
+#ifdef __CUDA_ARCH__
+    x = std::abs(x);
+    y = std::abs(y);
+    z = std::abs(z);
+    if(T a = x < y ? y < z ? z : y : x < z ? z
+                                           : x)
+        return a * std::sqrt((x / a) * (x / a) + (y / a) * (y / a) + (z / a) * (z / a));
+    else
+        return {};
+#else
+    return hypot(x, y, z);
+#endif
+}
+
 template<typename T, typename G, typename X, typename Y, typename Z>
 AUTODIFF_DEVICE_FUNC constexpr void assignHypot3(Dual<T, G>& self, X&& x, Y&& y, Z&& z)
 {
@@ -1465,43 +1482,43 @@ AUTODIFF_DEVICE_FUNC constexpr void assignHypot3(Dual<T, G>& self, X&& x, Y&& y,
 
     // self = hypot(dual, number, number)
     if constexpr (isDual<X> && isArithmetic<Y> && isArithmetic<Z>) {
-        self.val = hypot(x.val, y, z);
+        self.val = hypot_device_func(x.val, y, z);
         self.grad = x.val / self.val * x.grad;
     }
 
     // self = hypot(number, dual, number)
     else if constexpr (isArithmetic<X> && isDual<Y> && isArithmetic<Z>) {
-        self.val = hypot(x, y.val, z);
+        self.val = hypot_device_func(x, y.val, z);
         self.grad = y.val / self.val * y.grad;
     }
 
     // self = hypot(number, number, dual)
     else if constexpr (isArithmetic<X> && isArithmetic<Y> && isDual<Z>) {
-        self.val = hypot(x, y, z.val);
+        self.val = hypot_device_func(x, y, z.val);
         self.grad = z.val / self.val * z.grad;
     }
 
     // self = hypot(dual, dual, number)
     else if constexpr (isDual<X> && isDual<Y> && isArithmetic<Z>) {
-        self.val = hypot(x.val, y.val, z);
+        self.val = hypot_device_func(x.val, y.val, z);
         self.grad = (x.grad * x.val + y.grad * y.val ) / self.val;
     }
 
     // self = hypot(number, dual, dual)
     else if constexpr (isArithmetic<X> && isDual<Y> && isDual<Z>) {
-        self.val = hypot(x, y.val, z.val);
+        self.val = hypot_device_func(x, y.val, z.val);
         self.grad = (y.grad * y.val + z.grad * z.val) / self.val;
     }
 
     // self = hypot(dual, number, dual)
     else if constexpr (isDual<X> && isArithmetic<Y> && isDual<Z>) {
-        self.val = hypot(x.val, y, z.val);
+        self.val = hypot_device_func(x.val, y, z.val);
         self.grad = (x.grad * x.val + z.grad * z.val) / self.val;
     }
 
     // self = hypot(dual, dual, dual)
     else if constexpr (isDual<X> && isDual<Y> && isDual<Z>) {
-        self.val = hypot(x.val, y.val, z.val);
+        self.val = hypot_device_func(x.val, y.val, z.val);
         self.grad = (x.grad * x.val + y.grad * y.val + z.grad * z.val) / self.val;
     }
 
