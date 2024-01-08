@@ -21,12 +21,20 @@ endif()
 # set_target_properties(autodiff-cpptests-implicit-conversion PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF)
 
 # Add target tests that performs all C++ and Python tests
-add_custom_target(tests
-    COMMENT "Running C++ tests..."
-    COMMAND $<TARGET_FILE:autodiff-cpptests>
-    COMMAND $<TARGET_FILE:autodiff-cudatests>
-    # COMMAND $<TARGET_FILE:autodiff-cpptests-implicit-conversion>
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+if(CMAKE_CUDA_COMPILER)
+    add_custom_target(tests
+        COMMENT "Running C++ and CUDA tests..."
+        COMMAND $<TARGET_FILE:autodiff-cpptests>
+        COMMAND $<TARGET_FILE:autodiff-cudatests>
+        # COMMAND $<TARGET_FILE:autodiff-cpptests-implicit-conversion>
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+else()
+    add_custom_target(tests
+            COMMENT "Running C++ tests..."
+            COMMAND $<TARGET_FILE:autodiff-cpptests>
+            # COMMAND $<TARGET_FILE:autodiff-cpptests-implicit-conversion>
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+endif()
 
 if(AUTODIFF_TEST_SANITIZE)
     include(CheckCXXCompilerFlag)
