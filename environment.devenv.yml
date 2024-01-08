@@ -30,4 +30,5 @@ dependencies:
   - python={{ python_version }}
   - shellcheck
   - vs2019_win-64  # [win]
-  - cuda-toolkit
+  - cuda-toolkit  # [linux]
+  - cuda-toolkit  # [windows]
