@@ -31,6 +31,10 @@
 
 // C++ includes
 #include <cstddef>
+#include <tuple>
+#include <type_traits>
+
+#ifndef AUTODIFF_DEVICE_FUNC
 #ifdef EIGEN_CORE_MODULE_H
 #include <Eigen/src/Core/util/Macros.h>
 #else
@@ -38,13 +42,12 @@
 #include <Eigen/src/Core/util/Macros.h>
 #undef EIGEN_CORE_MODULE_H
 #endif
-#include <tuple>
-#include <type_traits>
+
+#define AUTODIFF_DEVICE_FUNC EIGEN_DEVICE_FUNC
+#endif
 
 namespace autodiff {
 namespace detail {
-
-#define AUTODIFF_DEVICE_FUNC EIGEN_DEVICE_FUNC
 
 template<bool value>
 using EnableIf = std::enable_if_t<value>;
