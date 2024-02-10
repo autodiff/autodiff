@@ -7,7 +7,7 @@
 //
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 //
-// Copyright © 2018–2024 Allan Leal
+// Copyright (c) 2018-2022 Allan Leal
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -46,11 +46,13 @@
 namespace autodiff {}
 
 namespace autodiff {
-namespace detail {
-
+// avoid clash with autodiff::detail in autodiff/forward/dual/dual.hpp
+namespace reverse {
 using detail::Requires;
 using detail::For;
 using detail::isArithmetic;
+namespace detail {
+
 
 using std::abs;
 using std::acos;
@@ -1524,13 +1526,15 @@ using HigherOrderVariable = typename AuxHigherOrderVariable<N, T>::type;
 
 } // namespace detail
 
-using detail::wrt;
-using detail::derivatives;
-using detail::Variable;
-using detail::val;
+} // namespace reverse
+
+using reverse::detail::wrt;
+using reverse::detail::derivatives;
+using reverse::detail::Variable;
+using reverse::detail::val;
 
 using var = Variable<double>;
 
-inline detail::BooleanExpr boolref(const bool& v) { return detail::BooleanExpr([&]() { return v; }); }
+inline reverse::detail::BooleanExpr boolref(const bool& v) { return reverse::detail::BooleanExpr([&]() { return v; }); }
 
 } // namespace autodiff
