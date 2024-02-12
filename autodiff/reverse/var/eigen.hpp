@@ -76,7 +76,7 @@ struct ScalarBinaryOpTraits<T, autodiff::Variable<T>, BinOp>
 };
 
 template<typename T>
-struct NumTraits<autodiff::detail::ExprPtr<T>> : NumTraits<T> // permits to get the epsilon, dummy_precision, lowest, highest functions
+struct NumTraits<autodiff::reverse::detail::ExprPtr<T>> : NumTraits<T> // permits to get the epsilon, dummy_precision, lowest, highest functions
 {
     typedef autodiff::Variable<T> Real;
     typedef autodiff::Variable<T> NonInteger;
@@ -94,13 +94,13 @@ struct NumTraits<autodiff::detail::ExprPtr<T>> : NumTraits<T> // permits to get 
 };
 
 template<typename T, typename BinOp>
-struct ScalarBinaryOpTraits<autodiff::detail::ExprPtr<T>, T, BinOp>
+struct ScalarBinaryOpTraits<autodiff::reverse::detail::ExprPtr<T>, T, BinOp>
 {
     typedef autodiff::Variable<T> ReturnType;
 };
 
 template<typename T, typename BinOp>
-struct ScalarBinaryOpTraits<T, autodiff::detail::ExprPtr<T>, BinOp>
+struct ScalarBinaryOpTraits<T, autodiff::reverse::detail::ExprPtr<T>, BinOp>
 {
     typedef autodiff::Variable<T> ReturnType;
 };
@@ -108,6 +108,7 @@ struct ScalarBinaryOpTraits<T, autodiff::detail::ExprPtr<T>, BinOp>
 } // namespace Eigen
 
 namespace autodiff {
+namespace reverse {
 namespace detail {
 
 template<typename T, int Rows, int MaxRows>
@@ -214,10 +215,12 @@ auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x)
 }
 
 } // namespace detail
+  //
+} // namespace reverse
 
 AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var, var)
 
-using detail::gradient;
-using detail::hessian;
+using reverse::detail::gradient;
+using reverse::detail::hessian;
 
 } // namespace autodiff
