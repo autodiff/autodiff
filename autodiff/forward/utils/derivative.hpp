@@ -123,7 +123,8 @@ AUTODIFF_DEVICE_FUNC auto seed(const At<Args...>& at, const Along<Vecs...>& alon
         if constexpr (isVector<decltype(arg)>) {
             static_assert(isVector<decltype(dir)>);
             assert(arg.size() == dir.size());
-            for(auto i = 0; i < dir.size(); ++i)
+            size_t len = dir.size();
+            for(decltype(len) i = 0; i < len; ++i)
                 seed<1>(arg[i], dir[i]);
         }
         else seed<1>(arg, dir);
@@ -135,7 +136,8 @@ AUTODIFF_DEVICE_FUNC auto unseed(const At<Args...>& at)
 {
     ForEach(at.args, [&](auto& arg) constexpr {
         if constexpr (isVector<decltype(arg)>) {
-            for(auto i = 0; i < arg.size(); ++i)
+            size_t len = arg.size();
+            for(decltype(len) i = 0; i < len; ++i)
                 seed<1>(arg[i], 0.0);
         }
         else seed<1>(arg, 0.0);
@@ -205,7 +207,7 @@ AUTODIFF_DEVICE_FUNC auto derivative(const Vec& u)
     using T = NumericType<NumType>; // get the numeric/floating point type of the dual/real number
     using Res = VectorReplaceValueType<Vec, T>; // get the type of the vector containing numeric values instead of dual/real numbers (e.g., vector<real> becomes vector<double>, VectorXdual becomes VectorXd, etc.)
     Res res(len); // create an array to store the derivatives stored inside the dual/real number
-    for(auto i = 0; i < len; ++i)
+    for(decltype(len) i = 0; i < len; ++i)
         res[i] = derivative<order>(u[i]); // get the derivative of given order from i-th dual/real number
     return res;
 }
@@ -232,7 +234,7 @@ AUTODIFF_DEVICE_FUNC auto derivatives(const Result& result)
         std::array<Vec, N + 1> values; // create an array to store the derivatives stored inside the dual/real number
         For<N + 1>([&](auto i) constexpr {
             values[i].resize(len);
-            for(auto j = 0; j < len; ++j)
+            for(decltype(len) j = 0; j < len; ++j)
                 values[i][j] = derivative<i>(result[j]); // get the ith derivative of the jth dual/real number
         });
         return values;

@@ -123,8 +123,8 @@ using namespace autodiff;
     type u; \
     VectorXd grad; \
     hessian(g, wrt(x), at(x), u, grad, map_5x5); \
-    for(size_t i = 0; i < gxx.rows(); ++i) \
-        for(size_t j = 0; j < gxx.cols(); ++j) \
+    for(Eigen::Index i = 0; i < gxx.rows(); ++i) \
+      for(Eigen::Index j = 0; j < gxx.cols(); ++j) \
             CHECK( gxx(i, j) == approx(map_5x5(i, j)) ); \
     /* Compute gww where w = (x1, x2, x3, x4, x0) */ \
     gww = hessian(g, wrt(x.tail(4), x[0]), at(x)); \

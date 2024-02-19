@@ -912,7 +912,7 @@ auto repr(const Real<N, T>& x)
 {
     std::stringstream ss;
     ss << "autodiff.real(";
-    for(auto i = 0; i <= N; ++i)
+    for(decltype(N) i = 0; i <= N; ++i)
         ss << (i == 0 ? "" : ", ") << x[i];
     ss << ")";
     return ss.str();
