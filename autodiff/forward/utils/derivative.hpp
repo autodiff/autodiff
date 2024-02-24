@@ -232,7 +232,7 @@ AUTODIFF_DEVICE_FUNC auto derivatives(const Result& result)
         std::array<Vec, N + 1> values; // create an array to store the derivatives stored inside the dual/real number
         For<N + 1>([&](auto i) constexpr {
             values[i].resize(len);
-            for(auto j = 0; j < len; ++j)
+            for(auto j = 0U; j < len; ++j)
                 values[i][j] = derivative<i>(result[j]); // get the ith derivative of the jth dual/real number
         });
         return values;
