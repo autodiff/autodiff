@@ -43,7 +43,12 @@
 #undef EIGEN_CORE_MODULE_H
 #endif
 
+#ifdef EIGEN_DEVICE_FUNC
 #define AUTODIFF_DEVICE_FUNC EIGEN_DEVICE_FUNC
+#else
+#define AUTODIFF_DEVICE_FUNC
+#endif
+
 #endif
 
 namespace autodiff {
