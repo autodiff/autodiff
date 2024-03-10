@@ -44,11 +44,16 @@ jobs:
     - name: Build
       shell: bash -l {0}
       run: |
-        bazel build //examples/forward:all
-        bazel build //examples/reverse:all
+        bazel build --cxxopt='-std=c++17' //examples/forward:all
+        bazel build --cxxopt='-std=c++17' //examples/reverse:all
+        bazel build --enable_bzlmod --cxxopt='-std=c++17' //examples/forward:all
+        bazel build --enable_bzlmod --cxxopt='-std=c++17' //examples/reverse:all
 
     - name: Test
       shell: bash -l {0}
       run: |
-        bazel test //examples/forward:all --test_output=all
-        bazel test //examples/reverse:all --test_output=all
+            run: |
+        bazel test --cxxopt='-std=c++17' //examples/forward:all --test_output=all
+        bazel test --cxxopt='-std=c++17' //examples/reverse:all --test_output=all
+        bazel test --enable_bzlmod --cxxopt='-std=c++17' //examples/forward:all --test_output=all
+        bazel test --enable_bzlmod --cxxopt='-std=c++17' //examples/reverse:all --test_output=all

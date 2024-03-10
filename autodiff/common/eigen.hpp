@@ -33,7 +33,7 @@
 #include <Eigen/Core>
 
 // autodiff includes
-#include <autodiff/common/vectortraits.hpp>
+#include "autodiff/common/vectortraits.hpp"
 
 //=====================================================================================================================
 //

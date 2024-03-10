@@ -4,7 +4,7 @@
 using namespace std;
 
 // autodiff include
-#include <autodiff/forward/dual.hpp>
+#include "autodiff/forward/dual.hpp"
 using namespace autodiff;
 
 // Specialize isArithmetic for complex to make it compatible with dual

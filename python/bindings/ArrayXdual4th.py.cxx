@@ -31,8 +31,8 @@
 #include "pybind11.hxx"
 
 // autodiff includes
-#include <autodiff/forward/dual/dual.hpp>
-#include <autodiff/forward/dual/eigen.hpp>
+#include "autodiff/forward/dual/dual.hpp"
+#include "autodiff/forward/dual/eigen.hpp"
 #include "eigen.hxx"
 using namespace autodiff;
 

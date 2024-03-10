@@ -1,1 +1,32 @@
-build --cxxopt='-std=c++17'
+# GCC 9.3
+build:gcc9 --cxxopt=-std=c++2a
+build:gcc9 --cxxopt=-Wall
+build:gcc9 --define compiler=gcc9
+
+# GCC 11.3
+#build:gcc11 --cxxopt=-std=c++23 # blocked by emsdk
+build:gcc11 --cxxopt=-std=c++20
+build:gcc11 --cxxopt=-Wall
+build:gcc11 --define compiler=gcc11
+build:gcc11 --cxxopt=-fpermissive # Needed for fmt
+
+# Visual Studio 2019
+build:vs2019 --cxxopt=/std:c++20
+build:vs2019 --cxxopt=/Zc:__cplusplus
+build:vs2019 --enable_runfiles # https://github.com/bazelbuild/bazel/issues/8843
+build:vs2019 --copt=-DWIN32_LEAN_AND_MEAN
+build:vs2019 --host_copt=-DWIN32_LEAN_AND_MEAN
+build:vs2019 --define compiler=vs2019
+
+# Visual Studio 2022
+build:vs2022 --cxxopt=/std:c++20
+build:vs2022 --cxxopt=/Zc:__cplusplus
+build:vs2022 --enable_runfiles # https://github.com/bazelbuild/bazel/issues/8843
+build:vs2022 --copt=-DWIN32_LEAN_AND_MEAN
+build:vs2022 --host_copt=-DWIN32_LEAN_AND_MEAN
+build:vs2022 --define compiler=vs2022
+
+# macOS (e.g. Clang 14.0.0)
+build:macos --cxxopt=-std=c++2b # see https://clang.llvm.org/cxx_status.html
+build:macos --cxxopt=-Wall
+build:macos --define compiler=macos
