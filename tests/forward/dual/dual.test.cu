@@ -311,6 +311,13 @@ void ternary(const FromA & fromA, const FromB & fromB, const FromC & fromC, To &
     CHECK(dfdyyy[3] == approx(val(uyyy)));                                                      \
 }
 
+// Ensure Dual can be used with CUDA variable memory space specifiers (must be
+// default-constructible at compile time).
+__device__ dual x_device;
+__shared__ dual x_shared;
+__constant__ dual x_const;
+__managed__ dual x_managed;
+
 TEST_CASE("testing autodiff::dual", "[forward][dual][cuda]")
 {
     dual x;
