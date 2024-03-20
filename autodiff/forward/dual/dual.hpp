@@ -512,7 +512,7 @@ struct Dual
 
     G grad = {};
 
-    AUTODIFF_DEVICE_FUNC Dual()
+    AUTODIFF_DEVICE_FUNC constexpr Dual()
     {}
 
     template<typename U, Requires<isExpr<U> || isArithmetic<U>> = true>

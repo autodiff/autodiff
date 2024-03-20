@@ -168,6 +168,13 @@ void ternary(const FromA& fromA, const FromB& fromB, const FromC& fromC, To& to,
     CHECK_APPROX(dfdv[4], u[4]);                                                                     \
 }
 
+// Ensure Real can be used with CUDA variable memory space specifiers (must be
+// default-constructible at compile time).
+__device__ real4th x_device;
+__shared__ real4th x_shared;
+__constant__ real4th x_const;
+__managed__ real4th x_managed;
+
 // Auxiliary constants
 #define ln10 (2.302585092994046)
 #define pi (3.14159265359)
