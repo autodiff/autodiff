@@ -35,20 +35,12 @@
 #include <type_traits>
 
 #ifndef AUTODIFF_DEVICE_FUNC
-#ifdef EIGEN_CORE_MODULE_H
-#include <Eigen/src/Core/util/Macros.h>
+#ifdef AUTODIFF_EIGEN_FOUND
+    #include <Eigen/src/Core/util/Macros.h>
+    #define AUTODIFF_DEVICE_FUNC EIGEN_DEVICE_FUNC
 #else
-#define EIGEN_CORE_MODULE_H
-#include <Eigen/src/Core/util/Macros.h>
-#undef EIGEN_CORE_MODULE_H
+    #define AUTODIFF_DEVICE_FUNC
 #endif
-
-#ifdef EIGEN_DEVICE_FUNC
-#define AUTODIFF_DEVICE_FUNC EIGEN_DEVICE_FUNC
-#else
-#define AUTODIFF_DEVICE_FUNC
-#endif
-
 #endif
 
 namespace autodiff {
