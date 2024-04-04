@@ -28,6 +28,14 @@ option(AUTODIFF_BUILD_DOCS "Enable the build of the documentation and website." 
 # Find eigen library
 find_package(Eigen3 REQUIRED)
 
+# Check if Eigen has been found
+if(Eigen3_FOUND)
+    message(STATUS "Eigen library has been found.")
+    add_definitions(-DAUTODIFF_EIGEN_FOUND)
+else()
+    message(STATUS "Eigen was not found.")
+endif()
+
 # autodiff requires a c++17 enabled compiler
 set(CMAKE_CXX_STANDARD 17)          # ensure cmake instructs compiler to use C++17
 set(CMAKE_CXX_STANDARD_REQUIRED ON) # ensure the C++ standard given before is actually used
@@ -54,7 +62,6 @@ endif()
 
 # Build the python wrappers
 if(AUTODIFF_BUILD_PYTHON)
-    set(PYBIND11_CPP_STANDARD -std=c++17)  # Ensure pybind11 uses C++17 standard
     find_package(Python COMPONENTS Interpreter Development)
     find_package(pybind11 REQUIRED)
     add_subdirectory(python)
