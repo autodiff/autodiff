@@ -52,6 +52,12 @@ void exportVectorXreal2nd(py::module& m);
 void exportVectorXreal3rd(py::module& m);
 void exportVectorXreal4th(py::module& m);
 
+void exportMatrixXreal0th(py::module& m);
+void exportMatrixXreal1st(py::module& m);
+void exportMatrixXreal2nd(py::module& m);
+void exportMatrixXreal3rd(py::module& m);
+void exportMatrixXreal4th(py::module& m);
+
 void exportArrayXdual0th(py::module& m);
 void exportArrayXdual1st(py::module& m);
 void exportArrayXdual2nd(py::module& m);
@@ -95,6 +101,14 @@ PYBIND11_MODULE(autodiff4py, m)
     exportVectorXreal4th(m);
 
     m.attr("VectorXreal") = m.attr("VectorXreal1st");
+
+    exportMatrixXreal0th(m);
+    exportMatrixXreal1st(m);
+    exportMatrixXreal2nd(m);
+    exportMatrixXreal3rd(m);
+    exportMatrixXreal4th(m);
+
+    m.attr("MatrixXreal") = m.attr("MatrixXreal1st");
 
     exportArrayXdual0th(m);
     exportArrayXdual1st(m);
