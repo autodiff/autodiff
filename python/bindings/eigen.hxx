@@ -171,18 +171,22 @@ void exportMatrix(py::module& m, const char* typestr)
     cls.def("rows", [](const Mat& s) { return s.rows(); });
     cls.def("cols", [](const Mat& s) { return s.cols(); });
 
-    cls.def("__getitem__", [](const Mat& s, size_t i, size_t j) {
+    cls.def("__getitem__", [](const Mat& s, py::tuple pos) {
         const size_t rows = s.rows();
         const size_t cols = s.cols();
+        const size_t i = pos[0].cast<size_t>();
+        const size_t j = pos[1].cast<size_t>();
         if(i >= rows) throw py::index_error();
         if(j >= cols) throw py::index_error();
         return s(i, j);
     });
 
     if constexpr (!isconst) {
-        cls.def("__setitem__", [](Mat& s, size_t i, size_t j, const T& val) {
+        cls.def("__setitem__", [](Mat& s, py::tuple pos, const T& val) {
             const size_t rows = s.rows();
             const size_t cols = s.cols();
+            const size_t i = pos[0].cast<size_t>();
+            const size_t j = pos[1].cast<size_t>();
             if(i >= rows) throw py::index_error();
             if(j >= cols) throw py::index_error();
             s(i, j) = val;
@@ -203,12 +207,14 @@ void exportMatrix(py::module& m, const char* typestr)
 
     cls.def("__repr__", [=](const Mat& s) {
         std::stringstream stream;
-        stream << "autodiff." << typestr << "([";
-        for(auto i = 0; i < s.rows(); ++i)
+        stream << "autodiff." << typestr << "([\n";
+        for(auto i = 0; i < s.rows(); ++i) {
+            stream << (i == 0 ? "" : "\n");
             for(auto j = 0; j < s.cols(); ++j)
-                stream << (j == 0 ? "[" : ", ") << s(i, j);
+                stream << (j == 0 ? "  [" : ", ") << s(i, j);
             stream << "],";
-        stream << "])";
+        }
+        stream << "\n])";
         return stream.str();
     });
 
