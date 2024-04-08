@@ -8,7 +8,7 @@ setup(
     author_email='allan.leal@erdw.ethz.ch',
     url='autodiff.github.io',
     license='MIT',
-    packages=['autodiff', 'autodiff._extensions'],
+    packages=['autodiff', 'autodiff.extensions'],
     package_data={
         'autodiff': [
             'autodiff4py${PYTHON_MODULE_EXTENSION}',
