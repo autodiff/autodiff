@@ -8,7 +8,7 @@ channels:
 
 dependencies:
   - catch2>=3
-  - ccache  # [unix]
+  - ccache
   - clangxx_osx-64  # [osx]
   - cmake
   - doxygen=1.9.1  # [linux]
