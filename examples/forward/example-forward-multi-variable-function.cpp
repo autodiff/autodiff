@@ -2,7 +2,7 @@
 #include <iostream>
 
 // autodiff include
-#include <autodiff/forward/dual.hpp>
+#include "autodiff/forward/dual.hpp"
 using namespace autodiff;
 
 // The multi-variable function for which derivatives are needed

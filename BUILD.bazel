@@ -1,0 +1,8 @@
+cc_library(
+    name = "autodiff",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//autodiff:forward",
+        "//autodiff:reverse",
+    ],
+)

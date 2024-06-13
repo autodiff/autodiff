@@ -30,7 +30,7 @@
 #pragma once
 
 // autodiff includes
-#include <autodiff/common/meta.hpp>
+#include "autodiff/common/meta.hpp"
 
 namespace autodiff {
 namespace detail {

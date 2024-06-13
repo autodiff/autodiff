@@ -2,7 +2,7 @@
 #include <iostream>
 
 // autodiff include
-#include <autodiff/forward/dual.hpp>
+#include "autodiff/forward/dual.hpp"
 using namespace autodiff;
 
 // Define functions A, Ax, Ay using double; analytical derivatives are available.

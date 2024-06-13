@@ -2,7 +2,7 @@
 #include <iostream>
 
 // autodiff include
-#include <autodiff/forward/dual.hpp>
+#include "autodiff/forward/dual.hpp"
 using namespace autodiff;
 
 // A type defining parameters for a function of interest

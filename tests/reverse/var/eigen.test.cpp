@@ -32,8 +32,8 @@
 #include <catch2/catch_test_macros.hpp>
 
 // autodiff includes
-#include <autodiff/reverse/var.hpp>
-#include <autodiff/reverse/var/eigen.hpp>
+#include "autodiff/reverse/var.hpp"
+#include "autodiff/reverse/var/eigen.hpp"
 
 using autodiff::gradient;
 using autodiff::hessian;

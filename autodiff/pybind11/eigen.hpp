@@ -33,10 +33,10 @@
 #include "pybind11.hxx"
 
 // autodiff includes
-#include <autodiff/forward/dual.hpp>
-#include <autodiff/forward/dual/eigen.hpp>
-#include <autodiff/forward/real.hpp>
-#include <autodiff/forward/real/eigen.hpp>
+#include "autodiff/forward/dual.hpp"
+#include "autodiff/forward/dual/eigen.hpp"
+#include "autodiff/forward/real.hpp"
+#include "autodiff/forward/real/eigen.hpp"
 
 #define PYBIND11_MAKE_OPAQUE_EIGEN_TYPES(scalar) \
     PYBIND11_MAKE_OPAQUE(autodiff::VectorX##scalar##0th); \

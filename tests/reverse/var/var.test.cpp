@@ -32,7 +32,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 // autodiff includes
-#include <autodiff/reverse/var.hpp>
+#include "autodiff/reverse/var.hpp"
 
 using autodiff::derivatives;
 using autodiff::val;

@@ -33,9 +33,9 @@
 #include <Eigen/Core>
 
 // autodiff includes
-#include <autodiff/common/eigen.hpp>
-#include <autodiff/common/meta.hpp>
-#include <autodiff/reverse/var/var.hpp>
+#include "autodiff/common/eigen.hpp"
+#include "autodiff/common/meta.hpp"
+#include "autodiff/reverse/var/var.hpp"
 
 //------------------------------------------------------------------------------
 // SUPPORT FOR EIGEN MATRICES AND VECTORS OF VAR

@@ -3,7 +3,7 @@
 using namespace std;
 
 // autodiff include
-#include <autodiff/reverse/var.hpp>
+#include "autodiff/reverse/var.hpp"
 using namespace autodiff;
 
 // A type defining parameters for a function of interest

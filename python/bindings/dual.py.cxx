@@ -34,8 +34,8 @@
 #include <sstream>
 
 // autodiff includes
-#include <autodiff/common/meta.hpp>
-#include <autodiff/forward/dual/dual.hpp>
+#include "autodiff/common/meta.hpp"
+#include "autodiff/forward/dual/dual.hpp"
 using namespace autodiff;
 using autodiff::detail::isSame;
 
