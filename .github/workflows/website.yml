@@ -13,21 +13,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
 
-      - name: Conda Environment
-        shell: bash -l {0}
+
+      - name: Configuring Conda Environment
+        shell: bash -el {0}
         run: |
-          conda config --set always_yes yes --set changeps1 no
-          conda config --add channels conda-forge
-          conda install conda-devenv
-          conda devenv
+          mamba install conda-devenv
+          conda devenv -e mamba
+
       - name: Build Website
         shell: bash -l {0}
         run: |

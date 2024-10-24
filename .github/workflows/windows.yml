@@ -13,7 +13,7 @@ on:
 jobs:
   build:
 
-    # runs-on: windows-latest  # Getting "fatal error C1001: Internal compiler error." for some examples in windows with MSVC 2022 
+    # runs-on: windows-latest  # Getting "fatal error C1001: Internal compiler error." for some examples in windows with MSVC 2022
     runs-on: windows-2019
 
     env:
@@ -24,11 +24,11 @@ jobs:
       max-parallel: 4
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
           auto-activate-base: true
@@ -42,7 +42,7 @@ jobs:
           conda devenv
       - name: Cache
         id: cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: $HOME\clcache
           key: ${{ runner.os }}-clcache

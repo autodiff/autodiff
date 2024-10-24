@@ -10,56 +10,71 @@ on:
   schedule:
     - cron: "0 5 * * 1"  # runs at 05:00 UTC on Mondays
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
-    env:
-      os: Linux-x86_64
-      configuration: Release
-
+    name: ${{ matrix.config }} build on ${{ matrix.os }} (Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       max-parallel: 4
+      matrix:
+        os: ["ubuntu-latest"]
+        python-version: [3.11]
+        config: ["Release"]
 
     steps:
-      - uses: actions/checkout@v1
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-      - name: Configure
-        shell: bash -l {0}
+      - uses: actions/checkout@v3
+
+      - name: Timestamp  # Idea from https://tinyurl.com/47wz7vpv
+        id: timestamp
+        shell: cmake -P {0}
         run: |
-          conda config --set always_yes yes --set changeps1 no
-          conda config --add channels conda-forge
-          conda install conda-devenv
-          conda devenv
-          source activate autodiff
-          cmake -S . -B .build -DCMAKE_BUILD_TYPE=${{ env.configuration }} -DAUTODIFF_TEST_SANITIZE=ON
-      - name: Cache
+          string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+          message("::set-output name=now::${current_date}")
+
+      - name: Configuring Cache
         id: cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: ~/.ccache
-          key: ${{ runner.os }}-ccache-${{ hashFiles('hashFile.txt') }}  # https://github.community/t/caching-for-c-builds/124529/2
-          restore-keys: ${{ runner.os }}-ccache-
-      - name: Build
-        shell: bash -l {0}
+          path: $HOME/.ccache
+          key: ${{ runner.os }}-ccache
+
+      - name: Configuring Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          miniforge-version: latest
+
+      - name: Checking Miniconda Environment
+        shell: bash -el {0}
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+          printenv | sort
+
+      - name: Configuring Conda Environment
+        shell: bash -el {0}
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+        run: |
+          mamba install conda-devenv
+          conda devenv -e mamba
+
+      - name: Building, Testing & Installing
+        shell: bash -el {0}
         run: |
           source activate autodiff
           ccache -s
           ccache -z
-          cmake --build .build --parallel 3
+          mkdir -p .build && cd .build
+          cmake -GNinja .. -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DAUTODIFF_TEST_SANITIZE=ON
+          ninja
+          ninja tests
+          ninja install
           ccache -s
-      - name: Install
-        shell: bash -l {0}
-        run: |
-          source activate autodiff
-          cmake --build .build --target install
-      - name: Tests
-        shell: bash -l {0}
-        run: |
-          source activate autodiff
-          cmake -S . -B .build -DCMAKE_BUILD_TYPE=Debug
-          cmake --build .build --target tests --parallel 3
