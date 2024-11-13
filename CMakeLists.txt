@@ -26,7 +26,7 @@ option(AUTODIFF_BUILD_EXAMPLES "Enable the compilation of the example files." ON
 option(AUTODIFF_BUILD_DOCS "Enable the build of the documentation and website." ON)
 
 # Find eigen library
-find_package(Eigen3 REQUIRED)
+find_package(Eigen3 QUIET)
 
 # Check if Eigen has been found
 if(Eigen3_FOUND)
