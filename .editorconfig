@@ -1,0 +1,5 @@
+root = true
+
+[*.{cpp,hpp}]
+indent_size = 4
+indent_style = space
