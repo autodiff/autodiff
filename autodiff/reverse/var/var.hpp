@@ -1030,7 +1030,7 @@ struct BooleanExpr
 
     void update() { val = expr(); }
 
-    auto operator! () const { return BooleanExpr([=]() { return !(expr()); }); }
+    auto operator! () const { return BooleanExpr([=, this]() { return !(expr()); }); }
 };
 
 /// Capture numeric comparison between two expression trees
