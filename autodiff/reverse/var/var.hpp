@@ -28,7 +28,7 @@
 // SOFTWARE.
 
 #pragma once
-
+// clang-format off
 // C++ includes
 #include <array>
 #include <cassert>
@@ -1189,6 +1189,9 @@ struct Variable
 {
     /// The pointer to the expression tree of variable operations
     ExprPtr<T> expr;
+    
+    /// The Arithmic type of Variable;
+    using ArithmeticType = T;
 
     /// Construct a default Variable object
     Variable() : Variable(0.0) {}

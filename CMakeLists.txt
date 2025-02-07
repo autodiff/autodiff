@@ -20,10 +20,10 @@ include(GNUInstallDirs)
 include(CondaAware)
 
 # Define build options
-option(AUTODIFF_BUILD_TESTS "Enable the compilation of the test files." ON)
-option(AUTODIFF_BUILD_PYTHON "Enable the compilation of the python bindings." ON)
+option(AUTODIFF_BUILD_TESTS "Enable the compilation of the test files." OFF)
+option(AUTODIFF_BUILD_PYTHON "Enable the compilation of the python bindings." OFF)
 option(AUTODIFF_BUILD_EXAMPLES "Enable the compilation of the example files." ON)
-option(AUTODIFF_BUILD_DOCS "Enable the build of the documentation and website." ON)
+option(AUTODIFF_BUILD_DOCS "Enable the build of the documentation and website." OFF)
 
 # Find eigen library
 find_package(Eigen3 QUIET)

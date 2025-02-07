@@ -147,6 +147,49 @@ auto gradient(const Variable<T>& y, Eigen::DenseBase<X>& x)
     return g;
 }
 
+/// Return the Jacbian matrix of variable vector y with respect to variables x.
+template<typename Y, typename X>
+auto jacbian(const Eigen::DenseBase<Y>& y, Eigen::DenseBase<X>& x)
+{
+
+    using ScalarX = typename X::Scalar;
+    static_assert(isVariable<ScalarX>, "Argument x is not a vector with Variable<T> objects..");
+
+    using ScalarY = typename Y::Scalar;
+    static_assert(std::is_same_v<ScalarY, ScalarX>,
+                  "Argument y is not a vector with Variable<T> objects..");
+
+    constexpr auto isVecX = X::IsVectorAtCompileTime;
+    static_assert(isVecX, "Argument x is not a vector. ");
+
+    constexpr auto isVecY = Y::IsVectorAtCompileTime;
+    static_assert(isVecY, "Argument y is not a vector. ");
+
+    using U = typename ScalarY::ArithmeticType;
+
+    constexpr auto RowsX = X::RowsAtCompileTime;
+    constexpr auto MaxRowsX = X::MaxRowsAtCompileTime;
+
+    constexpr auto RowsY = Y::RowsAtCompileTime;
+    constexpr auto MaxRowsY = Y::MaxRowsAtCompileTime;
+
+    const auto n_row = y.size();
+    const auto n_col = x.size();
+
+    using Jacbian = Mat<U, RowsY, RowsX, MaxRowsY, MaxRowsX>;
+    Jacbian J = Jacbian::Zero(n_row, n_col);
+
+    using Gradient = Vec<U, RowsX, MaxRowsX>;
+    Gradient g = Gradient::Zero(n_col);
+
+    for(auto i = 0; i < n_row; ++i) {
+        g = gradient(y[i], x);
+        J.row(i) = g.transpose();
+    }
+
+    return J;
+}
+
 /// Return the Hessian matrix of variable y with respect to variables x.
 template<typename T, typename X, typename GradientVec>
 auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, GradientVec& g)
@@ -177,7 +220,7 @@ auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, GradientVec& g)
     y.expr->propagatex(constant<T>(1.0));
 
     for(auto k = 0; k < n; ++k) {
-      x[k].expr->bind_expr(nullptr);
+        x[k].expr->bind_expr(nullptr);
     }
 
     // Read the gradient value from gradient expressions' cached values
@@ -188,8 +231,7 @@ auto hessian(const Variable<T>& y, Eigen::DenseBase<X>& x, GradientVec& g)
     // Form a numeric hessian using the gradient expressions
     using Hessian = Mat<U, Rows, Rows, MaxRows, MaxRows>;
     Hessian H = Hessian::Zero(n, n);
-    for(auto i = 0; i < n; ++i)
-    {
+    for(auto i = 0; i < n; ++i) {
         for(auto k = 0; k < n; ++k)
             x[k].expr->bind_value(&H(i, k));
 
@@ -222,5 +264,6 @@ AUTODIFF_DEFINE_EIGEN_TYPEDEFS_ALL_SIZES(autodiff::var, var)
 
 using reverse::detail::gradient;
 using reverse::detail::hessian;
+using reverse::detail::jacbian;
 
 } // namespace autodiff
