@@ -65,6 +65,7 @@ using std::sin;
 using std::sqrt;
 using std::tan;
 using std::cosh;
+using std::acosh;
 using std::sinh;
 using std::tanh;
 using std::erf;
@@ -99,6 +100,7 @@ struct ArcSinOp  {};  // ARC SINE OPERATOR
 struct ArcCosOp  {};  // ARC COSINE OPERATOR
 struct ArcTanOp  {};  // ARC TANGENT OPERATOR
 struct ArcTan2Op {};  // 2-ARGUMENT ARC TANGENT OPERATOR
+struct ArcCoshOp  {};  // ARC COSINE OPERATOR
 struct ExpOp     {};  // EXPONENTIAL OPERATOR
 struct LogOp     {};  // NATURAL LOGARITHM OPERATOR
 struct Log10Op   {};  // BASE-10 LOGARITHM OPERATOR
@@ -162,6 +164,9 @@ using SinhExpr = UnaryExpr<SinhOp, R>;
 
 template<typename R>
 using CoshExpr = UnaryExpr<CoshOp, R>;
+
+template<typename R>
+using ArcCoshExpr = UnaryExpr<ArcCoshOp, R>;
 
 template<typename R>
 using TanhExpr = UnaryExpr<TanhOp, R>;
@@ -882,6 +887,7 @@ AUTODIFF_DEVICE_FUNC constexpr auto hypot(L&& l, C&& c, R&& r) -> Hypot3Expr<L, 
 template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto sinh(R&& r) -> SinhExpr<R> { return { r }; }
 template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto cosh(R&& r) -> CoshExpr<R> { return { r }; }
 template<typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto tanh(R&& r) -> TanhExpr<R> { return { r }; }
+template <typename R, Requires<isExpr<R>> = true> AUTODIFF_DEVICE_FUNC constexpr auto acosh(R &&r) -> ArcCoshExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -1674,6 +1680,14 @@ AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, ArcTanOp)
 {
     const T aux = One<T>() / (1.0 + self.val * self.val);
     self.val = atan(self.val);
+    self.grad *= aux;
+}
+
+template <typename T, typename G>
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G> &self, ArcCoshOp)
+{
+    const T aux = One<T>() / sqrt(self.val * self.val - One<T>());
+    self.val = acosh(self.val);
     self.grad *= aux;
 }
 
