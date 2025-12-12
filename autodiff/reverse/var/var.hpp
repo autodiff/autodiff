@@ -832,8 +832,8 @@ struct PowConstantLeftExpr : BinaryExpr<T>
 
     void propagatex(const ExprPtr<T>& wprime) override
     {
-        const auto aux = wprime * pow(l, r - 1);
-        const auto auxr = l == 0.0 ? 0.0*l : l * log(l); // since x*log(x) -> 0 as x -> 0
+        const auto aux = wprime * pow(l->val, r - 1);
+        const auto auxr = l->val == 0.0 ? 0.0*l->val : l->val * log(l->val); // since x*log(x) -> 0 as x -> 0
         r->propagatex(aux * auxr);
     }
 
@@ -856,12 +856,14 @@ struct PowConstantRightExpr : BinaryExpr<T>
 
     void propagate(const T& wprime) override
     {
-        l->propagate(wprime * pow(l->val, r->val - 1) * r->val); // pow(l, r)'l = r * pow(l, r - 1) * l'
+        if(r->val != 0.0)
+            l->propagate(wprime * pow(l->val, r->val - 1) * r->val); // pow(l, r)'l = r * pow(l, r - 1) * l'
     }
 
     void propagatex(const ExprPtr<T>& wprime) override
     {
-        l->propagatex(wprime * pow(l, r - 1) * r);
+        if(r->val != 0.0)
+            l->propagatex(wprime * pow(l, r->val - 1) * r->val);
     }
 
     void update() override
