@@ -99,7 +99,27 @@ struct VectorTraits<Eigen::VectorBlock<VectorType, Size>>
     using ReplaceValueType = VectorReplaceValueType<VectorType, NewValueType>;
 };
 
-#if EIGEN_VERSION_AT_LEAST(3, 3, 90)
+#if EIGEN_VERSION_AT_LEAST(5, 0, 0)
+
+    template<typename VectorType, typename IndicesType, Eigen::Index V>
+    struct VectorTraits<Eigen::IndexedView<VectorType, IndicesType, Eigen::internal::SingleRange<V>>>
+    {
+        using ValueType = typename PlainType<VectorType>::Scalar;
+
+        template<typename NewValueType>
+        using ReplaceValueType = VectorReplaceValueType<VectorType, NewValueType>;
+    };
+
+    template<typename VectorType, typename IndicesType, Eigen::Index V>
+    struct VectorTraits<Eigen::IndexedView<VectorType, Eigen::internal::SingleRange<V>, IndicesType>>
+    {
+        using ValueType = typename PlainType<VectorType>::Scalar;
+
+        template<typename NewValueType>
+        using ReplaceValueType = VectorReplaceValueType<VectorType, NewValueType>;
+    };
+
+#elif EIGEN_VERSION_AT_LEAST(3, 3, 90)
 
     template<typename VectorType, typename IndicesType>
     struct VectorTraits<Eigen::IndexedView<VectorType, IndicesType, Eigen::internal::SingleRange>>
