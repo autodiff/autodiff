@@ -99,7 +99,33 @@ struct VectorTraits<Eigen::VectorBlock<VectorType, Size>>
     using ReplaceValueType = VectorReplaceValueType<VectorType, NewValueType>;
 };
 
-#if EIGEN_VERSION_AT_LEAST(3, 3, 90)
+// Eigen 5.0 made internal::SingleRange a template (parameterised on the
+// compile-time index value); before that it was a plain class. Note also that
+// EIGEN_VERSION_AT_LEAST changed meaning in 5.0 -- it compares
+// (MAJOR, MINOR, PATCH) there and (WORLD, MAJOR, MINOR) before -- so
+// EIGEN_VERSION_AT_LEAST(3, 3, 90) is still true under Eigen 5 (5 > 3) and
+// cannot be used to tell the two apart. EIGEN_MAJOR_VERSION can.
+#if EIGEN_MAJOR_VERSION >= 5
+
+    template<typename VectorType, typename IndicesType, Eigen::Index ValueAtCompileTime>
+    struct VectorTraits<Eigen::IndexedView<VectorType, IndicesType, Eigen::internal::SingleRange<ValueAtCompileTime>>>
+    {
+        using ValueType = typename PlainType<VectorType>::Scalar;
+
+        template<typename NewValueType>
+        using ReplaceValueType = VectorReplaceValueType<VectorType, NewValueType>;
+    };
+
+    template<typename VectorType, typename IndicesType, Eigen::Index ValueAtCompileTime>
+    struct VectorTraits<Eigen::IndexedView<VectorType, Eigen::internal::SingleRange<ValueAtCompileTime>, IndicesType>>
+    {
+        using ValueType = typename PlainType<VectorType>::Scalar;
+
+        template<typename NewValueType>
+        using ReplaceValueType = VectorReplaceValueType<VectorType, NewValueType>;
+    };
+
+#elif EIGEN_VERSION_AT_LEAST(3, 3, 90)
 
     template<typename VectorType, typename IndicesType>
     struct VectorTraits<Eigen::IndexedView<VectorType, IndicesType, Eigen::internal::SingleRange>>
